@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.obm.push.impl.ASParams;
 import org.obm.push.impl.Base64;
 import org.obm.push.impl.FileUtils;
+import org.obm.push.wbxml.WBXMLTools;
 
 public class ActiveSyncServlet extends HttpServlet {
 
@@ -98,6 +99,12 @@ public class ActiveSyncServlet extends HttpServlet {
 				InputStream in = request.getInputStream();
 				byte[] input = FileUtils.streamBytes(in, true);
 				logger.info("input:\n" + new String(input));
+				try {
+					WBXMLTools.toXml(input);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
 			}
 
 			response.setHeader("MS-Server-ActiveSync", "6.5.7638.1");
@@ -105,7 +112,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			if (rh != null) {
 				rh.process(request, response);
 			} else {
-				logger.warn("no handler for command "+p.getCommand());
+				logger.warn("no handler for command " + p.getCommand());
 			}
 		}
 	}

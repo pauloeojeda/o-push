@@ -39,6 +39,7 @@
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.mortbay.jetty"/>
       <plugin id="org.obm.push"/>
+      <plugin id="org.obm.push.wbxml"/>
    </plugins>
 
 </product>
