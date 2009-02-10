@@ -1,13 +1,17 @@
 package org.obm.push.wbxml;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import de.trantor.wap.WbxmlEncoder;
 import de.trantor.wap.WbxmlParser;
 
 /**
@@ -53,6 +57,22 @@ public class WBXMLTools {
 			throw new IOException(e.getMessage());
 		}
 
+	}
+
+	public static byte[] toWbxml(Document doc) throws IOException {
+		WbxmlEncoder encoder = new WbxmlEncoder();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		try {
+			DOMUtils.serialise(doc, out);
+			InputSource is = new InputSource(new ByteArrayInputStream(out.toByteArray()));
+			out = new ByteArrayOutputStream();
+			encoder.convert(is, out);
+			byte[] ret = out.toByteArray();
+			logger.info("return wbxml document with "+ret.length+" bytes.");
+			return ret;
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
 	}
 
 }

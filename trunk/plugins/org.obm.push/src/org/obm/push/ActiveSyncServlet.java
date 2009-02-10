@@ -19,6 +19,7 @@ import org.obm.push.backend.IBackendFactory;
 import org.obm.push.impl.ASParams;
 import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.IRequestHandler;
+import org.obm.push.impl.Responder;
 import org.obm.push.utils.Base64;
 import org.obm.push.utils.FileUtils;
 import org.obm.push.utils.RunnableExtensionLoader;
@@ -125,7 +126,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			IRequestHandler rh = getHandler(p);
 			if (rh != null) {
 				response.setHeader("MS-Server-ActiveSync", "6.5.7638.1");
-				rh.process(p, doc, response);
+				rh.process(p, doc, new Responder(response));
 			} else {
 				logger.warn("no handler for command " + p.getCommand());
 			}

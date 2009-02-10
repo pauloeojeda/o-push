@@ -12,10 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import org.xml.sax.AttributeList;
-import org.xml.sax.DocumentHandler;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributeListImpl;
+import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * A SAX-based parser for the WAP Binary XML Content Format (WBXML).
@@ -36,13 +36,13 @@ import org.xml.sax.helpers.AttributeListImpl;
 
 public class WbxmlParser {
 
-	InputStream in;
-	DocumentHandler dh;
-	WbxmlExtensionHandler eh;
+	private InputStream in;
+	private ContentHandler dh;
+	private WbxmlExtensionHandler eh;
 
-	String[] attrStartTable;
-	String[] attrValueTable;
-	String[] tagTable;
+	private String[] attrStartTable;
+	private String[] attrValueTable;
+	private String[] tagTable;
 	private Map<Integer, String[]> tagsTables;
 	private Map<Integer, String[]> attrStarTables;
 	private Map<Integer, String[]> attrValueTables;
@@ -95,7 +95,7 @@ public class WbxmlParser {
 
 	/** sets DocumentHandler. See SAX documentation */
 
-	public void setDocumentHandler(DocumentHandler dh) {
+	public void setDocumentHandler(ContentHandler dh) {
 		this.dh = dh;
 	}
 
@@ -143,7 +143,7 @@ public class WbxmlParser {
 				break;
 
 			case Wbxml.END:
-				dh.endElement(stack.lastElement());
+				dh.endElement(null, null, stack.lastElement());
 				stack.setSize(stack.size() - 1);
 				break;
 
@@ -232,9 +232,9 @@ public class WbxmlParser {
 		} // SWITCH
 	}
 
-	public AttributeList readAttr() throws SAXException, IOException {
+	public Attributes readAttr() throws SAXException, IOException {
 
-		AttributeListImpl result = new AttributeListImpl();
+		AttributesImpl result = new AttributesImpl();
 
 		int id = readByte();
 
@@ -291,7 +291,7 @@ public class WbxmlParser {
 				id = readByte();
 			}
 
-			result.addAttribute(name, null, value.toString());
+			result.addAttribute(null, null, name, null, value.toString());
 		}
 
 		return result;
@@ -314,13 +314,13 @@ public class WbxmlParser {
 
 		// ok, now let's care about attrs etc
 
-		dh.startElement(tag, ((id & 128) != 0) ? readAttr()
-				: new AttributeListImpl());
+		dh.startElement(null, null, tag, ((id & 128) != 0) ? readAttr()
+				: new AttributesImpl());
 
 		if ((id & 64) != 0) {
 			stack.addElement(tag);
 		} else {
-			dh.endElement(tag);
+			dh.endElement(null, null, tag);
 		}
 	}
 

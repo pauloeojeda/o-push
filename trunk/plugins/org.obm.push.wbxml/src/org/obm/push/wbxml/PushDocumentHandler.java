@@ -12,13 +12,12 @@ import org.apache.commons.logging.LogFactory;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.AttributeList;
-import org.xml.sax.DocumentHandler;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-@SuppressWarnings("deprecation")
-public class PushDocumentHandler implements DocumentHandler {
+public class PushDocumentHandler implements ContentHandler {
 
 	private static final Log logger = LogFactory
 			.getLog(PushDocumentHandler.class);
@@ -54,32 +53,15 @@ public class PushDocumentHandler implements DocumentHandler {
 	}
 
 	@Override
-	public void endElement(String arg0) throws SAXException {
+	public void endElement(String uri, String localName, String qName) throws SAXException {
 		elems.pop();
 	}
 
+
 	@Override
-	public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
+	public void startElement(String uri, String localName, String qName, Attributes arg1)
 			throws SAXException {
-	}
-
-	@Override
-	public void processingInstruction(String arg0, String arg1)
-			throws SAXException {
-	}
-
-	@Override
-	public void setDocumentLocator(Locator arg0) {
-	}
-
-	@Override
-	public void startDocument() throws SAXException {
-	}
-
-	@Override
-	public void startElement(String arg0, AttributeList arg1)
-			throws SAXException {
-		Element newE = doc.createElement(arg0);
+		Element newE = doc.createElement(qName);
 
 		Element parent = null;
 		if (!elems.isEmpty()) {
@@ -94,7 +76,7 @@ public class PushDocumentHandler implements DocumentHandler {
 		elems.add(newE);
 
 		for (int i = 0; i < arg1.getLength(); i++) {
-			String att = arg1.getName(i);
+			String att = arg1.getQName(i);
 			String val = arg1.getValue(i);
 			newE.setAttribute(att, val);
 		}
@@ -102,6 +84,51 @@ public class PushDocumentHandler implements DocumentHandler {
 	
 	public Document getDocument() {
 		return doc;
+	}
+
+	@Override
+	public void endPrefixMapping(String prefix) throws SAXException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void ignorableWhitespace(char[] ch, int start, int length)
+			throws SAXException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void processingInstruction(String target, String data)
+			throws SAXException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setDocumentLocator(Locator locator) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void skippedEntity(String name) throws SAXException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void startDocument() throws SAXException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void startPrefixMapping(String prefix, String uri)
+			throws SAXException {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

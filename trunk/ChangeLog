@@ -1,0 +1,58 @@
+2009-02-10  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	FolderSync response implementation.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/Exporter.java: (Exporter), (Exporter.configure),
+	(Exporter.getState):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.OBMBackend),
+	(OBMBackend.getExporter):
+	* plugins/org.obm.push.wbxml/src/de/trantor/wap/SaxWrapper.java:
+	* plugins/org.obm.push.wbxml/src/de/trantor/wap/WbxmlEncoder.java:
+	(WbxmlEncoder.Handler), (WbxmlEncoder.Handler.startElement),
+	(WbxmlEncoder.Handler.characters),
+	(WbxmlEncoder.Handler.endElement), (WbxmlEncoder),
+	(WbxmlEncoder.WbxmlEncoder), (WbxmlEncoder.convert),
+	(WbxmlEncoder.writeInt), (WbxmlEncoder.writeStrI),
+	(WbxmlEncoder.writeStrT):
+	* plugins/org.obm.push.wbxml/src/de/trantor/wap/WbxmlParser.java:
+	(WbxmlParser), (WbxmlParser.setDocumentHandler),
+	(WbxmlParser.parse), (WbxmlParser.readAttr),
+	(WbxmlParser.readElement):
+	* plugins/org.obm.push.wbxml/src/de/trantor/wap/Wml.java:
+	* plugins/org.obm.push.wbxml/src/de/trantor/wap/WmlParser.java:
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/PushDocumentHan
+	dler.java: (PushDocumentHandler), (PushDocumentHandler.endElement),
+	(PushDocumentHandler.startElement),
+	(PushDocumentHandler.endPrefixMapping),
+	(PushDocumentHandler.ignorableWhitespace),
+	(PushDocumentHandler.processingInstruction),
+	(PushDocumentHandler.setDocumentLocator),
+	(PushDocumentHandler.skippedEntity),
+	(PushDocumentHandler.startDocument),
+	(PushDocumentHandler.startPrefixMapping):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/WBXMLTools.java
+	: (WBXMLTools.toWbxml), (WBXMLTools):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.processActiveSyncMethod):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/backend/IExporter.java:
+	(IExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/ImportHierarchyChan
+	gesMem.java: (ImportHierarchyChangesMem),
+	(ImportHierarchyChangesMem.getCount),
+	(ImportHierarchyChangesMem.getChanged),
+	(ImportHierarchyChangesMem.getDeleted):
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process), (FolderSyncHandler),
+	(FolderSyncHandler.encode):
+	* plugins/org.obm.push/src/org/obm/push/impl/IRequestHandler.java:
+	(IRequestHandler):
+	* plugins/org.obm.push/src/org/obm/push/impl/Responder.java:
+	(Responder), (Responder.Responder), (Responder.sendResponse):
+	* plugins/org.obm.push/src/org/obm/push/state/StateMachine.java:
+	(StateMachine), (StateMachine.getSyncState),
+	(StateMachine.getNewSyncKey), (StateMachine.setSyncState):
+
