@@ -9,6 +9,7 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.AttributeList;
@@ -97,6 +98,10 @@ public class PushDocumentHandler implements DocumentHandler {
 			String val = arg1.getValue(i);
 			newE.setAttribute(att, val);
 		}
+	}
+	
+	public Document getDocument() {
+		return doc;
 	}
 
 }

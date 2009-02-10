@@ -2,7 +2,7 @@
  * Created on May 25, 2004
  *
  */
-package org.obm.push.wbxml;
+package org.obm.push.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

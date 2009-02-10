@@ -14,7 +14,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-package org.obm.push.impl;
+package org.obm.push.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

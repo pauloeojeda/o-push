@@ -3,13 +3,31 @@ package org.obm.push.wbxml;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import de.trantor.wap.WbxmlParser;
 
+/**
+ * Wbxml convertion tools
+ * 
+ * @author tom
+ * 
+ */
 public class WBXMLTools {
 
-	public static void toXml(byte[] wbxml) throws IOException {
+	private static final Log logger = LogFactory.getLog(WBXMLTools.class);
+
+	/**
+	 * Transforms a wbxml byte array into the corresponding DOM representation
+	 * 
+	 * @param wbxml
+	 * @return
+	 * @throws IOException
+	 */
+	public static Document toXml(byte[] wbxml) throws IOException {
 		WbxmlParser parser = new WbxmlParser();
 		parser.setTagTable(0, TagsTables.CP_0);
 		parser.setTagTable(1, TagsTables.CP_1);
@@ -25,15 +43,16 @@ public class WBXMLTools {
 		parser.setTagTable(11, TagsTables.CP_11);
 		parser.setTagTable(12, TagsTables.CP_12);
 		parser.setTagTable(13, TagsTables.CP_13);
-		parser.setDocumentHandler(new PushDocumentHandler());
+		PushDocumentHandler pdh = new PushDocumentHandler();
+		parser.setDocumentHandler(pdh);
 		try {
 			parser.parse(new ByteArrayInputStream(wbxml));
+			return pdh.getDocument();
 		} catch (SAXException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 			throw new IOException(e.getMessage());
 		}
-	
-	}
 
+	}
 
 }

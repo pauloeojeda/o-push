@@ -1,4 +1,4 @@
-package org.obm.push.impl;
+package org.obm.push.utils;
 
 /**
  * Provides encoding of raw bytes to base64-encoded characters, and decoding of
