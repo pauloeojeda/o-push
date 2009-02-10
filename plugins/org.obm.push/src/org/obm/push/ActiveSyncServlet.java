@@ -2,6 +2,9 @@ package org.obm.push;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
@@ -11,11 +14,24 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.IBackend;
+import org.obm.push.backend.IBackendFactory;
 import org.obm.push.impl.ASParams;
-import org.obm.push.impl.Base64;
-import org.obm.push.impl.FileUtils;
+import org.obm.push.impl.FolderSyncHandler;
+import org.obm.push.impl.IRequestHandler;
+import org.obm.push.utils.Base64;
+import org.obm.push.utils.FileUtils;
+import org.obm.push.utils.RunnableExtensionLoader;
 import org.obm.push.wbxml.WBXMLTools;
+import org.w3c.dom.Document;
 
+/**
+ * ActiveSync server implementation. Routes all request to appropriate request
+ * handlers.
+ * 
+ * @author tom
+ * 
+ */
 public class ActiveSyncServlet extends HttpServlet {
 
 	/**
@@ -26,10 +42,11 @@ public class ActiveSyncServlet extends HttpServlet {
 	private static final Log logger = LogFactory
 			.getLog(ActiveSyncServlet.class);
 
+	private Map<String, IRequestHandler> handlers;
+
 	@Override
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-
 		String userID = null;
 		String password = null;
 		boolean valid = false;
@@ -54,7 +71,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		if (!valid) {
-			System.out.println("invalid auth, sending http 401");
+			logger.warn("invalid auth, sending http 401");
 			String s = "Basic realm=\"OBMPushService\"";
 			response.setHeader("WWW-Authenticate", s);
 			response.setStatus(401);
@@ -68,7 +85,7 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private ASParams getParams(HttpServletRequest r) {
-		ASParams ret = new ASParams(p(r, "UserId"), p(r, "DeviceId"), p(r,
+		ASParams ret = new ASParams(p(r, "User"), p(r, "DeviceId"), p(r,
 				"DeviceType"), p(r, "Cmd"));
 		return ret;
 	}
@@ -78,7 +95,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			throws IOException {
 		ASParams p = getParams(request);
 		String m = request.getMethod();
-		logger.info("activeSyncMethod: " + p.getCommand() + " method: " + m);
+		logger.info("activeSyncMethod: " + p.getCommand());
 		String proto = request.getHeader("MS-ASProtocolVersion");
 		logger.info("Client supports protocol " + proto);
 
@@ -95,22 +112,20 @@ public class ActiveSyncServlet extends HttpServlet {
 				return;
 			}
 
-			if (logger.isInfoEnabled()) {
-				InputStream in = request.getInputStream();
-				byte[] input = FileUtils.streamBytes(in, true);
-				logger.info("input:\n" + new String(input));
-				try {
-					WBXMLTools.toXml(input);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
+			InputStream in = request.getInputStream();
+			byte[] input = FileUtils.streamBytes(in, true);
+			Document doc = null;
+			try {
+				doc = WBXMLTools.toXml(input);
+			} catch (IOException e) {
+				logger.error("Error parsing wbxml data.", e);
+				return;
 			}
 
-			response.setHeader("MS-Server-ActiveSync", "6.5.7638.1");
 			IRequestHandler rh = getHandler(p);
 			if (rh != null) {
-				rh.process(request, response);
+				response.setHeader("MS-Server-ActiveSync", "6.5.7638.1");
+				rh.process(p, doc, response);
 			} else {
 				logger.warn("no handler for command " + p.getCommand());
 			}
@@ -118,8 +133,7 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private IRequestHandler getHandler(ASParams p) {
-		// TODO Auto-generated method stub
-		return null;
+		return handlers.get(p.getCommand());
 	}
 
 	private boolean validatePassword(String userID, String password) {
@@ -130,7 +144,28 @@ public class ActiveSyncServlet extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		super.init();
+
+		PushConfiguration pc = new PushConfiguration();
+
+		IBackend backend = loadBackend(pc);
+
+		handlers = new HashMap<String, IRequestHandler>();
+		handlers.put("FolderSync", new FolderSyncHandler(backend));
+
 		System.out.println("ActiveSync servlet initialised.");
+	}
+
+	private IBackend loadBackend(PushConfiguration pc) {
+		RunnableExtensionLoader<IBackendFactory> rel = new RunnableExtensionLoader<IBackendFactory>();
+		List<IBackendFactory> backs = rel.loadExtensions("org.obm.push",
+				"backend", "backend", "implementation");
+		if (backs.size() > 0) {
+			IBackendFactory bf = backs.get(0);
+			return bf.loadBackend(pc);
+		} else {
+			logger.error("No push backend found.");
+			return null;
+		}
 	}
 
 }

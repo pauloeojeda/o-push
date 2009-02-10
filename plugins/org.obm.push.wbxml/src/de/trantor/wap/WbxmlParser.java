@@ -140,7 +140,6 @@ public class WbxmlParser {
 				tagTable = tagsTables.get(page);
 				attrStartTable = attrStarTables.get(page);
 				attrValueTable = attrValueTables.get(page);
-				System.out.println("switching to code page: " + page);
 				break;
 
 			case Wbxml.END:
@@ -300,7 +299,6 @@ public class WbxmlParser {
 
 	String resolveId(String[] tab, int id) throws SAXException, IOException {
 		int idx = (id & 0x07f) - 5;
-		System.out.println("tab: "+tab);
 		if (idx == -1) {
 			return readStrT();
 		}
