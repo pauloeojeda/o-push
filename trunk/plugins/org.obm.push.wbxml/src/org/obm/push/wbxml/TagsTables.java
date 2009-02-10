@@ -1,5 +1,8 @@
 package org.obm.push.wbxml;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class TagsTables {
 
 	public static final String[] CP_0 = { "Synchronize", "Replies", "Add",
@@ -84,4 +87,81 @@ public class TagsTables {
 	public static final String[] CP_13 = { "Ping", "Status", "LifeTime",
 			"Folders", "Folder", "ServerEntryId", "FolderType", };
 
+	public static final Map<String, Integer> NAMESPACES_IDS;
+	public static final Map<Integer, String[]> NAMESPACES_TAGS;
+	
+	static {
+		NAMESPACES_IDS = new HashMap<String, Integer>();
+		NAMESPACES_TAGS = new HashMap<Integer, String[]>();
+		
+		NAMESPACES_IDS.put("AirSync", 0x0);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Contacts", 0x1);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Email", 0x2);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("AirNotify", 0x3);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Cal", 0x4);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Move", 0x5);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("ItemEstimate", 0x6);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("FolderHierarchy", 0x7);
+		NAMESPACES_TAGS.put(0x7, CP_7);
+		
+		NAMESPACES_IDS.put("MeetingResponse", 0x8);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Tasks", 0x9);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("ResolveRecipients", 0xA);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("ValidateCert", 0xB);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Contacts2", 0xC);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Ping", 0xD);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Provision", 0xE);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Search", 0xF);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Gal", 0x10);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("AirSyncBase", 0x11);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("Settings", 0x12);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("DocumentLibrary", 0x13);
+		NAMESPACES_TAGS.put(0x0, CP_0);
+		
+		NAMESPACES_IDS.put("ItemOperations", 0x14);
+		NAMESPACES_TAGS.put(0x0, CP_0);		
+	}
+	
+	public static String[] getTagsTableForNamespace(String nsName) {
+		Integer codePage = NAMESPACES_IDS.get(nsName);
+		String[] ret = NAMESPACES_TAGS.get(codePage);
+		return ret;
+	}
+	
 }

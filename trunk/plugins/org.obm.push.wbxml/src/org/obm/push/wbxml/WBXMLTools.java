@@ -2,6 +2,8 @@ package org.obm.push.wbxml;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
@@ -32,6 +34,9 @@ public class WBXMLTools {
 	 * @throws IOException
 	 */
 	public static Document toXml(byte[] wbxml) throws IOException {
+
+		storeWbxml(wbxml);
+
 		WbxmlParser parser = new WbxmlParser();
 		parser.setTagTable(0, TagsTables.CP_0);
 		parser.setTagTable(1, TagsTables.CP_1);
@@ -59,16 +64,31 @@ public class WBXMLTools {
 
 	}
 
-	public static byte[] toWbxml(Document doc) throws IOException {
-		WbxmlEncoder encoder = new WbxmlEncoder();
+	private static void storeWbxml(byte[] wbxml) {
+		try {
+			File tmp = File.createTempFile("debug_", ".wbxml");
+			FileOutputStream fout = new FileOutputStream(tmp);
+			fout.write(wbxml);
+			fout.close();
+			logger.info("received wbxml logged to " + tmp.getAbsolutePath());
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+
+	}
+
+	public static byte[] toWbxml(String defaultNamespace, Document doc) throws IOException {
+		WbxmlEncoder encoder = new WbxmlEncoder(defaultNamespace);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			DOMUtils.serialise(doc, out);
-			InputSource is = new InputSource(new ByteArrayInputStream(out.toByteArray()));
+			InputSource is = new InputSource(new ByteArrayInputStream(out
+					.toByteArray()));
 			out = new ByteArrayOutputStream();
 			encoder.convert(is, out);
 			byte[] ret = out.toByteArray();
-			logger.info("return wbxml document with "+ret.length+" bytes.");
+			logger.info("return wbxml document with " + ret.length + " bytes.");
+			storeWbxml(ret);
 			return ret;
 		} catch (Exception e) {
 			throw new IOException(e);

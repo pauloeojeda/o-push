@@ -21,13 +21,13 @@ public class Responder {
 		this.resp = resp;
 	}
 
-	public void sendResponse(Document doc) throws IOException {
+	public void sendResponse(String defaultNamespace, Document doc) throws IOException {
 		logger.info("to pda:");
 		try {
 			DOMUtils.logDom(doc);
 		} catch (TransformerException e) {
 		}
-		byte[] wbxml = WBXMLTools.toWbxml(doc);
+		byte[] wbxml = WBXMLTools.toWbxml(defaultNamespace, doc);
 		ServletOutputStream out = resp.getOutputStream();
 		out.write(wbxml);
 		out.flush();

@@ -8,10 +8,8 @@ import java.util.Hashtable;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * a class for converting ("binary encoding") XML to WBXML. Todo:
@@ -24,71 +22,20 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class WbxmlEncoder {
 
-	class Handler extends DefaultHandler {
-		public void startElement(String uri, String localName, String qName,
-				Attributes attr) throws SAXException {
-
-			try {
-				boolean hasAttr = attr.getLength() != 0;
-
-				buf.write(hasAttr ? Wbxml.LITERAL_AC : Wbxml.LITERAL_C); // attr
-				// ?
-				// content
-				// ?
-
-				writeStrT(qName);
-
-				for (int i = 0; i < attr.getLength(); i++) {
-					buf.write(Wbxml.LITERAL);
-					writeStrT(attr.getQName(i));
-					buf.write(Wbxml.STR_I);
-					writeStrI(buf, attr.getValue(i));
-				}
-
-				if (hasAttr)
-					buf.write(Wbxml.END);
-			} catch (IOException e) {
-				throw new SAXException(e);
-			}
-		}
-
-		public void characters(char[] chars, int start, int len)
-				throws SAXException {
-			try {
-				buf.write(Wbxml.STR_I);
-				writeStrI(buf, new String(chars, start, len));
-			} catch (IOException e) {
-				throw new SAXException(e);
-			}
-		}
-
-		public void endElement(String uri, String localName, String qName)
-				throws SAXException {
-			buf.write(Wbxml.END);
-		}
-
-	}
-
-	OutputStream out;
-	InputSource in;
-
-	SAXParser parser;
-
-	Hashtable<String, Integer> stringTable;
-
-	ByteArrayOutputStream buf;
-	ByteArrayOutputStream stringTableBuf;
+	private SAXParser parser;
+	private Hashtable<String, Integer> stringTable;
+	private ByteArrayOutputStream buf;
+	private String defaultNamespace;
 
 	/**
 	 * The constructor creates an internal document handler. The given parser is
 	 * used
 	 */
 
-	public WbxmlEncoder() {
+	public WbxmlEncoder(String defaultNamespace) {
+		this.defaultNamespace = defaultNamespace;
 		try {
-			System.setProperty("org.xml.sax.parser", "");
 			parser = SAXParserFactory.newInstance().newSAXParser();
-
 		} catch (Exception e) {
 			throw new RuntimeException(e.toString());
 		}
@@ -102,27 +49,17 @@ public class WbxmlEncoder {
 	public void convert(InputSource in, OutputStream out) throws SAXException,
 			IOException {
 
-		this.out = out;
-		this.in = in;
-
 		buf = new ByteArrayOutputStream();
-		stringTable = new Hashtable<String, Integer>();
-		stringTableBuf = new ByteArrayOutputStream();
 
 		// perform conv.
-		parser.parse(in, new Handler());
+		parser.parse(in, new EncoderHandler(this, buf, defaultNamespace));
 
 		// ok, write header
 
-		out.write(0x01); // version
+		out.write(0x03); // version
 		out.write(0x01); // unknown or missing public identifier
-		out.write(0x04); // iso-8859-1
-
-		writeInt(out, stringTableBuf.size());
-
-		// write StringTable
-
-		stringTableBuf.writeTo(out);
+		out.write(0x6a); // iso-8859-1
+		out.write(0x00); // no string table
 
 		// write buf
 
@@ -162,10 +99,7 @@ public class WbxmlEncoder {
 		Integer idx = stringTable.get(s);
 
 		if (idx == null) {
-			idx = new Integer(stringTableBuf.size());
-			stringTable.put(s, idx);
-			writeStrI(stringTableBuf, s);
-			stringTableBuf.flush();
+			throw new IOException("unknown elem in mapping table: " + s);
 		}
 
 		writeInt(buf, idx.intValue());
