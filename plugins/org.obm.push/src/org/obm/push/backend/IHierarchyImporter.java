@@ -2,7 +2,7 @@ package org.obm.push.backend;
 
 import org.obm.push.state.SyncState;
 
-public interface IImporter {
+public interface IHierarchyImporter {
 
 	ServerId importFolderChange(SyncFolder sf);
 	

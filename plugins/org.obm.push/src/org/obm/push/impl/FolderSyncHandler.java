@@ -8,7 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IExporter;
-import org.obm.push.backend.IImporter;
+import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.ImportHierarchyChangesMem;
 import org.obm.push.backend.ServerId;
 import org.obm.push.backend.SyncFolder;
@@ -45,7 +45,7 @@ public class FolderSyncHandler implements IRequestHandler {
 		Element changes = DOMUtils.getUniqueElement(doc.getDocumentElement(),
 				"Changes");
 		if (changes != null) {
-			IImporter importer = backend.getHierarchyImporter();
+			IHierarchyImporter importer = backend.getHierarchyImporter();
 			importer.configure(state);
 
 			Map<ServerId, String> idMap = new HashMap<ServerId, String>();

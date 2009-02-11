@@ -2,13 +2,13 @@ package org.obm.push.backend.obm22;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.obm.push.backend.IImporter;
+import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.ServerId;
 import org.obm.push.backend.SyncFolder;
 import org.obm.push.state.SyncState;
 
 
-public class Importer implements IImporter {
+public class Importer implements IHierarchyImporter {
 
 	private static final Log logger = LogFactory.getLog(Importer.class);
 	

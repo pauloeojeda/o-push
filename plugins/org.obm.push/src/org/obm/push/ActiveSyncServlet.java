@@ -20,6 +20,7 @@ import org.obm.push.impl.ASParams;
 import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.IRequestHandler;
 import org.obm.push.impl.Responder;
+import org.obm.push.impl.SyncHandler;
 import org.obm.push.utils.Base64;
 import org.obm.push.utils.FileUtils;
 import org.obm.push.utils.RunnableExtensionLoader;
@@ -162,6 +163,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		
 		handlers = new HashMap<String, IRequestHandler>();
 		handlers.put("FolderSync", new FolderSyncHandler(backend));
+		handlers.put("Sync", new SyncHandler(backend));
 
 		System.out.println("ActiveSync servlet initialised.");
 	}
