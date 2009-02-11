@@ -2,8 +2,12 @@ package org.obm.push.backend;
 
 public interface IBackend {
 
-	IImporter getHierarchyImporter();
+	IHierarchyImporter getHierarchyImporter();
 	
 	IExporter getExporter();
+
+	IContentsImporter getContentsImporter(String string);
+
+	String getWasteBasket();
 	
 }
