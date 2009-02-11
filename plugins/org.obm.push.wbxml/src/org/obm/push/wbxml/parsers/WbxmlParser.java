@@ -4,7 +4,7 @@
 //             now throws SAXExceptions for undef. tag refs<br>
 // 1999-11-09: First "overnight hack" version (Stefan Haustein)
 
-package de.trantor.wap;
+package org.obm.push.wbxml.parsers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -36,6 +38,8 @@ import org.xml.sax.helpers.AttributesImpl;
 
 public class WbxmlParser {
 
+	private static final Log logger = LogFactory.getLog(WbxmlParser.class);
+
 	private InputStream in;
 	private ContentHandler dh;
 	private WbxmlExtensionHandler eh;
@@ -46,55 +50,45 @@ public class WbxmlParser {
 	private Map<Integer, String[]> tagsTables;
 	private Map<Integer, String[]> attrStarTables;
 	private Map<Integer, String[]> attrValueTables;
-	char[] stringTable;
+	private char[] stringTable;
 
-	int version;
-	int publicIdentifierId;
-	int charSet;
+	private int publicIdentifierId;
+	private Vector<String> stack = new Vector<String>();
 
-	Vector<String> stack = new Vector<String>();
-
-	public WbxmlParser() {
+	public WbxmlParser(String defaultNamespace) {
 		this.tagsTables = new HashMap<Integer, String[]>();
 		this.attrStarTables = new HashMap<Integer, String[]>();
 		this.attrValueTables = new HashMap<Integer, String[]>();
+		switchPage(0);
 	}
 
 	/**
 	 * Sets the tag table for a given page. The first string in the array
 	 * defines tag 5, the second tag 6 etc. Currently, only page 0 is supported
 	 */
-
 	public void setTagTable(int page, String[] tagTable) {
-		this.tagTable = tagTable;
 		tagsTables.put(page, tagTable);
 	}
 
 	/**
 	 * Sets the attribute start Table for a given page. The first string in the
-	 * array defines attribute 5, the second attribute 6 etc. Currently, only
-	 * page 0 is supported. Please use the character '=' (without quote!) as
-	 * delimiter between the attribute name and the (start of the) value
+	 * array defines attribute 5, the second attribute 6 etc. Please use the
+	 * character '=' (without quote!) as delimiter between the attribute name
+	 * and the (start of the) value
 	 */
-
 	public void setAttrStartTable(int page, String[] attrStartTable) {
-		this.attrStartTable = attrStartTable;
 		attrStarTables.put(page, attrStartTable);
 	}
 
 	/**
 	 * Sets the attribute value Table for a given page. The first string in the
 	 * array defines attribute value 0x85, the second attribute value 0x86 etc.
-	 * Currently, only page 0 is supported.
 	 */
-
 	public void setAttrValueTable(int page, String[] attrStartTable) {
-		this.attrValueTable = attrStartTable;
 		attrValueTables.put(page, attrStartTable);
 	}
 
-	/** sets DocumentHandler. See SAX documentation */
-
+	/** sets ContentHandler. See SAX documentation */
 	public void setDocumentHandler(ContentHandler dh) {
 		this.dh = dh;
 	}
@@ -111,13 +105,13 @@ public class WbxmlParser {
 
 		this.in = in;
 
-		version = readByte();
+		readByte(); // skip version
 		publicIdentifierId = readInt();
 
 		if (publicIdentifierId == 0)
 			readInt();
 
-		charSet = readInt(); // skip charset
+		readInt(); // skip charset
 
 		int strTabSize = readInt();
 		stringTable = new char[strTabSize];
@@ -137,9 +131,7 @@ public class WbxmlParser {
 			switch (id) {
 			case Wbxml.SWITCH_PAGE:
 				int page = readByte();
-				tagTable = tagsTables.get(page);
-				attrStartTable = attrStarTables.get(page);
-				attrValueTable = attrValueTables.get(page);
+				switchPage(page);
 				break;
 
 			case Wbxml.END:
@@ -193,6 +185,13 @@ public class WbxmlParser {
 			throw new SAXException("unclosed elements: " + stack);
 
 		dh.endDocument();
+	}
+
+	public void switchPage(int page) {
+		tagTable = tagsTables.get(page);
+		attrStartTable = attrStarTables.get(page);
+		attrValueTable = attrValueTables.get(page);
+		logger.info("switching to page 0x" + page);
 	}
 
 	// -------------- internal methods start here --------------------
@@ -297,19 +296,23 @@ public class WbxmlParser {
 		return result;
 	}
 
-	String resolveId(String[] tab, int id) throws SAXException, IOException {
+	private String resolveId(String[] tab, int id) throws SAXException,
+			IOException {
+		logger.info("resolve(0x" + Integer.toHexString(id & 0x07f) + ")");
 		int idx = (id & 0x07f) - 5;
 		if (idx == -1) {
 			return readStrT();
 		}
-		if (idx < 0 || tab == null || idx >= tab.length || tab[idx] == null)
+		if (idx < 0 || tab == null || idx >= tab.length || tab[idx] == null) {
 			throw new SAXException("id " + id + " undef.");
+		}
 
-		return tab[idx];
+		String ret = tab[idx];
+		logger.info("resolved as '" + ret + "'");
+		return ret;
 	}
 
 	void readElement(int id) throws IOException, SAXException {
-
 		String tag = resolveId(tagTable, id & 0x03f);
 
 		// ok, now let's care about attrs etc

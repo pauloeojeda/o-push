@@ -45,6 +45,8 @@ public class ActiveSyncServlet extends HttpServlet {
 
 	private Map<String, IRequestHandler> handlers;
 
+	private Map<String, String> defaultNamespaces;
+
 	@Override
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
@@ -117,7 +119,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			byte[] input = FileUtils.streamBytes(in, true);
 			Document doc = null;
 			try {
-				doc = WBXMLTools.toXml(input);
+				doc = WBXMLTools.toXml(getDefaultNamespace(p.getCommand()), input);
 			} catch (IOException e) {
 				logger.error("Error parsing wbxml data.", e);
 				return;
@@ -131,6 +133,10 @@ public class ActiveSyncServlet extends HttpServlet {
 				logger.warn("no handler for command " + p.getCommand());
 			}
 		}
+	}
+
+	private String getDefaultNamespace(String command) {
+		return defaultNamespaces.get(command);
 	}
 
 	private IRequestHandler getHandler(ASParams p) {
@@ -150,6 +156,10 @@ public class ActiveSyncServlet extends HttpServlet {
 
 		IBackend backend = loadBackend(pc);
 
+		defaultNamespaces = new HashMap<String, String>();
+		defaultNamespaces.put("Sync", "AirSync");
+		
+		
 		handlers = new HashMap<String, IRequestHandler>();
 		handlers.put("FolderSync", new FolderSyncHandler(backend));
 

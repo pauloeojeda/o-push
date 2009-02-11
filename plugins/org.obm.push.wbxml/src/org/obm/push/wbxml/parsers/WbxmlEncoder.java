@@ -1,29 +1,27 @@
-package de.trantor.wap;
+package org.obm.push.wbxml.parsers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Hashtable;
+import java.util.Map;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * a class for converting ("binary encoding") XML to WBXML. Todo:
- * <ul>
- * <li>Add support for processing instructions
- * <li>Add support for tag and attribute tables
- * <li>Add support for WBXML extensions
- * </ul>
+ * Converts XML to WBXML using a sax content handler
  */
 
 public class WbxmlEncoder {
 
+	private static final Log logger = LogFactory.getLog(WbxmlEncoder.class);
 	private SAXParser parser;
-	private Hashtable<String, Integer> stringTable;
+	private Map<String, Integer> stringTable;
 	private ByteArrayOutputStream buf;
 	private String defaultNamespace;
 
@@ -39,6 +37,10 @@ public class WbxmlEncoder {
 		} catch (Exception e) {
 			throw new RuntimeException(e.toString());
 		}
+	}
+
+	void setStringTable(Map<String, Integer> table) {
+		this.stringTable = table;
 	}
 
 	/**
@@ -103,5 +105,17 @@ public class WbxmlEncoder {
 		}
 
 		writeInt(buf, idx.intValue());
+	}
+
+	public void switchPage(Integer integer) throws IOException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("switching to page 0x" + Integer.toHexString(integer));
+		}
+		writeInt(buf, 0x00);
+		writeInt(buf, integer);
+	}
+
+	public void writeElement(String name) throws IOException {
+		writeInt(buf, stringTable.get(name) + 64);
 	}
 }

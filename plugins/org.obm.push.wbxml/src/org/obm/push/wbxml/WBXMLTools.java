@@ -9,12 +9,12 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.utils.DOMUtils;
+import org.obm.push.wbxml.parsers.WbxmlEncoder;
+import org.obm.push.wbxml.parsers.WbxmlParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import de.trantor.wap.WbxmlEncoder;
-import de.trantor.wap.WbxmlParser;
 
 /**
  * Wbxml convertion tools
@@ -33,25 +33,14 @@ public class WBXMLTools {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Document toXml(byte[] wbxml) throws IOException {
+	public static Document toXml(String defaultNamespace, byte[] wbxml) throws IOException {
 
 		storeWbxml(wbxml);
 
-		WbxmlParser parser = new WbxmlParser();
-		parser.setTagTable(0, TagsTables.CP_0);
-		parser.setTagTable(1, TagsTables.CP_1);
-		parser.setTagTable(2, TagsTables.CP_2);
-		parser.setTagTable(3, TagsTables.CP_3);
-		parser.setTagTable(4, TagsTables.CP_4);
-		parser.setTagTable(5, TagsTables.CP_5);
-		parser.setTagTable(6, TagsTables.CP_6);
-		parser.setTagTable(7, TagsTables.CP_7);
-		parser.setTagTable(8, TagsTables.CP_8);
-		parser.setTagTable(9, TagsTables.CP_9);
-		parser.setTagTable(10, TagsTables.CP_10);
-		parser.setTagTable(11, TagsTables.CP_11);
-		parser.setTagTable(12, TagsTables.CP_12);
-		parser.setTagTable(13, TagsTables.CP_13);
+		WbxmlParser parser = new WbxmlParser(defaultNamespace);
+		parser.setTagTable(0x0, TagsTables.CP_0);
+		parser.setTagTable(0x7, TagsTables.CP_7);
+		parser.switchPage(0);
 		PushDocumentHandler pdh = new PushDocumentHandler();
 		parser.setDocumentHandler(pdh);
 		try {
@@ -77,7 +66,8 @@ public class WBXMLTools {
 
 	}
 
-	public static byte[] toWbxml(String defaultNamespace, Document doc) throws IOException {
+	public static byte[] toWbxml(String defaultNamespace, Document doc)
+			throws IOException {
 		WbxmlEncoder encoder = new WbxmlEncoder(defaultNamespace);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
@@ -87,12 +77,16 @@ public class WBXMLTools {
 			out = new ByteArrayOutputStream();
 			encoder.convert(is, out);
 			byte[] ret = out.toByteArray();
-			logger.info("return wbxml document with " + ret.length + " bytes.");
 			storeWbxml(ret);
+
+			// logger.info("reconverted version");
+			// DOMUtils.logDom(toXml(ret));
+
 			return ret;
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
+
 	}
 
 }
