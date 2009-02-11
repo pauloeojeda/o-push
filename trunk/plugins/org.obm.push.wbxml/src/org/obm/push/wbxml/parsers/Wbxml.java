@@ -1,4 +1,4 @@
-package de.trantor.wap;
+package org.obm.push.wbxml.parsers;
 
 
 /** contains the WBXML constants  */

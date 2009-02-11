@@ -3,165 +3,121 @@ package org.obm.push.wbxml;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class TagsTables {
 
-	public static final String[] CP_0 = { "Synchronize", "Replies", "Add",
-			"Modify", "Remove", "Fetch", "SyncKey", "ClientEntryId",
-			"ServerEntryId", "Status", "Folder", "FolderType", "Version",
-			"FolderId", "GetChanges", "MoreAvailable", "MaxItems", "Perform",
-			"Options", "FilterType", "Truncation", "RtfTruncation", "Conflict",
-			"Folders", "Data", "DeletesAsMoves", "NotifyGUID", "Supported",
-			"SoftDelete", "MIMESupport", "MIMETruncation", };
-	public static final String[] CP_1 = { "Anniversary", "AssistantName",
-			"AssistnamePhoneNumber", "Birthday", "Body", "BodySize",
-			"BodyTruncated", "Business2PhoneNumber", "BusinessCity",
-			"BusinessCountry", "BusinessPostalCode", "BusinessState",
-			"BusinessStreet", "BusinessFaxNumber", "BusinessPhoneNumber",
-			"CarPhoneNumber", "Categories", "Category", "Children", "Child",
-			"CompanyName", "Department", "Email1Address", "Email2Address",
-			"Email3Address", "FileAs", "FirstName", "Home2PhoneNumber",
-			"HomeCity", "HomeCountry", "HomePostalCode", "HomeState",
-			"HomeStreet", "HomeFaxNumber", "HomePhoneNumber", "JobTitle",
-			"LastName", "MiddleName", "MobilePhoneNumber", "OfficeLocation",
-			"OtherCity", "OtherCountry", "OtherPostalCode", "OtherState",
-			"OtherStreet", "PagerNumber", "RadioPhoneNumber", "Spouse",
-			"Suffix", "Title", "WebPage", "YomiCompanyName", "YomiFirstName",
-			"YomiLastName", "Rtf", "Picture", };
-	public static final String[] CP_2 = { "Attachment", "Attachments",
-			"AttName", "AttSize", "AttOid", "AttMethod", "AttRemoved", "Body",
-			"BodySize", "BodyTruncated", "DateReceived", "DisplayName",
-			"DisplayTo", "Importance", "MessageClass", "Subject", "Read", "To",
-			"Cc", "From", "Reply-To", "AllDayEvent", "Categories", "Category",
-			"DtStamp", "EndTime", "InstanceType", "BusyStatus", "Location",
-			"MeetingRequest", "Organizer", "RecurrenceId", "Reminder",
-			"ResponseRequested", "Recurrences", "Recurrence", "Type", "Until",
-			"Occurrences", "Interval", "DayOfWeek", "DayOfMonth",
-			"WeekOfMonth", "MonthOfYear", "StartTime", "Sensitivity",
-			"TimeZone", "GlobalObjId", "ThreadTopic", "MIMEData",
-			"MIMETruncated", "MIMESize", "InternetCPID", };
-	public static final String[] CP_3 = { "Notify", "Notification", "Version",
-			"Lifetime", "DeviceInfo", "Enable", "Folder", "ServerEntryId",
-			"DeviceAddress", "ValidCarrierProfiles", "CarrierProfile",
-			"Status", "Replies",
-			// "Version='1.1'",
-			"Devices", "Device", "Id", "Expiry", "NotifyGUID", };
-	public static final String[] CP_4 = { "Timezone", "AllDayEvent",
-			"Attendees", "Attendee", "Email", "Name", "Body", "BodyTruncated",
-			"BusyStatus", "Categories", "Category", "Rtf", "DtStamp",
-			"EndTime", "Exception", "Exceptions", "Deleted",
-			"ExceptionStartTime", "Location", "MeetingStatus",
-			"OrganizerEmail", "OrganizerName", "Recurrence", "Type", "Until",
-			"Occurrences", "Interval", "DayOfWeek", "DayOfMonth",
-			"WeekOfMonth", "MonthOfYear", "Reminder", "Sensitivity", "Subject",
-			"StartTime", "UID", };
-	public static final String[] CP_5 = { "Moves", "Move", "SrcMsgId",
-			"SrcFldId", "DstFldId", "Response", "Status", "DstMsgId", };
-	public static final String[] CP_6 = { "GetItemEstimate", "Version",
-			"Folders", "Folder", "FolderType", "FolderId", "DateTime",
-			"Estimate", "Response", "Status", };
-	public static final String[] CP_7 = { "Folders", "Folder", "DisplayName",
-			"ServerEntryId", "ParentId", "Type", "Response", "Status",
-			"ContentClass", "Changes", "Add", "Remove", "Update", "SyncKey",
-			"FolderCreate", "FolderDelete", "FolderUpdate", "FolderSync",
-			"Count", "Version", };
-	public static final String[] CP_8 = { "CalendarId", "FolderId",
-			"MeetingResponse", "RequestId", "Request", "Result", "Status",
-			"UserResponse", "Version", };
-	public static final String[] CP_9 = { "Body", "BodySize", "BodyTruncated",
-			"Categories", "Category", "Complete", "DateCompleted", "DueDate",
-			"UtcDueDate", "Importance", "Recurrence", "Type", "Start", "Until",
-			"Occurrences", "Interval", "DayOfWeek", "DayOfMonth",
-			"WeekOfMonth", "MonthOfYear", "Regenerate", "DeadOccur",
-			"ReminderSet", "ReminderTime", "Sensitivity", "StartDate",
-			"UtcStartDate", "Subject", "Rtf", };
-	public static final String[] CP_10 = { "ResolveRecipients", "Response",
-			"Status", "Type", "Recipient", "DisplayName", "EmailAddress",
-			"Certificates", "Certificate", "MiniCertificate", "Options", "To",
-			"CertificateRetrieval", "RecipientCount", "MaxCertificates",
-			"MaxAmbiguousRecipients", "CertificateCount", };
-	public static final String[] CP_11 = { "ValidateCert", "Certificates",
-			"Certificate", "CertificateChain", "CheckCRL", "Status", };
-	public static final String[] CP_12 = { "CustomerId", "GovernmentId",
-			"IMAddress", "IMAddress2", "IMAddress3", "ManagerName",
-			"CompanyMainPhone", "AccountName", "NickName", "MMS", };
-	public static final String[] CP_13 = { "Ping", "Status", "LifeTime",
-			"Folders", "Folder", "ServerEntryId", "FolderType", };
+	private static final Log logger = LogFactory.getLog(TagsTables.class);
+
+	/**
+	 * AirSync
+	 */
+	public static final String[] CP_0 = {
+	// AirSync
+			"Sync", // 0x05
+			"Responses", // 0x06
+			"Add", // 0x07
+			"Change", // 0x08
+			"Delete", // 0x09
+			"Fetch", // 0x0A
+			"SyncKey", // 0x0B
+			"ClientId", // 0x0C
+			"ServerId", // 0x0D
+			"Status", // 0x0E
+			"Collection", // 0x0F
+			"Class", // 0x10
+			"Version", // 0x11
+			"CollectionId", // 0x12
+			"GetChanges", // 0x13
+			"MoreAvailable", // 0x14
+			"WindowSize", // 0x15
+			"Commands", // 0x16
+			"Options", // 0x17
+			"FilterType", // 0x18
+			"Truncation", // 0x19
+			"RTFTruncation", // 0x1A
+			"Conflict", // 0x1B
+			"Collections", // 0x1C
+			"ApplicationData", // 0x1D
+			"DeletesAsMoves", // 0x1E
+			"NotifyGUID", // 0x1F
+			"Supported", // 0x20
+			"SoftDelete", // 0x21
+			"MIMESupport", // 0x22
+			"MIMETruncation", // 0x23
+			"Wait", // 0x24
+			"Limit", // 0x25
+			"Partial", // 0x26
+	};
+
+	/**
+	 * FolderHierarchy
+	 */
+	public static final String[] CP_7 = {
+	// FolderHierarchy
+			"Folders", // 0x05
+			"Folder", // 0x06
+			"DisplayName", // 0x07
+			"ServerId", // 0x08
+			"ParentId", // 0x09
+			"Type", // 0x0A
+			"Response", // Ox0B
+			"Status", // 0x0C
+			"ContentClass", // 0x0D
+			"Changes", // 0x0E
+			"Add", // 0x0F
+			"Delete", // 0x10
+			"Update", // 0x11
+			"SyncKey", // 0x12
+			"FolderCreate", // 0x13
+			"FolderDelete", // 0x14
+			"FolderUpdate", // 0x15
+			"FolderSync", // 0x16
+			"Count", // 0x17
+			"Version", // 0x18
+	};
 
 	public static final Map<String, Integer> NAMESPACES_IDS;
 	public static final Map<Integer, String[]> NAMESPACES_TAGS;
-	
+	public static final Map<String, Map<String, Integer>> NAMESPACES_MAPPINGS;
+
 	static {
 		NAMESPACES_IDS = new HashMap<String, Integer>();
 		NAMESPACES_TAGS = new HashMap<Integer, String[]>();
-		
+		NAMESPACES_MAPPINGS = new HashMap<String, Map<String, Integer>>();
+
 		NAMESPACES_IDS.put("AirSync", 0x0);
 		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Contacts", 0x1);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Email", 0x2);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("AirNotify", 0x3);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Cal", 0x4);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Move", 0x5);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("ItemEstimate", 0x6);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
+		createMappings("AirSync");
+
 		NAMESPACES_IDS.put("FolderHierarchy", 0x7);
 		NAMESPACES_TAGS.put(0x7, CP_7);
-		
-		NAMESPACES_IDS.put("MeetingResponse", 0x8);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Tasks", 0x9);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("ResolveRecipients", 0xA);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("ValidateCert", 0xB);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Contacts2", 0xC);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Ping", 0xD);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Provision", 0xE);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Search", 0xF);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Gal", 0x10);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("AirSyncBase", 0x11);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("Settings", 0x12);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("DocumentLibrary", 0x13);
-		NAMESPACES_TAGS.put(0x0, CP_0);
-		
-		NAMESPACES_IDS.put("ItemOperations", 0x14);
-		NAMESPACES_TAGS.put(0x0, CP_0);		
+		createMappings("FolderHierarchy");
+
 	}
-	
+
 	public static String[] getTagsTableForNamespace(String nsName) {
 		Integer codePage = NAMESPACES_IDS.get(nsName);
 		String[] ret = NAMESPACES_TAGS.get(codePage);
 		return ret;
 	}
-	
+
+	private static void createMappings(String namespace) {
+		Integer tableId = NAMESPACES_IDS.get(namespace);
+		logger.info("id for namespace '" + namespace + "' is "
+				+ Integer.toHexString(tableId));
+		String[] stab = NAMESPACES_TAGS.get(tableId);
+		int start = 0x05;
+		Map<String, Integer> mapping = new HashMap<String, Integer>();
+		for (String tag : stab) {
+			mapping.put(tag, start++);
+		}
+		NAMESPACES_MAPPINGS.put(namespace, mapping);
+	}
+
+	public static Map<String, Integer> getElementMappings(String newNs) {
+		return NAMESPACES_MAPPINGS.get(newNs);
+	}
+
 }
