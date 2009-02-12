@@ -298,7 +298,9 @@ public class WbxmlParser {
 
 	private String resolveId(String[] tab, int id) throws SAXException,
 			IOException {
-		logger.info("resolve(0x" + Integer.toHexString(id & 0x07f) + ")");
+		if (logger.isDebugEnabled()) {
+			logger.debug("resolve(0x" + Integer.toHexString(id & 0x07f) + ")");
+		}
 		int idx = (id & 0x07f) - 5;
 		if (idx == -1) {
 			return readStrT();
@@ -308,7 +310,10 @@ public class WbxmlParser {
 		}
 
 		String ret = tab[idx];
-		logger.info("resolved as '" + ret + "'");
+		if (logger.isDebugEnabled()) {
+			logger.debug("resolved as '" + ret + "'");
+		}
+
 		return ret;
 	}
 

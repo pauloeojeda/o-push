@@ -50,6 +50,20 @@ public class TagsTables {
 			"Limit", // 0x25
 			"Partial", // 0x26
 	};
+	
+	public static final String[] CP_6 = {
+	// ItemEstimate
+		"GetItemEstimate", // 0x05
+		"Version", // 0x06
+		"Collections", // 0x07
+		"Collection", // 0x08
+		"Class", // 0x09
+		"CollectionId", // 0x0A
+		"DateTime", // 0x0B
+		"Estimate", // 0x0C
+		"Response", // 0x0D
+		"Status", // 0x0E
+	};
 
 	/**
 	 * FolderHierarchy
@@ -94,6 +108,10 @@ public class TagsTables {
 		NAMESPACES_IDS.put("FolderHierarchy", 0x7);
 		NAMESPACES_TAGS.put(0x7, CP_7);
 		createMappings("FolderHierarchy");
+
+		NAMESPACES_IDS.put("ItemEstimate", 0x6);
+		NAMESPACES_TAGS.put(0x6, CP_6);
+		createMappings("ItemEstimate");
 
 	}
 

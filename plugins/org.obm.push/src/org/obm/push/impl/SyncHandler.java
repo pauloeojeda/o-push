@@ -1,8 +1,6 @@
 package org.obm.push.impl;
 
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +47,12 @@ public class SyncHandler implements IRequestHandler {
 			Element cols = DOMUtils.createElement(root, "Collections");
 			
 			for (SyncCollection c : collections) {
-				
+				c.setNewSyncKey(sm.getNewSyncKey(c.getSyncKey()));
+				Element ce = DOMUtils.createElement(cols, "Collection");
+				DOMUtils.createElementAndText(ce, "Class", c.getDataClass());
+				DOMUtils.createElementAndText(ce, "SyncKey", c.getNewSyncKey());
+				DOMUtils.createElementAndText(ce, "CollectionId", c.getCollectionId());
+				DOMUtils.createElementAndText(ce, "Status", "1");
 			}
 			
 			responder.sendResponse("AirSync", reply);
@@ -63,7 +66,7 @@ public class SyncHandler implements IRequestHandler {
 		SyncCollection collection = new SyncCollection();
 		collection.setDataClass(DOMUtils.getElementText(col, "Class"));
 		collection.setSyncKey(DOMUtils.getElementText(col, "SyncKey"));
-		Element fid = DOMUtils.getUniqueElement(col, "FolderId");
+		Element fid = DOMUtils.getUniqueElement(col, "CollectionId");
 		if (fid != null) {
 			collection.setCollectionId(fid.getTextContent());
 		}
@@ -148,6 +151,6 @@ public class SyncHandler implements IRequestHandler {
 
 	private String getFolderId(String devId, Object object) {
 		// TODO Auto-generated method stub
-		return null;
+		return devId+"/"+object;
 	}
 }
