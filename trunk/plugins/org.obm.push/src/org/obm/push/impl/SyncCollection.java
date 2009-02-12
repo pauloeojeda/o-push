@@ -19,6 +19,7 @@ public class SyncCollection {
 	private String syncKey;
 	private Integer truncation;
 	private boolean deletesAsMoves;
+	private String newSyncKey;
 	
 	public SyncCollection() {
 		clientIds = new HashMap<String, String>();
@@ -92,6 +93,14 @@ public class SyncCollection {
 
 	public void setFetchIds(List<String> fetchIds) {
 		this.fetchIds = fetchIds;
+	}
+
+	public String getNewSyncKey() {
+		return newSyncKey;
+	}
+
+	public void setNewSyncKey(String newSyncKey) {
+		this.newSyncKey = newSyncKey;
 	}
 
 }

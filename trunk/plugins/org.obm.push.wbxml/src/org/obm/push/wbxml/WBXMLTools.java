@@ -38,8 +38,9 @@ public class WBXMLTools {
 		storeWbxml(wbxml);
 
 		WbxmlParser parser = new WbxmlParser(defaultNamespace);
-		parser.setTagTable(0x0, TagsTables.CP_0);
-		parser.setTagTable(0x7, TagsTables.CP_7);
+		parser.setTagTable(0x0, TagsTables.CP_0); // AirSync
+		parser.setTagTable(0x6, TagsTables.CP_6); // ItemEstimate
+		parser.setTagTable(0x7, TagsTables.CP_7); // FolderHierarchy
 		parser.switchPage(0);
 		PushDocumentHandler pdh = new PushDocumentHandler();
 		parser.setDocumentHandler(pdh);

@@ -1,3 +1,20 @@
+2009-02-12  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	finish Sync response
+	
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/TagsTables.java
+	: (TagsTables):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/WBXMLTools.java
+	: (WBXMLTools.toXml):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/WbxmlPa
+	rser.java: (WbxmlParser.resolveId):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncCollection.java:
+	(SyncCollection), (SyncCollection.getNewSyncKey),
+	(SyncCollection.setNewSyncKey):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process), (SyncHandler.processCollection),
+	(SyncHandler.getFolderId):
+
 2009-02-10  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	FolderSync response implementation.
