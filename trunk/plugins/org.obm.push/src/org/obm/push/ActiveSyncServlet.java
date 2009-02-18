@@ -18,6 +18,7 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IBackendFactory;
 import org.obm.push.impl.ASParams;
 import org.obm.push.impl.FolderSyncHandler;
+import org.obm.push.impl.GetItemEstimateHandler;
 import org.obm.push.impl.IRequestHandler;
 import org.obm.push.impl.Responder;
 import org.obm.push.impl.SyncHandler;
@@ -45,8 +46,6 @@ public class ActiveSyncServlet extends HttpServlet {
 			.getLog(ActiveSyncServlet.class);
 
 	private Map<String, IRequestHandler> handlers;
-
-	private Map<String, String> defaultNamespaces;
 
 	@Override
 	protected void service(HttpServletRequest request,
@@ -120,7 +119,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			byte[] input = FileUtils.streamBytes(in, true);
 			Document doc = null;
 			try {
-				doc = WBXMLTools.toXml(getDefaultNamespace(p.getCommand()), input);
+				doc = WBXMLTools.toXml(input);
 			} catch (IOException e) {
 				logger.error("Error parsing wbxml data.", e);
 				return;
@@ -134,10 +133,6 @@ public class ActiveSyncServlet extends HttpServlet {
 				logger.warn("no handler for command " + p.getCommand());
 			}
 		}
-	}
-
-	private String getDefaultNamespace(String command) {
-		return defaultNamespaces.get(command);
 	}
 
 	private IRequestHandler getHandler(ASParams p) {
@@ -156,14 +151,11 @@ public class ActiveSyncServlet extends HttpServlet {
 		PushConfiguration pc = new PushConfiguration();
 
 		IBackend backend = loadBackend(pc);
-
-		defaultNamespaces = new HashMap<String, String>();
-		defaultNamespaces.put("Sync", "AirSync");
-		
 		
 		handlers = new HashMap<String, IRequestHandler>();
 		handlers.put("FolderSync", new FolderSyncHandler(backend));
 		handlers.put("Sync", new SyncHandler(backend));
+		handlers.put("GetItemEstimate", new GetItemEstimateHandler(backend));
 
 		System.out.println("ActiveSync servlet initialised.");
 	}

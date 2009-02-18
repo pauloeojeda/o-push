@@ -20,6 +20,7 @@ public class SyncCollection {
 	private Integer truncation;
 	private boolean deletesAsMoves;
 	private String newSyncKey;
+	private Integer filterType;
 	
 	public SyncCollection() {
 		clientIds = new HashMap<String, String>();
@@ -101,6 +102,14 @@ public class SyncCollection {
 
 	public void setNewSyncKey(String newSyncKey) {
 		this.newSyncKey = newSyncKey;
+	}
+
+	public Integer getFilterType() {
+		return filterType;
+	}
+
+	public void setFilterType(Integer filterType) {
+		this.filterType = filterType;
 	}
 
 }

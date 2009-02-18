@@ -77,7 +77,7 @@ public class SyncHandler implements IRequestHandler {
 		// TODO sync options
 
 		if (collection.getCollectionId() == null) {
-			collection.setCollectionId(getFolderId(p.getDevId(), collection
+			collection.setCollectionId(Utils.getFolderId(p.getDevId(), collection
 					.getDataClass()));
 		}
 
@@ -147,10 +147,5 @@ public class SyncHandler implements IRequestHandler {
 	private IDataDecoder getDecoder(String dataClass) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	private String getFolderId(String devId, Object object) {
-		// TODO Auto-generated method stub
-		return devId+"/"+object;
 	}
 }

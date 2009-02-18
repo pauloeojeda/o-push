@@ -10,6 +10,7 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IExporter;
 import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.ImportHierarchyChangesMem;
+import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.ServerId;
 import org.obm.push.backend.SyncFolder;
 import org.obm.push.state.StateMachine;
@@ -72,7 +73,7 @@ public class FolderSyncHandler implements IRequestHandler {
 
 		ImportHierarchyChangesMem imem = new ImportHierarchyChangesMem();
 		IExporter exporter = backend.getExporter();
-		exporter.configure(imem, false, false, state, 0, 0);
+		exporter.configure(imem, null, null, state, 0, 0);
 
 		try {
 			Document ret = DOMUtils.createDoc(null, "FolderSync");
@@ -80,19 +81,21 @@ public class FolderSyncHandler implements IRequestHandler {
 			DOMUtils.createElementAndText(root, "Status", "1");
 			DOMUtils.createElementAndText(root, "SyncKey", newSyncKey);
 			changes = DOMUtils.createElement(root, "Changes");
-			DOMUtils.createElementAndText(changes, "Count", imem.getCount()+"");
-			List<SyncFolder> changed = imem.getChanged();
-			for (SyncFolder sf : changed) {
+
+			exporter.synchronize();
+			DOMUtils.createElementAndText(changes, "Count", imem.getCount()
+					+ "");
+			List<ItemChange> changed = imem.getChanged();
+			for (ItemChange sf : changed) {
 				Element add = DOMUtils.createElement(changes, "Add");
 				encode(add, sf);
 			}
-			List<SyncFolder> deleted = imem.getDeleted();
-			for (SyncFolder sf : deleted) {
+			List<ItemChange> deleted = imem.getDeleted();
+			for (ItemChange sf : deleted) {
 				Element remove = DOMUtils.createElement(changes, "Remove");
-				Element serverEntryId = DOMUtils.createElement(remove, "ServerEntryId");
-				encode(serverEntryId, sf);
+				encode(remove, sf);
 			}
-			
+
 			responder.sendResponse("FolderHierarchy", ret);
 			state = exporter.getState();
 			sm.setSyncState(newSyncKey, state);
@@ -102,9 +105,11 @@ public class FolderSyncHandler implements IRequestHandler {
 
 	}
 
-	private void encode(Element add, SyncFolder sf) {
-		// TODO Auto-generated method stub
-		
+	private void encode(Element add, ItemChange sf) {
+		DOMUtils.createElementAndText(add, "ServerId", sf.getServerId());
+		DOMUtils.createElementAndText(add, "ParentId", sf.getParentId());
+		DOMUtils.createElementAndText(add, "DisplayName", sf.getDisplayName());
+		DOMUtils.createElementAndText(add, "Type", sf.getItemType().asIntString());
 	}
 
 	private SyncFolder folder(Element e) {
