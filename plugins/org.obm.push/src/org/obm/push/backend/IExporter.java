@@ -4,9 +4,13 @@ import org.obm.push.state.SyncState;
 
 public interface IExporter {
 
-	void configure(ImportHierarchyChangesMem imem, boolean b, boolean c,
+	void configure(IImporter imem, String dataClass, Integer filterType,
 			SyncState state, int i, int j);
 
 	SyncState getState();
+
+	Integer getChangesCount();
+
+	void synchronize();
 
 }

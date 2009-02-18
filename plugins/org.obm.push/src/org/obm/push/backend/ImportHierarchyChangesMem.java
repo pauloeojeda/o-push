@@ -3,25 +3,36 @@ package org.obm.push.backend;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ImportHierarchyChangesMem {
+public class ImportHierarchyChangesMem implements IImporter {
+
+	private List<ItemChange> deletions;
+	private List<ItemChange> changes;
+
+	public ImportHierarchyChangesMem() {
+		deletions = new LinkedList<ItemChange>();
+		changes = new LinkedList<ItemChange>();
+	}
 
 	public int getCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return deletions.size() + changes.size();
 	}
 
-	public List<SyncFolder> getChanged() {
-		// TODO Auto-generated method stub
-		LinkedList<SyncFolder> ch = new LinkedList<SyncFolder>();
-
-		return ch;
+	public List<ItemChange> getChanged() {
+		return changes;
 	}
 
-	public List<SyncFolder> getDeleted() {
-		// TODO Auto-generated method stub
-		LinkedList<SyncFolder> ch = new LinkedList<SyncFolder>();
+	public List<ItemChange> getDeleted() {
+		return deletions;
+	}
 
-		return ch;
+	@Override
+	public void addChanges(List<ItemChange> lic) {
+		changes.addAll(lic);
+	}
+
+	@Override
+	public void addDeletions(List<ItemChange> lic) {
+		deletions.addAll(lic);
 	}
 
 }

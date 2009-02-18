@@ -55,7 +55,7 @@ public class WbxmlParser {
 	private int publicIdentifierId;
 	private Vector<String> stack = new Vector<String>();
 
-	public WbxmlParser(String defaultNamespace) {
+	public WbxmlParser() {
 		this.tagsTables = new HashMap<Integer, String[]>();
 		this.attrStarTables = new HashMap<Integer, String[]>();
 		this.attrValueTables = new HashMap<Integer, String[]>();
