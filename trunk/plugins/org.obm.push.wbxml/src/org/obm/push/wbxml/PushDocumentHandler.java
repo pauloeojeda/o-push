@@ -5,11 +5,9 @@ import java.util.Stack;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
@@ -44,12 +42,6 @@ public class PushDocumentHandler implements ContentHandler {
 
 	@Override
 	public void endDocument() throws SAXException {
-		System.out.println("from pda: ");
-		try {
-			DOMUtils.logDom(doc);
-		} catch (TransformerException e) {
-			logger.error(e.getMessage(), e);
-		}
 	}
 
 	@Override
