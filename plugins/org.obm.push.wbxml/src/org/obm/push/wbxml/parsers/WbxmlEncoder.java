@@ -16,7 +16,6 @@ import org.xml.sax.SAXException;
 /**
  * Converts XML to WBXML using a sax content handler
  */
-
 public class WbxmlEncoder {
 
 	private static final Log logger = LogFactory.getLog(WbxmlEncoder.class);
@@ -29,11 +28,11 @@ public class WbxmlEncoder {
 	 * The constructor creates an internal document handler. The given parser is
 	 * used
 	 */
-
 	public WbxmlEncoder(String defaultNamespace) {
 		this.defaultNamespace = defaultNamespace;
 		try {
-			parser = SAXParserFactory.newInstance().newSAXParser();
+			SAXParserFactory factory = SAXParserFactory.newInstance();
+			parser = factory.newSAXParser();
 		} catch (Exception e) {
 			throw new RuntimeException(e.toString());
 		}
@@ -47,7 +46,6 @@ public class WbxmlEncoder {
 	 * converts the XML data from the given SAX InputSource and writes the
 	 * result to the given OutputStream
 	 */
-
 	public void convert(InputSource in, OutputStream out) throws SAXException,
 			IOException {
 

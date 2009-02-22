@@ -15,7 +15,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-
 /**
  * Wbxml convertion tools
  * 
@@ -64,7 +63,6 @@ public class WBXMLTools {
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
-
 	}
 
 	public static byte[] toWbxml(String defaultNamespace, Document doc)
@@ -78,10 +76,10 @@ public class WBXMLTools {
 			out = new ByteArrayOutputStream();
 			encoder.convert(is, out);
 			byte[] ret = out.toByteArray();
-			storeWbxml(ret);
+			 storeWbxml(ret);
 
-			// logger.info("reconverted version");
-			// DOMUtils.logDom(toXml(ret));
+//			logger.info("reconverted version");
+//			DOMUtils.logDom(toXml(ret));
 
 			return ret;
 		} catch (Exception e) {

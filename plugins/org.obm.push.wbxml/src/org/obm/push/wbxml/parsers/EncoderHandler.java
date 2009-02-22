@@ -43,8 +43,6 @@ class EncoderHandler extends DefaultHandler {
 			}
 			currentXmlns = newNs;
 
-//			buf.write(Wbxml.LITERAL_C);
-//			we.writeStrT(qName);
 			we.writeElement(qName);
 		} catch (IOException e) {
 			throw new SAXException(e);
@@ -52,7 +50,6 @@ class EncoderHandler extends DefaultHandler {
 	}
 
 	private void switchToNs(String newNs) throws IOException {
-		// TODO Auto-generated method stub
 		Map<String, Integer> table = TagsTables.getElementMappings(newNs);
 		we.setStringTable(table);
 		we.switchPage(TagsTables.NAMESPACES_IDS.get(newNs));
@@ -60,6 +57,11 @@ class EncoderHandler extends DefaultHandler {
 
 	public void characters(char[] chars, int start, int len)
 			throws SAXException {
+		String s = new String(chars, start, len);
+		s = s.trim();
+		if (s.length() == 0) {
+			return;
+		}
 		try {
 			buf.write(Wbxml.STR_I);
 			we.writeStrI(buf, new String(chars, start, len));
@@ -71,6 +73,12 @@ class EncoderHandler extends DefaultHandler {
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
 		buf.write(Wbxml.END);
+	}
+
+	@Override
+	public void ignorableWhitespace(char[] ch, int start, int length)
+			throws SAXException {
+		System.err.println("ignorable whitespace");
 	}
 
 }
