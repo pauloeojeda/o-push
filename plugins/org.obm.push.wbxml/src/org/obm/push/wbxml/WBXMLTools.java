@@ -38,6 +38,7 @@ public class WBXMLTools {
 
 		WbxmlParser parser = new WbxmlParser();
 		parser.setTagTable(0x0, TagsTables.CP_0); // AirSync
+		parser.setTagTable(0x1, TagsTables.CP_1); // Contacts
 		parser.setTagTable(0x6, TagsTables.CP_6); // ItemEstimate
 		parser.setTagTable(0x7, TagsTables.CP_7); // FolderHierarchy
 		parser.switchPage(0);
