@@ -58,10 +58,11 @@ public class GetItemEstimateHandler implements IRequestHandler {
 		try {
 			Document rep = DOMUtils.createDoc(null, "GetItemEstimate");
 			Element root = rep.getDocumentElement();
-			Element response = DOMUtils.createElement(root, "Response");
-			DOMUtils.createElementAndText(response, "Status", "1");
 			for (SyncCollection c : cols) {
+				Element response = DOMUtils.createElement(root, "Response");
+				DOMUtils.createElementAndText(response, "Status", "1");
 				Element ce = DOMUtils.createElement(response, "Collection");
+				DOMUtils.createElementAndText(ce, "Class", c.getDataClass());
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId());
 				Element estim = DOMUtils.createElement(ce, "Estimate");
