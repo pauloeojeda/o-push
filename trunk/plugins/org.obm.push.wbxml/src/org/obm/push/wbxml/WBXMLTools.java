@@ -39,8 +39,24 @@ public class WBXMLTools {
 		WbxmlParser parser = new WbxmlParser();
 		parser.setTagTable(0x0, TagsTables.CP_0); // AirSync
 		parser.setTagTable(0x1, TagsTables.CP_1); // Contacts
+		parser.setTagTable(0x2, TagsTables.CP_2); // Email
+		parser.setTagTable(0x3, TagsTables.CP_3); // AirNotify
+		parser.setTagTable(0x4, TagsTables.CP_4); // Calendar
+		parser.setTagTable(0x5, TagsTables.CP_5); // Move
 		parser.setTagTable(0x6, TagsTables.CP_6); // ItemEstimate
 		parser.setTagTable(0x7, TagsTables.CP_7); // FolderHierarchy
+		parser.setTagTable(0x8, TagsTables.CP_8); // MeetingResponse
+		parser.setTagTable(0x9, TagsTables.CP_9); // Tasks
+		parser.setTagTable(0x10, TagsTables.CP_10); // ResolveRecipients
+		parser.setTagTable(0x11, TagsTables.CP_11); // ValidateCert
+		parser.setTagTable(0x13, TagsTables.CP_13); // Ping
+		parser.setTagTable(0x14, TagsTables.CP_14); // Provision
+		parser.setTagTable(0x15, TagsTables.CP_15); // Search
+		parser.setTagTable(0x16, TagsTables.CP_16); // GAL
+		parser.setTagTable(0x17, TagsTables.CP_17); // AirSyncBase
+		parser.setTagTable(0x18, TagsTables.CP_18); // Settings
+		parser.setTagTable(0x19, TagsTables.CP_19); // DocumentLibrary
+		parser.setTagTable(0x20, TagsTables.CP_20); // ItemOperations
 		parser.switchPage(0);
 		PushDocumentHandler pdh = new PushDocumentHandler();
 		parser.setDocumentHandler(pdh);
