@@ -192,6 +192,9 @@ public class WbxmlParser {
 		attrStartTable = attrStarTables.get(page);
 		attrValueTable = attrValueTables.get(page);
 		logger.info("switching to page 0x" + page);
+		if (tagTable == null) {
+			logger.error("tagsTable not found for page " + page);
+		}
 	}
 
 	// -------------- internal methods start here --------------------
@@ -306,7 +309,7 @@ public class WbxmlParser {
 			return readStrT();
 		}
 		if (idx < 0 || tab == null || idx >= tab.length || tab[idx] == null) {
-			throw new SAXException("id " + id + " undef.");
+			throw new SAXException("id " + id + " undef. tab: " + tab);
 		}
 
 		String ret = tab[idx];
