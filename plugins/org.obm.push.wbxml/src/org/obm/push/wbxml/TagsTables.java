@@ -50,19 +50,79 @@ public class TagsTables {
 			"Limit", // 0x25
 			"Partial", // 0x26
 	};
-	
+
+	public static final String[] CP_1 = {
+	// Contacts
+			"Anniversary", // 0x05
+			"AssistantName", // 0x06
+			"AssistantTelephoneNumber", // 0x07
+			"Birthday", // 0x08
+			"Body", // 0x09
+			"BodySize", // 0x0A
+			"BodyTruncated", // 0x0B
+			"Business2TelephoneNumber", // 0x0C
+			"BusinessAddressCity", // 0x0D
+			"BusinessAddressCountry", // 0x0E
+			"BusinessAddressPostalCode", // 0x0F
+			"BusinessAddressState", // 0x10
+			"BusinessAddressStreet", // 0x11
+			"BusinessFaxNumber", // 0x12
+			"BusinessTelephoneNumber", // 0x13
+			"CarTelephoneNumber", // 0x14
+			"Categories", // 0x15
+			"Category", // 0x16
+			"Children", // 0x17
+			"Child", // 0x18
+			"CompanyName", // 0x19
+			"Department", // 0x1A
+			"Email1Address", // 0x1B
+			"Email2Address", // 0x1C
+			"Email3Address", // 0x1D
+			"FileAs", // 0x1E
+			"FirstName", // 0x1F
+			"Home2TelephoneNumber", // 0x20
+			"HomeAddressCity", // 0x21
+			"HomeAddressCountry", // 0x22
+			"HomeAddressPostalCode", // 0x23
+			"HomeAddressState", // 0x24
+			"HomeAddressStreet", // 0x25
+			"HomeFaxNumber", // 0x26
+			"HomeTelephoneNumber", // 0x27
+			"JobTitle", // 0x28
+			"LastName", // 0x29
+			"MiddleName", // 0x2A
+			"MobileTelephoneNumber", // 0x2B
+			"OfficeLocation", // 0x2C
+			"OtherAddressCity", // 0x2D
+			"OtherAddressCountry", // 0x2E
+			"OtherAddressPostalCode", // 0x2F
+			"OtherAddressState", // 0x30
+			"OtherAddressStreet", // 0x31
+			"PagerNumber", // 0x32
+			"RadioTelephoneNumber", // 0x33
+			"Spouse", // 0x34
+			"Suffix", // 0x35
+			"Title", // 0x36
+			"Webpage", // 0x37
+			"YomiCompanyName", // 0x38
+			"YomiFirstName", // 0x39
+			"YomiLastName", // 0x3A
+			"CompressedRTF", // 0x3B
+			"Picture", // 0x3C
+	};
+
 	public static final String[] CP_6 = {
 	// ItemEstimate
-		"GetItemEstimate", // 0x05
-		"Version", // 0x06
-		"Collections", // 0x07
-		"Collection", // 0x08
-		"Class", // 0x09
-		"CollectionId", // 0x0A
-		"DateTime", // 0x0B
-		"Estimate", // 0x0C
-		"Response", // 0x0D
-		"Status", // 0x0E
+			"GetItemEstimate", // 0x05
+			"Version", // 0x06
+			"Collections", // 0x07
+			"Collection", // 0x08
+			"Class", // 0x09
+			"CollectionId", // 0x0A
+			"DateTime", // 0x0B
+			"Estimate", // 0x0C
+			"Response", // 0x0D
+			"Status", // 0x0E
 	};
 
 	/**
@@ -105,13 +165,17 @@ public class TagsTables {
 		NAMESPACES_TAGS.put(0x0, CP_0);
 		createMappings("AirSync");
 
-		NAMESPACES_IDS.put("FolderHierarchy", 0x7);
-		NAMESPACES_TAGS.put(0x7, CP_7);
-		createMappings("FolderHierarchy");
+		NAMESPACES_IDS.put("Contacts", 0x1);
+		NAMESPACES_TAGS.put(0x1, CP_1);
+		createMappings("Contacts");
 
 		NAMESPACES_IDS.put("ItemEstimate", 0x6);
 		NAMESPACES_TAGS.put(0x6, CP_6);
 		createMappings("ItemEstimate");
+
+		NAMESPACES_IDS.put("FolderHierarchy", 0x7);
+		NAMESPACES_TAGS.put(0x7, CP_7);
+		createMappings("FolderHierarchy");
 
 	}
 

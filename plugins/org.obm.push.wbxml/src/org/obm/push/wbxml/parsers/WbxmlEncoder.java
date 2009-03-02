@@ -114,6 +114,11 @@ public class WbxmlEncoder {
 	}
 
 	public void writeElement(String name) throws IOException {
+		Integer mapping = stringTable.get(name);
+		if (mapping == null) {
+			logger.warn("no mapping for '" + name + "'");
+			throw new IOException("no mapping for '" + name + "'");
+		}
 		writeInt(buf, stringTable.get(name) + 64);
 	}
 }

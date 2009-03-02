@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +24,7 @@ import org.obm.push.impl.IRequestHandler;
 import org.obm.push.impl.Responder;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.utils.Base64;
+import org.obm.push.utils.DOMUtils;
 import org.obm.push.utils.FileUtils;
 import org.obm.push.utils.RunnableExtensionLoader;
 import org.obm.push.wbxml.WBXMLTools;
@@ -125,6 +127,12 @@ public class ActiveSyncServlet extends HttpServlet {
 				return;
 			}
 
+			logger.info("from pda:");
+			try {
+				DOMUtils.logDom(doc);
+			} catch (TransformerException e) {
+			}
+
 			IRequestHandler rh = getHandler(p);
 			if (rh != null) {
 				response.setHeader("MS-Server-ActiveSync", "6.5.7638.1");
@@ -151,7 +159,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		PushConfiguration pc = new PushConfiguration();
 
 		IBackend backend = loadBackend(pc);
-		
+
 		handlers = new HashMap<String, IRequestHandler>();
 		handlers.put("FolderSync", new FolderSyncHandler(backend));
 		handlers.put("Sync", new SyncHandler(backend));
