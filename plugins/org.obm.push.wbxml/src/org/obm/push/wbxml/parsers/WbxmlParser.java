@@ -68,7 +68,6 @@ public class WbxmlParser {
 	 */
 	public void setTagTable(int page, String[] tagTable) {
 		tagsTables.put(page, tagTable);
-		logger.info(page + " page : aaaa " + tagsTables.get(page));
 	}
 
 	/**
