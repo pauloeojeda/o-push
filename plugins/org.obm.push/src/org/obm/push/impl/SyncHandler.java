@@ -9,12 +9,32 @@ import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsImporter;
+import org.obm.push.data.ContactsDecoder;
 import org.obm.push.data.IDataDecoder;
 import org.obm.push.state.StateMachine;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+//<?xml version="1.0" encoding="UTF-8"?>
+//<Sync>
+//<Collections>
+//<Collection>
+//<Class>Contacts</Class>
+//<SyncKey>ff16677f-ee9c-42dc-a562-709f899c8d31</SyncKey>
+//<CollectionId>obm://contacts/user@domain</CollectionId>
+//<DeletesAsMoves/>
+//<GetChanges/>
+//<WindowSize>100</WindowSize>
+//<Options>
+//<Truncation>4</Truncation>
+//<RTFTruncation>4</RTFTruncation>
+//<Conflict>1</Conflict>
+//</Options>
+//</Collection>
+//</Collections>
+//</Sync>
 
 public class SyncHandler implements IRequestHandler {
 
@@ -29,6 +49,7 @@ public class SyncHandler implements IRequestHandler {
 	public SyncHandler(IBackend backend) {
 		this.backend = backend;
 		decoders = new HashMap<String, IDataDecoder>();
+		decoders.put("Contacts", new ContactsDecoder());
 	}
 
 	@Override
@@ -44,7 +65,7 @@ public class SyncHandler implements IRequestHandler {
 			Element col = (Element) nl.item(i);
 			collections.add(processCollection(p, sm, col));
 		}
-
+		
 		Document reply = null;
 		try {
 			reply = DOMUtils.createDoc(null, "Sync");
@@ -88,7 +109,8 @@ public class SyncHandler implements IRequestHandler {
 
 		collection.setSyncState(sm.getSyncState(collection.getSyncKey()));
 
-		Element perform = DOMUtils.getUniqueElement(col, "Perform");
+		//Element perform = DOMUtils.getUniqueElement(col, "Perform");
+		Element perform = DOMUtils.getUniqueElement(col, "Commands");
 
 		if (perform != null) {
 			// get our sync state for this collection
@@ -110,12 +132,12 @@ public class SyncHandler implements IRequestHandler {
 		String modType = modification.getNodeName();
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
 		String clientId = DOMUtils.getElementText(modification, "ClientId");
-		Element syncData = DOMUtils.getUniqueElement(modification, "Data");
+		Element syncData = DOMUtils.getUniqueElement(modification, "ApplicationData");
 		String dataClass = collection.getDataClass();
 		IDataDecoder dd = getDecoder(dataClass);
 		IApplicationData data = null;
 		if (dd != null) {
-			data = dd.decode(syncData.getTextContent());
+			data = dd.decode(syncData);
 			if (modType.equals("Modify")) {
 				if (data.isRead()) {
 					importer.importMessageReadFlag(serverId, data.isRead());
@@ -129,6 +151,7 @@ public class SyncHandler implements IRequestHandler {
 					collection.getClientIds().put(clientId, id);
 					collection.setImportedChanges(true);
 				}
+				logger.info("AAAAAAAAAAAAAAAAAAAA");
 			} else if (modType.equals("Delete")) {
 				if (collection.isDeletesAsMoves()) {
 					String trash = backend.getWasteBasket();
@@ -150,7 +173,6 @@ public class SyncHandler implements IRequestHandler {
 	}
 
 	private IDataDecoder getDecoder(String dataClass) {
-		// TODO Auto-generated method stub
 		return decoders.get(dataClass);
 	}
 }
