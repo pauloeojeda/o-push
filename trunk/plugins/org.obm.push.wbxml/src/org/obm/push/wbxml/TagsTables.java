@@ -386,7 +386,7 @@ public class TagsTables {
 			"MaxAmbiguousRecipients", // 0x14
 			"CertificateCount", // 0x15
 	};
-
+	
 	/**
 	 * ValidateCert
 	 */
@@ -398,6 +398,13 @@ public class TagsTables {
 			"CertificateChain", // 0x08
 			"CheckCRL", // 0x09
 			"Status", // 0x0A
+	};
+
+	/**
+	 * Contacts2
+	 */
+	public static final String[] CP_12 = {
+	// Contacts2
 			"CustomerId", // 0x05
 			"GovernmentId", // 0x06
 			"IMAddress", // 0x07
@@ -688,6 +695,10 @@ public class TagsTables {
 		NAMESPACES_IDS.put("ValidateCert", 0x11);
 		NAMESPACES_TAGS.put(0x11, CP_11);
 		createMappings("ValidateCert");
+
+		NAMESPACES_IDS.put("Contacts2", 0x12);
+		NAMESPACES_TAGS.put(0x12, CP_12);
+		createMappings("Contacts2");
 
 		NAMESPACES_IDS.put("Ping", 0x13);
 		NAMESPACES_TAGS.put(0x13, CP_13);
