@@ -7,7 +7,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IExporter;
-import org.obm.push.backend.ImportContentsChangesMem;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
@@ -66,12 +65,11 @@ public class GetItemEstimateHandler implements IRequestHandler {
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId());
 				Element estim = DOMUtils.createElement(ce, "Estimate");
-				ImportContentsChangesMem imem = new ImportContentsChangesMem();
 				StateMachine sm = new StateMachine();
 				SyncState state = sm.getSyncState(c.getSyncKey());
 				IExporter exporter = backend.getExporter();
-				exporter.configure(imem, c.getDataClass(), c.getFilterType(),
-						state, 0, 0);
+				exporter.configure(c.getDataClass(), c.getFilterType(), state,
+						0, 0);
 				estim.setTextContent(exporter.getChangesCount() + "");
 			}
 			responder.sendResponse("ItemEstimate", rep);

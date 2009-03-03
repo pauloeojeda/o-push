@@ -73,7 +73,7 @@ public class FolderSyncHandler implements IRequestHandler {
 
 		ImportHierarchyChangesMem imem = new ImportHierarchyChangesMem();
 		IExporter exporter = backend.getExporter();
-		exporter.configure(imem, null, null, state, 0, 0);
+		exporter.configure(null, null, state, 0, 0);
 
 		try {
 			Document ret = DOMUtils.createDoc(null, "FolderSync");
@@ -85,7 +85,7 @@ public class FolderSyncHandler implements IRequestHandler {
 			exporter.synchronize();
 			DOMUtils.createElementAndText(changes, "Count", imem.getCount()
 					+ "");
-			List<ItemChange> changed = imem.getChanged();
+			List<ItemChange> changed = exporter.getChanged();
 			for (ItemChange sf : changed) {
 				Element add = DOMUtils.createElement(changes, "Add");
 				encode(add, sf);
