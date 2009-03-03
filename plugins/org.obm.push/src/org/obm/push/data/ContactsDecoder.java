@@ -9,7 +9,6 @@ import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.obm.push.backend.Contact;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.utils.DOMUtils;

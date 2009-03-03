@@ -1,4 +1,4 @@
-package org.obm.push.backend;
+package org.obm.push.data;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
