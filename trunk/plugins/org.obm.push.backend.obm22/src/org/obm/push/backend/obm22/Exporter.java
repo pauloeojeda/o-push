@@ -7,7 +7,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IExporter;
-import org.obm.push.backend.IImporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.ItemType;
 import org.obm.push.state.SyncState;
@@ -15,16 +14,14 @@ import org.obm.push.state.SyncState;
 public class Exporter implements IExporter {
 
 	private static final Log logger = LogFactory.getLog(Exporter.class);
-	private IImporter imem;
 	private SyncState state;
 
 	@Override
-	public void configure(IImporter imem, String dataClass, Integer filterType,
-			SyncState state, int i, int j) {
+	public void configure(String dataClass, Integer filterType, SyncState state,
+			int i, int j) {
 		// TODO Auto-generated method stub
 		logger.info("configure(imem, " + dataClass + ", " + filterType + ", "
 				+ state + ", " + i + ", " + j + ")");
-		this.imem = imem;
 		this.state = state;
 	}
 
@@ -42,25 +39,34 @@ public class Exporter implements IExporter {
 	public void synchronize() {
 		logger.info("synchronize");
 		List<ItemChange> lic = getCalendarChanges(state.getLastSync());
-		imem.addChanges(lic);
+		addChanges(lic);
 		lic = getCalendarDeletions(state.getLastSync());
-		imem.addDeletions(lic);
+		addDeletions(lic);
 
 		lic = getContactsChanges(state.getLastSync());
-		imem.addChanges(lic);
+		addChanges(lic);
 		lic = getContactsDeletions(state.getLastSync());
-		imem.addDeletions(lic);
+		addDeletions(lic);
 
 		lic = getTasksChanges(state.getLastSync());
-		imem.addChanges(lic);
+		addChanges(lic);
 		lic = getTasksDeletions(state.getLastSync());
-		imem.addDeletions(lic);
+		addDeletions(lic);
 
 		lic = getMailChanges(state.getLastSync());
-		imem.addChanges(lic);
+		addChanges(lic);
 		lic = getMailDeletions(state.getLastSync());
-		imem.addDeletions(lic);
+		addDeletions(lic);
+	}
 
+	private void addDeletions(List<ItemChange> lic) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void addChanges(List<ItemChange> lic) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private List<ItemChange> getContactsChanges(Date lastSync) {
@@ -133,6 +139,12 @@ public class Exporter implements IExporter {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
 		return ret;
+	}
+
+	@Override
+	public List<ItemChange> getChanged() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

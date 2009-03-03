@@ -1,6 +1,8 @@
 package org.obm.push.impl;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,9 +23,12 @@ public class SyncHandler implements IRequestHandler {
 	private static final Log logger = LogFactory.getLog(SyncHandler.class);
 
 	private IBackend backend;
+	
+	private Map<String, IDataDecoder> decoders;
 
 	public SyncHandler(IBackend backend) {
 		this.backend = backend;
+		decoders = new HashMap<String, IDataDecoder>();
 	}
 
 	@Override
@@ -146,6 +151,6 @@ public class SyncHandler implements IRequestHandler {
 
 	private IDataDecoder getDecoder(String dataClass) {
 		// TODO Auto-generated method stub
-		return null;
+		return decoders.get(dataClass);
 	}
 }
