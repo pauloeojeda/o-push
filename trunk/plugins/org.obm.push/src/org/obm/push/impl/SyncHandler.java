@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsImporter;
+import org.obm.push.data.CalendarDecoder;
 import org.obm.push.data.ContactsDecoder;
 import org.obm.push.data.IDataDecoder;
 import org.obm.push.state.StateMachine;
@@ -50,6 +51,7 @@ public class SyncHandler implements IRequestHandler {
 		this.backend = backend;
 		decoders = new HashMap<String, IDataDecoder>();
 		decoders.put("Contacts", new ContactsDecoder());
+		decoders.put("Calendar", new CalendarDecoder());
 	}
 
 	@Override
@@ -151,7 +153,6 @@ public class SyncHandler implements IRequestHandler {
 					collection.getClientIds().put(clientId, id);
 					collection.setImportedChanges(true);
 				}
-				logger.info("AAAAAAAAAAAAAAAAAAAA");
 			} else if (modType.equals("Delete")) {
 				if (collection.isDeletesAsMoves()) {
 					String trash = backend.getWasteBasket();
