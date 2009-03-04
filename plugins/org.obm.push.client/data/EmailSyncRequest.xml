@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sync>
+<Collections>
+<Collection>
+<Class>Email</Class>
+<SyncKey>f94a9f8b-d5f2-4433-bf72-df09128c70a8</SyncKey>
+<CollectionId>INBOX</CollectionId>
+<DeletesAsMoves/>
+<GetChanges/>
+<WindowSize>100</WindowSize>
+<Options>
+<FilterType>2</FilterType>
+<Truncation>1</Truncation>
+<Conflict>1</Conflict>
+</Options>
+</Collection>
+</Collections>
+</Sync>

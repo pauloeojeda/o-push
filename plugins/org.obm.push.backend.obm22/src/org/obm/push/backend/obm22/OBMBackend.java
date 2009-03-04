@@ -1,20 +1,23 @@
 package org.obm.push.backend.obm22;
 
 import org.obm.push.backend.IBackend;
+import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
-import org.obm.push.backend.IExporter;
+import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
 
 public class OBMBackend implements IBackend {
 
 	private IHierarchyImporter hImporter;
 	private IContentsImporter cImporter;
-	private IExporter exporter;
+	private IHierarchyExporter exporter;
+	private IContentsExporter contentsExporter;
 
 	public OBMBackend() {
-		hImporter = new Importer();
-		exporter = new Exporter();
+		hImporter = new HierarchyImporter();
+		exporter = new HierarchyExporter();
 		cImporter = new ContentsImporter();
+		contentsExporter = new ContentsExporter();
 	}
 
 	@Override
@@ -23,7 +26,7 @@ public class OBMBackend implements IBackend {
 	}
 
 	@Override
-	public IExporter getExporter() {
+	public IHierarchyExporter getHierarchyExporter() {
 		return exporter;
 	}
 
@@ -35,6 +38,11 @@ public class OBMBackend implements IBackend {
 	@Override
 	public String getWasteBasket() {
 		return "Trash";
+	}
+
+	@Override
+	public IContentsExporter getContentsExporter() {
+		return contentsExporter;
 	}
 
 }

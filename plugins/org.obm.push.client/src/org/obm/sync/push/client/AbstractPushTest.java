@@ -9,6 +9,7 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -30,7 +31,7 @@ public class AbstractPushTest extends TestCase {
 	private HttpClient hc;
 
 	protected AbstractPushTest() {
-
+		XTrustProvider.install();
 	}
 
 	// "POST /Microsoft-Server-ActiveSync?User=thomas@zz.com&DeviceId=Appl87837L1XY7H&DeviceType=iPhone&Cmd=Sync HTTP/1.1"
@@ -43,7 +44,7 @@ public class AbstractPushTest extends TestCase {
 		this.userId = "thomas@zz.com";
 		this.devId = "junitDevId";
 		this.devType = "PocketPC";
-		this.url = "http://127.0.0.1/Microsoft-Server-ActiveSync";
+		this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
 
 		this.hc = createHttpClient();
 	}
@@ -61,7 +62,7 @@ public class AbstractPushTest extends TestCase {
 				.getParams();
 		mp.setDefaultMaxConnectionsPerHost(4);
 		mp.setMaxTotalConnections(8);
-		ret.getState().setCredentials(new AuthScope("127.0.0.1", 80, "ZPush"),
+		ret.getState().setCredentials(new AuthScope("10.0.0.5", 443, "ZPush"),
 				new UsernamePasswordCredentials(userId, "aliacom"));
 
 		return ret;
@@ -73,13 +74,15 @@ public class AbstractPushTest extends TestCase {
 	}
 
 	@SuppressWarnings("deprecation")
-	protected Document postXml(String namespace, Document doc, String cmd) throws Exception {
+	protected Document postXml(String namespace, Document doc, String cmd)
+			throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		byte[] data = WBXMLTools.toWbxml(namespace, doc);
 		PostMethod pm = new PostMethod(url + "?User=" + userId + "&DeviceId="
 				+ devId + "&DeviceType=" + devType + "&Cmd=" + cmd);
 		pm.setRequestBody(new ByteArrayInputStream(data));
-		pm.setRequestHeader("MS-ASProtocolVersion", "2.5");
+		pm.setRequestHeader("MS-Asprotocolversion", "2.5");
+		pm.setRequestHeader("Content-Type", "application/vnd.ms-sync.wbxml");
 		Document xml = null;
 		synchronized (hc) {
 			try {
@@ -88,6 +91,10 @@ public class AbstractPushTest extends TestCase {
 					System.err.println("method failed:\n" + pm.getStatusLine()
 							+ "\n" + pm.getResponseBodyAsString());
 				} else {
+					Header[] hs = pm.getResponseHeaders();
+					for (Header h : hs) {
+						System.err.println("head["+h.getName()+"] => "+h.getValue());
+					}
 					InputStream is = pm.getResponseBodyAsStream();
 					File localCopy = File.createTempFile("pushresp_", ".bin");
 					FileUtils.transfer(is, new FileOutputStream(localCopy),
