@@ -4,9 +4,11 @@ public interface IBackend {
 
 	IHierarchyImporter getHierarchyImporter();
 	
-	IExporter getExporter();
+	IHierarchyExporter getHierarchyExporter();
 
 	IContentsImporter getContentsImporter(String string);
+
+	IContentsExporter getContentsExporter();
 
 	String getWasteBasket();
 	

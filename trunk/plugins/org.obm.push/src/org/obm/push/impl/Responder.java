@@ -22,12 +22,14 @@ public class Responder {
 	}
 
 	public void sendResponse(String defaultNamespace, Document doc) throws IOException {
+		resp.setContentType("application/vnd.ms-sync.wbxml");
 		logger.info("to pda:");
 		try {
 			DOMUtils.logDom(doc);
 		} catch (TransformerException e) {
 		}
 		byte[] wbxml = WBXMLTools.toWbxml(defaultNamespace, doc);
+		resp.setContentLength(wbxml.length);
 		ServletOutputStream out = resp.getOutputStream();
 		out.write(wbxml);
 		out.flush();

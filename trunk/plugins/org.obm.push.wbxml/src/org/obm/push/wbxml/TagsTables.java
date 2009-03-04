@@ -741,8 +741,10 @@ public class TagsTables {
 
 	private static void createMappings(String namespace) {
 		Integer tableId = NAMESPACES_IDS.get(namespace);
-		logger.info("id for namespace '" + namespace + "' is "
-				+ Integer.toHexString(tableId));
+		if (logger.isDebugEnabled()) {
+			logger.info("id for namespace '" + namespace + "' is "
+					+ Integer.toHexString(tableId));
+		}
 		String[] stab = NAMESPACES_TAGS.get(tableId);
 		int start = 0x05;
 		Map<String, Integer> mapping = new HashMap<String, Integer>();

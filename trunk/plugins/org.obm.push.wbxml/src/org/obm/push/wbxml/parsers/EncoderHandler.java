@@ -21,6 +21,11 @@ class EncoderHandler extends DefaultHandler {
 		this.defaultNamespace = defaultNamespace;
 		this.we = we;
 		this.buf = buf;
+//		if (!"AirSync".equals(defaultNamespace)) {
+//			switchToNs(defaultNamespace);
+//		} else {
+//			we.setStringTable(TagsTables.getElementMappings("AirSync"));
+//		}
 		switchToNs(defaultNamespace);
 		currentXmlns = defaultNamespace;
 	}
@@ -35,7 +40,7 @@ class EncoderHandler extends DefaultHandler {
 				newNs = defaultNamespace;
 			} else {
 				newNs = qName.substring(0, qName.indexOf(":"));
-				qName = qName.substring(qName.indexOf(":")+1);
+				qName = qName.substring(qName.indexOf(":") + 1);
 			}
 
 			if (!newNs.equals(currentXmlns)) {

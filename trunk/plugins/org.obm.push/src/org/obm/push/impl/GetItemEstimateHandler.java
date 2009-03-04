@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IBackend;
-import org.obm.push.backend.IExporter;
+import org.obm.push.backend.IContentsExporter;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
@@ -67,10 +67,10 @@ public class GetItemEstimateHandler implements IRequestHandler {
 				Element estim = DOMUtils.createElement(ce, "Estimate");
 				StateMachine sm = new StateMachine();
 				SyncState state = sm.getSyncState(c.getSyncKey());
-				IExporter exporter = backend.getExporter();
+				IContentsExporter exporter = backend.getContentsExporter();
 				exporter.configure(c.getDataClass(), c.getFilterType(), state,
 						0, 0);
-				estim.setTextContent(exporter.getChangesCount() + "");
+				estim.setTextContent(exporter.getCount() + "");
 			}
 			responder.sendResponse("ItemEstimate", rep);
 		} catch (Exception e) {

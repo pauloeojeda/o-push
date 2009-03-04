@@ -56,6 +56,12 @@ public class ActiveSyncServlet extends HttpServlet {
 		String password = null;
 		boolean valid = false;
 
+		String m = request.getMethod();
+		if ("OPTIONS".equals(m)) {
+			sendServerInfos(response);
+			return;
+		}
+
 		String authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
 			StringTokenizer st = new StringTokenizer(authHeader);
@@ -76,7 +82,9 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		if (!valid) {
-			logger.warn("invalid auth, sending http 401");
+			String uri = request.getMethod() + " " + request.getRequestURI()
+					+ " " + request.getQueryString();
+			logger.warn("invalid auth, sending http 401 (uri: " + uri + ")");
 			String s = "Basic realm=\"OBMPushService\"";
 			response.setHeader("WWW-Authenticate", s);
 			response.setStatus(401);
@@ -99,48 +107,48 @@ public class ActiveSyncServlet extends HttpServlet {
 			HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
 		ASParams p = getParams(request);
-		String m = request.getMethod();
 		logger.info("activeSyncMethod: " + p.getCommand());
 		String proto = request.getHeader("MS-ASProtocolVersion");
 		logger.info("Client supports protocol " + proto);
 
-		if ("OPTIONS".equals(m)) {
-			response.setHeader("MS-Server-ActiveSync", "6.5.7638.1");
-			response.setHeader("MS-ASProtocolVersions", "1.0,2.0,2.1,2.5");
-			response
-					.setHeader(
-							"MS-ASProtocolCommands",
-							"Sync,SendMail,SmartForward,SmartReply,GetAttachment,GetHierarchy,CreateCollection,DeleteCollection,MoveCollection,FolderSync,FolderCreate,FolderDelete,FolderUpdate,MoveItems,GetItemEstimate,MeetingResponse,ResolveRecipipents,ValidateCert,Provision,Search,Ping");
-		} else if ("POST".equals(m)) {
-			if (p.getCommand() == null) {
-				logger.warn("POST received without explicit command, aborting");
-				return;
-			}
-
-			InputStream in = request.getInputStream();
-			byte[] input = FileUtils.streamBytes(in, true);
-			Document doc = null;
-			try {
-				doc = WBXMLTools.toXml(input);
-			} catch (IOException e) {
-				logger.error("Error parsing wbxml data.", e);
-				return;
-			}
-
-			logger.info("from pda:");
-			try {
-				DOMUtils.logDom(doc);
-			} catch (TransformerException e) {
-			}
-
-			IRequestHandler rh = getHandler(p);
-			if (rh != null) {
-				response.setHeader("MS-Server-ActiveSync", "6.5.7638.1");
-				rh.process(p, doc, new Responder(response));
-			} else {
-				logger.warn("no handler for command " + p.getCommand());
-			}
+		if (p.getCommand() == null) {
+			logger.warn("POST received without explicit command, aborting");
+			return;
 		}
+
+		InputStream in = request.getInputStream();
+		byte[] input = FileUtils.streamBytes(in, true);
+		Document doc = null;
+		try {
+			doc = WBXMLTools.toXml(input);
+		} catch (IOException e) {
+			logger.error("Error parsing wbxml data.", e);
+			return;
+		}
+
+		logger.info("from pda:");
+		try {
+			DOMUtils.logDom(doc);
+		} catch (TransformerException e) {
+		}
+
+		IRequestHandler rh = getHandler(p);
+		if (rh != null) {
+			sendServerInfos(response);
+			rh.process(p, doc, new Responder(response));
+		} else {
+			logger.warn("no handler for command " + p.getCommand());
+		}
+	}
+
+	private void sendServerInfos(HttpServletResponse response) {
+		response.setHeader("MS-Server-ActiveSync", "8.0");
+		response.setHeader("X-MS-RP", "1.0,2.0,2.1,2.5");
+		response.setHeader("MS-ASProtocolVersions", "1.0,2.0,2.1,2.5");
+		response
+				.setHeader(
+						"MS-ASProtocolCommands",
+						"Sync,SendMail,SmartForward,SmartReply,GetAttachment,GetHierarchy,CreateCollection,DeleteCollection,MoveCollection,FolderSync,FolderCreate,FolderDelete,FolderUpdate,MoveItems,GetItemEstimate,MeetingResponse,ResolveRecipipents,ValidateCert,Provision,Search,Ping");
 	}
 
 	private IRequestHandler getHandler(ASParams p) {

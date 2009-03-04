@@ -29,4 +29,18 @@ public class TestWbxmlEncode extends AbstractPushTest {
 		Document doc = WBXMLTools.toXml(data);
 		DOMUtils.logDom(doc);
 	}
+
+	public void testDecodeEmailSync() throws Exception {
+		InputStream in = loadDataFile("sync_request_wm61.wbxml");
+		byte[] data = FileUtils.streamBytes(in, true);
+		Document doc = WBXMLTools.toXml(data);
+		DOMUtils.logDom(doc);
+	}
+
+	public void testExchangeFolderSync() throws Exception {
+		InputStream in = loadDataFile("exchange_foldersync.wbxml");
+		byte[] data = FileUtils.streamBytes(in, true);
+		Document doc = WBXMLTools.toXml(data);
+		DOMUtils.logDom(doc);
+	}
 }

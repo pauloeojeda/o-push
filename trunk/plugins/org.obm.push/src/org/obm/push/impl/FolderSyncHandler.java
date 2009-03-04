@@ -7,9 +7,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IBackend;
-import org.obm.push.backend.IExporter;
+import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
-import org.obm.push.backend.ImportHierarchyChangesMem;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.ServerId;
 import org.obm.push.backend.SyncFolder;
@@ -71,8 +70,9 @@ public class FolderSyncHandler implements IRequestHandler {
 			}
 		}
 
-		ImportHierarchyChangesMem imem = new ImportHierarchyChangesMem();
-		IExporter exporter = backend.getExporter();
+		IHierarchyExporter exporter = backend.getHierarchyExporter();
+
+		// dataClass, filterType, state, int, int
 		exporter.configure(null, null, state, 0, 0);
 
 		try {
@@ -83,14 +83,14 @@ public class FolderSyncHandler implements IRequestHandler {
 			changes = DOMUtils.createElement(root, "Changes");
 
 			exporter.synchronize();
-			DOMUtils.createElementAndText(changes, "Count", imem.getCount()
+			DOMUtils.createElementAndText(changes, "Count", exporter.getCount()
 					+ "");
 			List<ItemChange> changed = exporter.getChanged();
 			for (ItemChange sf : changed) {
 				Element add = DOMUtils.createElement(changes, "Add");
 				encode(add, sf);
 			}
-			List<ItemChange> deleted = imem.getDeleted();
+			List<ItemChange> deleted = exporter.getDeleted();
 			for (ItemChange sf : deleted) {
 				Element remove = DOMUtils.createElement(changes, "Remove");
 				encode(remove, sf);
@@ -109,7 +109,8 @@ public class FolderSyncHandler implements IRequestHandler {
 		DOMUtils.createElementAndText(add, "ServerId", sf.getServerId());
 		DOMUtils.createElementAndText(add, "ParentId", sf.getParentId());
 		DOMUtils.createElementAndText(add, "DisplayName", sf.getDisplayName());
-		DOMUtils.createElementAndText(add, "Type", sf.getItemType().asIntString());
+		DOMUtils.createElementAndText(add, "Type", sf.getItemType()
+				.asIntString());
 	}
 
 	private SyncFolder folder(Element e) {

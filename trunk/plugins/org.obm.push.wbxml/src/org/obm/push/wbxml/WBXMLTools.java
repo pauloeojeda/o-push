@@ -77,7 +77,7 @@ public class WBXMLTools {
 			FileOutputStream fout = new FileOutputStream(tmp);
 			fout.write(wbxml);
 			fout.close();
-			logger.info("received wbxml logged to " + tmp.getAbsolutePath());
+			logger.info("wbxml saved in " + tmp.getAbsolutePath());
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
