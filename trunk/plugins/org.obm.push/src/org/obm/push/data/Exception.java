@@ -3,18 +3,22 @@ package org.obm.push.data;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class Exception {
+import org.obm.push.data.calendarenum.CalendarBusyStatus;
+import org.obm.push.data.calendarenum.CalendarMeetingStatus;
+import org.obm.push.data.calendarenum.CalendarSensitivity;
+
+public class Exception implements IEventCalendar {
 	private String subject;
 	private String location;
 	private SimpleDateFormat exceptionStartTime;
 	private SimpleDateFormat startTime;
 	private SimpleDateFormat endTime;
 	private SimpleDateFormat dtStamp;
-	private Byte deleted;
-	private Byte sensitivity;
-	private Byte busyStatus;
-	private Byte allDayEvent;
-	private Byte meetingStatus;
+	private Boolean deleted;
+	private CalendarSensitivity sensitivity;
+	private CalendarBusyStatus busyStatus;
+	private Boolean allDayEvent;
+	private CalendarMeetingStatus meetingStatus;
 	private Integer reminder;
 	private ArrayList<String> categories;
 	public String getSubject() {
@@ -53,34 +57,34 @@ public class Exception {
 	public void setDtStamp(SimpleDateFormat dtStamp) {
 		this.dtStamp = dtStamp;
 	}
-	public Byte getDeleted() {
+	public Boolean getDeleted() {
 		return deleted;
 	}
-	public void setDeleted(Byte deleted) {
+	public void setDeleted(Boolean deleted) {
 		this.deleted = deleted;
 	}
-	public Byte getSensitivity() {
+	public CalendarSensitivity getSensitivity() {
 		return sensitivity;
 	}
-	public void setSensitivity(Byte sensitivity) {
+	public void setSensitivity(CalendarSensitivity sensitivity) {
 		this.sensitivity = sensitivity;
 	}
-	public Byte getBusyStatus() {
+	public CalendarBusyStatus getBusyStatus() {
 		return busyStatus;
 	}
-	public void setBusyStatus(Byte busyStatus) {
+	public void setBusyStatus(CalendarBusyStatus busyStatus) {
 		this.busyStatus = busyStatus;
 	}
-	public Byte getAllDayEvent() {
+	public Boolean getAllDayEvent() {
 		return allDayEvent;
 	}
-	public void setAllDayEvent(Byte allDayEvent) {
+	public void setAllDayEvent(Boolean allDayEvent) {
 		this.allDayEvent = allDayEvent;
 	}
-	public Byte getMeetingStatus() {
+	public CalendarMeetingStatus getMeetingStatus() {
 		return meetingStatus;
 	}
-	public void setMeetingStatus(Byte meetingStatus) {
+	public void setMeetingStatus(CalendarMeetingStatus meetingStatus) {
 		this.meetingStatus = meetingStatus;
 	}
 	public Integer getReminder() {

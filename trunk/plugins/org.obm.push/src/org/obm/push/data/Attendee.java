@@ -1,10 +1,13 @@
 package org.obm.push.data;
 
+import org.obm.push.data.calendarenum.AttendeeStatus;
+import org.obm.push.data.calendarenum.AttendeeType;
+
 public class Attendee {
 	private String email;
 	private String name;
-	private Byte attendeeStatus;
-	private Byte attendeeType;
+	private AttendeeStatus attendeeStatus;
+	private AttendeeType attendeeType;
 	public String getEmail() {
 		return email;
 	}
@@ -17,16 +20,16 @@ public class Attendee {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Byte getAttendeeStatus() {
+	public AttendeeStatus getAttendeeStatus() {
 		return attendeeStatus;
 	}
-	public void setAttendeeStatus(Byte attendeeStatus) {
+	public void setAttendeeStatus(AttendeeStatus attendeeStatus) {
 		this.attendeeStatus = attendeeStatus;
 	}
-	public Byte getAttendeeType() {
+	public AttendeeType getAttendeeType() {
 		return attendeeType;
 	}
-	public void setAttendeeType(Byte attendeeType) {
+	public void setAttendeeType(AttendeeType attendeeType) {
 		this.attendeeType = attendeeType;
 	}
 }
