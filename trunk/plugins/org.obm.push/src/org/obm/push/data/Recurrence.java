@@ -2,12 +2,14 @@ package org.obm.push.data;
 
 import java.text.SimpleDateFormat;
 
+import org.obm.push.data.calendarenum.RecurrenceType;
+
 public class Recurrence {
 	private SimpleDateFormat until;
-	private Byte type;
-	private Byte weekOfMonth;
-	private Byte monthOfYear;
-	private Byte dayOfMonth;
+	private RecurrenceType type;
+	private Integer weekOfMonth;
+	private Integer monthOfYear;
+	private Integer dayOfMonth;
 	private Integer occurrences;
 	private Integer interval;
 	private Integer dayOfWeek;
@@ -17,28 +19,28 @@ public class Recurrence {
 	public void setUntil(SimpleDateFormat until) {
 		this.until = until;
 	}
-	public Byte getType() {
+	public RecurrenceType getType() {
 		return type;
 	}
-	public void setType(Byte type) {
+	public void setType(RecurrenceType type) {
 		this.type = type;
 	}
-	public Byte getWeekOfMonth() {
+	public Integer getWeekOfMonth() {
 		return weekOfMonth;
 	}
-	public void setWeekOfMonth(Byte weekOfMonth) {
+	public void setWeekOfMonth(Integer weekOfMonth) {
 		this.weekOfMonth = weekOfMonth;
 	}
-	public Byte getMonthOfYear() {
+	public Integer getMonthOfYear() {
 		return monthOfYear;
 	}
-	public void setMonthOfYear(Byte monthOfYear) {
+	public void setMonthOfYear(Integer monthOfYear) {
 		this.monthOfYear = monthOfYear;
 	}
-	public Byte getDayOfMonth() {
+	public Integer getDayOfMonth() {
 		return dayOfMonth;
 	}
-	public void setDayOfMonth(Byte dayOfMonth) {
+	public void setDayOfMonth(Integer dayOfMonth) {
 		this.dayOfMonth = dayOfMonth;
 	}
 	public Integer getOccurrences() {
