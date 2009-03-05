@@ -1,16 +1,10 @@
 package org.obm.push.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IApplicationData;
-import org.obm.push.impl.SyncHandler;
-import org.obm.push.utils.Base64;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 public class CalendarDecoder extends Decoder implements IDataDecoder {
 	
