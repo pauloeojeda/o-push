@@ -8,8 +8,6 @@ import org.obm.push.data.calendarenum.AttendeeType;
 import org.obm.push.data.calendarenum.CalendarBusyStatus;
 import org.obm.push.data.calendarenum.CalendarMeetingStatus;
 import org.obm.push.data.calendarenum.CalendarSensitivity;
-import org.obm.push.impl.SyncHandler;
-import org.obm.push.utils.Base64;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
 
