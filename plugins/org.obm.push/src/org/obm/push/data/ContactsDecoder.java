@@ -1,18 +1,10 @@
 package org.obm.push.data;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.TimeZone;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.utils.DOMUtils;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
 // Nouveau contact
@@ -30,11 +22,11 @@ import org.w3c.dom.Element;
 
 public class ContactsDecoder extends Decoder implements IDataDecoder {
 
+	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(SyncHandler.class);
 
 	@Override
 	public IApplicationData decode(Element syncData) {
-		Element element;
 		Contact contact = new Contact();
 		
 		contact.setAssistantName(parseDOMString(DOMUtils.getUniqueElement(syncData, "AssistantName")));

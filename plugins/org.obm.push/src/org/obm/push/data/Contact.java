@@ -2,7 +2,6 @@ package org.obm.push.data;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class Contact {
 	private String assistantName;
