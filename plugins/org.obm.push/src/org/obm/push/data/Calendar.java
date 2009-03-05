@@ -4,7 +4,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
-public class Calendar {
+import org.obm.push.data.calendarenum.CalendarBusyStatus;
+import org.obm.push.data.calendarenum.CalendarMeetingStatus;
+import org.obm.push.data.calendarenum.CalendarSensitivity;
+
+public class Calendar implements IEventCalendar {
 	private String organizerName;
 	private String organizerEmail;
 	private String location;
@@ -13,10 +17,10 @@ public class Calendar {
 	private SimpleDateFormat dtStamp;
 	private SimpleDateFormat endTime;
 	private SimpleDateFormat startTime;
-	private Byte allDayEvent;
-	private Byte busyStatus;
-	private Byte sensitivity;
-	private Byte meetingStatus;
+	private Boolean allDayEvent;
+	private CalendarBusyStatus busyStatus;
+	private CalendarSensitivity sensitivity;
+	private CalendarMeetingStatus meetingStatus;
 	private Integer reminder;
 	private ArrayList<Attendee> attendees;
 	private ArrayList<String> categories;
@@ -78,28 +82,28 @@ public class Calendar {
 	public void setStartTime(SimpleDateFormat startTime) {
 		this.startTime = startTime;
 	}
-	public Byte getAllDayEvent() {
+	public Boolean getAllDayEvent() {
 		return allDayEvent;
 	}
-	public void setAllDayEvent(Byte allDayEvent) {
+	public void setAllDayEvent(Boolean allDayEvent) {
 		this.allDayEvent = allDayEvent;
 	}
-	public Byte getBusyStatus() {
+	public CalendarBusyStatus getBusyStatus() {
 		return busyStatus;
 	}
-	public void setBusyStatus(Byte busyStatus) {
+	public void setBusyStatus(CalendarBusyStatus busyStatus) {
 		this.busyStatus = busyStatus;
 	}
-	public Byte getSensitivity() {
+	public CalendarSensitivity getSensitivity() {
 		return sensitivity;
 	}
-	public void setSensitivity(Byte sensitivity) {
+	public void setSensitivity(CalendarSensitivity sensitivity) {
 		this.sensitivity = sensitivity;
 	}
-	public Byte getMeetingStatus() {
+	public CalendarMeetingStatus getMeetingStatus() {
 		return meetingStatus;
 	}
-	public void setMeetingStatus(Byte meetingStatus) {
+	public void setMeetingStatus(CalendarMeetingStatus meetingStatus) {
 		this.meetingStatus = meetingStatus;
 	}
 	public Integer getReminder() {

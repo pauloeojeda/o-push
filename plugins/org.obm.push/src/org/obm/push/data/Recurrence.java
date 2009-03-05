@@ -8,6 +8,9 @@ public class Recurrence {
 	private Byte weekOfMonth;
 	private Byte monthOfYear;
 	private Byte dayOfMonth;
+	private Integer occurrences;
+	private Integer interval;
+	private Integer dayOfWeek;
 	public SimpleDateFormat getUntil() {
 		return until;
 	}
@@ -37,5 +40,23 @@ public class Recurrence {
 	}
 	public void setDayOfMonth(Byte dayOfMonth) {
 		this.dayOfMonth = dayOfMonth;
+	}
+	public Integer getOccurrences() {
+		return occurrences;
+	}
+	public void setOccurrences(Integer occurrences) {
+		this.occurrences = occurrences;
+	}
+	public Integer getInterval() {
+		return interval;
+	}
+	public void setInterval(Integer interval) {
+		this.interval = interval;
+	}
+	public Integer getDayOfWeek() {
+		return dayOfWeek;
+	}
+	public void setDayOfWeek(Integer dayOfWeek) {
+		this.dayOfWeek = dayOfWeek;
 	}
 }
