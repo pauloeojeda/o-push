@@ -41,10 +41,15 @@ public class AbstractPushTest extends TestCase {
 		// TODO Auto-generated method stub
 		super.setUp();
 
-		this.userId = "thomas@zz.com";
+//		this.userId = "thomas@zz.com";
+//		this.devId = "junitDevId";
+//		this.devType = "PocketPC";
+//		this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
+
+		this.userId = "Administrator";
 		this.devId = "junitDevId";
 		this.devType = "PocketPC";
-		this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
+		this.url = "http://10.0.0.247/Microsoft-Server-ActiveSync";
 
 		this.hc = createHttpClient();
 	}
@@ -62,9 +67,11 @@ public class AbstractPushTest extends TestCase {
 				.getParams();
 		mp.setDefaultMaxConnectionsPerHost(4);
 		mp.setMaxTotalConnections(8);
-		ret.getState().setCredentials(new AuthScope("10.0.0.5", 443, "ZPush"),
+//		ret.getState().setCredentials(new AuthScope("10.0.0.5", 443, "ZPush"),
+//				new UsernamePasswordCredentials(userId, "aliacom"));
+		ret.getState().setCredentials(new AuthScope("10.0.0.247", 80, "10.0.0.247"),
 				new UsernamePasswordCredentials(userId, "aliacom"));
-
+		
 		return ret;
 	}
 

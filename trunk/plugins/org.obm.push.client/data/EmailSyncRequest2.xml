@@ -3,8 +3,11 @@
 <Collections>
 <Collection>
 <Class>Calendar</Class>
-<SyncKey>0</SyncKey>
+<SyncKey>FILL_ME</SyncKey>
 <CollectionId>4</CollectionId>
+<DeletesAsMoves/>
+<GetChanges/>
+<WindowSize>50</WindowSize>
 </Collection>
 </Collections>
 </Sync>
