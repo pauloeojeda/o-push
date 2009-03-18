@@ -2,17 +2,21 @@ package org.obm.push.impl;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IBackend;
+import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
+import org.obm.push.backend.ItemChange;
 import org.obm.push.data.CalendarDecoder;
 import org.obm.push.data.ContactsDecoder;
 import org.obm.push.data.IDataDecoder;
 import org.obm.push.state.StateMachine;
+import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -44,7 +48,7 @@ public class SyncHandler implements IRequestHandler {
 	private static final Log logger = LogFactory.getLog(SyncHandler.class);
 
 	private IBackend backend;
-	
+
 	private Map<String, IDataDecoder> decoders;
 
 	public SyncHandler(IBackend backend) {
@@ -67,26 +71,60 @@ public class SyncHandler implements IRequestHandler {
 			Element col = (Element) nl.item(i);
 			collections.add(processCollection(p, sm, col));
 		}
-		
+
 		Document reply = null;
 		try {
 			reply = DOMUtils.createDoc(null, "Sync");
 			Element root = reply.getDocumentElement();
 			Element cols = DOMUtils.createElement(root, "Collections");
-			
+
 			for (SyncCollection c : collections) {
-				c.setNewSyncKey(sm.getNewSyncKey(c.getSyncKey()));
+				String oldSyncKey = c.getSyncKey();
+				SyncState st = sm.getSyncState(oldSyncKey);
 				Element ce = DOMUtils.createElement(cols, "Collection");
 				DOMUtils.createElementAndText(ce, "Class", c.getDataClass());
+				c.setNewSyncKey(sm.getNewSyncKey(c.getSyncKey()));
 				DOMUtils.createElementAndText(ce, "SyncKey", c.getNewSyncKey());
-				DOMUtils.createElementAndText(ce, "CollectionId", c.getCollectionId());
-				DOMUtils.createElementAndText(ce, "Status", "1");
+				DOMUtils.createElementAndText(ce, "CollectionId", c
+						.getCollectionId());
+				if (!st.isValid()) {
+					DOMUtils.createElementAndText(ce, "Status", SyncStatus.INVALID_SYNC_KEY.asXmlValue());
+				} else {
+					DOMUtils.createElementAndText(ce, "Status", "1");
+					if (!oldSyncKey.equals("0")) {
+						IContentsExporter cex = backend.getContentsExporter();
+						Element commands = DOMUtils.createElement(ce,
+								"Commands");
+						cex.configure(c.getDataClass(), c.getFilterType(), st,
+								0, 0);
+
+						List<ItemChange> changed = cex.getChanged();
+						for (ItemChange ic : changed) {
+							serializeChange(commands, ic);
+						}
+
+						List<ItemChange> del = cex.getDeleted();
+						for (ItemChange ic : del) {
+							serializeDeletion(commands, ic);
+						}
+					}
+				}
 			}
-			
+
 			responder.sendResponse("AirSync", reply);
 		} catch (Exception e) {
 			logger.error("Error creating Sync response", e);
 		}
+	}
+
+	private void serializeDeletion(Element commands, ItemChange ic) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void serializeChange(Element commands, ItemChange ic) {
+		// TODO Auto-generated method stub
+
 	}
 
 	private SyncCollection processCollection(ASParams p, StateMachine sm,
@@ -105,13 +143,13 @@ public class SyncHandler implements IRequestHandler {
 		// TODO sync options
 
 		if (collection.getCollectionId() == null) {
-			collection.setCollectionId(Utils.getFolderId(p.getDevId(), collection
-					.getDataClass()));
+			collection.setCollectionId(Utils.getFolderId(p.getDevId(),
+					collection.getDataClass()));
 		}
 
 		collection.setSyncState(sm.getSyncState(collection.getSyncKey()));
 
-		//Element perform = DOMUtils.getUniqueElement(col, "Perform");
+		// Element perform = DOMUtils.getUniqueElement(col, "Perform");
 		Element perform = DOMUtils.getUniqueElement(col, "Commands");
 
 		if (perform != null) {
@@ -134,7 +172,8 @@ public class SyncHandler implements IRequestHandler {
 		String modType = modification.getNodeName();
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
 		String clientId = DOMUtils.getElementText(modification, "ClientId");
-		Element syncData = DOMUtils.getUniqueElement(modification, "ApplicationData");
+		Element syncData = DOMUtils.getUniqueElement(modification,
+				"ApplicationData");
 		String dataClass = collection.getDataClass();
 		IDataDecoder dd = getDecoder(dataClass);
 		IApplicationData data = null;

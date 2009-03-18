@@ -2,9 +2,9 @@
 <Sync>
 <Collections>
 <Collection>
-<Class>Email</Class>
+<Class>Calendar</Class>
 <SyncKey>FILL_ME</SyncKey>
-<CollectionId>1</CollectionId>
+<CollectionId>4</CollectionId>
 <DeletesAsMoves/>
 <GetChanges/>
 <WindowSize>50</WindowSize>

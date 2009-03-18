@@ -49,7 +49,7 @@ public class AbstractPushTest extends TestCase {
 		this.userId = "Administrator";
 		this.devId = "junitDevId";
 		this.devType = "PocketPC";
-		this.url = "http://10.0.0.247/Microsoft-Server-ActiveSync";
+		this.url = "http://10.31.232.196/Microsoft-Server-ActiveSync";
 
 		this.hc = createHttpClient();
 	}
@@ -69,7 +69,7 @@ public class AbstractPushTest extends TestCase {
 		mp.setMaxTotalConnections(8);
 //		ret.getState().setCredentials(new AuthScope("10.0.0.5", 443, "ZPush"),
 //				new UsernamePasswordCredentials(userId, "aliacom"));
-		ret.getState().setCredentials(new AuthScope("10.0.0.247", 80, "10.0.0.247"),
+		ret.getState().setCredentials(new AuthScope("10.31.232.196", 80, "10.31.232.196"),
 				new UsernamePasswordCredentials(userId, "aliacom"));
 		
 		return ret;
