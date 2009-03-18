@@ -21,6 +21,7 @@ import org.obm.push.impl.ASParams;
 import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.GetItemEstimateHandler;
 import org.obm.push.impl.IRequestHandler;
+import org.obm.push.impl.ProvisionHandler;
 import org.obm.push.impl.Responder;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.utils.Base64;
@@ -172,6 +173,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		handlers.put("FolderSync", new FolderSyncHandler(backend));
 		handlers.put("Sync", new SyncHandler(backend));
 		handlers.put("GetItemEstimate", new GetItemEstimateHandler(backend));
+		handlers.put("Provision", new ProvisionHandler(backend));
 
 		System.out.println("ActiveSync servlet initialised.");
 	}

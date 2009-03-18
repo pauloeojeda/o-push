@@ -2,9 +2,9 @@
 <Sync>
 <Collections>
 <Collection>
-<Class>Email</Class>
+<Class>Calendar</Class>
 <SyncKey>0</SyncKey>
-<CollectionId>1</CollectionId>
+<CollectionId>4</CollectionId>
 </Collection>
 </Collections>
 </Sync>

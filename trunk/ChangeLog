@@ -1,3 +1,36 @@
+2009-03-18  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Sync response work
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.getDevicePolicy):
+	* plugins/org.obm.push.client/data/CalSyncRequest.xml:
+	* plugins/org.obm.push.client/data/CalSyncRequest2.xml:
+	* plugins/org.obm.push.client/data/EmailSyncRequest.xml:
+	* plugins/org.obm.push.client/data/EmailSyncRequest2.xml:
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/Abstract
+	PushTest.java: (AbstractPushTest.setUp),
+	(AbstractPushTest.createHttpClient):
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/TestCale
+	ndarSync.java: (TestCalendarSync), (TestCalendarSync.testMailSync):
+	* plugins/org.obm.push/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.init):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/ProvisionHandler.java:
+	(ProvisionHandler), (ProvisionHandler.ProvisionHandler),
+	(ProvisionHandler.process), (ProvisionHandler.serializePolicy):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler), (SyncHandler.process),
+	(SyncHandler.serializeDeletion), (SyncHandler.serializeChange),
+	(SyncHandler.processCollection), (SyncHandler.processModification):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncStatus.java:
+	* plugins/org.obm.push/src/org/obm/push/provisioning/Policy.java:
+	(Policy):
+	* plugins/org.obm.push/src/org/obm/push/state/SyncState.java:
+	(SyncState), (SyncState.isValid):
+
 2009-02-12  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	finish Sync response

@@ -1,5 +1,7 @@
 package org.obm.push.backend;
 
+import org.obm.push.provisioning.Policy;
+
 public interface IBackend {
 
 	IHierarchyImporter getHierarchyImporter();
@@ -11,5 +13,7 @@ public interface IBackend {
 	IContentsExporter getContentsExporter();
 
 	String getWasteBasket();
+	
+	Policy getDevicePolicy();
 	
 }

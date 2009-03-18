@@ -5,6 +5,7 @@ import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
+import org.obm.push.provisioning.Policy;
 
 public class OBMBackend implements IBackend {
 
@@ -43,6 +44,12 @@ public class OBMBackend implements IBackend {
 	@Override
 	public IContentsExporter getContentsExporter() {
 		return contentsExporter;
+	}
+
+	@Override
+	public Policy getDevicePolicy() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
