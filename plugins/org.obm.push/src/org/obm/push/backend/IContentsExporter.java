@@ -26,4 +26,6 @@ public interface IContentsExporter {
 
 	List<ItemChange> getDeleted();
 
+	List<ItemChange> fetch(List<String> fetchIds);
+
 }

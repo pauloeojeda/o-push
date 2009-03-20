@@ -14,7 +14,9 @@ import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.data.CalendarDecoder;
 import org.obm.push.data.ContactsDecoder;
+import org.obm.push.data.EncoderFactory;
 import org.obm.push.data.IDataDecoder;
+import org.obm.push.data.IDataEncoder;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
@@ -51,11 +53,14 @@ public class SyncHandler implements IRequestHandler {
 
 	private Map<String, IDataDecoder> decoders;
 
+	private EncoderFactory encoders;
+
 	public SyncHandler(IBackend backend) {
 		this.backend = backend;
-		decoders = new HashMap<String, IDataDecoder>();
+		this.decoders = new HashMap<String, IDataDecoder>();
 		decoders.put("Contacts", new ContactsDecoder());
 		decoders.put("Calendar", new CalendarDecoder());
+		this.encoders = new EncoderFactory();
 	}
 
 	@Override
@@ -88,24 +93,50 @@ public class SyncHandler implements IRequestHandler {
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId());
 				if (!st.isValid()) {
-					DOMUtils.createElementAndText(ce, "Status", SyncStatus.INVALID_SYNC_KEY.asXmlValue());
+					DOMUtils.createElementAndText(ce, "Status",
+							SyncStatus.INVALID_SYNC_KEY.asXmlValue());
 				} else {
 					DOMUtils.createElementAndText(ce, "Status", "1");
 					if (!oldSyncKey.equals("0")) {
 						IContentsExporter cex = backend.getContentsExporter();
-						Element commands = DOMUtils.createElement(ce,
-								"Commands");
 						cex.configure(c.getDataClass(), c.getFilterType(), st,
 								0, 0);
 
-						List<ItemChange> changed = cex.getChanged();
-						for (ItemChange ic : changed) {
-							serializeChange(commands, ic);
-						}
+						List<ItemChange> changed = null;
+						if (c.getFetchIds().size() == 0) {
+							changed = cex.getChanged();
+							logger.info("should send " + changed.size()
+									+ " change(s).");
+							Element commands = DOMUtils.createElement(ce,
+									"Commands");
 
-						List<ItemChange> del = cex.getDeleted();
-						for (ItemChange ic : del) {
-							serializeDeletion(commands, ic);
+							for (ItemChange ic : changed) {
+								Element add = DOMUtils.createElement(commands,
+										"Add");
+								DOMUtils.createElementAndText(add, "ServerId",
+										ic.getServerId());
+								serializeChange(add, c, ic);
+							}
+
+							List<ItemChange> del = cex.getDeleted();
+							for (ItemChange ic : del) {
+								serializeDeletion(ce, ic);
+							}
+						} else {
+							// fetch
+							changed = cex.fetch(c.getFetchIds());
+							Element commands = DOMUtils.createElement(ce,
+									"Responses");
+							for (ItemChange ic : changed) {
+								Element add = DOMUtils.createElement(commands,
+										"Fetch");
+								DOMUtils.createElementAndText(add, "ServerId",
+										ic.getServerId());
+								DOMUtils.createElementAndText(add, "Status",
+										"1");
+								serializeChange(add, c, ic);
+							}
+
 						}
 					}
 				}
@@ -122,9 +153,11 @@ public class SyncHandler implements IRequestHandler {
 
 	}
 
-	private void serializeChange(Element commands, ItemChange ic) {
-		// TODO Auto-generated method stub
-
+	private void serializeChange(Element col, SyncCollection c, ItemChange ic) {
+		IApplicationData data = ic.getData();
+		IDataEncoder encoder = encoders.getEncoder(data);
+		Element apData = DOMUtils.createElement(col, "ApplicationData");
+		encoder.encode(apData, data);
 	}
 
 	private SyncCollection processCollection(ASParams p, StateMachine sm,
@@ -203,13 +236,15 @@ public class SyncHandler implements IRequestHandler {
 					importer.importMessageDeletion(serverId);
 					collection.setImportedChanges(true);
 				}
-			} else if (modType.equals("Fetch")) {
-				collection.getFetchIds().add(serverId);
 			}
-			collection.setSyncState(importer.getState());
 		} else {
 			logger.info("no decoder for " + dataClass);
+			if (modType.equals("Fetch")) {
+				logger.info("adding id to fetch " + serverId);
+				collection.getFetchIds().add(serverId);
+			}
 		}
+		collection.setSyncState(importer.getState());
 	}
 
 	private IDataDecoder getDecoder(String dataClass) {

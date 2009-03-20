@@ -1,4 +1,4 @@
-package org.obm.push.data;
+package org.obm.push.backend;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,7 +8,7 @@ import org.obm.push.data.calendarenum.CalendarBusyStatus;
 import org.obm.push.data.calendarenum.CalendarMeetingStatus;
 import org.obm.push.data.calendarenum.CalendarSensitivity;
 
-public class Calendar implements IEventCalendar {
+public class Calendar {
 	private String organizerName;
 	private String organizerEmail;
 	private String location;
@@ -25,8 +25,9 @@ public class Calendar implements IEventCalendar {
 	private ArrayList<Attendee> attendees;
 	private ArrayList<String> categories;
 	private Recurrence recurrence;
-	private ArrayList<Exception> exceptions;
+	private ArrayList<Calendar> exceptions;
 	private TimeZone timeZone;
+	private SimpleDateFormat exceptionStartTime;
 	
 	public TimeZone getTimeZone() {
 		return timeZone;
@@ -130,10 +131,16 @@ public class Calendar implements IEventCalendar {
 	public void setRecurrence(Recurrence recurrence) {
 		this.recurrence = recurrence;
 	}
-	public ArrayList<Exception> getExceptions() {
+	public ArrayList<Calendar> getExceptions() {
 		return exceptions;
 	}
-	public void setExceptions(ArrayList<Exception> exceptions) {
+	public void setExceptions(ArrayList<Calendar> exceptions) {
 		this.exceptions = exceptions;
+	}
+	public SimpleDateFormat getExceptionStartTime() {
+		return exceptionStartTime;
+	}
+	public void setExceptionStartTime(SimpleDateFormat exceptionStartTime) {
+		this.exceptionStartTime = exceptionStartTime;
 	}
 }

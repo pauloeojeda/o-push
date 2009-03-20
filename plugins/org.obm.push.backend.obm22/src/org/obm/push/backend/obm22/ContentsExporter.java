@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.ItemType;
+import org.obm.push.backend.Mail;
 import org.obm.push.state.SyncState;
 
 public class ContentsExporter implements IContentsExporter {
@@ -107,6 +108,7 @@ public class ContentsExporter implements IContentsExporter {
 		ic.setServerId("358");
 		ic.setItemType(ItemType.DEFAULT_TASKS_FOLDER);
 		ic.setParentId("0");
+		ic.setData(new Mail());
 		ret.add(ic);
 		
 		// TODO Auto-generated method stub
@@ -134,6 +136,13 @@ public class ContentsExporter implements IContentsExporter {
 	@Override
 	public List<ItemChange> getDeleted() {
 		return new LinkedList<ItemChange>();
+	}
+
+	@Override
+	public List<ItemChange> fetch(List<String> fetchIds) {
+		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
+		changes.addAll(getMailChanges(getState().getLastSync()));
+		return changes;
 	}
 
 }

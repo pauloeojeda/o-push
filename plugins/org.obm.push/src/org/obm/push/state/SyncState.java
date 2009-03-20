@@ -1,5 +1,6 @@
 package org.obm.push.state;
 
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -14,7 +15,10 @@ public class SyncState {
 	private Date lastSync;
 
 	public SyncState() {
-		
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.YEAR, 1970);
+		cal.set(Calendar.MONTH, Calendar.JANUARY);
+		lastSync = cal.getTime();
 	}
 	
 	public Date getLastSync() {
