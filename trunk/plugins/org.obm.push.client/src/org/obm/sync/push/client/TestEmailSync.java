@@ -26,7 +26,6 @@ public class TestEmailSync extends AbstractPushTest {
 
 		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
 				"SyncKey").getTextContent();
-
 		in = loadDataFile("EmailSyncRequest2.xml");
 		doc = DOMUtils.parse(in);
 		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
@@ -42,6 +41,16 @@ public class TestEmailSync extends AbstractPushTest {
 				+ " events from server.");
 		assertTrue(nl.getLength() > 0);
 
+		sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
+				"SyncKey").getTextContent();
+		in = loadDataFile("EmailSyncRequest3.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"SyncKey");
+		synckeyElem.setTextContent(sk);
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
 	}
 
 }

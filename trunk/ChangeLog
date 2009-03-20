@@ -1,3 +1,156 @@
+2009-03-20  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Sync somewhat works : we can download an email to the iPhone
+	correctly.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter.getMailChanges),
+	(ContentsExporter), (ContentsExporter.fetch):
+	* plugins/org.obm.push.client/data/EmailSyncRequest3.xml:
+	* plugins/org.obm.push.client/data/ExchangeMailSyncResponse.xml:
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/TestEmai
+	lSync.java: (TestEmailSync.testMailSync):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/TagsTables.java
+	:
+	* plugins/org.obm.push/src/org/obm/push/backend/Attendee.java:
+	(Attendee), (Attendee.getEmail), (Attendee.setEmail),
+	(Attendee.getName), (Attendee.setName),
+	(Attendee.getAttendeeStatus), (Attendee.setAttendeeStatus),
+	(Attendee.getAttendeeType), (Attendee.setAttendeeType):
+	* plugins/org.obm.push/src/org/obm/push/backend/Calendar.java:
+	(Calendar), (Calendar.getTimeZone), (Calendar.setTimeZone),
+	(Calendar.getOrganizerName), (Calendar.setOrganizerName),
+	(Calendar.getOrganizerEmail), (Calendar.setOrganizerEmail),
+	(Calendar.getLocation), (Calendar.setLocation),
+	(Calendar.getSubject), (Calendar.setSubject), (Calendar.getUID),
+	(Calendar.setUID), (Calendar.getDtStamp), (Calendar.setDtStamp),
+	(Calendar.getEndTime), (Calendar.setEndTime),
+	(Calendar.getStartTime), (Calendar.setStartTime),
+	(Calendar.getAllDayEvent), (Calendar.setAllDayEvent),
+	(Calendar.getBusyStatus), (Calendar.setBusyStatus),
+	(Calendar.getSensitivity), (Calendar.setSensitivity),
+	(Calendar.getMeetingStatus), (Calendar.setMeetingStatus),
+	(Calendar.getReminder), (Calendar.setReminder),
+	(Calendar.getAttendees), (Calendar.setAttendees),
+	(Calendar.getCategories), (Calendar.setCategories),
+	(Calendar.getRecurrence), (Calendar.setRecurrence),
+	(Calendar.getExceptions), (Calendar.setExceptions),
+	(Calendar.getExceptionStartTime), (Calendar.setExceptionStartTime):
+	* plugins/org.obm.push/src/org/obm/push/backend/Contact.java:
+	(Contact), (Contact.getCategories), (Contact.setCategories),
+	(Contact.getChildren), (Contact.setChildren),
+	(Contact.getAssistantName), (Contact.setAssistantName),
+	(Contact.getAssistantPhoneNumber),
+	(Contact.setAssistantPhoneNumber),
+	(Contact.getAssistnamePhoneNumber),
+	(Contact.setAssistnamePhoneNumber),
+	(Contact.getBusiness2PhoneNumber),
+	(Contact.setBusiness2PhoneNumber),
+	(Contact.getBusinessAddressCity), (Contact.setBusinessAddressCity),
+	(Contact.getBusinessPhoneNumber), (Contact.setBusinessPhoneNumber),
+	(Contact.getWebPage), (Contact.setWebPage),
+	(Contact.getBusinessAddressCountry),
+	(Contact.setBusinessAddressCountry), (Contact.getDepartment),
+	(Contact.setDepartment), (Contact.getEmail1Address),
+	(Contact.setEmail1Address), (Contact.getEmail2Address),
+	(Contact.setEmail2Address), (Contact.getEmail3Address),
+	(Contact.setEmail3Address), (Contact.getBusinessFaxNumber),
+	(Contact.setBusinessFaxNumber), (Contact.getFileAs),
+	(Contact.setFileAs), (Contact.getFirstName),
+	(Contact.setFirstName), (Contact.getMiddleName),
+	(Contact.setMiddleName), (Contact.getHomeAddressCity),
+	(Contact.setHomeAddressCity), (Contact.getHomeAddressCountry),
+	(Contact.setHomeAddressCountry), (Contact.getHomeFaxNumber),
+	(Contact.setHomeFaxNumber), (Contact.getHomePhoneNumber),
+	(Contact.setHomePhoneNumber), (Contact.getHome2PhoneNumber),
+	(Contact.setHome2PhoneNumber), (Contact.getHomeAddressPostalCode),
+	(Contact.setHomeAddressPostalCode), (Contact.getHomeAddressState),
+	(Contact.setHomeAddressState), (Contact.getHomeAddressStreet),
+	(Contact.setHomeAddressStreet), (Contact.getMobilePhoneNumber),
+	(Contact.setMobilePhoneNumber), (Contact.getSuffix),
+	(Contact.setSuffix), (Contact.getCompanyName),
+	(Contact.setCompanyName), (Contact.getOtherAddressCity),
+	(Contact.setOtherAddressCity), (Contact.getOtherAddressCountry),
+	(Contact.setOtherAddressCountry), (Contact.getCarPhoneNumber),
+	(Contact.setCarPhoneNumber), (Contact.getOtherAddressPostalCode),
+	(Contact.setOtherAddressPostalCode),
+	(Contact.getOtherAddressState), (Contact.setOtherAddressState),
+	(Contact.getOtherAddressStreet), (Contact.setOtherAddressStreet),
+	(Contact.getPagerNumber), (Contact.setPagerNumber),
+	(Contact.getTitle), (Contact.setTitle),
+	(Contact.getBusinessPostalCode), (Contact.setBusinessPostalCode),
+	(Contact.getLastName), (Contact.setLastName), (Contact.getSpouse),
+	(Contact.setSpouse), (Contact.getBusinessState),
+	(Contact.setBusinessState), (Contact.getBusinessStreet),
+	(Contact.setBusinessStreet), (Contact.getJobTitle),
+	(Contact.setJobTitle), (Contact.getYomiFirstName),
+	(Contact.setYomiFirstName), (Contact.getYomiLastName),
+	(Contact.setYomiLastName), (Contact.getYomiCompanyName),
+	(Contact.setYomiCompanyName), (Contact.getOfficeLocation),
+	(Contact.setOfficeLocation), (Contact.getRadioPhoneNumber),
+	(Contact.setRadioPhoneNumber), (Contact.getPicture),
+	(Contact.setPicture), (Contact.getAnniversary),
+	(Contact.setAnniversary), (Contact.getBirthday),
+	(Contact.setBirthday), (Contact.getCustomerId),
+	(Contact.setCustomerId), (Contact.getGovernmentId),
+	(Contact.setGovernmentId), (Contact.getIMAddress),
+	(Contact.setIMAddress), (Contact.getIMAddress2),
+	(Contact.setIMAddress2), (Contact.getIMAddress3),
+	(Contact.setIMAddress3), (Contact.getManagerName),
+	(Contact.setManagerName), (Contact.getCompanyMainPhone),
+	(Contact.setCompanyMainPhone), (Contact.getAccountName),
+	(Contact.setAccountName), (Contact.getNickName),
+	(Contact.setNickName), (Contact.getMMS), (Contact.setMMS),
+	(Contact.getType), (Contact.isRead):
+	* plugins/org.obm.push/src/org/obm/push/backend/IApplicationData.ja
+	va: (IApplicationData):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/ItemChange.java:
+	(ItemChange), (ItemChange.getData), (ItemChange.setData):
+	* plugins/org.obm.push/src/org/obm/push/backend/Mail.java: (Mail),
+	(Mail.getType), (Mail.isRead):
+	* plugins/org.obm.push/src/org/obm/push/backend/PIMDataType.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/Recurrence.java:
+	(Recurrence), (Recurrence.getUntil), (Recurrence.setUntil),
+	(Recurrence.getType), (Recurrence.setType),
+	(Recurrence.getWeekOfMonth), (Recurrence.setWeekOfMonth),
+	(Recurrence.getMonthOfYear), (Recurrence.setMonthOfYear),
+	(Recurrence.getDayOfMonth), (Recurrence.setDayOfMonth),
+	(Recurrence.getOccurrences), (Recurrence.setOccurrences),
+	(Recurrence.getInterval), (Recurrence.setInterval),
+	(Recurrence.getDayOfWeek), (Recurrence.setDayOfWeek):
+	* plugins/org.obm.push/src/org/obm/push/data/Attendee.java:
+	* plugins/org.obm.push/src/org/obm/push/data/Calendar.java:
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder.decode), (CalendarDecoder.setEventCalendar):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder), (CalendarEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/Contact.java:
+	* plugins/org.obm.push/src/org/obm/push/data/ContactEncoder.java:
+	(ContactEncoder), (ContactEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactsDecoder.java:
+	(ContactsDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/data/EncoderFactory.java:
+	(EncoderFactory), (EncoderFactory.getEncoder):
+	* plugins/org.obm.push/src/org/obm/push/data/Exception.java:
+	* plugins/org.obm.push/src/org/obm/push/data/IDataEncoder.java:
+	(IDataEncoder):
+	* plugins/org.obm.push/src/org/obm/push/data/IEventCalendar.java:
+	* plugins/org.obm.push/src/org/obm/push/data/MailEncoder.java:
+	(MailEncoder), (MailEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/Recurrence.java:
+	* plugins/org.obm.push/src/org/obm/push/data/TaskEncoder.java:
+	(TaskEncoder), (TaskEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler), (PingHandler.PingHandler), (PingHandler.process),
+	(PingHandler.serializePolicy):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler), (SyncHandler.SyncHandler), (SyncHandler.process),
+	(SyncHandler.serializeChange), (SyncHandler.processModification):
+	* plugins/org.obm.push/src/org/obm/push/state/SyncState.java:
+	(SyncState.SyncState):
+
 2009-03-18  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	Sync response work

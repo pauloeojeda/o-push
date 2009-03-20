@@ -4,4 +4,6 @@ public interface IApplicationData {
 
 	boolean isRead();
 
+	PIMDataType getType();
+	
 }

@@ -1,4 +1,4 @@
-package org.obm.push.data;
+package org.obm.push.backend;
 
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.data.calendarenum.AttendeeType;

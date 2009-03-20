@@ -2,7 +2,10 @@ package org.obm.push.data;
 
 import java.util.ArrayList;
 
+import org.obm.push.backend.Attendee;
+import org.obm.push.backend.Calendar;
 import org.obm.push.backend.IApplicationData;
+import org.obm.push.backend.Recurrence;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.data.calendarenum.AttendeeType;
 import org.obm.push.data.calendarenum.CalendarBusyStatus;
@@ -72,10 +75,10 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 		containerNode = DOMUtils.getUniqueElement(syncData, "Exceptions");
 		if (containerNode != null) {
-			ArrayList<Exception> exceptions = new ArrayList<Exception>();
+			ArrayList<Calendar> exceptions = new ArrayList<Calendar>();
 			for (int i = 0, n = containerNode.getChildNodes().getLength(); i < n; i += 1) {
 				Element subnode = (Element) containerNode.getChildNodes().item(i);
-				Exception exception = new Exception();
+				Calendar exception = new Calendar();
 
 				setEventCalendar(exception, subnode);
 				
@@ -118,7 +121,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		return null;
 	}
 
-	void setEventCalendar (IEventCalendar calendar, Element domSource) {
+	void setEventCalendar (Calendar calendar, Element domSource) {
 		calendar.setLocation(parseDOMString(DOMUtils.getUniqueElement(domSource, "Location")));
 		calendar.setDtStamp(parseDOMDate(DOMUtils.getUniqueElement(domSource, "DTStamp")));
 		calendar.setSubject(parseDOMString(DOMUtils.getUniqueElement(domSource, "Subject")));

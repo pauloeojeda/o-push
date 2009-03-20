@@ -423,6 +423,7 @@ public class TagsTables {
 	public static final String[] CP_13 = {
 	// Ping
 			"Ping", // 0x05
+			"AutdState", // 0x06
 			"Status", // 0x07
 			"HeartbeatInterval", // 0x08
 			"Folders", // 0x09

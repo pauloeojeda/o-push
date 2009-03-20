@@ -2,6 +2,7 @@ package org.obm.push.data;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.Contact;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.utils.DOMUtils;
@@ -96,6 +97,6 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setNickName(parseDOMString(DOMUtils.getUniqueElement(syncData, "NickName")));
 		contact.setMMS(parseDOMString(DOMUtils.getUniqueElement(syncData, "MMS")));
 		
-		return null;
+		return contact;
 	}
 }
