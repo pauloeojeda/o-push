@@ -1,5 +1,16 @@
 2009-03-23  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
+	Add API needed by ping method.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.waitForChanges):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process), (PingHandler.fillResponse), (PingHandler):
+
+2009-03-23  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
 	replace ASParams with a backend session.
 	
 	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
