@@ -4,16 +4,16 @@ import org.obm.push.provisioning.Policy;
 
 public interface IBackend {
 
-	IHierarchyImporter getHierarchyImporter();
+	IHierarchyImporter getHierarchyImporter(BackendSession bs);
 	
-	IHierarchyExporter getHierarchyExporter();
+	IHierarchyExporter getHierarchyExporter(BackendSession bs);
 
-	IContentsImporter getContentsImporter(String string);
+	IContentsImporter getContentsImporter(String collectionId, BackendSession bs);
 
-	IContentsExporter getContentsExporter();
+	IContentsExporter getContentsExporter(BackendSession bs);
 
 	String getWasteBasket();
 	
-	Policy getDevicePolicy();
+	Policy getDevicePolicy(BackendSession bs);
 	
 }

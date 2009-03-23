@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.state.StateMachine;
@@ -26,8 +27,8 @@ public class GetItemEstimateHandler implements IRequestHandler {
 	}
 
 	@Override
-	public void process(ASParams p, Document doc, Responder responder) {
-		logger.info("process(" + p.getUserId() + "/" + p.getDevType() + ")");
+	public void process(BackendSession bs, Document doc, Responder responder) {
+		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType() + ")");
 
 		List<SyncCollection> cols = new LinkedList<SyncCollection>();
 
@@ -42,7 +43,7 @@ public class GetItemEstimateHandler implements IRequestHandler {
 			Element fid = DOMUtils.getUniqueElement(ce, "CollectionId");
 			String collectionId = null;
 			if (fid == null) {
-				collectionId = Utils.getFolderId(p.getDevId(), dataClass);
+				collectionId = Utils.getFolderId(bs.getDevId(), dataClass);
 			} else {
 				collectionId = fid.getTextContent();
 			}
@@ -67,7 +68,7 @@ public class GetItemEstimateHandler implements IRequestHandler {
 				Element estim = DOMUtils.createElement(ce, "Estimate");
 				StateMachine sm = new StateMachine();
 				SyncState state = sm.getSyncState(c.getSyncKey());
-				IContentsExporter exporter = backend.getContentsExporter();
+				IContentsExporter exporter = backend.getContentsExporter(bs);
 				exporter.configure(c.getDataClass(), c.getFilterType(), state,
 						0, 0);
 				estim.setTextContent(exporter.getCount() + "");

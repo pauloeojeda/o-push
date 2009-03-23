@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
@@ -64,8 +65,9 @@ public class SyncHandler implements IRequestHandler {
 	}
 
 	@Override
-	public void process(ASParams p, Document doc, Responder responder) {
-		logger.info("process(" + p.getUserId() + "/" + p.getDevType() + ")");
+	public void process(BackendSession bs, Document doc, Responder responder) {
+		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
+				+ ")");
 
 		StateMachine sm = new StateMachine();
 
@@ -74,7 +76,7 @@ public class SyncHandler implements IRequestHandler {
 		LinkedList<SyncCollection> collections = new LinkedList<SyncCollection>();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Element col = (Element) nl.item(i);
-			collections.add(processCollection(p, sm, col));
+			collections.add(processCollection(bs, sm, col));
 		}
 
 		Document reply = null;
@@ -98,7 +100,7 @@ public class SyncHandler implements IRequestHandler {
 				} else {
 					DOMUtils.createElementAndText(ce, "Status", "1");
 					if (!oldSyncKey.equals("0")) {
-						IContentsExporter cex = backend.getContentsExporter();
+						IContentsExporter cex = backend.getContentsExporter(bs);
 						cex.configure(c.getDataClass(), c.getFilterType(), st,
 								0, 0);
 
@@ -160,8 +162,8 @@ public class SyncHandler implements IRequestHandler {
 		encoder.encode(apData, data);
 	}
 
-	private SyncCollection processCollection(ASParams p, StateMachine sm,
-			Element col) {
+	private SyncCollection processCollection(BackendSession bs,
+			StateMachine sm, Element col) {
 		SyncCollection collection = new SyncCollection();
 		collection.setDataClass(DOMUtils.getElementText(col, "Class"));
 		collection.setSyncKey(DOMUtils.getElementText(col, "SyncKey"));
@@ -176,7 +178,7 @@ public class SyncHandler implements IRequestHandler {
 		// TODO sync options
 
 		if (collection.getCollectionId() == null) {
-			collection.setCollectionId(Utils.getFolderId(p.getDevId(),
+			collection.setCollectionId(Utils.getFolderId(bs.getDevId(),
 					collection.getDataClass()));
 		}
 
@@ -188,7 +190,7 @@ public class SyncHandler implements IRequestHandler {
 		if (perform != null) {
 			// get our sync state for this collection
 			IContentsImporter importer = backend.getContentsImporter(collection
-					.getCollectionId());
+					.getCollectionId(), bs);
 			importer.configure(collection.getSyncState(), collection
 					.getConflict());
 			NodeList mod = perform.getChildNodes();

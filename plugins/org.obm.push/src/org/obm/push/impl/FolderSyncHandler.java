@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
@@ -31,8 +32,8 @@ public class FolderSyncHandler implements IRequestHandler {
 	}
 
 	@Override
-	public void process(ASParams p, Document doc, Responder responder) {
-		logger.info("process(" + p.getUserId() + "/" + p.getDevType() + ")");
+	public void process(BackendSession bs, Document doc, Responder responder) {
+		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType() + ")");
 		String syncKey = DOMUtils.getElementText(doc.getDocumentElement(),
 				"SyncKey");
 
@@ -45,7 +46,7 @@ public class FolderSyncHandler implements IRequestHandler {
 		Element changes = DOMUtils.getUniqueElement(doc.getDocumentElement(),
 				"Changes");
 		if (changes != null) {
-			IHierarchyImporter importer = backend.getHierarchyImporter();
+			IHierarchyImporter importer = backend.getHierarchyImporter(bs);
 			importer.configure(state);
 
 			Map<ServerId, String> idMap = new HashMap<ServerId, String>();
@@ -70,7 +71,7 @@ public class FolderSyncHandler implements IRequestHandler {
 			}
 		}
 
-		IHierarchyExporter exporter = backend.getHierarchyExporter();
+		IHierarchyExporter exporter = backend.getHierarchyExporter(bs);
 
 		// dataClass, filterType, state, int, int
 		exporter.configure(null, null, state, 0, 0);

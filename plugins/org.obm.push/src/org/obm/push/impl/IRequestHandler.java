@@ -1,9 +1,10 @@
 package org.obm.push.impl;
 
+import org.obm.push.backend.BackendSession;
 import org.w3c.dom.Document;
 
 public interface IRequestHandler {
 
-	public void process(ASParams p, Document doc, Responder responder);
+	public void process(BackendSession bs, Document doc, Responder responder);
 
 }
