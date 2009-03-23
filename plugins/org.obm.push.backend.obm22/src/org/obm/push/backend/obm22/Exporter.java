@@ -8,7 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IExporter;
 import org.obm.push.backend.ItemChange;
-import org.obm.push.backend.ItemType;
+import org.obm.push.backend.FolderType;
 import org.obm.push.state.SyncState;
 
 public class Exporter implements IExporter {
@@ -76,7 +76,7 @@ public class Exporter implements IExporter {
 		ic.setServerId("obm://contacts/user@domain");
 		ic.setParentId("0");
 		ic.setDisplayName("OBM Contacts");
-		ic.setItemType(ItemType.DEFAULT_CONTACTS_FOLDER);
+		ic.setItemType(FolderType.DEFAULT_CONTACTS_FOLDER);
 		ret.add(ic);
 		return ret;
 	}
@@ -94,7 +94,7 @@ public class Exporter implements IExporter {
 		ic.setServerId("obm://tasks/user@domain");
 		ic.setParentId("0");
 		ic.setDisplayName("OBM Tasks");
-		ic.setItemType(ItemType.DEFAULT_TASKS_FOLDER);
+		ic.setItemType(FolderType.DEFAULT_TASKS_FOLDER);
 		ret.add(ic);
 		return ret;
 	}
@@ -112,7 +112,7 @@ public class Exporter implements IExporter {
 		ic.setServerId("obm://calendar/user@domain");
 		ic.setParentId("0");
 		ic.setDisplayName("OBM Calendar");
-		ic.setItemType(ItemType.DEFAULT_CALENDAR_FOLDER);
+		ic.setItemType(FolderType.DEFAULT_CALENDAR_FOLDER);
 		ret.add(ic);
 		return ret;
 	}
@@ -130,7 +130,7 @@ public class Exporter implements IExporter {
 		ic.setServerId("obm://mail/user@domain/INBOX");
 		ic.setParentId("0");
 		ic.setDisplayName("INBOX");
-		ic.setItemType(ItemType.DEFAULT_INBOX_FOLDER);
+		ic.setItemType(FolderType.DEFAULT_INBOX_FOLDER);
 		ret.add(ic);
 		return ret;
 	}
