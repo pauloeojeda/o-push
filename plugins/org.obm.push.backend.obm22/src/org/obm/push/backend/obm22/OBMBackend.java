@@ -1,11 +1,14 @@
 package org.obm.push.backend.obm22;
 
+import java.util.List;
+
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
+import org.obm.push.backend.ItemChange;
 import org.obm.push.provisioning.Policy;
 
 public class OBMBackend implements IBackend {
@@ -50,6 +53,12 @@ public class OBMBackend implements IBackend {
 
 	@Override
 	public Policy getDevicePolicy(BackendSession bs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ItemChange> waitForChanges(BackendSession bs) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -1,10 +1,12 @@
 package org.obm.push.impl;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
-import org.obm.push.provisioning.Policy;
+import org.obm.push.backend.ItemChange;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,17 +29,16 @@ public class PingHandler implements IRequestHandler {
 
 	@Override
 	public void process(BackendSession bs, Document doc, Responder responder) {
-		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType() + ")");
+		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
+				+ ")");
 
 		Element pr = doc.getDocumentElement();
-//		int folderCount = Integer.parseInt(DOMUtils.getElementText(pr, "Folders"));
-//		NodeList folders = pr.getElementsByTagName("Folder");
-		
-		
+
 		try {
 			Document ret = DOMUtils.createDoc(null, "Ping");
 
-			serializePolicy(pr, backend.getDevicePolicy(bs));
+			List<ItemChange> changes = backend.waitForChanges(bs);
+			fillResponse(pr, changes);
 			responder.sendResponse("Provision", ret);
 
 		} catch (Exception e) {
@@ -46,8 +47,9 @@ public class PingHandler implements IRequestHandler {
 
 	}
 
-	private void serializePolicy(Element provDoc, Policy p) {
+	private void fillResponse(Element pr, List<ItemChange> changes) {
 		// TODO Auto-generated method stub
-
+		
 	}
+
 }
