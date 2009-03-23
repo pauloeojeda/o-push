@@ -8,7 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.ItemChange;
-import org.obm.push.backend.ItemType;
+import org.obm.push.backend.FolderType;
 import org.obm.push.state.SyncState;
 
 public class HierarchyExporter implements IHierarchyExporter {
@@ -107,14 +107,14 @@ public class HierarchyExporter implements IHierarchyExporter {
 		ic.setServerId("INBOX");
 		ic.setParentId("0");
 		ic.setDisplayName("Inbox");
-		ic.setItemType(ItemType.DEFAULT_INBOX_FOLDER);
+		ic.setItemType(FolderType.DEFAULT_INBOX_FOLDER);
 		ret.add(ic);
 
 		ic = new ItemChange();
 		ic.setServerId("Sent");
 		ic.setParentId("0");
 		ic.setDisplayName("Sent");
-		ic.setItemType(ItemType.DEFAULT_SENT_MAIL_FOLDER);
+		ic.setItemType(FolderType.DEFAULT_SENT_MAIL_FOLDER);
 		ret.add(ic);
 
 		// ItemChange ic = new ItemChange();

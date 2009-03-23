@@ -5,7 +5,7 @@ public class ItemChange {
 	public String serverId;
 	public String parentId;
 	public String displayName;
-	public ItemType itemType;
+	public FolderType itemType;
 	private IApplicationData data;
 
 	public String getServerId() {
@@ -32,11 +32,11 @@ public class ItemChange {
 		this.displayName = displayName;
 	}
 
-	public ItemType getItemType() {
+	public FolderType getItemType() {
 		return itemType;
 	}
 
-	public void setItemType(ItemType itemType) {
+	public void setItemType(FolderType itemType) {
 		this.itemType = itemType;
 	}
 

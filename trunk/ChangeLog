@@ -1,3 +1,29 @@
+2009-03-23  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	move PIM objects
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter.getMailChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/Exporter.java: (Exporter.getContactsChanges),
+	(Exporter.getTasksChanges), (Exporter.getCalendarChanges),
+	(Exporter.getMailChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/HierarchyExporter.java: (HierarchyExporter.getMailChanges):
+	* plugins/org.obm.push/src/org/obm/push/backend/Calendar.java:
+	(Calendar), (Calendar.setDeleted), (Calendar.isDeletedException):
+	* plugins/org.obm.push/src/org/obm/push/backend/FolderType.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/ItemChange.java:
+	(ItemChange), (ItemChange.getItemType), (ItemChange.setItemType):
+	* plugins/org.obm.push/src/org/obm/push/backend/ItemType.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/Recurrence.java:
+	(Recurrence), (Recurrence.getType), (Recurrence.setType),
+	(Recurrence.getWeekOfMonth), (Recurrence.setWeekOfMonth),
+	(Recurrence.getMonthOfYear), (Recurrence.setMonthOfYear),
+	(Recurrence.getDayOfMonth), (Recurrence.setDayOfMonth):
+	* plugins/org.obm.push/src/org/obm/push/data/calendarenum/Recurrenc
+	eType.java:
+
 2009-03-20  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	Sync somewhat works : we can download an email to the iPhone

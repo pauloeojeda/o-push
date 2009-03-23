@@ -1,6 +1,6 @@
 package org.obm.push.backend;
 
-public enum ItemType {
+public enum FolderType {
 
 	USER_FOLDER_GENERIC, // 1
 	DEFAULT_INBOX_FOLDER, // 2

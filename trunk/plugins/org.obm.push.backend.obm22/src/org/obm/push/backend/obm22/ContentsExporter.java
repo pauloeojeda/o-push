@@ -8,7 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
-import org.obm.push.backend.ItemType;
+import org.obm.push.backend.FolderType;
 import org.obm.push.backend.Mail;
 import org.obm.push.state.SyncState;
 
@@ -106,7 +106,7 @@ public class ContentsExporter implements IContentsExporter {
 		ItemChange ic = new ItemChange();
 		ic.setDisplayName("Mail subject");
 		ic.setServerId("358");
-		ic.setItemType(ItemType.DEFAULT_TASKS_FOLDER);
+		ic.setItemType(FolderType.DEFAULT_TASKS_FOLDER);
 		ic.setParentId("0");
 		ic.setData(new Mail());
 		ret.add(ic);

@@ -6,5 +6,5 @@ public enum RecurrenceType {
 	MONTHLY, // 2
 	MONTHLY_NDAY, // 3 
 	YEARLY, // 5
-	YEARLY_NDAY, // 6
+	YEARLY_NDAY; // 6
 }
