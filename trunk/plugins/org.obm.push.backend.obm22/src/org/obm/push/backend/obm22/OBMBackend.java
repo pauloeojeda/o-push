@@ -1,5 +1,6 @@
 package org.obm.push.backend.obm22;
 
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
@@ -22,17 +23,18 @@ public class OBMBackend implements IBackend {
 	}
 
 	@Override
-	public IHierarchyImporter getHierarchyImporter() {
+	public IHierarchyImporter getHierarchyImporter(BackendSession bs) {
 		return hImporter;
 	}
 
 	@Override
-	public IHierarchyExporter getHierarchyExporter() {
+	public IHierarchyExporter getHierarchyExporter(BackendSession bs) {
 		return exporter;
 	}
 
 	@Override
-	public IContentsImporter getContentsImporter(String collectionId) {
+	public IContentsImporter getContentsImporter(String collectionId,
+			BackendSession bs) {
 		return cImporter;
 	}
 
@@ -42,12 +44,12 @@ public class OBMBackend implements IBackend {
 	}
 
 	@Override
-	public IContentsExporter getContentsExporter() {
+	public IContentsExporter getContentsExporter(BackendSession bs) {
 		return contentsExporter;
 	}
 
 	@Override
-	public Policy getDevicePolicy() {
+	public Policy getDevicePolicy(BackendSession bs) {
 		// TODO Auto-generated method stub
 		return null;
 	}

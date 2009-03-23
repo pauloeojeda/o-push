@@ -9,6 +9,7 @@ import org.obm.push.data.calendarenum.CalendarMeetingStatus;
 import org.obm.push.data.calendarenum.CalendarSensitivity;
 
 public class Calendar {
+	
 	private String organizerName;
 	private String organizerEmail;
 	private String location;

@@ -1,5 +1,49 @@
 2009-03-23  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
+	replace ASParams with a backend session.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.getHierarchyImporter),
+	(OBMBackend.getHierarchyExporter), (OBMBackend),
+	(OBMBackend.getContentsImporter), (OBMBackend.getContentsExporter),
+	(OBMBackend.getDevicePolicy):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailExporter.java: (MailExporter),
+	(MailExporter.getHierarchyChanges):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet), (ActiveSyncServlet.service),
+	(ActiveSyncServlet.processActiveSyncMethod),
+	(ActiveSyncServlet.getSession), (ActiveSyncServlet.getHandler),
+	(ActiveSyncServlet.init):
+	* plugins/org.obm.push/src/org/obm/push/backend/BackendSession.java
+	: (BackendSession), (BackendSession.BackendSession),
+	(BackendSession.getLoginAtDomain),
+	(BackendSession.setLoginAtDomain), (BackendSession.getPassword),
+	(BackendSession.setPassword), (BackendSession.getDevId),
+	(BackendSession.setDevId), (BackendSession.getDevType),
+	(BackendSession.setDevType), (BackendSession.getCommand),
+	(BackendSession.setCommand):
+	* plugins/org.obm.push/src/org/obm/push/backend/Calendar.java:
+	(Calendar):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/ASParams.java:
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/IRequestHandler.java:
+	(IRequestHandler):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/ProvisionHandler.java:
+	(ProvisionHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process), (SyncHandler),
+	(SyncHandler.processCollection):
+
+2009-03-23  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
 	move PIM objects
 	
 	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22

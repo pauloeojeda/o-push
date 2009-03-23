@@ -15,9 +15,9 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IBackendFactory;
-import org.obm.push.impl.ASParams;
 import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.GetItemEstimateHandler;
 import org.obm.push.impl.IRequestHandler;
@@ -49,6 +49,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			.getLog(ActiveSyncServlet.class);
 
 	private Map<String, IRequestHandler> handlers;
+	private Map<String, BackendSession> sessions;
 
 	@Override
 	protected void service(HttpServletRequest request,
@@ -90,7 +91,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			response.setHeader("WWW-Authenticate", s);
 			response.setStatus(401);
 		} else {
-			processActiveSyncMethod(userID, request, response);
+			processActiveSyncMethod(userID, password, request, response);
 		}
 	}
 
@@ -98,21 +99,15 @@ public class ActiveSyncServlet extends HttpServlet {
 		return r.getParameter(name);
 	}
 
-	private ASParams getParams(HttpServletRequest r) {
-		ASParams ret = new ASParams(p(r, "User"), p(r, "DeviceId"), p(r,
-				"DeviceType"), p(r, "Cmd"));
-		return ret;
-	}
-
-	private void processActiveSyncMethod(String userID,
+	private void processActiveSyncMethod(String userID, String password,
 			HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
-		ASParams p = getParams(request);
-		logger.info("activeSyncMethod: " + p.getCommand());
+		BackendSession bs = getSession(userID, password, request);
+		logger.info("activeSyncMethod: " + bs.getCommand());
 		String proto = request.getHeader("MS-ASProtocolVersion");
 		logger.info("Client supports protocol " + proto);
 
-		if (p.getCommand() == null) {
+		if (bs.getCommand() == null) {
 			logger.warn("POST received without explicit command, aborting");
 			return;
 		}
@@ -133,13 +128,26 @@ public class ActiveSyncServlet extends HttpServlet {
 		} catch (TransformerException e) {
 		}
 
-		IRequestHandler rh = getHandler(p);
+		IRequestHandler rh = getHandler(bs);
 		if (rh != null) {
 			sendServerInfos(response);
-			rh.process(p, doc, new Responder(response));
+			rh.process(bs, doc, new Responder(response));
 		} else {
-			logger.warn("no handler for command " + p.getCommand());
+			logger.warn("no handler for command " + bs.getCommand());
 		}
+	}
+
+	private BackendSession getSession(String userID, String password,
+			HttpServletRequest r) {
+		BackendSession bs = null;
+		if (sessions.containsKey(userID)) {
+			bs = sessions.get(userID);
+			bs.setCommand(p(r, "Cmd"));
+		} else {
+			bs = new BackendSession(userID, password, p(r, "DeviceId"), p(r,
+					"DeviceType"), p(r, "Cmd"));
+		}
+		return bs;
 	}
 
 	private void sendServerInfos(HttpServletResponse response) {
@@ -152,7 +160,7 @@ public class ActiveSyncServlet extends HttpServlet {
 						"Sync,SendMail,SmartForward,SmartReply,GetAttachment,GetHierarchy,CreateCollection,DeleteCollection,MoveCollection,FolderSync,FolderCreate,FolderDelete,FolderUpdate,MoveItems,GetItemEstimate,MeetingResponse,ResolveRecipipents,ValidateCert,Provision,Search,Ping");
 	}
 
-	private IRequestHandler getHandler(ASParams p) {
+	private IRequestHandler getHandler(BackendSession p) {
 		return handlers.get(p.getCommand());
 	}
 
@@ -168,6 +176,8 @@ public class ActiveSyncServlet extends HttpServlet {
 		PushConfiguration pc = new PushConfiguration();
 
 		IBackend backend = loadBackend(pc);
+
+		sessions = new HashMap<String, BackendSession>();
 
 		handlers = new HashMap<String, IRequestHandler>();
 		handlers.put("FolderSync", new FolderSyncHandler(backend));

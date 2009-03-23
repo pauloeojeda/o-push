@@ -2,12 +2,12 @@ package org.obm.push.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.provisioning.Policy;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /**
  * Handles the Provision cmd
@@ -26,18 +26,18 @@ public class PingHandler implements IRequestHandler {
 	}
 
 	@Override
-	public void process(ASParams p, Document doc, Responder responder) {
-		logger.info("process(" + p.getUserId() + "/" + p.getDevType() + ")");
+	public void process(BackendSession bs, Document doc, Responder responder) {
+		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType() + ")");
 
 		Element pr = doc.getDocumentElement();
-		int folderCount = Integer.parseInt(DOMUtils.getElementText(pr, "Folders"));
-		
-		NodeList folders = pr.getElementsByTagName("Folder");
+//		int folderCount = Integer.parseInt(DOMUtils.getElementText(pr, "Folders"));
+//		NodeList folders = pr.getElementsByTagName("Folder");
 		
 		
 		try {
 			Document ret = DOMUtils.createDoc(null, "Ping");
 
+			serializePolicy(pr, backend.getDevicePolicy(bs));
 			responder.sendResponse("Provision", ret);
 
 		} catch (Exception e) {

@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.provisioning.Policy;
 import org.obm.push.utils.DOMUtils;
@@ -28,8 +29,8 @@ public class ProvisionHandler implements IRequestHandler {
 	}
 
 	@Override
-	public void process(ASParams p, Document doc, Responder responder) {
-		logger.info("process(" + p.getUserId() + "/" + p.getDevType() + ")");
+	public void process(BackendSession bs, Document doc, Responder responder) {
+		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType() + ")");
 
 		String policyType = DOMUtils.getUniqueElement(doc.getDocumentElement(), "PolicyType").getTextContent();
 		
@@ -46,8 +47,8 @@ public class ProvisionHandler implements IRequestHandler {
 			
 			Element provDoc = DOMUtils.createElement(data, "eas-provisioningdoc");
 			
-			Policy pol = backend.getDevicePolicy();
-			if (p != null) {
+			Policy pol = backend.getDevicePolicy(bs);
+			if (pol != null) {
 				serializePolicy(provDoc, pol);
 			}
 			
