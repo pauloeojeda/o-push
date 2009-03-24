@@ -6,64 +6,76 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
-import org.obm.push.backend.FolderType;
-import org.obm.push.backend.Mail;
+import org.obm.push.backend.PIMDataType;
+import org.obm.push.backend.obm22.calendar.CalendarExporter;
+import org.obm.push.backend.obm22.mail.MailExporter;
 import org.obm.push.state.SyncState;
 
 public class ContentsExporter implements IContentsExporter {
 
 	private static final Log logger = LogFactory.getLog(ContentsExporter.class);
-	private SyncState state;
 
-	@Override
-	public void configure(String dataClass, Integer filterType, SyncState state,
-			int i, int j) {
-		logger.info("configure(" + dataClass + ", " + filterType + ", "
-				+ state + ", " + i + ", " + j + ")");
-		this.state = state;
+	private MailExporter mailExporter;
+	private CalendarExporter calendarExporter;
+
+	public ContentsExporter(MailExporter mailExporter,
+			CalendarExporter calendarExporter) {
+		super();
+		this.mailExporter = mailExporter;
+		this.calendarExporter = calendarExporter;
 	}
 
 	@Override
-	public SyncState getState() {
-		return state;
+	public void configure(BackendSession bs, String dataClass,
+			Integer filterType, SyncState state, int i, int j) {
+		logger.info("configure(" + dataClass + ", " + filterType + ", " + state
+				+ ", " + i + ", " + j + ")");
+		bs.setState(state);
+		bs.setDataType(PIMDataType.valueOf(dataClass.toUpperCase()));
 	}
 
-	public void synchronize() {
+	@Override
+	public SyncState getState(BackendSession bs) {
+		return bs.getState();
+	}
+
+	public void synchronize(BackendSession bs) {
 		logger.info("synchronize");
-		List<ItemChange> lic = getCalendarChanges(state.getLastSync());
+		List<ItemChange> lic = getCalendarChanges(bs);
 		addChanges(lic);
-		lic = getCalendarDeletions(state.getLastSync());
+		lic = getCalendarDeletions(bs.getState().getLastSync());
 		addDeletions(lic);
 
-		lic = getContactsChanges(state.getLastSync());
+		lic = getContactsChanges(bs);
 		addChanges(lic);
-		lic = getContactsDeletions(state.getLastSync());
+		lic = getContactsDeletions(bs.getState().getLastSync());
 		addDeletions(lic);
 
-		lic = getTasksChanges(state.getLastSync());
+		lic = getTasksChanges(bs);
 		addChanges(lic);
-		lic = getTasksDeletions(state.getLastSync());
+		lic = getTasksDeletions(bs.getState().getLastSync());
 		addDeletions(lic);
 
-		lic = getMailChanges(state.getLastSync());
+		lic = getMailChanges(bs);
 		addChanges(lic);
-		lic = getMailDeletions(state.getLastSync());
+		lic = getMailDeletions(bs.getState().getLastSync());
 		addDeletions(lic);
 	}
 
 	private void addDeletions(List<ItemChange> lic) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void addChanges(List<ItemChange> lic) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	private List<ItemChange> getContactsChanges(Date lastSync) {
+	private List<ItemChange> getContactsChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
 		return ret;
@@ -75,7 +87,7 @@ public class ContentsExporter implements IContentsExporter {
 		return ret;
 	}
 
-	private List<ItemChange> getTasksChanges(Date lastSync) {
+	private List<ItemChange> getTasksChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
 		return ret;
@@ -87,10 +99,8 @@ public class ContentsExporter implements IContentsExporter {
 		return ret;
 	}
 
-	private List<ItemChange> getCalendarChanges(Date lastSync) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
+	private List<ItemChange> getCalendarChanges(BackendSession bs) {
+		return calendarExporter.getContentChanges(bs);
 	}
 
 	private List<ItemChange> getCalendarDeletions(Date lastSync) {
@@ -99,20 +109,8 @@ public class ContentsExporter implements IContentsExporter {
 		return ret;
 	}
 
-	private List<ItemChange> getMailChanges(Date lastSync) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		
-		// FIXME fake data
-		ItemChange ic = new ItemChange();
-		ic.setDisplayName("Mail subject");
-		ic.setServerId("358");
-		ic.setItemType(FolderType.DEFAULT_TASKS_FOLDER);
-		ic.setParentId("0");
-		ic.setData(new Mail());
-		ret.add(ic);
-		
-		// TODO Auto-generated method stub
-		return ret;
+	private List<ItemChange> getMailChanges(BackendSession bs) {
+		return mailExporter.getContentChanges(bs);
 	}
 
 	private List<ItemChange> getMailDeletions(Date lastSync) {
@@ -122,26 +120,52 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	@Override
-	public List<ItemChange> getChanged() {
+	public List<ItemChange> getChanged(BackendSession bs) {
 		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
-		changes.addAll(getMailChanges(getState().getLastSync()));
+		// TODO switch dataClass
+		switch (bs.getDataType()) {
+		case CALENDAR:
+			changes.addAll(getCalendarChanges(bs));
+			break;
+		case CONTACT:
+			changes.addAll(getContactsChanges(bs));
+			break;
+		case EMAIL:
+			changes.addAll(getMailChanges(bs));
+			break;
+		case TASK:
+			changes.addAll(getTasksChanges(bs));
+			break;
+		}
+
 		return changes;
 	}
 
 	@Override
-	public int getCount() {
-		return getChanged().size();
+	public int getCount(BackendSession bs) {
+		return getChanged(bs).size();
 	}
 
 	@Override
-	public List<ItemChange> getDeleted() {
+	public List<ItemChange> getDeleted(BackendSession bs) {
 		return new LinkedList<ItemChange>();
 	}
 
 	@Override
-	public List<ItemChange> fetch(List<String> fetchIds) {
+	public List<ItemChange> fetch(BackendSession bs, List<String> fetchIds) {
 		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
-		changes.addAll(getMailChanges(getState().getLastSync()));
+		switch (bs.getDataType()) {
+			case CALENDAR:
+				break;
+			case CONTACT:
+				break;
+			case EMAIL:
+				changes.addAll(mailExporter.fetchItems(fetchIds));
+				break;
+			case TASK:
+				break;
+		
+		}
 		return changes;
 	}
 

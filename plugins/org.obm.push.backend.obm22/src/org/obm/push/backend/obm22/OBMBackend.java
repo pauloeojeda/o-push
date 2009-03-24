@@ -9,6 +9,8 @@ import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.ItemChange;
+import org.obm.push.backend.obm22.calendar.CalendarExporter;
+import org.obm.push.backend.obm22.mail.MailExporter;
 import org.obm.push.provisioning.Policy;
 
 public class OBMBackend implements IBackend {
@@ -19,10 +21,14 @@ public class OBMBackend implements IBackend {
 	private IContentsExporter contentsExporter;
 
 	public OBMBackend() {
+		MailExporter mailExporter = new MailExporter();
+		CalendarExporter calendarExporter = new CalendarExporter();
+		
+		
 		hImporter = new HierarchyImporter();
-		exporter = new HierarchyExporter();
+		exporter = new HierarchyExporter(mailExporter, calendarExporter);
 		cImporter = new ContentsImporter();
-		contentsExporter = new ContentsExporter();
+		contentsExporter = new ContentsExporter(mailExporter, calendarExporter);
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package org.obm.push.backend;
 
+import org.obm.push.state.SyncState;
+
 public class BackendSession {
 
 	private String loginAtDomain;
@@ -7,6 +9,8 @@ public class BackendSession {
 	private String devId;
 	private String devType;
 	private String command;
+	private SyncState state;
+	private PIMDataType dataType;
 
 	public BackendSession(String loginAtDomain, String password, String devId, String devType, String command) {
 		super();
@@ -55,6 +59,22 @@ public class BackendSession {
 
 	public void setCommand(String command) {
 		this.command = command;
+	}
+
+	public SyncState getState() {
+		return state;
+	}
+
+	public void setState(SyncState state) {
+		this.state = state;
+	}
+
+	public PIMDataType getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(PIMDataType dataType) {
+		this.dataType = dataType;
 	}
 
 }

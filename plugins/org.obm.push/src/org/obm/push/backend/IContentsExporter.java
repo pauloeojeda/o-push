@@ -13,19 +13,19 @@ import org.obm.push.state.SyncState;
  */
 public interface IContentsExporter {
 
-	void configure(String dataClass, Integer filterType, SyncState state,
+	void configure(BackendSession bs, String dataClass, Integer filterType, SyncState state,
 			int i, int j);
 
-	SyncState getState();
+	SyncState getState(BackendSession bs);
 
-	void synchronize();
+	void synchronize(BackendSession bs);
 
-	List<ItemChange> getChanged();
+	List<ItemChange> getChanged(BackendSession bs);
 
-	int getCount();
+	int getCount(BackendSession bs);
 
-	List<ItemChange> getDeleted();
+	List<ItemChange> getDeleted(BackendSession bs);
 
-	List<ItemChange> fetch(List<String> fetchIds);
+	List<ItemChange> fetch(BackendSession bs, List<String> fetchIds);
 
 }
