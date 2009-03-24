@@ -139,12 +139,18 @@ public class ActiveSyncServlet extends HttpServlet {
 
 	private BackendSession getSession(String userID, String password,
 			HttpServletRequest r) {
+		String uid = userID;
+		int idx = uid.indexOf("\\");
+		if (idx > 0) {
+			uid = uid.substring(idx+1);
+		}
+		
 		BackendSession bs = null;
-		if (sessions.containsKey(userID)) {
-			bs = sessions.get(userID);
+		if (sessions.containsKey(uid)) {
+			bs = sessions.get(uid);
 			bs.setCommand(p(r, "Cmd"));
 		} else {
-			bs = new BackendSession(userID, password, p(r, "DeviceId"), p(r,
+			bs = new BackendSession(uid, password, p(r, "DeviceId"), p(r,
 					"DeviceType"), p(r, "Cmd"));
 		}
 		return bs;

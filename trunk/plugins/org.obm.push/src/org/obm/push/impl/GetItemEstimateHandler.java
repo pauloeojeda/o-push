@@ -69,9 +69,9 @@ public class GetItemEstimateHandler implements IRequestHandler {
 				StateMachine sm = new StateMachine();
 				SyncState state = sm.getSyncState(c.getSyncKey());
 				IContentsExporter exporter = backend.getContentsExporter(bs);
-				exporter.configure(c.getDataClass(), c.getFilterType(), state,
+				exporter.configure(bs, c.getDataClass(), c.getFilterType(), state,
 						0, 0);
-				estim.setTextContent(exporter.getCount() + "");
+				estim.setTextContent(exporter.getCount(bs) + "");
 			}
 			responder.sendResponse("ItemEstimate", rep);
 		} catch (Exception e) {

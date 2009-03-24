@@ -74,7 +74,7 @@ public class FolderSyncHandler implements IRequestHandler {
 		IHierarchyExporter exporter = backend.getHierarchyExporter(bs);
 
 		// dataClass, filterType, state, int, int
-		exporter.configure(null, null, state, 0, 0);
+		exporter.configure(bs, null, null, state, 0, 0);
 
 		try {
 			Document ret = DOMUtils.createDoc(null, "FolderSync");
@@ -83,22 +83,22 @@ public class FolderSyncHandler implements IRequestHandler {
 			DOMUtils.createElementAndText(root, "SyncKey", newSyncKey);
 			changes = DOMUtils.createElement(root, "Changes");
 
-			exporter.synchronize();
-			DOMUtils.createElementAndText(changes, "Count", exporter.getCount()
+			exporter.synchronize(bs);
+			DOMUtils.createElementAndText(changes, "Count", exporter.getCount(bs)
 					+ "");
-			List<ItemChange> changed = exporter.getChanged();
+			List<ItemChange> changed = exporter.getChanged(bs);
 			for (ItemChange sf : changed) {
 				Element add = DOMUtils.createElement(changes, "Add");
 				encode(add, sf);
 			}
-			List<ItemChange> deleted = exporter.getDeleted();
+			List<ItemChange> deleted = exporter.getDeleted(bs);
 			for (ItemChange sf : deleted) {
 				Element remove = DOMUtils.createElement(changes, "Remove");
 				encode(remove, sf);
 			}
 
 			responder.sendResponse("FolderHierarchy", ret);
-			state = exporter.getState();
+			state = exporter.getState(bs);
 			sm.setSyncState(newSyncKey, state);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

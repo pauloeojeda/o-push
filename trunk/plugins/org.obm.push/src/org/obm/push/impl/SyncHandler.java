@@ -101,12 +101,12 @@ public class SyncHandler implements IRequestHandler {
 					DOMUtils.createElementAndText(ce, "Status", "1");
 					if (!oldSyncKey.equals("0")) {
 						IContentsExporter cex = backend.getContentsExporter(bs);
-						cex.configure(c.getDataClass(), c.getFilterType(), st,
+						cex.configure(bs, c.getDataClass(), c.getFilterType(), st,
 								0, 0);
 
 						List<ItemChange> changed = null;
 						if (c.getFetchIds().size() == 0) {
-							changed = cex.getChanged();
+							changed = cex.getChanged(bs);
 							logger.info("should send " + changed.size()
 									+ " change(s).");
 							Element commands = DOMUtils.createElement(ce,
@@ -120,13 +120,13 @@ public class SyncHandler implements IRequestHandler {
 								serializeChange(add, c, ic);
 							}
 
-							List<ItemChange> del = cex.getDeleted();
+							List<ItemChange> del = cex.getDeleted(bs);
 							for (ItemChange ic : del) {
 								serializeDeletion(ce, ic);
 							}
 						} else {
 							// fetch
-							changed = cex.fetch(c.getFetchIds());
+							changed = cex.fetch(bs, c.getFetchIds());
 							Element commands = DOMUtils.createElement(ce,
 									"Responses");
 							for (ItemChange ic : changed) {
