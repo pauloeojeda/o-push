@@ -11,10 +11,11 @@ import org.apache.commons.logging.LogFactory;
 import org.minig.obm.pool.IOBMConnection;
 import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.push.backend.BackendSession;
-import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
+import org.obm.push.backend.MSEvent;
 import org.obm.sync.auth.AccessToken;
+import org.obm.sync.calendar.CalendarInfo;
 import org.obm.sync.calendar.Event;
 import org.obm.sync.client.calendar.CalendarClient;
 import org.obm.sync.items.EventChanges;
@@ -32,10 +33,11 @@ public class CalendarExporter {
 
 	private CalendarClient getClient(BackendSession bs) {
 		CalendarLocator cl = new CalendarLocator();
-		CalendarClient calCli = cl.locate("http://10.0.0.5/obm-sync/services");
+		CalendarClient calCli = cl
+				.locate("http://10.0.0.5:8080/obm-sync/services");
 		return calCli;
 	}
-	
+
 	private void validateOBMConnection() {
 		IOBMConnection con = OBMPoolActivator.getDefault().getConnection();
 		PreparedStatement ps = null;
@@ -47,7 +49,7 @@ public class CalendarExporter {
 				logger.info("OBM Db connection is OK");
 			}
 		} catch (Exception e) {
-			logger.error("OBM Db connection is broken: "+ e.getMessage(), e);
+			logger.error("OBM Db connection is broken: " + e.getMessage(), e);
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
@@ -56,32 +58,42 @@ public class CalendarExporter {
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		List<ItemChange> ret = new LinkedList<ItemChange>();
 
-		ItemChange ic = new ItemChange();
-		ic.setServerId("obm://" + bs.getLoginAtDomain() + "/calendar/"
-				+ bs.getLoginAtDomain());
-		ic.setParentId("0");
-		ic.setDisplayName(bs.getLoginAtDomain());
-		ic.setItemType(FolderType.DEFAULT_CALENDAR_FOLDER);
-		ret.add(ic);
-
-		ic = new ItemChange();
-		ic.setServerId("obm://thomas@zz.com/calendar/sylvaing@zz.com");
-		ic.setParentId("0");
-		ic.setDisplayName("sylvaing@zz.com");
-		ic.setItemType(FolderType.USER_CREATED_CALENDAR_FOLDER);
-		ret.add(ic);
+		CalendarClient cc = getClient(bs);
+		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
+				"o-push");
+		try {
+			CalendarInfo[] cals = cc.listCalendars(token);
+			int i = 0;
+			for (CalendarInfo ci : cals) {
+				ItemChange ic = new ItemChange();
+				ic.setServerId("obm://" + bs.getLoginAtDomain() + "/calendar/"
+						+ ci.getUid() + "@domain");
+				ic.setParentId("0");
+				ic.setDisplayName(ci.getMail());
+				if (i++ == 0) {
+					ic.setItemType(FolderType.DEFAULT_CALENDAR_FOLDER);
+				} else {
+					ic.setItemType(FolderType.USER_CREATED_CALENDAR_FOLDER);
+				}
+				ret.add(ic);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		cc.logout(token);
 
 		return ret;
 	}
 
-	public List<ItemChange> getContentChanges(BackendSession bs, String  collectionId) {
+	public List<ItemChange> getContentChanges(BackendSession bs,
+			String collectionId) {
 		List<ItemChange> ret = new LinkedList<ItemChange>();
-		
+
 		Date ls = bs.getState().getLastSync();
 		CalendarClient cc = getClient(bs);
-		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(), "o-push");
-		int at = bs.getLoginAtDomain().indexOf("@");
-		String calendar = bs.getLoginAtDomain().substring(0, at);
+		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
+				"o-push");
+		String calendar = parseCalendarId(collectionId);
 		try {
 			EventChanges changes = cc.getSync(token, calendar, ls);
 			Event[] evs = changes.getUpdated();
@@ -93,13 +105,24 @@ public class CalendarExporter {
 		}
 
 		cc.logout(token);
+		logger.info("getContentChanges(" + calendar + ", " + collectionId
+				+ ") => " + ret.size() + " entries.");
 		return ret;
+	}
+
+	private String parseCalendarId(String collectionId) {
+		// parse obm://thomas@zz.com/calendar/sylvaing@zz.com
+		int slash = collectionId.lastIndexOf("/");
+		int at = collectionId.lastIndexOf("@");
+
+		return collectionId.substring(slash + 1, at);
 	}
 
 	private ItemChange addCalendarChange(Event e) {
 		ItemChange ic = new ItemChange();
-		ic.setServerId("358");
+		ic.setServerId("obm://calendar/" + e.getUid());
 		MSEvent cal = new EventConverter().convertEvent(e);
+		cal.setUID(ic.getServerId());
 		ic.setData(cal);
 		return ic;
 	}

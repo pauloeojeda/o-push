@@ -21,3 +21,4 @@ Export-Package: org.obm.sync.auth,
  org.obm.sync.services,
  org.obm.sync.user,
  org.obm.sync.utils
+Require-Bundle: org.apache.commons.logging;bundle-version="1.0.4"
