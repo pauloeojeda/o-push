@@ -1,5 +1,39 @@
 2009-03-25  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
+	OBM -> iPhone calendar works :-)
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarExporter.java: (CalendarExporter.getClient),
+	(CalendarExporter), (CalendarExporter.validateOBMConnection),
+	(CalendarExporter.getHierarchyChanges),
+	(CalendarExporter.getContentChanges),
+	(CalendarExporter.parseCalendarId),
+	(CalendarExporter.addCalendarChange):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter),
+	(EventConverter.convertEvent):
+	* plugins/org.obm.push.tests/.classpath:
+	* plugins/org.obm.push.tests/.project:
+	* plugins/org.obm.push.tests/.settings/org.eclipse.jdt.core.prefs:
+	* plugins/org.obm.push.tests/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push.tests/build.properties:
+	* plugins/org.obm.push.tests/src/org/obm/push/tests/TZDecoderTest.j
+	ava: (TZDecoderTest), (TZDecoderTest.testDecode):
+	* plugins/org.obm.push/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push/push.product:
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder), (CalendarEncoder.CalendarEncoder),
+	(CalendarEncoder.encode), (CalendarEncoder.e):
+	* plugins/org.obm.push/src/org/obm/push/data/Decoder.java:
+	(Decoder.parseTimeZone):
+	* plugins/org.obm.push/src/org/obm/push/data/TZDecoder.java:
+	(TZDecoder), (TZDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/data/calendarenum/CalendarM
+	eetingStatus.java:
+	* plugins/org.obm.sync.client/META-INF/MANIFEST.MF:
+
+2009-03-25  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
 	Calendar data export work
 	
 	* plugins/org.obm.push.backend.obm22/META-INF/MANIFEST.MF:
