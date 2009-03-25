@@ -1,7 +1,7 @@
 package org.obm.push.backend;
 
 
-public class Mail implements IApplicationData {
+public class MSMail implements IApplicationData {
 
 	@Override
 	public PIMDataType getType() {

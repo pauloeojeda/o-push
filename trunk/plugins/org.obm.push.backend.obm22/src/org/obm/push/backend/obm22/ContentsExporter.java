@@ -1,6 +1,5 @@
 package org.obm.push.backend.obm22;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,46 +41,13 @@ public class ContentsExporter implements IContentsExporter {
 		return bs.getState();
 	}
 
-	public void synchronize(BackendSession bs) {
-		logger.info("synchronize");
-		List<ItemChange> lic = getCalendarChanges(bs);
-		addChanges(lic);
-		lic = getCalendarDeletions(bs.getState().getLastSync());
-		addDeletions(lic);
-
-		lic = getContactsChanges(bs);
-		addChanges(lic);
-		lic = getContactsDeletions(bs.getState().getLastSync());
-		addDeletions(lic);
-
-		lic = getTasksChanges(bs);
-		addChanges(lic);
-		lic = getTasksDeletions(bs.getState().getLastSync());
-		addDeletions(lic);
-
-		lic = getMailChanges(bs);
-		addChanges(lic);
-		lic = getMailDeletions(bs.getState().getLastSync());
-		addDeletions(lic);
-	}
-
-	private void addDeletions(List<ItemChange> lic) {
-		// TODO Auto-generated method stub
-
-	}
-
-	private void addChanges(List<ItemChange> lic) {
-		// TODO Auto-generated method stub
-
-	}
-
 	private List<ItemChange> getContactsChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
 		return ret;
 	}
 
-	private List<ItemChange> getContactsDeletions(Date lastSync) {
+	private List<ItemChange> getContactsDeletions(BackendSession bs, String collectionId) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
 		return ret;
@@ -93,17 +59,17 @@ public class ContentsExporter implements IContentsExporter {
 		return ret;
 	}
 
-	private List<ItemChange> getTasksDeletions(Date lastSync) {
+	private List<ItemChange> getTasksDeletions(BackendSession bs, String collectionId) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
 		return ret;
 	}
 
-	private List<ItemChange> getCalendarChanges(BackendSession bs) {
-		return calendarExporter.getContentChanges(bs);
+	private List<ItemChange> getCalendarChanges(BackendSession bs, String collectionId) {
+		return calendarExporter.getContentChanges(bs, collectionId);
 	}
 
-	private List<ItemChange> getCalendarDeletions(Date lastSync) {
+	private List<ItemChange> getCalendarDeletions(BackendSession bs, String collectionId) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
 		return ret;
@@ -113,19 +79,18 @@ public class ContentsExporter implements IContentsExporter {
 		return mailExporter.getContentChanges(bs);
 	}
 
-	private List<ItemChange> getMailDeletions(Date lastSync) {
+	private List<ItemChange> getMailDeletions(BackendSession bs, String collectionId) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
 		return ret;
 	}
 
 	@Override
-	public List<ItemChange> getChanged(BackendSession bs) {
+	public List<ItemChange> getChanged(BackendSession bs, String collectionId) {
 		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
-		// TODO switch dataClass
 		switch (bs.getDataType()) {
 		case CALENDAR:
-			changes.addAll(getCalendarChanges(bs));
+			changes.addAll(getCalendarChanges(bs, collectionId));
 			break;
 		case CONTACT:
 			changes.addAll(getContactsChanges(bs));
@@ -142,13 +107,29 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	@Override
-	public int getCount(BackendSession bs) {
-		return getChanged(bs).size();
+	public int getCount(BackendSession bs, String collectionId) {
+		return getChanged(bs, collectionId).size();
 	}
 
 	@Override
-	public List<ItemChange> getDeleted(BackendSession bs) {
-		return new LinkedList<ItemChange>();
+	public List<ItemChange> getDeleted(BackendSession bs, String collectionId) {
+		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
+		switch (bs.getDataType()) {
+		case CALENDAR:
+			changes.addAll(getCalendarDeletions(bs, collectionId));
+			break;
+		case CONTACT:
+			changes.addAll(getContactsDeletions(bs, collectionId));
+			break;
+		case EMAIL:
+			changes.addAll(getMailDeletions(bs, collectionId));
+			break;
+		case TASK:
+			changes.addAll(getTasksDeletions(bs, collectionId));
+			break;
+		}
+
+		return changes;
 	}
 
 	@Override

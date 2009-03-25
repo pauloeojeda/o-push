@@ -1,3 +1,159 @@
+2009-03-25  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Calendar data export work
+	
+	* plugins/org.obm.push.backend.obm22/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter),
+	(ContentsExporter.getContactsDeletions),
+	(ContentsExporter.getTasksDeletions),
+	(ContentsExporter.getCalendarChanges),
+	(ContentsExporter.getCalendarDeletions),
+	(ContentsExporter.getMailDeletions), (ContentsExporter.getChanged),
+	(ContentsExporter.getCount), (ContentsExporter.getDeleted):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarExporter.java: (CalendarExporter),
+	(CalendarExporter.CalendarExporter), (CalendarExporter.getClient),
+	(CalendarExporter.validateOBMConnection),
+	(CalendarExporter.getHierarchyChanges),
+	(CalendarExporter.getContentChanges),
+	(CalendarExporter.addCalendarChange):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter),
+	(EventConverter.convertEvent):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailExporter.java: (MailExporter.getContentChanges),
+	(MailExporter.fetchItems):
+	* plugins/org.obm.push.utils/src/org/obm/push/utils/Pouic.java:
+	* plugins/org.obm.push/push.product:
+	* plugins/org.obm.push/src/org/obm/push/backend/Attendee.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/Calendar.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/Contact.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSAttendee.java:
+	(MSAttendee), (MSAttendee.getEmail), (MSAttendee.setEmail),
+	(MSAttendee.getName), (MSAttendee.setName),
+	(MSAttendee.getAttendeeStatus), (MSAttendee.setAttendeeStatus),
+	(MSAttendee.getAttendeeType), (MSAttendee.setAttendeeType):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSContact.java:
+	(MSContact), (MSContact.getCategories), (MSContact.setCategories),
+	(MSContact.getChildren), (MSContact.setChildren),
+	(MSContact.getAssistantName), (MSContact.setAssistantName),
+	(MSContact.getAssistantPhoneNumber),
+	(MSContact.setAssistantPhoneNumber),
+	(MSContact.getAssistnamePhoneNumber),
+	(MSContact.setAssistnamePhoneNumber),
+	(MSContact.getBusiness2PhoneNumber),
+	(MSContact.setBusiness2PhoneNumber),
+	(MSContact.getBusinessAddressCity),
+	(MSContact.setBusinessAddressCity),
+	(MSContact.getBusinessPhoneNumber),
+	(MSContact.setBusinessPhoneNumber), (MSContact.getWebPage),
+	(MSContact.setWebPage), (MSContact.getBusinessAddressCountry),
+	(MSContact.setBusinessAddressCountry), (MSContact.getDepartment),
+	(MSContact.setDepartment), (MSContact.getEmail1Address),
+	(MSContact.setEmail1Address), (MSContact.getEmail2Address),
+	(MSContact.setEmail2Address), (MSContact.getEmail3Address),
+	(MSContact.setEmail3Address), (MSContact.getBusinessFaxNumber),
+	(MSContact.setBusinessFaxNumber), (MSContact.getFileAs),
+	(MSContact.setFileAs), (MSContact.getFirstName),
+	(MSContact.setFirstName), (MSContact.getMiddleName),
+	(MSContact.setMiddleName), (MSContact.getHomeAddressCity),
+	(MSContact.setHomeAddressCity), (MSContact.getHomeAddressCountry),
+	(MSContact.setHomeAddressCountry), (MSContact.getHomeFaxNumber),
+	(MSContact.setHomeFaxNumber), (MSContact.getHomePhoneNumber),
+	(MSContact.setHomePhoneNumber), (MSContact.getHome2PhoneNumber),
+	(MSContact.setHome2PhoneNumber),
+	(MSContact.getHomeAddressPostalCode),
+	(MSContact.setHomeAddressPostalCode),
+	(MSContact.getHomeAddressState), (MSContact.setHomeAddressState),
+	(MSContact.getHomeAddressStreet), (MSContact.setHomeAddressStreet),
+	(MSContact.getMobilePhoneNumber), (MSContact.setMobilePhoneNumber),
+	(MSContact.getSuffix), (MSContact.setSuffix),
+	(MSContact.getCompanyName), (MSContact.setCompanyName),
+	(MSContact.getOtherAddressCity), (MSContact.setOtherAddressCity),
+	(MSContact.getOtherAddressCountry),
+	(MSContact.setOtherAddressCountry), (MSContact.getCarPhoneNumber),
+	(MSContact.setCarPhoneNumber),
+	(MSContact.getOtherAddressPostalCode),
+	(MSContact.setOtherAddressPostalCode),
+	(MSContact.getOtherAddressState), (MSContact.setOtherAddressState),
+	(MSContact.getOtherAddressStreet),
+	(MSContact.setOtherAddressStreet), (MSContact.getPagerNumber),
+	(MSContact.setPagerNumber), (MSContact.getTitle),
+	(MSContact.setTitle), (MSContact.getBusinessPostalCode),
+	(MSContact.setBusinessPostalCode), (MSContact.getLastName),
+	(MSContact.setLastName), (MSContact.getSpouse),
+	(MSContact.setSpouse), (MSContact.getBusinessState),
+	(MSContact.setBusinessState), (MSContact.getBusinessStreet),
+	(MSContact.setBusinessStreet), (MSContact.getJobTitle),
+	(MSContact.setJobTitle), (MSContact.getYomiFirstName),
+	(MSContact.setYomiFirstName), (MSContact.getYomiLastName),
+	(MSContact.setYomiLastName), (MSContact.getYomiCompanyName),
+	(MSContact.setYomiCompanyName), (MSContact.getOfficeLocation),
+	(MSContact.setOfficeLocation), (MSContact.getRadioPhoneNumber),
+	(MSContact.setRadioPhoneNumber), (MSContact.getPicture),
+	(MSContact.setPicture), (MSContact.getCustomerId),
+	(MSContact.setCustomerId), (MSContact.getGovernmentId),
+	(MSContact.setGovernmentId), (MSContact.getIMAddress),
+	(MSContact.setIMAddress), (MSContact.getIMAddress2),
+	(MSContact.setIMAddress2), (MSContact.getIMAddress3),
+	(MSContact.setIMAddress3), (MSContact.getManagerName),
+	(MSContact.setManagerName), (MSContact.getCompanyMainPhone),
+	(MSContact.setCompanyMainPhone), (MSContact.getAccountName),
+	(MSContact.setAccountName), (MSContact.getNickName),
+	(MSContact.setNickName), (MSContact.getMMS), (MSContact.setMMS),
+	(MSContact.getType), (MSContact.isRead),
+	(MSContact.getAnniversary), (MSContact.setAnniversary),
+	(MSContact.getBirthday), (MSContact.setBirthday):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSEvent.java:
+	(MSEvent), (MSEvent.getTimeZone), (MSEvent.setTimeZone),
+	(MSEvent.getOrganizerName), (MSEvent.setOrganizerName),
+	(MSEvent.getOrganizerEmail), (MSEvent.setOrganizerEmail),
+	(MSEvent.getLocation), (MSEvent.setLocation), (MSEvent.getSubject),
+	(MSEvent.setSubject), (MSEvent.getUID), (MSEvent.setUID),
+	(MSEvent.getAllDayEvent), (MSEvent.setAllDayEvent),
+	(MSEvent.getBusyStatus), (MSEvent.setBusyStatus),
+	(MSEvent.getSensitivity), (MSEvent.setSensitivity),
+	(MSEvent.getMeetingStatus), (MSEvent.setMeetingStatus),
+	(MSEvent.getReminder), (MSEvent.setReminder),
+	(MSEvent.getAttendees), (MSEvent.setAttendees),
+	(MSEvent.getCategories), (MSEvent.setCategories),
+	(MSEvent.getRecurrence), (MSEvent.setRecurrence),
+	(MSEvent.getExceptions), (MSEvent.setExceptions),
+	(MSEvent.setDeleted), (MSEvent.isDeletedException),
+	(MSEvent.getType), (MSEvent.isRead), (MSEvent.getDtStamp),
+	(MSEvent.setDtStamp), (MSEvent.getEndTime), (MSEvent.setEndTime),
+	(MSEvent.getStartTime), (MSEvent.setStartTime),
+	(MSEvent.getExceptionStartTime), (MSEvent.setExceptionStartTime):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSMail.java:
+	(MSMail), (MSMail.getType), (MSMail.isRead):
+	* plugins/org.obm.push/src/org/obm/push/backend/Mail.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/Recurrence.java:
+	(Recurrence), (Recurrence.getUntil), (Recurrence.setUntil):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder.decode), (CalendarDecoder.setEventCalendar):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactsDecoder.java:
+	(ContactsDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/data/Decoder.java:
+	(Decoder), (Decoder.parseDOMString), (Decoder.parseDOMDate),
+	(Decoder.parseDOMByte), (Decoder.parseDOMInt), (Decoder.parseDate),
+	(Decoder.parseDOMTimeZone), (Decoder.parseTimeZone),
+	(Decoder.parseDOMStringCollection), (Decoder.parseByte),
+	(Decoder.parseInt), (Decoder.parseBoolean),
+	(Decoder.parseDOMBoolean), (Decoder.parseDOMNoNullInt),
+	(Decoder.parseDOMInt2Boolean):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process):
+	* plugins/org.obm.sync.client/.classpath:
+	* plugins/org.obm.sync.client/.project:
+	* plugins/org.obm.sync.client/.settings/org.eclipse.jdt.core.prefs:
+	* plugins/org.obm.sync.client/META-INF/MANIFEST.MF:
+	* plugins/org.obm.sync.client/build.properties:
+
 2009-03-23  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	Add API needed by ping method.

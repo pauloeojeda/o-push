@@ -3,7 +3,7 @@ package org.obm.push.backend;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.data.calendarenum.AttendeeType;
 
-public class Attendee {
+public class MSAttendee {
 	private String email;
 	private String name;
 	private AttendeeStatus attendeeStatus;

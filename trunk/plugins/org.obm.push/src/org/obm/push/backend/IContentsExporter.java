@@ -18,13 +18,11 @@ public interface IContentsExporter {
 
 	SyncState getState(BackendSession bs);
 
-	void synchronize(BackendSession bs);
+	List<ItemChange> getChanged(BackendSession bs, String collectionId);
 
-	List<ItemChange> getChanged(BackendSession bs);
+	int getCount(BackendSession bs, String collectionId);
 
-	int getCount(BackendSession bs);
-
-	List<ItemChange> getDeleted(BackendSession bs);
+	List<ItemChange> getDeleted(BackendSession bs, String collectionId);
 
 	List<ItemChange> fetch(BackendSession bs, List<String> fetchIds);
 

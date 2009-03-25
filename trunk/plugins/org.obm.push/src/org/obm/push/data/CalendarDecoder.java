@@ -2,8 +2,8 @@ package org.obm.push.data;
 
 import java.util.ArrayList;
 
-import org.obm.push.backend.Attendee;
-import org.obm.push.backend.Calendar;
+import org.obm.push.backend.MSAttendee;
+import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.Recurrence;
 import org.obm.push.data.calendarenum.AttendeeStatus;
@@ -20,7 +20,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 	@Override
 	public IApplicationData decode(Element syncData) {
 		Element containerNode;
-		Calendar calendar = new Calendar();
+		MSEvent calendar = new MSEvent();
 		
 		// Main attributes
 		
@@ -37,10 +37,10 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		
 		containerNode = DOMUtils.getUniqueElement(syncData, "Attendees");
 		if (containerNode != null) {
-			ArrayList<Attendee> attendees = new ArrayList<Attendee>();
+			ArrayList<MSAttendee> attendees = new ArrayList<MSAttendee>();
 			for (int i = 0, n = containerNode.getChildNodes().getLength(); i < n; i += 1) {
 				Element subnode = (Element) containerNode.getChildNodes().item(i);
-				Attendee attendee = new Attendee();
+				MSAttendee attendee = new MSAttendee();
 				
 				attendee.setEmail(parseDOMString(DOMUtils.getUniqueElement(subnode, "Email")));
 				attendee.setName(parseDOMString(DOMUtils.getUniqueElement(subnode, "Name")));
@@ -75,10 +75,10 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 		containerNode = DOMUtils.getUniqueElement(syncData, "Exceptions");
 		if (containerNode != null) {
-			ArrayList<Calendar> exceptions = new ArrayList<Calendar>();
+			ArrayList<MSEvent> exceptions = new ArrayList<MSEvent>();
 			for (int i = 0, n = containerNode.getChildNodes().getLength(); i < n; i += 1) {
 				Element subnode = (Element) containerNode.getChildNodes().item(i);
-				Calendar exception = new Calendar();
+				MSEvent exception = new MSEvent();
 
 				setEventCalendar(exception, subnode);
 				
@@ -121,7 +121,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		return null;
 	}
 
-	void setEventCalendar (Calendar calendar, Element domSource) {
+	void setEventCalendar (MSEvent calendar, Element domSource) {
 		calendar.setLocation(parseDOMString(DOMUtils.getUniqueElement(domSource, "Location")));
 		calendar.setDtStamp(parseDOMDate(DOMUtils.getUniqueElement(domSource, "DTStamp")));
 		calendar.setSubject(parseDOMString(DOMUtils.getUniqueElement(domSource, "Subject")));

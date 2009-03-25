@@ -106,7 +106,7 @@ public class SyncHandler implements IRequestHandler {
 
 						List<ItemChange> changed = null;
 						if (c.getFetchIds().size() == 0) {
-							changed = cex.getChanged(bs);
+							changed = cex.getChanged(bs, c.getCollectionId());
 							logger.info("should send " + changed.size()
 									+ " change(s).");
 							Element commands = DOMUtils.createElement(ce,
@@ -120,7 +120,7 @@ public class SyncHandler implements IRequestHandler {
 								serializeChange(add, c, ic);
 							}
 
-							List<ItemChange> del = cex.getDeleted(bs);
+							List<ItemChange> del = cex.getDeleted(bs, c.getCollectionId());
 							for (ItemChange ic : del) {
 								serializeDeletion(ce, ic);
 							}

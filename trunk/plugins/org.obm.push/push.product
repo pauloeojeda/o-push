@@ -22,7 +22,9 @@
    </vm>
 
    <plugins>
+      <plugin id="fr.aliasource.utils"/>
       <plugin id="fr.aliasource.webmail.log4j" fragment="true"/>
+      <plugin id="fr.aliasource.webmail.pool"/>
       <plugin id="javax.servlet"/>
       <plugin id="org.apache.commons.logging"/>
       <plugin id="org.eclipse.core.contenttype"/>
@@ -38,6 +40,8 @@
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.minig.obm.jdbc.pgsql"/>
+      <plugin id="org.minig.obm.pool"/>
       <plugin id="org.mortbay.jetty"/>
       <plugin id="org.obm.push"/>
       <plugin id="org.obm.push.backend.obm22"/>

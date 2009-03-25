@@ -1,11 +1,11 @@
 package org.obm.push.backend;
 
-import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.obm.push.data.calendarenum.RecurrenceType;
 
 public class Recurrence {
-	private SimpleDateFormat until;
+	private Date until;
 	private RecurrenceType type;
 	private Integer weekOfMonth;
 	private Integer monthOfYear;
@@ -14,12 +14,6 @@ public class Recurrence {
 	private Integer interval;
 	private Integer dayOfWeek;
 	
-	public SimpleDateFormat getUntil() {
-		return until;
-	}
-	public void setUntil(SimpleDateFormat until) {
-		this.until = until;
-	}
 	public RecurrenceType getType() {
 		return type;
 	}
@@ -61,5 +55,11 @@ public class Recurrence {
 	}
 	public void setDayOfWeek(Integer dayOfWeek) {
 		this.dayOfWeek = dayOfWeek;
+	}
+	public Date getUntil() {
+		return until;
+	}
+	public void setUntil(Date until) {
+		this.until = until;
 	}
 }

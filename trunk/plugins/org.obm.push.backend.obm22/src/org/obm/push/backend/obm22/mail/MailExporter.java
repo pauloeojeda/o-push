@@ -6,7 +6,7 @@ import java.util.List;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
-import org.obm.push.backend.Mail;
+import org.obm.push.backend.MSMail;
 
 public class MailExporter {
 
@@ -43,10 +43,8 @@ public class MailExporter {
 		
 		// FIXME fake data
 		ItemChange ic = new ItemChange();
-		ic.setDisplayName("Mail subject");
 		ic.setServerId("358");
-		ic.setParentId("0");
-		ic.setData(new Mail());
+		ic.setData(new MSMail());
 		ret.add(ic);
 
 		return ret;
@@ -58,7 +56,7 @@ public class MailExporter {
 		
 		ItemChange ic = new ItemChange();
 		ic.setServerId("358");
-		ic.setData(new Mail());
+		ic.setData(new MSMail());
 		ret.add(ic);
 
 		return ret;
