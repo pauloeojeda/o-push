@@ -1,10 +1,11 @@
 package org.obm.push.backend;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
-public class Contact implements IApplicationData {
+public class MSContact implements IApplicationData {
+	
 	private String assistantName;
 	private String assistantPhoneNumber;
 	private String assistnamePhoneNumber;
@@ -53,8 +54,8 @@ public class Contact implements IApplicationData {
 	private String radioPhoneNumber;
 	private String picture;
 
-	private SimpleDateFormat anniversary;
-	private SimpleDateFormat birthday;
+	private Date anniversary;
+	private Date birthday;
 
 	private ArrayList<String> categories;
 	private ArrayList<String> children;
@@ -464,22 +465,6 @@ public class Contact implements IApplicationData {
 		this.picture = picture;
 	}
 
-	public SimpleDateFormat getAnniversary() {
-		return anniversary;
-	}
-
-	public void setAnniversary(SimpleDateFormat anniversary) {
-		this.anniversary = anniversary;
-	}
-
-	public SimpleDateFormat getBirthday() {
-		return birthday;
-	}
-
-	public void setBirthday(SimpleDateFormat birthday) {
-		this.birthday = birthday;
-	}
-
 	public String getCustomerId() {
 		return customerId;
 	}
@@ -568,5 +553,21 @@ public class Contact implements IApplicationData {
 	@Override
 	public boolean isRead() {
 		return true;
+	}
+
+	public Date getAnniversary() {
+		return anniversary;
+	}
+
+	public void setAnniversary(Date anniversary) {
+		this.anniversary = anniversary;
+	}
+
+	public Date getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(Date birthday) {
+		this.birthday = birthday;
 	}
 }

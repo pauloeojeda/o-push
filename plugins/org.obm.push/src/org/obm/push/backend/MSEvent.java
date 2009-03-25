@@ -1,34 +1,34 @@
 package org.obm.push.backend;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.TimeZone;
 
 import org.obm.push.data.calendarenum.CalendarBusyStatus;
 import org.obm.push.data.calendarenum.CalendarMeetingStatus;
 import org.obm.push.data.calendarenum.CalendarSensitivity;
 
-public class Calendar {
+public class MSEvent implements IApplicationData {
 	
 	private String organizerName;
 	private String organizerEmail;
 	private String location;
 	private String subject;
 	private String uID;
-	private SimpleDateFormat dtStamp;
-	private SimpleDateFormat endTime;
-	private SimpleDateFormat startTime;
+	private Date dtStamp;
+	private Date endTime;
+	private Date startTime;
 	private Boolean allDayEvent;
 	private CalendarBusyStatus busyStatus;
 	private CalendarSensitivity sensitivity;
 	private CalendarMeetingStatus meetingStatus;
 	private Integer reminder;
-	private ArrayList<Attendee> attendees;
+	private ArrayList<MSAttendee> attendees;
 	private ArrayList<String> categories;
 	private Recurrence recurrence;
-	private ArrayList<Calendar> exceptions;
+	private ArrayList<MSEvent> exceptions;
 	private TimeZone timeZone;
-	private SimpleDateFormat exceptionStartTime;
+	private Date exceptionStartTime;
 	private boolean deletedException;
 
 	public TimeZone getTimeZone() {
@@ -79,30 +79,6 @@ public class Calendar {
 		uID = uid;
 	}
 
-	public SimpleDateFormat getDtStamp() {
-		return dtStamp;
-	}
-
-	public void setDtStamp(SimpleDateFormat dtStamp) {
-		this.dtStamp = dtStamp;
-	}
-
-	public SimpleDateFormat getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(SimpleDateFormat endTime) {
-		this.endTime = endTime;
-	}
-
-	public SimpleDateFormat getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(SimpleDateFormat startTime) {
-		this.startTime = startTime;
-	}
-
 	public Boolean getAllDayEvent() {
 		return allDayEvent;
 	}
@@ -143,11 +119,11 @@ public class Calendar {
 		this.reminder = reminder;
 	}
 
-	public ArrayList<Attendee> getAttendees() {
+	public ArrayList<MSAttendee> getAttendees() {
 		return attendees;
 	}
 
-	public void setAttendees(ArrayList<Attendee> attendees) {
+	public void setAttendees(ArrayList<MSAttendee> attendees) {
 		this.attendees = attendees;
 	}
 
@@ -167,20 +143,12 @@ public class Calendar {
 		this.recurrence = recurrence;
 	}
 
-	public ArrayList<Calendar> getExceptions() {
+	public ArrayList<MSEvent> getExceptions() {
 		return exceptions;
 	}
 
-	public void setExceptions(ArrayList<Calendar> exceptions) {
+	public void setExceptions(ArrayList<MSEvent> exceptions) {
 		this.exceptions = exceptions;
-	}
-
-	public SimpleDateFormat getExceptionStartTime() {
-		return exceptionStartTime;
-	}
-
-	public void setExceptionStartTime(SimpleDateFormat exceptionStartTime) {
-		this.exceptionStartTime = exceptionStartTime;
 	}
 
 	public void setDeleted(boolean parseDOMInt2Boolean) {
@@ -189,5 +157,47 @@ public class Calendar {
 
 	public boolean isDeletedException() {
 		return deletedException;
+	}
+
+	@Override
+	public PIMDataType getType() {
+		return PIMDataType.CALENDAR;
+	}
+
+	@Override
+	public boolean isRead() {
+		return true;
+	}
+
+	public Date getDtStamp() {
+		return dtStamp;
+	}
+
+	public void setDtStamp(Date dtStamp) {
+		this.dtStamp = dtStamp;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getExceptionStartTime() {
+		return exceptionStartTime;
+	}
+
+	public void setExceptionStartTime(Date exceptionStartTime) {
+		this.exceptionStartTime = exceptionStartTime;
 	}
 }

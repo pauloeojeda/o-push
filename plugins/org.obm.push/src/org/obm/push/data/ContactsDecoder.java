@@ -2,7 +2,7 @@ package org.obm.push.data;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.obm.push.backend.Contact;
+import org.obm.push.backend.MSContact;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.utils.DOMUtils;
@@ -28,7 +28,7 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 
 	@Override
 	public IApplicationData decode(Element syncData) {
-		Contact contact = new Contact();
+		MSContact contact = new MSContact();
 		
 		contact.setAssistantName(parseDOMString(DOMUtils.getUniqueElement(syncData, "AssistantName")));
 		contact.setAssistantPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "AssistantPhoneNumber")));

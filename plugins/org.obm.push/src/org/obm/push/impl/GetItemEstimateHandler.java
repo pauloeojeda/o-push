@@ -71,7 +71,7 @@ public class GetItemEstimateHandler implements IRequestHandler {
 				IContentsExporter exporter = backend.getContentsExporter(bs);
 				exporter.configure(bs, c.getDataClass(), c.getFilterType(), state,
 						0, 0);
-				estim.setTextContent(exporter.getCount(bs) + "");
+				estim.setTextContent(exporter.getCount(bs, c.getCollectionId()) + "");
 			}
 			responder.sendResponse("ItemEstimate", rep);
 		} catch (Exception e) {
