@@ -46,7 +46,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 				attendee.setName(parseDOMString(DOMUtils.getUniqueElement(subnode, "Name")));
 				
 				switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(syncData, "AttendeeStatus"))) {
-				case 0: attendee.setAttendeeStatus(AttendeeStatus.RESPONSE_UNKOWN); break;
+				case 0: attendee.setAttendeeStatus(AttendeeStatus.RESPONSE_UNKNOWN); break;
 				case 2: attendee.setAttendeeStatus(AttendeeStatus.TENTATIVE); break;
 				case 3: attendee.setAttendeeStatus(AttendeeStatus.ACCEPT); break;
 				case 4: attendee.setAttendeeStatus(AttendeeStatus.DECLINE); break;

@@ -2,6 +2,7 @@ package org.obm.push.backend;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.obm.push.data.calendarenum.CalendarBusyStatus;
@@ -23,10 +24,10 @@ public class MSEvent implements IApplicationData {
 	private CalendarSensitivity sensitivity;
 	private CalendarMeetingStatus meetingStatus;
 	private Integer reminder;
-	private ArrayList<MSAttendee> attendees;
-	private ArrayList<String> categories;
+	private List<MSAttendee> attendees;
+	private List<String> categories;
 	private Recurrence recurrence;
-	private ArrayList<MSEvent> exceptions;
+	private List<MSEvent> exceptions;
 	private TimeZone timeZone;
 	private Date exceptionStartTime;
 	private boolean deletedException;
@@ -119,19 +120,19 @@ public class MSEvent implements IApplicationData {
 		this.reminder = reminder;
 	}
 
-	public ArrayList<MSAttendee> getAttendees() {
+	public List<MSAttendee> getAttendees() {
 		return attendees;
 	}
 
-	public void setAttendees(ArrayList<MSAttendee> attendees) {
+	public void setAttendees(List<MSAttendee> attendees) {
 		this.attendees = attendees;
 	}
 
-	public ArrayList<String> getCategories() {
+	public List<String> getCategories() {
 		return categories;
 	}
 
-	public void setCategories(ArrayList<String> categories) {
+	public void setCategories(List<String> categories) {
 		this.categories = categories;
 	}
 
@@ -143,7 +144,7 @@ public class MSEvent implements IApplicationData {
 		this.recurrence = recurrence;
 	}
 
-	public ArrayList<MSEvent> getExceptions() {
+	public List<MSEvent> getExceptions() {
 		return exceptions;
 	}
 

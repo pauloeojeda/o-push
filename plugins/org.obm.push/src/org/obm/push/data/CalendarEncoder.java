@@ -4,7 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 import org.obm.push.backend.IApplicationData;
+import org.obm.push.backend.MSAttendee;
 import org.obm.push.backend.MSEvent;
+import org.obm.push.backend.Recurrence;
 import org.obm.push.data.calendarenum.CalendarBusyStatus;
 import org.obm.push.data.calendarenum.CalendarMeetingStatus;
 import org.obm.push.utils.DOMUtils;
@@ -18,7 +20,7 @@ public class CalendarEncoder implements IDataEncoder {
 		sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
-	
+
 	// <TimeZone>xP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==</TimeZone>
 	// <AllDayEvent>0</AllDayEvent>
 	// <BusyStatus>2</BusyStatus>
@@ -50,6 +52,40 @@ public class CalendarEncoder implements IDataEncoder {
 		e(p, "Calendar:MeetingStatus", CalendarMeetingStatus.IS_NOT_IN_MEETING
 				.asIntString());
 
+		e(p, "Calendar:AllDayEvent", ev.getAllDayEvent().toString());
+
+		e(p, "Calendar:OrganizerName", ev.getOrganizerName());
+		// TODO OrganizerMail
+
+		if (ev.getReminder() != null) {
+			e(p, "Calendar:ReminderMinsBefore", ev.getReminder().toString());
+		}
+
+		if (ev.getRecurrence() != null) {
+			Element r = DOMUtils.createElement(p, "Calendar:Recurrence");
+			DOMUtils.createElementAndText(r, "Calendar:Type", rec(ev).getType()
+					.asIntString());
+			DOMUtils.createElementAndText(p, "Calendar:Interval", rec(ev)
+					.getInterval().toString());
+			if (rec(ev).getUntil() != null) {
+				DOMUtils.createElementAndText(r, "Calendar:Until", sdf
+						.format(rec(ev).getUntil()));
+			}
+		}
+		
+		Element at = DOMUtils.createElement(p, "Calendar:Attendees");
+		for (MSAttendee ma : ev.getAttendees()) {
+			Element ae = DOMUtils.createElement(at, "Calendar:Attendee");
+			e(ae, "Calendar:AttendeeEmail", ma.getEmail());
+			e(ae, "Calendar:AttendeeName", ma.getName());
+			e(ae, "Calendar:AttendeeStatus", ma.getAttendeeStatus().asIntString());
+			e(ae, "Calendar:AttendeeType", ma.getAttendeeType().asIntString());
+		}
+
+	}
+
+	private Recurrence rec(MSEvent ev) {
+		return ev.getRecurrence();
 	}
 
 	private void e(Element p, String name, String val) {

@@ -214,8 +214,8 @@ public class TagsTables {
 			"AllDayEvent", // 0x06 <2>
 			"Attendees", // 0x07 <2>
 			"Attendee", // 0x08 <2>
-			"Attendee_Email", // 0x09 <2>
-			"Attendee_Name", // 0x0A <2>
+			"AttendeeEmail", // 0x09 <2>
+			"AttendeeName", // 0x0A <2>
 			"Body", // 0x0B <2>
 			"BodyTruncated", // 0x0C <2>
 			"BusyStatus", // 0x0D <2>
@@ -226,28 +226,28 @@ public class TagsTables {
 			"EndTime", // 0x12 <2>
 			"Exception", // 0x13 <2>
 			"Exceptions", // 0x14 <2>
-			"Exception_IsDeleted", // 0x15 <2>
-			"Exception_StartTime", // 0x16 <2>
+			"ExceptionIsDeleted", // 0x15 <2>
+			"ExceptionStartTime", // 0x16 <2>
 			"Location", // 0x17 <2>
 			"MeetingStatus", // 0x18 <2>
-			"Organizer_Email", // 0x19 <2>
-			"Organizer_Name", // 0x1A <2>
+			"OrganizerEmail", // 0x19 <2>
+			"OrganizerName", // 0x1A <2>
 			"Recurrence", // 0x1B <2>
-			"Recurrence_Type", // 0x1C <2>
-			"Recurrence_Until", // 0x1D <2>
-			"Recurrence_Occurrences", // 0x1E <2>
-			"Recurrence_Interval", // 0x1F <2>
-			"Recurrence_DayOfWeek", // 0x20 <2>
-			"Recurrence_DayOfMonth", // 0x21 <2>
-			"Recurrence_WeekOfMonth", // 0x22 <2>
-			"Recurrence_MonthOfYear", // 0x23 <2>
-			"Reminder_MinsBefore", // 0x24 <2>
+			"RecurrenceType", // 0x1C <2>
+			"RecurrenceUntil", // 0x1D <2>
+			"RecurrenceOccurrences", // 0x1E <2>
+			"RecurrenceInterval", // 0x1F <2>
+			"RecurrenceDayOfWeek", // 0x20 <2>
+			"RecurrenceDayOfMonth", // 0x21 <2>
+			"RecurrenceWeekOfMonth", // 0x22 <2>
+			"RecurrenceMonthOfYear", // 0x23 <2>
+			"ReminderMinsBefore", // 0x24 <2>
 			"Sensitivity", // 0x25 <2>
 			"Subject", // 0x26 <2>
 			"StartTime", // 0x27 <2>
 			"UID", // 0x28 <2>
-			"Attendee_Status", // 0x29 <3>
-			"Attendee_Type", // 0x2A <3>
+			"AttendeeStatus", // 0x29 <3>
+			"AttendeeType", // 0x2A <3>
 	};
 
 	/**
