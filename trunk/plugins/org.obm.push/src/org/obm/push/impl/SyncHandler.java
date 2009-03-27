@@ -13,6 +13,7 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.ItemChange;
+import org.obm.push.backend.PIMDataType;
 import org.obm.push.data.CalendarDecoder;
 import org.obm.push.data.ContactsDecoder;
 import org.obm.push.data.EncoderFactory;
@@ -191,18 +192,26 @@ public class SyncHandler implements IRequestHandler {
 			// get our sync state for this collection
 			IContentsImporter importer = backend.getContentsImporter(collection
 					.getCollectionId(), bs);
-			importer.configure(collection.getSyncState(), collection
+			importer.configure(bs, collection.getSyncState(), collection
 					.getConflict());
 			NodeList mod = perform.getChildNodes();
 			for (int j = 0; j < mod.getLength(); j++) {
 				Element modification = (Element) mod.item(j);
-				processModification(collection, importer, modification);
+				processModification(bs, collection, importer, modification);
 			}
 		}
 		return collection;
 	}
 
-	private void processModification(SyncCollection collection,
+	/**
+	 * Handles modifications requested by mobile device
+	 * 
+	 * @param bs
+	 * @param collection
+	 * @param importer
+	 * @param modification
+	 */
+	private void processModification(BackendSession bs, SyncCollection collection,
 			IContentsImporter importer, Element modification) {
 		String modType = modification.getNodeName();
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
@@ -216,13 +225,13 @@ public class SyncHandler implements IRequestHandler {
 			data = dd.decode(syncData);
 			if (modType.equals("Modify")) {
 				if (data.isRead()) {
-					importer.importMessageReadFlag(serverId, data.isRead());
+					importer.importMessageReadFlag(bs, serverId, data.isRead());
 				} else {
-					importer.importMessageChange(serverId, data);
+					importer.importMessageChange(bs, serverId, data);
 				}
 				collection.setImportedChanges(true);
-			} else if (modType.equals("Add")) {
-				String id = importer.importMessageChange(null, data);
+			} else if (modType.equals("Add") || modType.equals("Change")) {
+				String id = importer.importMessageChange(bs, serverId, data);
 				if (clientId != null && id != null) {
 					collection.getClientIds().put(clientId, id);
 					collection.setImportedChanges(true);
@@ -231,11 +240,11 @@ public class SyncHandler implements IRequestHandler {
 				if (collection.isDeletesAsMoves()) {
 					String trash = backend.getWasteBasket();
 					if (trash != null) {
-						importer.importMessageMove(serverId, trash);
+						importer.importMessageMove(bs, serverId, trash);
 						collection.setImportedChanges(true);
 					}
 				} else {
-					importer.importMessageDeletion(serverId);
+					importer.importMessageDeletion(bs, PIMDataType.valueOf(dataClass), serverId);
 					collection.setImportedChanges(true);
 				}
 			}
@@ -246,7 +255,7 @@ public class SyncHandler implements IRequestHandler {
 				collection.getFetchIds().add(serverId);
 			}
 		}
-		collection.setSyncState(importer.getState());
+		collection.setSyncState(importer.getState(bs));
 	}
 
 	private IDataDecoder getDecoder(String dataClass) {

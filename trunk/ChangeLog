@@ -1,3 +1,45 @@
+2009-03-27  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Prepare updates/creates from mobile device.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter),
+	(ContentsExporter.ContentsExporter),
+	(ContentsExporter.getCalendarChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter),
+	(ContentsImporter.ContentsImporter), (ContentsImporter.configure),
+	(ContentsImporter.getState),
+	(ContentsImporter.importMessageChange),
+	(ContentsImporter.importMessageDeletion),
+	(ContentsImporter.importMessageMove),
+	(ContentsImporter.importMessageReadFlag):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/HierarchyExporter.java: (HierarchyExporter),
+	(HierarchyExporter.HierarchyExporter):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java: (CalendarBackend),
+	(CalendarBackend.CalendarBackend), (CalendarBackend.getClient),
+	(CalendarBackend.validateOBMConnection),
+	(CalendarBackend.getHierarchyChanges),
+	(CalendarBackend.getContentChanges),
+	(CalendarBackend.parseCalendarId),
+	(CalendarBackend.addCalendarChange),
+	(CalendarBackend.createOrUpdate), (CalendarBackend.delete):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarExporter.java:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailExporter.java: (MailExporter), (MailExporter.delete):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsImporter.j
+	ava: (IContentsImporter):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.processCollection), (SyncHandler),
+	(SyncHandler.processModification):
+
 2009-03-25  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	OBM -> iPhone calendar works :-)

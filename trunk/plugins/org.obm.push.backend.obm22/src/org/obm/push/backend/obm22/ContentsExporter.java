@@ -9,7 +9,7 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.PIMDataType;
-import org.obm.push.backend.obm22.calendar.CalendarExporter;
+import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.mail.MailExporter;
 import org.obm.push.state.SyncState;
 
@@ -18,13 +18,13 @@ public class ContentsExporter implements IContentsExporter {
 	private static final Log logger = LogFactory.getLog(ContentsExporter.class);
 
 	private MailExporter mailExporter;
-	private CalendarExporter calendarExporter;
+	private CalendarBackend calBackend;
 
 	public ContentsExporter(MailExporter mailExporter,
-			CalendarExporter calendarExporter) {
+			CalendarBackend calendarExporter) {
 		super();
 		this.mailExporter = mailExporter;
-		this.calendarExporter = calendarExporter;
+		this.calBackend = calendarExporter;
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	private List<ItemChange> getCalendarChanges(BackendSession bs, String collectionId) {
-		return calendarExporter.getContentChanges(bs, collectionId);
+		return calBackend.getContentChanges(bs, collectionId);
 	}
 
 	private List<ItemChange> getCalendarDeletions(BackendSession bs, String collectionId) {
