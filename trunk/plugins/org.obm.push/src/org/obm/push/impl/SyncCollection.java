@@ -10,7 +10,6 @@ import org.obm.push.state.SyncState;
 public class SyncCollection {
 	
 	private SyncState syncState;
-	private boolean importedChanges;
 	private Map<String, String> clientIds;
 	private List<String> fetchIds;
 	private String dataClass;
@@ -34,12 +33,6 @@ public class SyncCollection {
 	}
 	public void setSyncState(SyncState syncState) {
 		this.syncState = syncState;
-	}
-	public boolean isImportedChanges() {
-		return importedChanges;
-	}
-	public void setImportedChanges(boolean importedChanges) {
-		this.importedChanges = importedChanges;
 	}
 	public Map<String, String> getClientIds() {
 		return clientIds;

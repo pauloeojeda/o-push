@@ -8,7 +8,7 @@ public interface IContentsImporter {
 
 	void importMessageReadFlag(BackendSession bs, String serverId, boolean read);
 
-	String importMessageChange(BackendSession bs, String serverId, IApplicationData data);
+	String importMessageChange(BackendSession bs, String collectionId, String serverId, IApplicationData data);
 
 	void importMessageMove(BackendSession bs, String serverId, String trash);
 

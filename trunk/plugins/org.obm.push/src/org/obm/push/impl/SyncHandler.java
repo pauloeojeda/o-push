@@ -227,25 +227,21 @@ public class SyncHandler implements IRequestHandler {
 				if (data.isRead()) {
 					importer.importMessageReadFlag(bs, serverId, data.isRead());
 				} else {
-					importer.importMessageChange(bs, serverId, data);
+					importer.importMessageChange(bs, collection.getCollectionId(), serverId, data);
 				}
-				collection.setImportedChanges(true);
 			} else if (modType.equals("Add") || modType.equals("Change")) {
-				String id = importer.importMessageChange(bs, serverId, data);
+				String id = importer.importMessageChange(bs, collection.getCollectionId(), serverId, data);
 				if (clientId != null && id != null) {
 					collection.getClientIds().put(clientId, id);
-					collection.setImportedChanges(true);
 				}
 			} else if (modType.equals("Delete")) {
 				if (collection.isDeletesAsMoves()) {
 					String trash = backend.getWasteBasket();
 					if (trash != null) {
 						importer.importMessageMove(bs, serverId, trash);
-						collection.setImportedChanges(true);
 					}
 				} else {
 					importer.importMessageDeletion(bs, PIMDataType.valueOf(dataClass), serverId);
-					collection.setImportedChanges(true);
 				}
 			}
 		} else {
