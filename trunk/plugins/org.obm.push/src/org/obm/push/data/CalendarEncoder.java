@@ -52,7 +52,7 @@ public class CalendarEncoder implements IDataEncoder {
 		e(p, "Calendar:MeetingStatus", CalendarMeetingStatus.IS_NOT_IN_MEETING
 				.asIntString());
 
-		e(p, "Calendar:AllDayEvent", ev.getAllDayEvent().toString());
+		e(p, "Calendar:AllDayEvent", (ev.getAllDayEvent() ? "1" : "0"));
 
 		e(p, "Calendar:OrganizerName", ev.getOrganizerName());
 		// TODO OrganizerMail
@@ -72,13 +72,14 @@ public class CalendarEncoder implements IDataEncoder {
 						.format(rec(ev).getUntil()));
 			}
 		}
-		
+
 		Element at = DOMUtils.createElement(p, "Calendar:Attendees");
 		for (MSAttendee ma : ev.getAttendees()) {
 			Element ae = DOMUtils.createElement(at, "Calendar:Attendee");
 			e(ae, "Calendar:AttendeeEmail", ma.getEmail());
 			e(ae, "Calendar:AttendeeName", ma.getName());
-			e(ae, "Calendar:AttendeeStatus", ma.getAttendeeStatus().asIntString());
+			e(ae, "Calendar:AttendeeStatus", ma.getAttendeeStatus()
+					.asIntString());
 			e(ae, "Calendar:AttendeeType", ma.getAttendeeType().asIntString());
 		}
 
