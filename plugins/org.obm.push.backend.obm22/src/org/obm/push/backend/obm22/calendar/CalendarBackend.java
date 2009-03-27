@@ -15,8 +15,11 @@ import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEvent;
 import org.obm.sync.auth.AccessToken;
+import org.obm.sync.calendar.Attendee;
 import org.obm.sync.calendar.CalendarInfo;
 import org.obm.sync.calendar.Event;
+import org.obm.sync.calendar.ParticipationRole;
+import org.obm.sync.calendar.ParticipationState;
 import org.obm.sync.client.calendar.CalendarClient;
 import org.obm.sync.items.EventChanges;
 import org.obm.sync.locators.CalendarLocator;
@@ -27,8 +30,11 @@ public class CalendarBackend {
 
 	private static final Log logger = LogFactory.getLog(CalendarBackend.class);
 
+	private UIDMapper mapper;
+
 	public CalendarBackend() {
 		validateOBMConnection();
+		this.mapper = new UIDMapper();
 	}
 
 	private CalendarClient getClient(BackendSession bs) {
@@ -98,7 +104,8 @@ public class CalendarBackend {
 			EventChanges changes = cc.getSync(token, calendar, ls);
 			Event[] evs = changes.getUpdated();
 			for (Event e : evs) {
-				ret.add(addCalendarChange(e));
+				ItemChange change = addCalendarChange(e);
+				ret.add(change);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -120,24 +127,69 @@ public class CalendarBackend {
 
 	private ItemChange addCalendarChange(Event e) {
 		ItemChange ic = new ItemChange();
-		ic.setServerId("obm://calendar/" + e.getUid());
+		ic.setServerId(UIDMapper.UID_PREFIX + e.getUid());
 		MSEvent cal = new EventConverter().convertEvent(e);
-		cal.setUID(ic.getServerId());
+		cal.setUID(mapper.toDevice(ic.getServerId()));
 		ic.setData(cal);
 		return ic;
 	}
 
-	public String createOrUpdate(BackendSession bs, String serverId,
-			MSEvent data) {
-		// TODO Auto-generated method stub
-		logger.info("createOrUpdate("+bs.getLoginAtDomain()+", "+serverId+", "+data.getSubject()+")");
-		
-		return null;
+	public String createOrUpdate(BackendSession bs, String collectionId,
+			String serverId, MSEvent data) {
+		logger.info("createOrUpdate(" + bs.getLoginAtDomain() + ", " + serverId
+				+ ", " + data.getSubject() + ")");
+
+		CalendarClient cc = getClient(bs);
+		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
+				"o-push");
+		String device = data.getUID();
+		String id = null;
+		if (serverId != null) {
+			id = serverId;
+		} else if (data.getUID() != null && mapper.toOBM(data.getUID()) != null) {
+			id = mapper.toOBM(data.getUID());
+		}
+		Event event = new EventConverter().convertEvent(data);
+		if (event.getAttendees().isEmpty()) {
+			String email = bs.getLoginAtDomain();
+			try {
+				email = cc.getUserEmail(token);
+			} catch (Exception e) {
+				logger.error("Error finding email: " + e.getMessage(), e);
+			}
+			Attendee at = new Attendee();
+			at.setEmail(email);
+			at.setRequired(ParticipationRole.REQ);
+			at.setState(ParticipationState.ACCEPTED);
+			at.setDisplayName(email);
+			event.addAttendee(at);
+		}
+		if (id != null) {
+			id = id.replace(UIDMapper.UID_PREFIX, "");
+			try {
+				cc.modifyEvent(token, parseCalendarId(collectionId), event,
+						true);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		} else {
+			try {
+				id = cc
+						.createEvent(token, parseCalendarId(collectionId),
+								event);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+		cc.logout(token);
+		String obm = UIDMapper.UID_PREFIX + id;
+		mapper.addMapping(device, obm);
+		return obm;
 	}
 
 	public void delete(BackendSession bs, String serverId) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

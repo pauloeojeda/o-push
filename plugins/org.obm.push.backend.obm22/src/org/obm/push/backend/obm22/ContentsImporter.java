@@ -30,14 +30,14 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public String importMessageChange(BackendSession bs, String serverId, IApplicationData data) {
+	public String importMessageChange(BackendSession bs, String collectionId, String serverId, IApplicationData data) {
 		if (serverId != null) {
 			return serverId;
 		}
 		String id = null;
 		switch (data.getType()) {
 			case CALENDAR:
-				id = calBackend.createOrUpdate(bs, serverId, (MSEvent) data);
+				id = calBackend.createOrUpdate(bs, collectionId, serverId, (MSEvent) data);
 				break;
 			case CONTACT:
 				break;

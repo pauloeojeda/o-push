@@ -1,5 +1,30 @@
 2009-03-27  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
+	Store device / obm id mapping (in memory for now)
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter.importMessageChange):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java: (CalendarBackend),
+	(CalendarBackend.CalendarBackend),
+	(CalendarBackend.getContentChanges),
+	(CalendarBackend.addCalendarChange),
+	(CalendarBackend.createOrUpdate), (CalendarBackend.delete):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter.convertEvent),
+	(EventConverter):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/UIDMapper.java: (UIDMapper), (UIDMapper.UIDMapper),
+	(UIDMapper.toDevice), (UIDMapper.toOBM), (UIDMapper.addMapping):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsImporter.j
+	ava: (IContentsImporter):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncCollection.java:
+	(SyncCollection), (SyncCollection.setSyncState):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.processModification):
+
+2009-03-27  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
 	Prepare updates/creates from mobile device.
 	
 	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22

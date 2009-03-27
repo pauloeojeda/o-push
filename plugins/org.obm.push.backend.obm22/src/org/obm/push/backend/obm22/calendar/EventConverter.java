@@ -127,4 +127,17 @@ public class EventConverter {
 
 	}
 
+	public Event convertEvent(MSEvent data) {
+		Event e = new Event();
+		// TODO Auto-generated method stub
+		e.setTitle(data.getSubject());
+		e.setLocation(data.getLocation());
+		e.setDate(data.getStartTime());
+		int duration =(int) (data.getEndTime().getTime() - data.getStartTime().getTime()) / 1000; 
+		e.setDuration(duration);
+		e.setAllday(data.getAllDayEvent());
+		
+		return e;
+	}
+
 }
