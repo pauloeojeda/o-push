@@ -61,5 +61,10 @@ public class MailExporter {
 
 		return ret;
 	}
+
+	public void delete(BackendSession bs, String serverId) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

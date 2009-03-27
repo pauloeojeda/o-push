@@ -4,16 +4,16 @@ import org.obm.push.state.SyncState;
 
 public interface IContentsImporter {
 
-	void configure(SyncState syncState, Integer conflictPolicy);
+	void configure(BackendSession bs, SyncState syncState, Integer conflictPolicy);
 
-	void importMessageReadFlag(String serverId, boolean read);
+	void importMessageReadFlag(BackendSession bs, String serverId, boolean read);
 
-	String importMessageChange(String serverId, IApplicationData data);
+	String importMessageChange(BackendSession bs, String serverId, IApplicationData data);
 
-	void importMessageMove(String serverId, String trash);
+	void importMessageMove(BackendSession bs, String serverId, String trash);
 
-	void importMessageDeletion(String serverId);
+	void importMessageDeletion(BackendSession bs, PIMDataType type, String serverId);
 
-	SyncState getState();
+	SyncState getState(BackendSession bs);
 
 }

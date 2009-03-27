@@ -10,7 +10,7 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.PIMDataType;
-import org.obm.push.backend.obm22.calendar.CalendarExporter;
+import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.mail.MailExporter;
 import org.obm.push.state.SyncState;
 
@@ -20,10 +20,10 @@ public class HierarchyExporter implements IHierarchyExporter {
 			.getLog(HierarchyExporter.class);
 
 	private MailExporter mailExporter;
-	private CalendarExporter calendarExporter;
+	private CalendarBackend calendarExporter;
 
 	public HierarchyExporter(MailExporter mailExporter,
-			CalendarExporter calendarExporter) {
+			CalendarBackend calendarExporter) {
 		this.mailExporter = mailExporter;
 		this.calendarExporter = calendarExporter;
 	}

@@ -118,7 +118,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 			calendar.setRecurrence(recurrence);
 		}
 		
-		return null;
+		return calendar;
 	}
 
 	void setEventCalendar (MSEvent calendar, Element domSource) {

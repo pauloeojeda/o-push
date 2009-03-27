@@ -23,11 +23,11 @@ import org.obm.sync.locators.CalendarLocator;
 
 import fr.aliasource.utils.JDBCUtils;
 
-public class CalendarExporter {
+public class CalendarBackend {
 
-	private static final Log logger = LogFactory.getLog(CalendarExporter.class);
+	private static final Log logger = LogFactory.getLog(CalendarBackend.class);
 
-	public CalendarExporter() {
+	public CalendarBackend() {
 		validateOBMConnection();
 	}
 
@@ -125,6 +125,19 @@ public class CalendarExporter {
 		cal.setUID(ic.getServerId());
 		ic.setData(cal);
 		return ic;
+	}
+
+	public String createOrUpdate(BackendSession bs, String serverId,
+			MSEvent data) {
+		// TODO Auto-generated method stub
+		logger.info("createOrUpdate("+bs.getLoginAtDomain()+", "+serverId+", "+data.getSubject()+")");
+		
+		return null;
+	}
+
+	public void delete(BackendSession bs, String serverId) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
