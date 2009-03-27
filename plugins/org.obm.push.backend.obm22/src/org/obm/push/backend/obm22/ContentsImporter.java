@@ -31,9 +31,6 @@ public class ContentsImporter implements IContentsImporter {
 
 	@Override
 	public String importMessageChange(BackendSession bs, String collectionId, String serverId, IApplicationData data) {
-		if (serverId != null) {
-			return serverId;
-		}
 		String id = null;
 		switch (data.getType()) {
 			case CALENDAR:
@@ -46,8 +43,6 @@ public class ContentsImporter implements IContentsImporter {
 			case TASK:
 				break;
 		}
-		
-		// TODO Auto-generated method stub
 		return id;
 	}
 

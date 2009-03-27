@@ -167,6 +167,7 @@ public class CalendarBackend {
 		if (id != null) {
 			id = id.replace(UIDMapper.UID_PREFIX, "");
 			try {
+				event.setUid(id);
 				cc.modifyEvent(token, parseCalendarId(collectionId), event,
 						true);
 			} catch (Exception e) {
