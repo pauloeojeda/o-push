@@ -67,12 +67,12 @@ public class CalendarEncoder implements IDataEncoder {
 
 		if (ev.getRecurrence() != null) {
 			Element r = DOMUtils.createElement(p, "Calendar:Recurrence");
-			DOMUtils.createElementAndText(r, "Calendar:Type", rec(ev).getType()
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceType", rec(ev).getType()
 					.asIntString());
-			DOMUtils.createElementAndText(p, "Calendar:Interval", rec(ev)
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceInterval", rec(ev)
 					.getInterval().toString());
 			if (rec(ev).getUntil() != null) {
-				DOMUtils.createElementAndText(r, "Calendar:Until", sdf
+				DOMUtils.createElementAndText(r, "Calendar:RecurrenceUntil", sdf
 						.format(rec(ev).getUntil()));
 			}
 		}
