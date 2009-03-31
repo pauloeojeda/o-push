@@ -70,8 +70,8 @@ public class OBMBackend implements IBackend {
 	public Set<SyncCollection> waitForChanges(BackendSession bs,
 			Set<SyncCollection> toMonitor, long interval) {
 		try {
-			logger.info("sleeping " + (interval / 1000) + "sec");
-			Thread.sleep(interval);
+			logger.info("sleeping " + interval + "sec");
+			Thread.sleep(interval * 1000);
 		} catch (Throwable t) {
 		}
 

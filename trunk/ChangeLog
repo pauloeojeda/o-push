@@ -1,5 +1,21 @@
 2009-03-31  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
+	prepare allocation of sync keys in statemachine
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.waitForChanges):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process), (SyncHandler), (SyncHandler.doUpdates),
+	(SyncHandler.doFetch):
+	* plugins/org.obm.push/src/org/obm/push/state/StateMachine.java:
+	(StateMachine.allocateNewSyncKey), (StateMachine):
+
+2009-03-31  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
 	Calendar sync improvements for win mobile (attendees crashe active
 	sync client).
 

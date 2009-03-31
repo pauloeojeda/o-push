@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.BackendSession;
 
 public class StateMachine {
 
@@ -15,14 +16,10 @@ public class StateMachine {
 		return new SyncState();
 	}
 
-	public String getNewSyncKey(String syncKey) {
+	public String allocateNewSyncKey(BackendSession bs) {
 		// TODO Auto-generated method stub
 		return UUID.randomUUID().toString();
 	}
 
-	public void setSyncState(String newSyncKey, SyncState state) {
-		// TODO Auto-generated method stub
-		logger.info("setSyncState(" + newSyncKey + ", " + state + ")");
-	}
 
 }
