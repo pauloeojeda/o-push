@@ -1,8 +1,14 @@
 package org.obm.push.backend;
 
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.obm.push.state.SyncState;
 
 public class BackendSession {
+
+	private static final Log logger = LogFactory.getLog(BackendSession.class);
 
 	private String loginAtDomain;
 	private String password;
@@ -11,14 +17,35 @@ public class BackendSession {
 	private String command;
 	private SyncState state;
 	private PIMDataType dataType;
+	private Properties hints;
 
-	public BackendSession(String loginAtDomain, String password, String devId, String devType, String command) {
+	public BackendSession(String loginAtDomain, String password, String devId,
+			String devType, String command) {
 		super();
 		this.loginAtDomain = loginAtDomain;
 		this.password = password;
 		this.devId = devId;
 		this.devType = devType;
 		this.command = command;
+		loadHints();
+	}
+
+	public boolean checkHint(String key, boolean defaultValue) {
+		if (!hints.containsKey(key)) {
+			return defaultValue;
+		} else {
+			return "true".equals(hints.get(key));
+		}
+	}
+
+	private void loadHints() {
+		hints = new Properties();
+		try {
+			hints.load(BackendSession.class.getClassLoader().getResourceAsStream("hints/"
+					+ devType + ".hints"));
+		} catch (Throwable e) {
+			logger.warn("could not load hints for device type " + devType);
+		}
 	}
 
 	public String getLoginAtDomain() {

@@ -1,5 +1,6 @@
 package org.obm.push.data;
 
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
@@ -20,7 +21,7 @@ public class MailEncoder implements IDataEncoder {
 //    <InternetCPID>20127</InternetCPID>
 	
 	@Override
-	public void encode(Element parent, IApplicationData data) {
+	public void encode(BackendSession bs, Element parent, IApplicationData data) {
 		// TODO Auto-generated method stub
 		DOMUtils.createElementAndText(parent, "Email:To", "thomas@zz.com");
 		DOMUtils.createElementAndText(parent, "Email:From", "root@buffy.kvm");

@@ -1,6 +1,6 @@
 package org.obm.push.backend;
 
-import java.util.List;
+import java.util.Set;
 
 import org.obm.push.provisioning.Policy;
 
@@ -18,6 +18,6 @@ public interface IBackend {
 	
 	Policy getDevicePolicy(BackendSession bs);
 
-	List<ItemChange> waitForChanges(BackendSession bs);
+	Set<SyncCollection> waitForChanges(BackendSession bs, Set<SyncCollection> toMonitor, long interval);
 	
 }

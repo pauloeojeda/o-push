@@ -54,7 +54,7 @@ public class EventConverter {
 		cal.setAllDayEvent(e.isAllday());
 
 		cal.setRecurrence(getRecurrence(e.getRecurrence()));
-		
+
 		if (e.getAlert() != null && e.getAlert() > 0) {
 			cal.setReminder(e.getAlert());
 		}
@@ -81,9 +81,9 @@ public class EventConverter {
 			r.setType(RecurrenceType.YEARLY);
 		}
 		r.setUntil(recurrence.getEnd());
-		
+
 		r.setInterval(recurrence.getFrequence());
-		
+
 		// TODO Auto-generated method stub
 		return r;
 	}
@@ -133,10 +133,15 @@ public class EventConverter {
 		e.setTitle(data.getSubject());
 		e.setLocation(data.getLocation());
 		e.setDate(data.getStartTime());
-		int duration =(int) (data.getEndTime().getTime() - data.getStartTime().getTime()) / 1000; 
+		int duration = (int) (data.getEndTime().getTime() - data.getStartTime()
+				.getTime()) / 1000;
 		e.setDuration(duration);
 		e.setAllday(data.getAllDayEvent());
-		
+
+		if (data.getReminder() != null && data.getReminder() > 0) {
+			e.setAlert(data.getReminder());
+		}
+
 		return e;
 	}
 

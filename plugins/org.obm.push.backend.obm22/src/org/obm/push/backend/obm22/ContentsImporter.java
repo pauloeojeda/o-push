@@ -36,11 +36,11 @@ public class ContentsImporter implements IContentsImporter {
 			case CALENDAR:
 				id = calBackend.createOrUpdate(bs, collectionId, serverId, (MSEvent) data);
 				break;
-			case CONTACT:
+			case CONTACTS:
 				break;
 			case EMAIL:
 				break;
-			case TASK:
+			case TASKS:
 				break;
 		}
 		return id;
@@ -53,12 +53,12 @@ public class ContentsImporter implements IContentsImporter {
 		case CALENDAR:
 			calBackend.delete(bs, serverId);
 			break;
-		case CONTACT:
+		case CONTACTS:
 			break;
 		case EMAIL:
 			mailBackend.delete(bs, serverId);
 			break;
-		case TASK:
+		case TASKS:
 			break;
 		}
 	}

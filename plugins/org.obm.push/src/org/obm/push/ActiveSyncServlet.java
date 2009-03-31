@@ -21,6 +21,7 @@ import org.obm.push.backend.IBackendFactory;
 import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.GetItemEstimateHandler;
 import org.obm.push.impl.IRequestHandler;
+import org.obm.push.impl.PingHandler;
 import org.obm.push.impl.ProvisionHandler;
 import org.obm.push.impl.Responder;
 import org.obm.push.impl.SyncHandler;
@@ -142,9 +143,15 @@ public class ActiveSyncServlet extends HttpServlet {
 		String uid = userID;
 		int idx = uid.indexOf("\\");
 		if (idx > 0) {
-			uid = uid.substring(idx+1);
+			if (!uid.contains("@")) {
+				String domain = uid.substring(0, idx);
+				logger.info("uid: " + uid + " domain: " + domain);
+				uid = uid.substring(idx + 1) + "@" + domain;
+			} else {
+				uid = uid.substring(idx + 1);
+			}
 		}
-		
+
 		BackendSession bs = null;
 		if (sessions.containsKey(uid)) {
 			bs = sessions.get(uid);
@@ -190,6 +197,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		handlers.put("Sync", new SyncHandler(backend));
 		handlers.put("GetItemEstimate", new GetItemEstimateHandler(backend));
 		handlers.put("Provision", new ProvisionHandler(backend));
+		handlers.put("Ping", new PingHandler(backend));
 
 		System.out.println("ActiveSync servlet initialised.");
 	}
