@@ -71,14 +71,19 @@ public class EventConverter {
 		switch (recurrence.getKind()) {
 		case daily:
 			r.setType(RecurrenceType.DAILY);
+			break;
 		case monthlybydate:
 			r.setType(RecurrenceType.MONTHLY);
+			break;
 		case monthlybyday:
 			r.setType(RecurrenceType.MONTHLY_NDAY);
+			break;
 		case weekly:
 			r.setType(RecurrenceType.WEEKLY);
+			break;
 		case yearly:
 			r.setType(RecurrenceType.YEARLY);
+			break;
 		}
 		r.setUntil(recurrence.getEnd());
 
