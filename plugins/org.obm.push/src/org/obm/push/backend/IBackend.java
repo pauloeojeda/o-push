@@ -18,6 +18,6 @@ public interface IBackend {
 	
 	Policy getDevicePolicy(BackendSession bs);
 
-	Set<SyncCollection> waitForChanges(BackendSession bs, Set<SyncCollection> toMonitor, long interval);
+	Set<SyncCollection> waitForChanges(BackendSession bs, Set<SyncCollection> toMonitor, long intervalSeconds);
 	
 }

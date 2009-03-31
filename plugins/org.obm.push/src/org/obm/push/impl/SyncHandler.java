@@ -93,8 +93,7 @@ public class SyncHandler implements IRequestHandler {
 				SyncState st = sm.getSyncState(oldSyncKey);
 				Element ce = DOMUtils.createElement(cols, "Collection");
 				DOMUtils.createElementAndText(ce, "Class", c.getDataClass());
-				c.setNewSyncKey(sm.getNewSyncKey(c.getSyncKey()));
-				DOMUtils.createElementAndText(ce, "SyncKey", c.getNewSyncKey());
+				Element sk = DOMUtils.createElement(ce, "SyncKey");
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId());
 				if (!st.isValid()) {
@@ -107,43 +106,13 @@ public class SyncHandler implements IRequestHandler {
 						cex.configure(bs, c.getDataClass(), c.getFilterType(),
 								st, 0, 0);
 
-						List<ItemChange> changed = null;
 						if (c.getFetchIds().size() == 0) {
-							DataDelta delta = cex.getChanged(bs, c.getCollectionId()); 
-							changed = delta.getChanges();
-							logger.info("should send " + changed.size()
-									+ " change(s).");
-							Element commands = DOMUtils.createElement(ce,
-									"Commands");
-
-							for (ItemChange ic : changed) {
-								Element add = DOMUtils.createElement(commands,
-										"Add");
-								DOMUtils.createElementAndText(add, "ServerId",
-										ic.getServerId());
-								serializeChange(bs, add, c, ic);
-							}
-
-							List<ItemChange> del = delta.getDeletions();
-							for (ItemChange ic : del) {
-								serializeDeletion(ce, ic);
-							}
+							doUpdates(bs, c, ce, cex);
 						} else {
 							// fetch
-							changed = cex.fetch(bs, c.getFetchIds());
-							Element commands = DOMUtils.createElement(ce,
-									"Responses");
-							for (ItemChange ic : changed) {
-								Element add = DOMUtils.createElement(commands,
-										"Fetch");
-								DOMUtils.createElementAndText(add, "ServerId",
-										ic.getServerId());
-								DOMUtils.createElementAndText(add, "Status",
-										"1");
-								serializeChange(bs, add, c, ic);
-							}
-
+							doFetch(bs, c, ce, cex);
 						}
+						sk.setTextContent(sm.allocateNewSyncKey(bs));
 					}
 				}
 			}
@@ -151,6 +120,47 @@ public class SyncHandler implements IRequestHandler {
 			responder.sendResponse("AirSync", reply);
 		} catch (Exception e) {
 			logger.error("Error creating Sync response", e);
+		}
+	}
+
+	private void doUpdates(BackendSession bs, SyncCollection c, Element ce,
+			IContentsExporter cex) {
+		List<ItemChange> changed;
+		DataDelta delta = cex.getChanged(bs, c.getCollectionId()); 
+		changed = delta.getChanges();
+		logger.info("should send " + changed.size()
+				+ " change(s).");
+		Element commands = DOMUtils.createElement(ce,
+				"Commands");
+
+		for (ItemChange ic : changed) {
+			Element add = DOMUtils.createElement(commands,
+					"Add");
+			DOMUtils.createElementAndText(add, "ServerId",
+					ic.getServerId());
+			serializeChange(bs, add, c, ic);
+		}
+
+		List<ItemChange> del = delta.getDeletions();
+		for (ItemChange ic : del) {
+			serializeDeletion(ce, ic);
+		}
+	}
+
+	private void doFetch(BackendSession bs, SyncCollection c, Element ce,
+			IContentsExporter cex) {
+		List<ItemChange> changed;
+		changed = cex.fetch(bs, c.getFetchIds());
+		Element commands = DOMUtils.createElement(ce,
+				"Responses");
+		for (ItemChange ic : changed) {
+			Element add = DOMUtils.createElement(commands,
+					"Fetch");
+			DOMUtils.createElementAndText(add, "ServerId",
+					ic.getServerId());
+			DOMUtils.createElementAndText(add, "Status",
+					"1");
+			serializeChange(bs, add, c, ic);
 		}
 	}
 

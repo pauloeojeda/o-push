@@ -39,7 +39,6 @@ public class FolderSyncHandler implements IRequestHandler {
 
 		StateMachine sm = new StateMachine();
 		SyncState state = sm.getSyncState(syncKey);
-		String newSyncKey = sm.getNewSyncKey(syncKey);
 
 		// look for Add, Modify, Remove
 
@@ -80,7 +79,7 @@ public class FolderSyncHandler implements IRequestHandler {
 			Document ret = DOMUtils.createDoc(null, "FolderSync");
 			Element root = ret.getDocumentElement();
 			DOMUtils.createElementAndText(root, "Status", "1");
-			DOMUtils.createElementAndText(root, "SyncKey", newSyncKey);
+			Element sk = DOMUtils.createElement(root, "SyncKey");
 			changes = DOMUtils.createElement(root, "Changes");
 
 			exporter.synchronize(bs);
@@ -99,7 +98,7 @@ public class FolderSyncHandler implements IRequestHandler {
 
 			responder.sendResponse("FolderHierarchy", ret);
 			state = exporter.getState(bs);
-			sm.setSyncState(newSyncKey, state);
+			sk.setTextContent(sm.allocateNewSyncKey(bs));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
