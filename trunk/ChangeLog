@@ -1,5 +1,16 @@
 2009-03-31  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
+	recurrence work
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter.getRecurrence),
+	(EventConverter), (EventConverter.convertEvent):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder), (CalendarDecoder.decode),
+	(CalendarDecoder.setEventCalendar):
+
+2009-03-31  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
 	prepare allocation of sync keys in statemachine
 	
 	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22

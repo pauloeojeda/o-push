@@ -1,6 +1,7 @@
 package org.obm.push.backend.obm22.calendar;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
@@ -60,6 +61,55 @@ public class EventConverter {
 		}
 
 		return cal;
+	}
+
+	private EventRecurrence getRecurrence(Date startDate, Recurrence pr) {
+		EventRecurrence or = new EventRecurrence();
+		int multiply = 0;
+		switch (pr.getType()) {
+		case DAILY:
+			or.setKind(RecurrenceKind.daily);
+			multiply = Calendar.DAY_OF_MONTH;
+			break;
+		case MONTHLY:
+			or.setKind(RecurrenceKind.monthlybydate);
+			multiply = Calendar.MONTH;
+			break;
+		case MONTHLY_NDAY:
+			or.setKind(RecurrenceKind.monthlybyday);
+			multiply = Calendar.MONTH;
+			break;
+		case WEEKLY:
+			or.setKind(RecurrenceKind.weekly);
+			multiply = Calendar.WEEK_OF_YEAR;
+			break;
+		case YEARLY:
+			or.setKind(RecurrenceKind.yearly);
+			multiply = Calendar.YEAR;
+			break;
+		case YEARLY_NDAY:
+			or.setKind(RecurrenceKind.yearly);
+			multiply = Calendar.YEAR;
+			break;
+		}
+
+		// interval
+		or.setFrequence(pr.getInterval());
+
+		// occurence or end date
+		Date endDate = null;
+		if (pr.getOccurrences() != null && pr.getOccurrences() > 0) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+			cal.setTimeInMillis(startDate.getTime());
+			cal.add(multiply, pr.getOccurrences() - 1);
+			endDate = new Date(cal.getTimeInMillis());
+		} else {
+			endDate = pr.getUntil();
+		}
+		or.setEnd(endDate);
+
+		return or;
 	}
 
 	private Recurrence getRecurrence(EventRecurrence recurrence) {
@@ -145,6 +195,11 @@ public class EventConverter {
 
 		if (data.getReminder() != null && data.getReminder() > 0) {
 			e.setAlert(data.getReminder());
+		}
+
+		if (data.getRecurrence() != null) {
+			e.setRecurrence(getRecurrence(data.getStartTime(), data
+					.getRecurrence()));
 		}
 
 		return e;
