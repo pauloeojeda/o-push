@@ -1,8 +1,10 @@
 package org.obm.push.data;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSAttendee;
 import org.obm.push.backend.MSEvent;
@@ -32,7 +34,7 @@ public class CalendarEncoder implements IDataEncoder {
 	// <MeetingStatus>0</MeetingStatus>
 
 	@Override
-	public void encode(Element p, IApplicationData data) {
+	public void encode(BackendSession bs, Element p, IApplicationData data) {
 
 		// TODO Auto-generated method stub
 		MSEvent ev = (MSEvent) data;
@@ -43,6 +45,8 @@ public class CalendarEncoder implements IDataEncoder {
 				.setTextContent("xP///1IAbwBtAGEAbgBjAGUAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAbwBtAGEAbgBjAGUAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
 		e(p, "Calendar:AllDayEvent", "0");
 		e(p, "Calendar:BusyStatus", CalendarBusyStatus.BUSY.asIntString());
+		e(p, "Calendar:Sensitivity", "0");
+		e(p, "Calendar:DTStamp", sdf.format(new Date()));
 
 		e(p, "Calendar:StartTime", sdf.format(ev.getStartTime()));
 		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
@@ -73,14 +77,19 @@ public class CalendarEncoder implements IDataEncoder {
 			}
 		}
 
-		Element at = DOMUtils.createElement(p, "Calendar:Attendees");
-		for (MSAttendee ma : ev.getAttendees()) {
-			Element ae = DOMUtils.createElement(at, "Calendar:Attendee");
-			e(ae, "Calendar:AttendeeEmail", ma.getEmail());
-			e(ae, "Calendar:AttendeeName", ma.getName());
-			e(ae, "Calendar:AttendeeStatus", ma.getAttendeeStatus()
-					.asIntString());
-			e(ae, "Calendar:AttendeeType", ma.getAttendeeType().asIntString());
+		DOMUtils.createElement(p, "Calendar:Compressed_RTF");
+
+		if (bs.checkHint("hint.loadAttendees", true)) {
+			Element at = DOMUtils.createElement(p, "Calendar:Attendees");
+			for (MSAttendee ma : ev.getAttendees()) {
+				Element ae = DOMUtils.createElement(at, "Calendar:Attendee");
+				e(ae, "Calendar:AttendeeEmail", ma.getEmail());
+				e(ae, "Calendar:AttendeeName", ma.getName());
+				e(ae, "Calendar:AttendeeStatus", ma.getAttendeeStatus()
+						.asIntString());
+				e(ae, "Calendar:AttendeeType", ma.getAttendeeType()
+						.asIntString());
+			}
 		}
 
 	}

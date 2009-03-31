@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSMail;
@@ -38,8 +39,10 @@ public class MailExporter {
 
 	}
 
-	public List<ItemChange> getContentChanges(BackendSession bs) {
+	public DataDelta getContentChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
+		LinkedList<ItemChange> deletions = new LinkedList<ItemChange>();
+		
 		
 		// FIXME fake data
 		ItemChange ic = new ItemChange();
@@ -47,7 +50,7 @@ public class MailExporter {
 		ic.setData(new MSMail());
 		ret.add(ic);
 
-		return ret;
+		return new DataDelta(ret, deletions);
 	}
 
 	public List<ItemChange> fetchItems(List<String> fetchIds) {

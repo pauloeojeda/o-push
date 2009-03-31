@@ -8,12 +8,14 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.PIMDataType;
+import org.obm.push.backend.SyncCollection;
 import org.obm.push.data.CalendarDecoder;
 import org.obm.push.data.ContactsDecoder;
 import org.obm.push.data.EncoderFactory;
@@ -107,7 +109,8 @@ public class SyncHandler implements IRequestHandler {
 
 						List<ItemChange> changed = null;
 						if (c.getFetchIds().size() == 0) {
-							changed = cex.getChanged(bs, c.getCollectionId());
+							DataDelta delta = cex.getChanged(bs, c.getCollectionId()); 
+							changed = delta.getChanges();
 							logger.info("should send " + changed.size()
 									+ " change(s).");
 							Element commands = DOMUtils.createElement(ce,
@@ -118,11 +121,10 @@ public class SyncHandler implements IRequestHandler {
 										"Add");
 								DOMUtils.createElementAndText(add, "ServerId",
 										ic.getServerId());
-								serializeChange(add, c, ic);
+								serializeChange(bs, add, c, ic);
 							}
 
-							List<ItemChange> del = cex.getDeleted(bs, c
-									.getCollectionId());
+							List<ItemChange> del = delta.getDeletions();
 							for (ItemChange ic : del) {
 								serializeDeletion(ce, ic);
 							}
@@ -138,7 +140,7 @@ public class SyncHandler implements IRequestHandler {
 										ic.getServerId());
 								DOMUtils.createElementAndText(add, "Status",
 										"1");
-								serializeChange(add, c, ic);
+								serializeChange(bs, add, c, ic);
 							}
 
 						}
@@ -157,11 +159,11 @@ public class SyncHandler implements IRequestHandler {
 
 	}
 
-	private void serializeChange(Element col, SyncCollection c, ItemChange ic) {
+	private void serializeChange(BackendSession bs, Element col, SyncCollection c, ItemChange ic) {
 		IApplicationData data = ic.getData();
 		IDataEncoder encoder = encoders.getEncoder(data);
 		Element apData = DOMUtils.createElement(col, "ApplicationData");
-		encoder.encode(apData, data);
+		encoder.encode(bs, apData, data);
 	}
 
 	private SyncCollection processCollection(BackendSession bs,

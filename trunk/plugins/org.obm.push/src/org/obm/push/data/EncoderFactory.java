@@ -10,10 +10,10 @@ public class EncoderFactory {
 		case CALENDAR:
 			return new CalendarEncoder();
 
-		case CONTACT:
+		case CONTACTS:
 			return new ContactEncoder();
 
-		case TASK:
+		case TASKS:
 			return new TaskEncoder();
 
 		case EMAIL:

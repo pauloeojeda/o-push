@@ -5,15 +5,18 @@ import java.sql.ResultSet;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.minig.obm.pool.IOBMConnection;
 import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEvent;
+import org.obm.push.backend.obm22.impl.ObmDbHelper;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.calendar.Attendee;
 import org.obm.sync.calendar.CalendarInfo;
@@ -31,6 +34,7 @@ public class CalendarBackend {
 	private static final Log logger = LogFactory.getLog(CalendarBackend.class);
 
 	private UIDMapper mapper;
+	private String obmSyncHost;
 
 	public CalendarBackend() {
 		validateOBMConnection();
@@ -38,10 +42,26 @@ public class CalendarBackend {
 	}
 
 	private CalendarClient getClient(BackendSession bs) {
+
 		CalendarLocator cl = new CalendarLocator();
-		CalendarClient calCli = cl
-				.locate("http://10.0.0.5:8080/obm-sync/services");
+		if (obmSyncHost == null) {
+			locateObmSync(bs);
+		}
+		CalendarClient calCli = cl.locate("http://" + obmSyncHost
+				+ ":8080/obm-sync/services");
 		return calCli;
+	}
+
+	private void locateObmSync(BackendSession bs) {
+		Set<String> props = ObmDbHelper.findHost(bs, "sync", "obm_sync");
+		if (props.isEmpty()) {
+			obmSyncHost = "localhost";
+			logger
+					.warn("No host with obm_sync property found. Defauting to localhost");
+		} else {
+			obmSyncHost = props.iterator().next();
+			logger.info("Using " + obmSyncHost + " as obm_sync host.");
+		}
 	}
 
 	private void validateOBMConnection() {
@@ -63,6 +83,17 @@ public class CalendarBackend {
 
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		List<ItemChange> ret = new LinkedList<ItemChange>();
+
+		if (!bs.checkHint("hint.multipleCalendars", true)) {
+			ItemChange ic = new ItemChange();
+			ic.setServerId("obm://" + bs.getLoginAtDomain() + "/calendar/"
+					+ bs.getLoginAtDomain());
+			ic.setParentId("0");
+			ic.setDisplayName(bs.getLoginAtDomain());
+			ic.setItemType(FolderType.DEFAULT_CALENDAR_FOLDER);
+			ret.add(ic);
+			return ret;
+		}
 
 		CalendarClient cc = getClient(bs);
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
@@ -91,9 +122,9 @@ public class CalendarBackend {
 		return ret;
 	}
 
-	public List<ItemChange> getContentChanges(BackendSession bs,
-			String collectionId) {
-		List<ItemChange> ret = new LinkedList<ItemChange>();
+	public DataDelta getContentChanges(BackendSession bs, String collectionId) {
+		List<ItemChange> addUpd = new LinkedList<ItemChange>();
+		List<ItemChange> deletions = new LinkedList<ItemChange>();
 
 		Date ls = bs.getState().getLastSync();
 		CalendarClient cc = getClient(bs);
@@ -105,7 +136,7 @@ public class CalendarBackend {
 			Event[] evs = changes.getUpdated();
 			for (Event e : evs) {
 				ItemChange change = addCalendarChange(e);
-				ret.add(change);
+				addUpd.add(change);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -113,8 +144,8 @@ public class CalendarBackend {
 
 		cc.logout(token);
 		logger.info("getContentChanges(" + calendar + ", " + collectionId
-				+ ") => " + ret.size() + " entries.");
-		return ret;
+				+ ") => " + addUpd.size() + " entries.");
+		return new DataDelta(addUpd, deletions);
 	}
 
 	private String parseCalendarId(String collectionId) {

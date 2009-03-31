@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.PIMDataType;
@@ -41,95 +42,50 @@ public class ContentsExporter implements IContentsExporter {
 		return bs.getState();
 	}
 
-	private List<ItemChange> getContactsChanges(BackendSession bs) {
+	private DataDelta getContactsChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
-		return ret;
+		return new DataDelta(ret, ret);
 	}
 
-	private List<ItemChange> getContactsDeletions(BackendSession bs, String collectionId) {
+	private DataDelta getTasksChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
-		return ret;
+		return new DataDelta(ret, ret);
 	}
 
-	private List<ItemChange> getTasksChanges(BackendSession bs) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
-	}
-
-	private List<ItemChange> getTasksDeletions(BackendSession bs, String collectionId) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
-	}
-
-	private List<ItemChange> getCalendarChanges(BackendSession bs, String collectionId) {
+	private DataDelta getCalendarChanges(BackendSession bs, String collectionId) {
 		return calBackend.getContentChanges(bs, collectionId);
 	}
 
-	private List<ItemChange> getCalendarDeletions(BackendSession bs, String collectionId) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
-	}
-
-	private List<ItemChange> getMailChanges(BackendSession bs) {
+	private DataDelta getMailChanges(BackendSession bs) {
 		return mailExporter.getContentChanges(bs);
 	}
 
-	private List<ItemChange> getMailDeletions(BackendSession bs, String collectionId) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
-	}
-
 	@Override
-	public List<ItemChange> getChanged(BackendSession bs, String collectionId) {
-		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
+	public DataDelta getChanged(BackendSession bs, String collectionId) {
+		DataDelta delta = null;
 		switch (bs.getDataType()) {
 		case CALENDAR:
-			changes.addAll(getCalendarChanges(bs, collectionId));
+			delta = getCalendarChanges(bs, collectionId);
 			break;
-		case CONTACT:
-			changes.addAll(getContactsChanges(bs));
+		case CONTACTS:
+			delta = getContactsChanges(bs);
 			break;
 		case EMAIL:
-			changes.addAll(getMailChanges(bs));
+			delta = getMailChanges(bs);
 			break;
-		case TASK:
-			changes.addAll(getTasksChanges(bs));
+		case TASKS:
+			delta = getTasksChanges(bs);
 			break;
 		}
 
-		return changes;
+		return delta;
 	}
 
 	@Override
 	public int getCount(BackendSession bs, String collectionId) {
-		return getChanged(bs, collectionId).size();
-	}
-
-	@Override
-	public List<ItemChange> getDeleted(BackendSession bs, String collectionId) {
-		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
-		switch (bs.getDataType()) {
-		case CALENDAR:
-			changes.addAll(getCalendarDeletions(bs, collectionId));
-			break;
-		case CONTACT:
-			changes.addAll(getContactsDeletions(bs, collectionId));
-			break;
-		case EMAIL:
-			changes.addAll(getMailDeletions(bs, collectionId));
-			break;
-		case TASK:
-			changes.addAll(getTasksDeletions(bs, collectionId));
-			break;
-		}
-
-		return changes;
+		return getChanged(bs, collectionId).getChanges().size();
 	}
 
 	@Override
@@ -138,12 +94,12 @@ public class ContentsExporter implements IContentsExporter {
 		switch (bs.getDataType()) {
 			case CALENDAR:
 				break;
-			case CONTACT:
+			case CONTACTS:
 				break;
 			case EMAIL:
 				changes.addAll(mailExporter.fetchItems(fetchIds));
 				break;
-			case TASK:
+			case TASKS:
 				break;
 		
 		}

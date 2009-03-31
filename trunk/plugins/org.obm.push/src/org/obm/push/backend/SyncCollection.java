@@ -1,10 +1,11 @@
-package org.obm.push.impl;
+package org.obm.push.backend;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.obm.push.impl.SyncHandler;
 import org.obm.push.state.SyncState;
 
 public class SyncCollection {

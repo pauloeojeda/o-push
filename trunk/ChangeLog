@@ -1,3 +1,92 @@
+2009-03-31  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Calendar sync improvements for win mobile (attendees crashe active
+	sync client).
+
+	use windows domain as obm domain if no "@" in login. Fixes active
+	sync desktop client.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter.getContactsChanges),
+	(ContentsExporter.getTasksChanges),
+	(ContentsExporter.getCalendarChanges),
+	(ContentsExporter.getMailChanges), (ContentsExporter),
+	(ContentsExporter.getChanged), (ContentsExporter.getCount),
+	(ContentsExporter.fetch):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter.importMessageChange),
+	(ContentsImporter.importMessageDeletion):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.OBMBackend),
+	(OBMBackend.waitForChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java: (CalendarBackend),
+	(CalendarBackend.getClient), (CalendarBackend.locateObmSync),
+	(CalendarBackend.getHierarchyChanges),
+	(CalendarBackend.getContentChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter.convertEvent),
+	(EventConverter.getRecurrence):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmDbHelper.java: (ObmDbHelper), (ObmDbHelper.findHost):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailExporter.java: (MailExporter.getContentChanges):
+	* plugins/org.obm.push/build.properties:
+	* plugins/org.obm.push/hints/PocketPC.hints:
+	* plugins/org.obm.push/hints/iPhone.hints:
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.getSession), (ActiveSyncServlet.init):
+	* plugins/org.obm.push/src/org/obm/push/Application.java:
+	(Application.start):
+	* plugins/org.obm.push/src/org/obm/push/backend/BackendSession.java
+	: (BackendSession), (BackendSession.BackendSession),
+	(BackendSession.checkHint), (BackendSession.loadHints):
+	* plugins/org.obm.push/src/org/obm/push/backend/DataDelta.java:
+	(DataDelta), (DataDelta.DataDelta), (DataDelta.getChanges),
+	(DataDelta.getDeletions):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSContact.java:
+	(MSContact.getType):
+	* plugins/org.obm.push/src/org/obm/push/backend/PIMDataType.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/SyncCollection.java
+	: (SyncCollection), (SyncCollection.SyncCollection),
+	(SyncCollection.getSyncState), (SyncCollection.setSyncState),
+	(SyncCollection.getClientIds), (SyncCollection.setClientIds),
+	(SyncCollection.getDataClass), (SyncCollection.setDataClass),
+	(SyncCollection.getConflict), (SyncCollection.setConflict),
+	(SyncCollection.getCollectionId), (SyncCollection.setCollectionId),
+	(SyncCollection.getSyncKey), (SyncCollection.setSyncKey),
+	(SyncCollection.getTruncation), (SyncCollection.setTruncation),
+	(SyncCollection.isDeletesAsMoves),
+	(SyncCollection.setDeletesAsMoves), (SyncCollection.getFetchIds),
+	(SyncCollection.setFetchIds), (SyncCollection.getNewSyncKey),
+	(SyncCollection.setNewSyncKey), (SyncCollection.getFilterType),
+	(SyncCollection.setFilterType):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactEncoder.java:
+	(ContactEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/EncoderFactory.java:
+	(EncoderFactory.getEncoder):
+	* plugins/org.obm.push/src/org/obm/push/data/IDataEncoder.java:
+	(IDataEncoder):
+	* plugins/org.obm.push/src/org/obm/push/data/MailEncoder.java:
+	(MailEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/TaskEncoder.java:
+	(TaskEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java:
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process), (PingHandler), (PingHandler.fillResponse):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncCollection.java:
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process), (SyncHandler.serializeChange):
+	* scripts/equinox.lib:
+	* scripts/opush:
+
 2009-03-27  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	Store device / obm id mapping (in memory for now)

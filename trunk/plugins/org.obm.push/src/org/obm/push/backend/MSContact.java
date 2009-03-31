@@ -547,7 +547,7 @@ public class MSContact implements IApplicationData {
 
 	@Override
 	public PIMDataType getType() {
-		return PIMDataType.CONTACT;
+		return PIMDataType.CONTACTS;
 	}
 
 	@Override

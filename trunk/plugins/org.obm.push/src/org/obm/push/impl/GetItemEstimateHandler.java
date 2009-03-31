@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
+import org.obm.push.backend.SyncCollection;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;

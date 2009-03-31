@@ -16,7 +16,7 @@ public class Application implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
 		System.out.println("Push server started...");
 		Hashtable<String, Object> settings = new Hashtable<String, Object>();
-		settings.put(JettyConstants.HTTP_PORT, 8081);
+		settings.put(JettyConstants.HTTP_PORT, 8082);
 		settings.put(JettyConstants.CONTEXT_PATH, "");
 
 		System.setProperty("org.mortbay.http.HttpRequest.maxFormContentSize",
