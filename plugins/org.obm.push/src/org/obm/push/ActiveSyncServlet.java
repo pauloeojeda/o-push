@@ -15,6 +15,8 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mortbay.util.ajax.Continuation;
+import org.mortbay.util.ajax.ContinuationSupport;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IBackendFactory;
@@ -55,6 +57,16 @@ public class ActiveSyncServlet extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		Continuation c = ContinuationSupport.getContinuation(request, request);
+		logger.info("c.isPending() => " + c.isPending() + " c.isResumed() => "
+				+ c.isResumed());
+		if (c.isResumed()) {
+			PingHandler ph = (PingHandler) handlers.get("Ping");
+			ph.sendResponse((BackendSession) c.getObject(), new Responder(
+					response));
+			return;
+		}
+
 		String userID = null;
 		String password = null;
 		boolean valid = false;
@@ -92,7 +104,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			response.setHeader("WWW-Authenticate", s);
 			response.setStatus(401);
 		} else {
-			processActiveSyncMethod(userID, password, request, response);
+			processActiveSyncMethod(c, userID, password, request, response);
 		}
 	}
 
@@ -100,9 +112,9 @@ public class ActiveSyncServlet extends HttpServlet {
 		return r.getParameter(name);
 	}
 
-	private void processActiveSyncMethod(String userID, String password,
-			HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
+	private void processActiveSyncMethod(Continuation continuation,
+			String userID, String password, HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
 		BackendSession bs = getSession(userID, password, request);
 		logger.info("activeSyncMethod: " + bs.getCommand());
 		String proto = request.getHeader("MS-ASProtocolVersion");
@@ -132,7 +144,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		IRequestHandler rh = getHandler(bs);
 		if (rh != null) {
 			sendServerInfos(response);
-			rh.process(bs, doc, new Responder(response));
+			rh.process(continuation, bs, doc, new Responder(response));
 		} else {
 			logger.warn("no handler for command " + bs.getCommand());
 		}
@@ -160,6 +172,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			bs = new BackendSession(uid, password, p(r, "DeviceId"), p(r,
 					"DeviceType"), p(r, "Cmd"));
 		}
+		bs.setRequest(r);
 		return bs;
 	}
 

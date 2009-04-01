@@ -7,4 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.obm.push,
  org.apache.commons.logging;bundle-version="1.0.4",
  org.minig.obm.pool;bundle-version="1.0.0",
- org.obm.sync.client;bundle-version="2.2.0"
+ org.obm.sync.client;bundle-version="2.2.0",
+ org.mortbay.jetty.server;bundle-version="6.1.7",
+ org.mortbay.jetty.util;bundle-version="6.1.7",
+ javax.servlet;bundle-version="2.5.0"

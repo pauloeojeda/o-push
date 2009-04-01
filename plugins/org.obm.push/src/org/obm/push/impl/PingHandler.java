@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.SyncCollection;
@@ -30,7 +31,8 @@ public class PingHandler implements IRequestHandler {
 	}
 
 	@Override
-	public void process(BackendSession bs, Document doc, Responder responder) {
+	public void process(Continuation continuation, BackendSession bs,
+			Document doc, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 
@@ -49,18 +51,19 @@ public class PingHandler implements IRequestHandler {
 			toMonitor.add(sc);
 		}
 
+		logger.info("suspend for " + interval + " seconds");
+		backend.pollForChanges(continuation, bs, toMonitor, interval * 1000);
+	}
+
+	public void sendResponse(BackendSession bs, Responder responder) {
+		Document ret = DOMUtils.createDoc(null, "Ping");
+
+		fillResponse(ret.getDocumentElement(), bs.getChangedFolders());
 		try {
-			Document ret = DOMUtils.createDoc(null, "Ping");
-
-			Set<SyncCollection> changedFolders = backend.waitForChanges(bs,
-					toMonitor, interval);
-			fillResponse(ret.getDocumentElement(), changedFolders);
 			responder.sendResponse("Ping", ret);
-
 		} catch (Exception e) {
-			logger.error("Error creating provision response");
+			logger.error(e.getMessage(), e);
 		}
-
 	}
 
 	private void fillResponse(Element element,

@@ -1,6 +1,9 @@
 package org.obm.push.backend;
 
 import java.util.Properties;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,6 +21,8 @@ public class BackendSession {
 	private SyncState state;
 	private PIMDataType dataType;
 	private Properties hints;
+	private HttpServletRequest request;
+	private Set<SyncCollection> changedFolders;
 
 	public BackendSession(String loginAtDomain, String password, String devId,
 			String devType, String command) {
@@ -102,6 +107,22 @@ public class BackendSession {
 
 	public void setDataType(PIMDataType dataType) {
 		this.dataType = dataType;
+	}
+
+	public HttpServletRequest getRequest() {
+		return request;
+	}
+
+	public void setRequest(HttpServletRequest request) {
+		this.request = request;
+	}
+
+	public Set<SyncCollection> getChangedFolders() {
+		return changedFolders;
+	}
+
+	public void setChangedFolders(Set<SyncCollection> changedFolders) {
+		this.changedFolders = changedFolders;
 	}
 
 }
