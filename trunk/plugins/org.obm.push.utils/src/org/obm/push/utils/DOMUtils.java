@@ -183,7 +183,7 @@ public final class DOMUtils {
 	 *            The String whose non-valid characters we want to remove.
 	 * @return The in String, stripped of non-valid characters.
 	 */
-	public  static final String stripNonValidXMLCharacters(String in) {
+	public static final String stripNonValidXMLCharacters(String in) {
 		char[] current = in.toCharArray();
 		StringBuilder out = new StringBuilder(current.length);
 
@@ -260,13 +260,14 @@ public final class DOMUtils {
 		return ret;
 	}
 
-	public static Document createDoc(String namespace, String rootElement)
-			throws ParserConfigurationException, FactoryConfigurationError {
+	public static Document createDoc(String namespace, String rootElement) {
 		lock();
 		DOMImplementation di = builder.getDOMImplementation();
 		Document ret = null;
 		try {
 			ret = di.createDocument(namespace, rootElement, null);
+		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			unlock();
 		}

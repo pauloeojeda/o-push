@@ -2,6 +2,7 @@ package org.obm.push.backend;
 
 import java.util.Set;
 
+import org.mortbay.util.ajax.Continuation;
 import org.obm.push.provisioning.Policy;
 
 public interface IBackend {
@@ -18,6 +19,6 @@ public interface IBackend {
 	
 	Policy getDevicePolicy(BackendSession bs);
 
-	Set<SyncCollection> waitForChanges(BackendSession bs, Set<SyncCollection> toMonitor, long intervalSeconds);
+	Set<SyncCollection> pollForChanges(Continuation c, BackendSession bs, Set<SyncCollection> toMonitor, long msTimeout);
 	
 }

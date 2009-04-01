@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
@@ -12,6 +13,7 @@ import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
+import org.obm.push.backend.obm22.impl.PollingThread;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.provisioning.Policy;
 
@@ -67,16 +69,27 @@ public class OBMBackend implements IBackend {
 	}
 
 	@Override
-	public Set<SyncCollection> waitForChanges(BackendSession bs,
-			Set<SyncCollection> toMonitor, long interval) {
-		try {
-			logger.info("sleeping " + interval + "sec");
-			Thread.sleep(interval * 1000);
-		} catch (Throwable t) {
-		}
+	public Set<SyncCollection> pollForChanges(Continuation c,
+			BackendSession bs, Set<SyncCollection> toMonitor, long msTimeout) {
+		logger.info("starting polling thread");
+		PollingThread pt = new PollingThread(bs, toMonitor, this, c);
+		Thread t = new Thread(pt);
+		t.start();
 
-		// TODO Auto-generated method stub
-		return null;
+		synchronized (bs) {
+			c.suspend(msTimeout);
+		}
+		logger.info("After suspend returned !!");
+		return ((BackendSession) c.getObject()).getChangedFolders();
+	}
+
+	public void onChangeFound(Continuation continuation, BackendSession bs) {
+		logger.info("onChangesFound");
+		synchronized (bs) {
+			continuation.setObject(bs);
+			continuation.resume();
+			logger.info("after resume !!");
+		}
 	}
 
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?pde version="3.4"?>
+<?pde version="3.5"?>
 
 <product name="push" id="org.obm.push.pushid" application="org.obm.push.push" version="1.0.0" useFeatures="false">
 
@@ -42,12 +42,14 @@
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.minig.obm.jdbc.pgsql"/>
       <plugin id="org.minig.obm.pool"/>
-      <plugin id="org.mortbay.jetty"/>
+      <plugin id="org.mortbay.jetty.server"/>
+      <plugin id="org.mortbay.jetty.util"/>
       <plugin id="org.obm.push"/>
       <plugin id="org.obm.push.backend.obm22"/>
       <plugin id="org.obm.push.utils"/>
       <plugin id="org.obm.push.wbxml"/>
       <plugin id="org.obm.sync.client"/>
    </plugins>
+
 
 </product>

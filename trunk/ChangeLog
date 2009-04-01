@@ -1,3 +1,40 @@
+2009-04-01  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Use Jetty continuation support for Ping command.
+	
+	* plugins/org.obm.push.backend.obm22/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.pollForChanges),
+	(OBMBackend.onChangeFound):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/PollingThread.java: (PollingThread),
+	(PollingThread.PollingThread), (PollingThread.run):
+	* plugins/org.obm.push.utils/src/org/obm/push/utils/DOMUtils.java:
+	* plugins/org.obm.push/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push/push.product:
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.service), (ActiveSyncServlet),
+	(ActiveSyncServlet.processActiveSyncMethod),
+	(ActiveSyncServlet.getSession):
+	* plugins/org.obm.push/src/org/obm/push/backend/BackendSession.java
+	: (BackendSession), (BackendSession.getRequest),
+	(BackendSession.setRequest), (BackendSession.getChangedFolders),
+	(BackendSession.setChangedFolders):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/IRequestHandler.java:
+	(IRequestHandler):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler), (PingHandler.process), (PingHandler.sendResponse):
+	* plugins/org.obm.push/src/org/obm/push/impl/ProvisionHandler.java:
+	(ProvisionHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process):
+
 2009-03-31  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	recurrence work
