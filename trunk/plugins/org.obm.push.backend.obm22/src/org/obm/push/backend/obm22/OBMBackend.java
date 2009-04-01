@@ -12,7 +12,7 @@ import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
-import org.obm.push.backend.obm22.mail.MailExporter;
+import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.provisioning.Policy;
 
 public class OBMBackend implements IBackend {
@@ -25,7 +25,7 @@ public class OBMBackend implements IBackend {
 	private static final Log logger = LogFactory.getLog(OBMBackend.class);
 
 	public OBMBackend() {
-		MailExporter mailExporter = new MailExporter();
+		MailBackend mailExporter = new MailBackend();
 		CalendarBackend calendarExporter = new CalendarBackend();
 
 		hImporter = new HierarchyImporter();

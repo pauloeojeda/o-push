@@ -11,17 +11,17 @@ import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
-import org.obm.push.backend.obm22.mail.MailExporter;
+import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.state.SyncState;
 
 public class ContentsExporter implements IContentsExporter {
 
 	private static final Log logger = LogFactory.getLog(ContentsExporter.class);
 
-	private MailExporter mailExporter;
+	private MailBackend mailExporter;
 	private CalendarBackend calBackend;
 
-	public ContentsExporter(MailExporter mailExporter,
+	public ContentsExporter(MailBackend mailExporter,
 			CalendarBackend calendarExporter) {
 		super();
 		this.mailExporter = mailExporter;
