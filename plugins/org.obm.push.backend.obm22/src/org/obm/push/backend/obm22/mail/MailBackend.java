@@ -9,7 +9,7 @@ import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSMail;
 
-public class MailExporter {
+public class MailBackend {
 
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();

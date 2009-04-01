@@ -6,15 +6,15 @@ import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
-import org.obm.push.backend.obm22.mail.MailExporter;
+import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.state.SyncState;
 
 public class ContentsImporter implements IContentsImporter {
 
-	private MailExporter mailBackend;
+	private MailBackend mailBackend;
 	private CalendarBackend calBackend;
 
-	public ContentsImporter(MailExporter mailBackend, CalendarBackend calBackend) {
+	public ContentsImporter(MailBackend mailBackend, CalendarBackend calBackend) {
 		this.mailBackend = mailBackend;
 		this.calBackend = calBackend;
 	}
