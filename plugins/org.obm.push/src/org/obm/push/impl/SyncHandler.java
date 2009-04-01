@@ -112,8 +112,8 @@ public class SyncHandler implements IRequestHandler {
 							// fetch
 							doFetch(bs, c, ce, cex);
 						}
-						sk.setTextContent(sm.allocateNewSyncKey(bs));
 					}
+					sk.setTextContent(sm.allocateNewSyncKey(bs));
 				}
 			}
 
@@ -126,18 +126,14 @@ public class SyncHandler implements IRequestHandler {
 	private void doUpdates(BackendSession bs, SyncCollection c, Element ce,
 			IContentsExporter cex) {
 		List<ItemChange> changed;
-		DataDelta delta = cex.getChanged(bs, c.getCollectionId()); 
+		DataDelta delta = cex.getChanged(bs, c.getCollectionId());
 		changed = delta.getChanges();
-		logger.info("should send " + changed.size()
-				+ " change(s).");
-		Element commands = DOMUtils.createElement(ce,
-				"Commands");
+		logger.info("should send " + changed.size() + " change(s).");
+		Element commands = DOMUtils.createElement(ce, "Commands");
 
 		for (ItemChange ic : changed) {
-			Element add = DOMUtils.createElement(commands,
-					"Add");
-			DOMUtils.createElementAndText(add, "ServerId",
-					ic.getServerId());
+			Element add = DOMUtils.createElement(commands, "Add");
+			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
 			serializeChange(bs, add, c, ic);
 		}
 
@@ -151,15 +147,11 @@ public class SyncHandler implements IRequestHandler {
 			IContentsExporter cex) {
 		List<ItemChange> changed;
 		changed = cex.fetch(bs, c.getFetchIds());
-		Element commands = DOMUtils.createElement(ce,
-				"Responses");
+		Element commands = DOMUtils.createElement(ce, "Responses");
 		for (ItemChange ic : changed) {
-			Element add = DOMUtils.createElement(commands,
-					"Fetch");
-			DOMUtils.createElementAndText(add, "ServerId",
-					ic.getServerId());
-			DOMUtils.createElementAndText(add, "Status",
-					"1");
+			Element add = DOMUtils.createElement(commands, "Fetch");
+			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
+			DOMUtils.createElementAndText(add, "Status", "1");
 			serializeChange(bs, add, c, ic);
 		}
 	}
@@ -169,7 +161,8 @@ public class SyncHandler implements IRequestHandler {
 
 	}
 
-	private void serializeChange(BackendSession bs, Element col, SyncCollection c, ItemChange ic) {
+	private void serializeChange(BackendSession bs, Element col,
+			SyncCollection c, ItemChange ic) {
 		IApplicationData data = ic.getData();
 		IDataEncoder encoder = encoders.getEncoder(data);
 		Element apData = DOMUtils.createElement(col, "ApplicationData");
@@ -228,7 +221,7 @@ public class SyncHandler implements IRequestHandler {
 			SyncCollection collection, IContentsImporter importer,
 			Element modification) {
 		String modType = modification.getNodeName();
-		logger.info("modType: "+modType);
+		logger.info("modType: " + modType);
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
 		String clientId = DOMUtils.getElementText(modification, "ClientId");
 		Element syncData = DOMUtils.getUniqueElement(modification,
@@ -248,7 +241,7 @@ public class SyncHandler implements IRequestHandler {
 							.getCollectionId(), serverId, data);
 				}
 			} else if (modType.equals("Add") || modType.equals("Change")) {
-				logger.info("processing Add/Change !!! ("+serverId+")");
+				logger.info("processing Add/Change !!! (" + serverId + ")");
 				String id = importer.importMessageChange(bs, collection
 						.getCollectionId(), serverId, data);
 				if (clientId != null && id != null) {

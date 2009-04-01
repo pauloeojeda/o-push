@@ -86,7 +86,7 @@ public class CalendarBackend {
 
 		if (!bs.checkHint("hint.multipleCalendars", true)) {
 			ItemChange ic = new ItemChange();
-			ic.setServerId("obm://" + bs.getLoginAtDomain() + "/calendar/"
+			ic.setServerId("obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
 					+ bs.getLoginAtDomain());
 			ic.setParentId("0");
 			ic.setDisplayName(bs.getLoginAtDomain());
@@ -103,7 +103,7 @@ public class CalendarBackend {
 			int i = 0;
 			for (CalendarInfo ci : cals) {
 				ItemChange ic = new ItemChange();
-				ic.setServerId("obm://" + bs.getLoginAtDomain() + "/calendar/"
+				ic.setServerId("obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
 						+ ci.getUid() + "@domain");
 				ic.setParentId("0");
 				ic.setDisplayName(ci.getMail());
@@ -149,8 +149,8 @@ public class CalendarBackend {
 	}
 
 	private String parseCalendarId(String collectionId) {
-		// parse obm://thomas@zz.com/calendar/sylvaing@zz.com
-		int slash = collectionId.lastIndexOf("/");
+		// parse obm:\\thomas@zz.com\calendar\sylvaing@zz.com
+		int slash = collectionId.lastIndexOf("\\");
 		int at = collectionId.lastIndexOf("@");
 
 		return collectionId.substring(slash + 1, at);

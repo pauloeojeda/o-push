@@ -96,9 +96,8 @@ public class FolderSyncHandler implements IRequestHandler {
 				encode(remove, sf);
 			}
 
-			responder.sendResponse("FolderHierarchy", ret);
-			state = exporter.getState(bs);
 			sk.setTextContent(sm.allocateNewSyncKey(bs));
+			responder.sendResponse("FolderHierarchy", ret);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

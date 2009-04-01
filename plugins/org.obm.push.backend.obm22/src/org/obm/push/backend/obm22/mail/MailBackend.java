@@ -10,28 +10,30 @@ import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSMail;
 
 public class MailBackend {
+	
+	public static final String FOLDER_PREFIX="obm:\\mail\\";
 
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
 		ItemChange ic = new ItemChange();
-		ic.setServerId("INBOX");
+		ic.setServerId(genServerId(bs, "INBOX"));
 		ic.setParentId("0");
 		ic.setDisplayName("Inbox");
 		ic.setItemType(FolderType.DEFAULT_INBOX_FOLDER);
 		ret.add(ic);
 
 		ic = new ItemChange();
-		ic.setServerId("Sent");
+		ic.setServerId(genServerId(bs, "Sent"));
 		ic.setParentId("0");
 		ic.setDisplayName("Sent");
 		ic.setItemType(FolderType.DEFAULT_SENT_MAIL_FOLDER);
 		ret.add(ic);
 
 		 ic = new ItemChange();
-		 ic.setServerId("obm://mail/user@domain/Trash");
+		 ic.setServerId(genServerId(bs, "Trash"));
 		 ic.setParentId("0");
-		 ic.setDisplayName("Inbox");
+		 ic.setDisplayName("Trash");
 		 ic.setItemType(FolderType.DEFAULT_DELETED_ITEMS_FOLDERS);
 		 ret.add(ic);
 
@@ -39,6 +41,14 @@ public class MailBackend {
 
 	}
 
+	private String genServerId(BackendSession bs, String imapFolder) {
+		StringBuilder sb = new StringBuilder(FOLDER_PREFIX);
+		sb.append(bs.getLoginAtDomain());
+		sb.append('\\');
+		sb.append(imapFolder);
+		return sb.toString();
+	}
+	
 	public DataDelta getContentChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		LinkedList<ItemChange> deletions = new LinkedList<ItemChange>();
