@@ -1,6 +1,7 @@
 package org.obm.push.data;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -67,14 +68,43 @@ public class CalendarEncoder implements IDataEncoder {
 
 		if (ev.getRecurrence() != null) {
 			Element r = DOMUtils.createElement(p, "Calendar:Recurrence");
-			DOMUtils.createElementAndText(r, "Calendar:RecurrenceType", rec(ev).getType()
-					.asIntString());
-			DOMUtils.createElementAndText(r, "Calendar:RecurrenceInterval", rec(ev)
-					.getInterval().toString());
-			if (rec(ev).getUntil() != null) {
-				DOMUtils.createElementAndText(r, "Calendar:RecurrenceUntil", sdf
-						.format(rec(ev).getUntil()));
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceType", rec(ev)
+					.getType().asIntString());
+			if (rec(ev).getInterval() != null) {
+				DOMUtils.createElementAndText(r, "Calendar:RecurrenceInterval",
+						rec(ev).getInterval().toString());
 			}
+			if (rec(ev).getUntil() != null) {
+				DOMUtils.createElementAndText(r, "Calendar:RecurrenceUntil",
+						sdf.format(rec(ev).getUntil()));
+			}
+
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			switch (rec(ev).getType()) {
+			case DAILY:
+				break;
+			case MONTHLY:
+				cal.setTimeInMillis(ev.getStartTime().getTime());
+				DOMUtils.createElementAndText(r,
+						"Calendar:RecurrenceDayOfMonth", "2");
+				break;
+			case MONTHLY_NDAY:
+				break;
+			case WEEKLY:
+				break;
+			case YEARLY:
+				cal.setTimeInMillis(ev.getStartTime().getTime());
+				DOMUtils.createElementAndText(r,
+						"Calendar:RecurrenceDayOfMonth", "2");
+				DOMUtils.createElementAndText(r,
+						"Calendar:RecurrenceMonthOfYear", ""
+								+ (cal.get(Calendar.MONTH) + 1));
+				break;
+			case YEARLY_NDAY:
+				break;
+
+			}
+
 		}
 
 		DOMUtils.createElement(p, "Calendar:Compressed_RTF");

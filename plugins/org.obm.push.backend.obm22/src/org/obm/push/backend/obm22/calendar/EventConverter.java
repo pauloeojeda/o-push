@@ -94,7 +94,9 @@ public class EventConverter {
 		}
 
 		// interval
-		or.setFrequence(pr.getInterval());
+		if (pr.getInterval() != null) {
+			or.setFrequence(pr.getInterval());
+		}
 
 		// occurence or end date
 		Date endDate = null;
