@@ -63,8 +63,12 @@ public class EventConverter {
 		return cal;
 	}
 
-	private EventRecurrence getRecurrence(Date startDate, Recurrence pr) {
+	private EventRecurrence getRecurrence(MSEvent msev) {
+		Date startDate = msev.getStartTime();
+		Recurrence pr = msev.getRecurrence();
 		EventRecurrence or = new EventRecurrence();
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		
 		int multiply = 0;
 		switch (pr.getType()) {
 		case DAILY:
@@ -85,6 +89,11 @@ public class EventConverter {
 			break;
 		case YEARLY:
 			or.setKind(RecurrenceKind.yearly);
+			cal.setTimeInMillis(startDate.getTime());
+			cal.set(Calendar.DAY_OF_MONTH, pr.getDayOfMonth());
+			cal.set(Calendar.MONTH, pr.getMonthOfYear() - 1);
+			msev.setStartTime(cal.getTime());
+			or.setFrequence(1);
 			multiply = Calendar.YEAR;
 			break;
 		case YEARLY_NDAY:
@@ -101,8 +110,6 @@ public class EventConverter {
 		// occurence or end date
 		Date endDate = null;
 		if (pr.getOccurrences() != null && pr.getOccurrences() > 0) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 			cal.setTimeInMillis(startDate.getTime());
 			cal.add(multiply, pr.getOccurrences() - 1);
 			endDate = new Date(cal.getTimeInMillis());
@@ -200,8 +207,7 @@ public class EventConverter {
 		}
 
 		if (data.getRecurrence() != null) {
-			e.setRecurrence(getRecurrence(data.getStartTime(), data
-					.getRecurrence()));
+			e.setRecurrence(getRecurrence(data));
 		}
 
 		return e;
