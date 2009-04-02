@@ -191,9 +191,9 @@ public class WbxmlParser {
 		tagTable = tagsTables.get(page);
 		attrStartTable = attrStarTables.get(page);
 		attrValueTable = attrValueTables.get(page);
-		logger.info("switching to page 0x" + page);
+		logger.debug("switching to page 0x" + page);
 		if (tagTable == null) {
-			logger.error("tagsTable not found for page " + page);
+			logger.debug("tagsTable not found for page " + page);
 		}
 	}
 
