@@ -138,6 +138,7 @@ public class CalendarBackend {
 				ItemChange change = addCalendarChange(e);
 				addUpd.add(change);
 			}
+			bs.setUpdatedSyncDate(changes.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
