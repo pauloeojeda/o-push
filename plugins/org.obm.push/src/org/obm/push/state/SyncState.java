@@ -13,6 +13,7 @@ public class SyncState {
 
 	
 	private Date lastSync;
+	private String key;
 
 	public SyncState() {
 		Calendar cal = Calendar.getInstance();
@@ -34,6 +35,14 @@ public class SyncState {
 	 */
 	public boolean isValid() {
 		return lastSync != null;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
 	}
 	
 	
