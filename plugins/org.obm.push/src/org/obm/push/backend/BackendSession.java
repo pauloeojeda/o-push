@@ -1,5 +1,6 @@
 package org.obm.push.backend;
 
+import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 
@@ -23,6 +24,7 @@ public class BackendSession {
 	private Properties hints;
 	private HttpServletRequest request;
 	private Set<SyncCollection> changedFolders;
+	private Date updatedSyncDate;
 
 	public BackendSession(String loginAtDomain, String password, String devId,
 			String devType, String command) {
@@ -123,6 +125,14 @@ public class BackendSession {
 
 	public void setChangedFolders(Set<SyncCollection> changedFolders) {
 		this.changedFolders = changedFolders;
+	}
+
+	public Date getUpdatedSyncDate() {
+		return updatedSyncDate;
+	}
+
+	public void setUpdatedSyncDate(Date updatedSyncDate) {
+		this.updatedSyncDate = updatedSyncDate;
 	}
 
 }
