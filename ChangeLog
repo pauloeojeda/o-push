@@ -1,3 +1,34 @@
+2009-04-02  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Add ContactBackend and generate collection id without "/" as this
+	crashes windows mobile.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/HierarchyExporter.java: (HierarchyExporter),
+	(HierarchyExporter.HierarchyExporter),
+	(HierarchyExporter.synchronize),
+	(HierarchyExporter.getContactsChanges),
+	(HierarchyExporter.getContactsDeletions),
+	(HierarchyExporter.getChanged):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java: (CalendarBackend),
+	(CalendarBackend.CalendarBackend),
+	(CalendarBackend.getHierarchyChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java: (ContactsBackend),
+	(ContactsBackend.ContactsBackend), (ContactsBackend.getClient),
+	(ContactsBackend.getHierarchyChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmSyncBackend.java: (ObmSyncBackend),
+	(ObmSyncBackend.ObmSyncBackend), (ObmSyncBackend.locateObmSync),
+	(ObmSyncBackend.validateOBMConnection):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/Responder.java:
+	(Responder), (Responder.sendResponse):
+
 2009-04-01  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	Use Jetty continuation support for Ping command.
