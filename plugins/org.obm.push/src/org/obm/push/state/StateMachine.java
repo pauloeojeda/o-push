@@ -1,5 +1,7 @@
 package org.obm.push.state;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
@@ -8,18 +10,44 @@ import org.obm.push.backend.BackendSession;
 
 public class StateMachine {
 
+	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(StateMachine.class);
 
+	private static Map<String, SyncState> devIdStore;
+	private static Map<String, SyncState> syncKeyStore;
+
+	static {
+		devIdStore = new HashMap<String, SyncState>();
+		syncKeyStore = new HashMap<String, SyncState>();
+	}
+
+	public StateMachine() {
+	}
+
 	public SyncState getSyncState(String syncKey) {
-		// TODO Auto-generated method stub
-		logger.info("getSyncState(" + syncKey + ")");
-		return new SyncState();
+		SyncState ret = null;
+		if (syncKeyStore.containsKey(syncKey)) {
+			ret = syncKeyStore.get(syncKey);
+		} else {
+			ret = new SyncState();
+			ret.setKey(syncKey);
+		}
+		return ret;
 	}
 
 	public String allocateNewSyncKey(BackendSession bs) {
-		// TODO Auto-generated method stub
-		return UUID.randomUUID().toString();
-	}
+		SyncState oldState = devIdStore.get(bs.getDevId());
+		if (oldState != null) {
+			syncKeyStore.remove(oldState.getKey());
+		}
 
+		SyncState newState = new SyncState();
+		newState.setLastSync(bs.getUpdatedSyncDate());
+		String newSk = UUID.randomUUID().toString();
+		newState.setKey(newSk);
+		syncKeyStore.put(newSk, newState);
+		devIdStore.put(bs.getDevId(), newState);
+		return newSk;
+	}
 
 }
