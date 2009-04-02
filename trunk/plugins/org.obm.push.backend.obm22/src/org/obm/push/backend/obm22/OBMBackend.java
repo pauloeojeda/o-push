@@ -35,7 +35,7 @@ public class OBMBackend implements IBackend {
 		hImporter = new HierarchyImporter();
 		exporter = new HierarchyExporter(mailExporter, calendarExporter, contactsBackend);
 		cImporter = new ContentsImporter(mailExporter, calendarExporter);
-		contentsExporter = new ContentsExporter(mailExporter, calendarExporter);
+		contentsExporter = new ContentsExporter(mailExporter, calendarExporter, contactsBackend);
 	}
 
 	@Override

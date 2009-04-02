@@ -11,6 +11,7 @@ import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
+import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.state.SyncState;
 
@@ -21,11 +22,14 @@ public class ContentsExporter implements IContentsExporter {
 	private MailBackend mailExporter;
 	private CalendarBackend calBackend;
 
+	private ContactsBackend contactsBackend;
+
 	public ContentsExporter(MailBackend mailExporter,
-			CalendarBackend calendarExporter) {
+			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
 		super();
 		this.mailExporter = mailExporter;
 		this.calBackend = calendarExporter;
+		this.contactsBackend = contactsBackend;
 	}
 
 	@Override
@@ -43,9 +47,7 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	private DataDelta getContactsChanges(BackendSession bs) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return new DataDelta(ret, ret);
+		return contactsBackend.getContentChanges(bs);
 	}
 
 	private DataDelta getTasksChanges(BackendSession bs) {
