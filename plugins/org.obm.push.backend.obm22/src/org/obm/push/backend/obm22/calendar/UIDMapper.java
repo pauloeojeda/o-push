@@ -10,6 +10,7 @@ public class UIDMapper {
 
 	public static final String UID_PREFIX="obm-calendar-";
 	
+	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(UIDMapper.class);
 	
 	// obm, device
@@ -30,7 +31,6 @@ public class UIDMapper {
 		} else {
 			ret = obm;
 		}
-		logger.info("toDevice("+obm+") => "+ret);
 		return ret;
 	}
 
@@ -45,7 +45,6 @@ public class UIDMapper {
 	}
 
 	public void addMapping(String device, String obm) {
-		logger.info("stored mapping "+obm+" => "+device);
 		toDevice.put(obm, device);
 		toOBM.put(device, obm);
 	}
