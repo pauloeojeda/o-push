@@ -11,7 +11,7 @@ import org.obm.push.backend.MSMail;
 
 public class MailBackend {
 	
-	public static final String FOLDER_PREFIX="obm:\\mail\\";
+	public static final String FOLDER_PREFIX="obm:\\\\mail\\";
 
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();

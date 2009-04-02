@@ -1,22 +1,15 @@
 package org.obm.push.backend.obm22.calendar;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.minig.obm.pool.IOBMConnection;
-import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEvent;
-import org.obm.push.backend.obm22.impl.ObmDbHelper;
+import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.calendar.Attendee;
 import org.obm.sync.calendar.CalendarInfo;
@@ -27,18 +20,9 @@ import org.obm.sync.client.calendar.CalendarClient;
 import org.obm.sync.items.EventChanges;
 import org.obm.sync.locators.CalendarLocator;
 
-import fr.aliasource.utils.JDBCUtils;
-
-public class CalendarBackend {
-
-	private static final Log logger = LogFactory.getLog(CalendarBackend.class);
-
-	private UIDMapper mapper;
-	private String obmSyncHost;
+public class CalendarBackend extends ObmSyncBackend {
 
 	public CalendarBackend() {
-		validateOBMConnection();
-		this.mapper = new UIDMapper();
 	}
 
 	private CalendarClient getClient(BackendSession bs) {
@@ -50,35 +34,6 @@ public class CalendarBackend {
 		CalendarClient calCli = cl.locate("http://" + obmSyncHost
 				+ ":8080/obm-sync/services");
 		return calCli;
-	}
-
-	private void locateObmSync(BackendSession bs) {
-		Set<String> props = ObmDbHelper.findHost(bs, "sync", "obm_sync");
-		if (props.isEmpty()) {
-			obmSyncHost = "localhost";
-			logger
-					.warn("No host with obm_sync property found. Defauting to localhost");
-		} else {
-			obmSyncHost = props.iterator().next();
-			logger.info("Using " + obmSyncHost + " as obm_sync host.");
-		}
-	}
-
-	private void validateOBMConnection() {
-		IOBMConnection con = OBMPoolActivator.getDefault().getConnection();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			ps = con.prepareStatement("select now()");
-			rs = ps.executeQuery();
-			if (rs.next()) {
-				logger.info("OBM Db connection is OK");
-			}
-		} catch (Exception e) {
-			logger.error("OBM Db connection is broken: " + e.getMessage(), e);
-		} finally {
-			JDBCUtils.cleanup(con, ps, rs);
-		}
 	}
 
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
@@ -103,8 +58,8 @@ public class CalendarBackend {
 			int i = 0;
 			for (CalendarInfo ci : cals) {
 				ItemChange ic = new ItemChange();
-				ic.setServerId("obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
-						+ ci.getUid() + "@domain");
+				ic.setServerId("obm:\\\\" + bs.getLoginAtDomain()
+						+ "\\calendar\\" + ci.getUid() + "@domain");
 				ic.setParentId("0");
 				ic.setDisplayName(ci.getMail());
 				if (i++ == 0) {

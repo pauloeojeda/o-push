@@ -13,6 +13,7 @@ import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
+import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.impl.PollingThread;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.provisioning.Policy;
@@ -29,9 +30,10 @@ public class OBMBackend implements IBackend {
 	public OBMBackend() {
 		MailBackend mailExporter = new MailBackend();
 		CalendarBackend calendarExporter = new CalendarBackend();
+		ContactsBackend contactsBackend = new ContactsBackend();
 
 		hImporter = new HierarchyImporter();
-		exporter = new HierarchyExporter(mailExporter, calendarExporter);
+		exporter = new HierarchyExporter(mailExporter, calendarExporter, contactsBackend);
 		cImporter = new ContentsImporter(mailExporter, calendarExporter);
 		contentsExporter = new ContentsExporter(mailExporter, calendarExporter);
 	}

@@ -11,6 +11,7 @@ import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
+import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.state.SyncState;
 
@@ -21,11 +22,13 @@ public class HierarchyExporter implements IHierarchyExporter {
 
 	private MailBackend mailExporter;
 	private CalendarBackend calendarExporter;
+	private ContactsBackend contactsBackend;
 
 	public HierarchyExporter(MailBackend mailExporter,
-			CalendarBackend calendarExporter) {
+			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
 		this.mailExporter = mailExporter;
 		this.calendarExporter = calendarExporter;
+		this.contactsBackend = contactsBackend;
 	}
 
 	@Override
@@ -53,9 +56,9 @@ public class HierarchyExporter implements IHierarchyExporter {
 		lic = getCalendarDeletions(bs.getState().getLastSync());
 		addDeletions(lic);
 
-		lic = getContactsChanges(bs.getState().getLastSync());
+		lic = getContactsChanges(bs);
 		addChanges(lic);
-		lic = getContactsDeletions(bs.getState().getLastSync());
+		lic = getContactsDeletions(bs);
 		addDeletions(lic);
 
 		lic = getTasksChanges(bs.getState().getLastSync());
@@ -79,13 +82,11 @@ public class HierarchyExporter implements IHierarchyExporter {
 
 	}
 
-	private List<ItemChange> getContactsChanges(Date lastSync) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
+	private List<ItemChange> getContactsChanges(BackendSession bs) {
+		return contactsBackend.getHierarchyChanges(bs);
 	}
 
-	private List<ItemChange> getContactsDeletions(Date lastSync) {
+	private List<ItemChange> getContactsDeletions(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		// TODO Auto-generated method stub
 		return ret;
@@ -128,6 +129,7 @@ public class HierarchyExporter implements IHierarchyExporter {
 		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
 		changes.addAll(getCalendarChanges(bs));
 		changes.addAll(getMailChanges(bs));
+		changes.addAll(getContactsChanges(bs));
 		return changes;
 	}
 
