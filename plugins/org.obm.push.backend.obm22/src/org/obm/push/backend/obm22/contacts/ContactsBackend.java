@@ -4,9 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.sync.auth.AccessToken;
 import org.obm.sync.client.book.BookClient;
 import org.obm.sync.locators.AddressBookLocator;
 
@@ -35,6 +37,18 @@ public class ContactsBackend extends ObmSyncBackend {
 		ic.setItemType(FolderType.DEFAULT_CONTACTS_FOLDER);
 		ret.add(ic);
 		return ret;
+	}
+
+	public DataDelta getContentChanges(BackendSession bs) {
+		List<ItemChange> ret = new LinkedList<ItemChange>();
+		
+		BookClient bc = getClient(bs);
+		AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(), "o-push");
+
+		// TODO Auto-generated method stub
+		
+		bc.logout(token);
+		return new DataDelta(ret, ret);
 	}
 
 }
