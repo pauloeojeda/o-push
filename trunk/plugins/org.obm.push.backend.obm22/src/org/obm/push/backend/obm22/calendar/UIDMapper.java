@@ -8,7 +8,8 @@ import org.apache.commons.logging.LogFactory;
 
 public class UIDMapper {
 
-	public static final String UID_PREFIX="obm-calendar-";
+	public static final String UID_CAL_PREFIX="obm-calendar-";
+	public static final String UID_BOOK_PREFIX="obm-contacts-";
 	
 	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(UIDMapper.class);
@@ -35,7 +36,7 @@ public class UIDMapper {
 	}
 
 	public String toOBM(String device) {
-		if (device.startsWith(UID_PREFIX)) {
+		if (device.startsWith(UID_CAL_PREFIX)) {
 			return device;
 		}
 		if (toOBM.containsKey(device)) {
