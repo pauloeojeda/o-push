@@ -1,3 +1,34 @@
+2009-04-03  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	make contacts work for firstname/lastname
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter),
+	(ContentsImporter.ContentsImporter), (ContentsImporter.configure),
+	(ContentsImporter.importMessageChange),
+	(ContentsImporter.importMessageDeletion),
+	(ContentsImporter.importMessageMove),
+	(ContentsImporter.importMessageReadFlag):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java:
+	(CalendarBackend.addCalendarChange),
+	(CalendarBackend.createOrUpdate):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/UIDMapper.java: (UIDMapper), (UIDMapper.toOBM):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactConverter.java: (ContactConverter),
+	(ContactConverter.convert), (ContactConverter.contact):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java:
+	(ContactsBackend.getContentChanges), (ContactsBackend),
+	(ContactsBackend.getContactChange),
+	(ContactsBackend.createOrUpdate):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactEncoder.java:
+	(ContactEncoder.encode), (ContactEncoder),
+	(ContactEncoder.getFileAs), (ContactEncoder.e):
+
 2009-04-02  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	Add ContactBackend and generate collection id without "/" as this

@@ -114,7 +114,7 @@ public class CalendarBackend extends ObmSyncBackend {
 
 	private ItemChange addCalendarChange(Event e) {
 		ItemChange ic = new ItemChange();
-		ic.setServerId(UIDMapper.UID_PREFIX + e.getUid());
+		ic.setServerId(UIDMapper.UID_CAL_PREFIX + e.getUid());
 		MSEvent cal = new EventConverter().convertEvent(e);
 		cal.setUID(mapper.toDevice(ic.getServerId()));
 		ic.setData(cal);
@@ -152,7 +152,7 @@ public class CalendarBackend extends ObmSyncBackend {
 			event.addAttendee(at);
 		}
 		if (id != null) {
-			id = id.replace(UIDMapper.UID_PREFIX, "");
+			id = id.replace(UIDMapper.UID_CAL_PREFIX, "");
 			try {
 				event.setUid(id);
 				cc.modifyEvent(token, parseCalendarId(collectionId), event,
@@ -170,7 +170,7 @@ public class CalendarBackend extends ObmSyncBackend {
 			}
 		}
 		cc.logout(token);
-		String obm = UIDMapper.UID_PREFIX + id;
+		String obm = UIDMapper.UID_CAL_PREFIX + id;
 		mapper.addMapping(device, obm);
 		return obm;
 	}

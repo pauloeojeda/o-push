@@ -3,9 +3,11 @@ package org.obm.push.backend.obm22;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IContentsImporter;
+import org.obm.push.backend.MSContact;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
+import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.state.SyncState;
 
@@ -13,14 +15,18 @@ public class ContentsImporter implements IContentsImporter {
 
 	private MailBackend mailBackend;
 	private CalendarBackend calBackend;
+	private ContactsBackend contactBackend;
 
-	public ContentsImporter(MailBackend mailBackend, CalendarBackend calBackend) {
+	public ContentsImporter(MailBackend mailBackend,
+			CalendarBackend calBackend, ContactsBackend contactBackend) {
 		this.mailBackend = mailBackend;
 		this.calBackend = calBackend;
+		this.contactBackend = contactBackend;
 	}
-	
+
 	@Override
-	public void configure(BackendSession bs, SyncState syncState, Integer conflictPolicy) {
+	public void configure(BackendSession bs, SyncState syncState,
+			Integer conflictPolicy) {
 		bs.setState(syncState);
 	}
 
@@ -37,6 +43,7 @@ public class ContentsImporter implements IContentsImporter {
 				id = calBackend.createOrUpdate(bs, collectionId, serverId, (MSEvent) data);
 				break;
 			case CONTACTS:
+				id = contactBackend.createOrUpdate(bs, collectionId, serverId, (MSContact) data);
 				break;
 			case EMAIL:
 				break;
@@ -47,7 +54,8 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public void importMessageDeletion(BackendSession bs, PIMDataType type, String serverId) {
+	public void importMessageDeletion(BackendSession bs, PIMDataType type,
+			String serverId) {
 		// TODO Auto-generated method stub
 		switch (type) {
 		case CALENDAR:
@@ -64,13 +72,15 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public void importMessageMove(BackendSession bs, String serverId, String trash) {
+	public void importMessageMove(BackendSession bs, String serverId,
+			String trash) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void importMessageReadFlag(BackendSession bs, String serverId, boolean read) {
+	public void importMessageReadFlag(BackendSession bs, String serverId,
+			boolean read) {
 		// TODO Auto-generated method stub
 
 	}
