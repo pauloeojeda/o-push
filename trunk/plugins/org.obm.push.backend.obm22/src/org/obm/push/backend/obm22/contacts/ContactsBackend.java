@@ -17,6 +17,12 @@ import org.obm.sync.client.book.BookClient;
 import org.obm.sync.items.ContactChanges;
 import org.obm.sync.locators.AddressBookLocator;
 
+/**
+ * OBM contacts backend implementation
+ * 
+ * @author tom
+ *
+ */
 public class ContactsBackend extends ObmSyncBackend {
 
 	public ContactsBackend() {
@@ -80,7 +86,6 @@ public class ContactsBackend extends ObmSyncBackend {
 	public String createOrUpdate(BackendSession bs, String collectionId,
 			String serverId, MSContact data) {
 		logger.info("create in "+collectionId+" (contact: "+data.getFirstName()+" "+data.getLastName()+")");
-		// TODO Auto-generated method stub
 		BookClient bc = getClient(bs);
 		AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(), "o-push");
 
