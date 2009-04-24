@@ -9,6 +9,12 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.backend.obm22.OBMBackend;
 
+/**
+ * Check data sources for changes and notifies the backend if anything changed.
+ * 
+ * @author tom
+ * 
+ */
 public class PollingThread implements Runnable {
 
 	private BackendSession bs;
@@ -33,7 +39,7 @@ public class PollingThread implements Runnable {
 	public void run() {
 		logger.info("sleeping in polling thread");
 		try {
-			Thread.sleep(msTimeout);
+			Thread.sleep(Math.max(5000, msTimeout - 5000));
 		} catch (InterruptedException e) {
 		}
 		backend.onChangeFound(continuation, bs);
