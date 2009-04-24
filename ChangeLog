@@ -1,3 +1,25 @@
+2009-04-24  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Contacts encoding work.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend),
+	(OBMBackend.pollForChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactConverter.java: (ContactConverter),
+	(ContactConverter.convert), (ContactConverter.obmPhone),
+	(ContactConverter.obmMail), (ContactConverter.contact),
+	(ContactConverter.addIM):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/PollingThread.java: (PollingThread),
+	(PollingThread.PollingThread), (PollingThread.run):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactEncoder.java:
+	(ContactEncoder.encode), (ContactEncoder.getFileAs):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/state/StateMachine.java:
+	(StateMachine..allocateNewSyncKey):
+
 2009-04-03  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	make contacts work for firstname/lastname

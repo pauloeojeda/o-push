@@ -17,20 +17,23 @@ public class PollingThread implements Runnable {
 
 	private Continuation continuation;
 
+	private long msTimeout;
+
 	private static final Log logger = LogFactory.getLog(PollingThread.class);
 
 	public PollingThread(BackendSession bs, Set<SyncCollection> toMonitor,
-			OBMBackend obmBackend, Continuation c) {
+			OBMBackend obmBackend, Continuation c, long msTimeout) {
 		this.bs = bs;
 		this.backend = obmBackend;
 		this.continuation = c;
+		this.msTimeout = msTimeout;
 	}
 
 	@Override
 	public void run() {
 		logger.info("sleeping in polling thread");
 		try {
-			Thread.sleep(5 * 1000);
+			Thread.sleep(msTimeout);
 		} catch (InterruptedException e) {
 		}
 		backend.onChangeFound(continuation, bs);
