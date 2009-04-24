@@ -33,9 +33,12 @@ public class OBMBackend implements IBackend {
 		ContactsBackend contactsBackend = new ContactsBackend();
 
 		hImporter = new HierarchyImporter();
-		exporter = new HierarchyExporter(mailExporter, calendarExporter, contactsBackend);
-		cImporter = new ContentsImporter(mailExporter, calendarExporter, contactsBackend);
-		contentsExporter = new ContentsExporter(mailExporter, calendarExporter, contactsBackend);
+		exporter = new HierarchyExporter(mailExporter, calendarExporter,
+				contactsBackend);
+		cImporter = new ContentsImporter(mailExporter, calendarExporter,
+				contactsBackend);
+		contentsExporter = new ContentsExporter(mailExporter, calendarExporter,
+				contactsBackend);
 	}
 
 	@Override
@@ -74,7 +77,7 @@ public class OBMBackend implements IBackend {
 	public Set<SyncCollection> pollForChanges(Continuation c,
 			BackendSession bs, Set<SyncCollection> toMonitor, long msTimeout) {
 		logger.info("starting polling thread");
-		PollingThread pt = new PollingThread(bs, toMonitor, this, c);
+		PollingThread pt = new PollingThread(bs, toMonitor, this, c, msTimeout);
 		Thread t = new Thread(pt);
 		t.start();
 

@@ -1,5 +1,6 @@
 package org.obm.push.state;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -42,7 +43,10 @@ public class StateMachine {
 		}
 
 		SyncState newState = new SyncState();
-		newState.setLastSync(bs.getUpdatedSyncDate());
+		Date nd = bs.getUpdatedSyncDate();
+		if (nd != null) {
+			newState.setLastSync(bs.getUpdatedSyncDate());
+		}
 		String newSk = UUID.randomUUID().toString();
 		newState.setKey(newSk);
 		syncKeyStore.put(newSk, newState);

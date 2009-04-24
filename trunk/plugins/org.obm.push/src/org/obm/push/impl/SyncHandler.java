@@ -98,6 +98,7 @@ public class SyncHandler implements IRequestHandler {
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId());
 				if (!st.isValid()) {
+					logger.info("invalid sync key: "+st);
 					DOMUtils.createElementAndText(ce, "Status",
 							SyncStatus.INVALID_SYNC_KEY.asXmlValue());
 				} else {
