@@ -17,6 +17,7 @@ import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.impl.PollingThread;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.provisioning.Policy;
+import org.obm.push.store.ISyncStorage;
 
 public class OBMBackend implements IBackend {
 
@@ -24,13 +25,15 @@ public class OBMBackend implements IBackend {
 	private IContentsImporter cImporter;
 	private IHierarchyExporter exporter;
 	private IContentsExporter contentsExporter;
+	private ISyncStorage store;
 
 	private static final Log logger = LogFactory.getLog(OBMBackend.class);
 
-	public OBMBackend() {
+	public OBMBackend(ISyncStorage store) {
 		MailBackend mailExporter = new MailBackend();
 		CalendarBackend calendarExporter = new CalendarBackend();
 		ContactsBackend contactsBackend = new ContactsBackend();
+		this.store = store;
 
 		hImporter = new HierarchyImporter();
 		exporter = new HierarchyExporter(mailExporter, calendarExporter,
@@ -95,6 +98,11 @@ public class OBMBackend implements IBackend {
 			continuation.resume();
 			logger.info("after resume !!");
 		}
+	}
+
+	@Override
+	public ISyncStorage getStore() {
+		return store;
 	}
 
 }

@@ -19,4 +19,5 @@ Export-Package: org.obm.push;uses:="org.eclipse.equinox.app,javax.servlet.http",
  org.obm.push.data,
  org.obm.push.data.calendarenum,
  org.obm.push.provisioning,
- org.obm.push.state
+ org.obm.push.state,
+ org.obm.push.store
