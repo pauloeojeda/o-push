@@ -7,8 +7,7 @@ public class StorageFactory implements IStorageFactory {
 
 	@Override
 	public ISyncStorage createStorage() {
-		// TODO Auto-generated method stub
-		return null;
+		return new SyncStorage();
 	}
 
 }
