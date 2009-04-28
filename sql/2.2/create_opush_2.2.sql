@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS device;
 CREATE TABLE device (
        id 		SERIAL PRIMARY KEY,
        identifier 	VARCHAR(255) NOT NULL,
-       login		VARCHAR(255) NOT NULL,
+       owner		INTEGER REFERENCES userobm(userobm_id),
        type		VARCHAR(64) NOT NULL
 );
 
@@ -16,7 +16,7 @@ CREATE TABLE id_mapping (
 );
 
 CREATE TABLE sync_state (
+       sync_key		SERIAL PRIMARY KEY,
        device_id	INTEGER NOT NULL REFERENCES device(id),
-       sync_key		VARCHAR(64) NOT NULL,
        last_sync	TIMESTAMP NOT NULL
 );
