@@ -27,6 +27,8 @@ import org.obm.push.impl.PingHandler;
 import org.obm.push.impl.ProvisionHandler;
 import org.obm.push.impl.Responder;
 import org.obm.push.impl.SyncHandler;
+import org.obm.push.store.IStorageFactory;
+import org.obm.push.store.ISyncStorage;
 import org.obm.push.utils.Base64;
 import org.obm.push.utils.DOMUtils;
 import org.obm.push.utils.FileUtils;
@@ -53,6 +55,8 @@ public class ActiveSyncServlet extends HttpServlet {
 
 	private Map<String, IRequestHandler> handlers;
 	private Map<String, BackendSession> sessions;
+
+	private ISyncStorage storage;
 
 	@Override
 	protected void service(HttpServletRequest request,
@@ -216,16 +220,29 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private IBackend loadBackend(PushConfiguration pc) {
+		RunnableExtensionLoader<IStorageFactory> sto = new RunnableExtensionLoader<IStorageFactory>();
+		List<IStorageFactory> storages = sto.loadExtensions("org.obm.push",
+				"storage", "storage", "implementation");
+		if (storages.size() > 0) {
+			IStorageFactory stoFactoryImpl = storages.get(0);
+			storage = stoFactoryImpl.createStorage();
+
+		} else {
+			logger.error("No storage implementation found");
+			return null;
+		}
+
 		RunnableExtensionLoader<IBackendFactory> rel = new RunnableExtensionLoader<IBackendFactory>();
 		List<IBackendFactory> backs = rel.loadExtensions("org.obm.push",
 				"backend", "backend", "implementation");
 		if (backs.size() > 0) {
 			IBackendFactory bf = backs.get(0);
-			return bf.loadBackend(pc);
+			return bf.loadBackend(storage, pc);
 		} else {
 			logger.error("No push backend found.");
 			return null;
 		}
+
 	}
 
 }

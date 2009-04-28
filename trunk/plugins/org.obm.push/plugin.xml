@@ -2,6 +2,7 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension-point id="org.obm.push.backend" name="backend" schema="schema/org.obm.push.backend.exsd"/>
+   <extension-point id="org.obm.push.storage" name="storage" schema="schema/org.obm.push.storage.exsd"/>
    <extension
          point="org.eclipse.equinox.http.registry.servlets">
       <servlet
