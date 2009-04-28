@@ -71,7 +71,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			return;
 		}
 
-		String userID = null;
+		String userId = null;
 		String password = null;
 		boolean valid = false;
 
@@ -92,9 +92,13 @@ public class ActiveSyncServlet extends HttpServlet {
 							.toCharArray()));
 					int p = userPass.indexOf(":");
 					if (p != -1) {
-						userID = userPass.substring(0, p);
+						userId = userPass.substring(0, p);
 						password = userPass.substring(p + 1);
-						valid = validatePassword(userID, password);
+						String loginAtDomain = getLoginAtDomain(userId);
+						valid = validatePassword(loginAtDomain, password);
+						valid = valid
+								&& storage.initDevice(loginAtDomain, p(request,
+										"DeviceId"), p(request, "DeviceType"));
 					}
 				}
 			}
@@ -108,7 +112,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			response.setHeader("WWW-Authenticate", s);
 			response.setStatus(401);
 		} else {
-			processActiveSyncMethod(c, userID, password, request, response);
+			processActiveSyncMethod(c, userId, password, request, response);
 		}
 	}
 
@@ -156,17 +160,7 @@ public class ActiveSyncServlet extends HttpServlet {
 
 	private BackendSession getSession(String userID, String password,
 			HttpServletRequest r) {
-		String uid = userID;
-		int idx = uid.indexOf("\\");
-		if (idx > 0) {
-			if (!uid.contains("@")) {
-				String domain = uid.substring(0, idx);
-				logger.info("uid: " + uid + " domain: " + domain);
-				uid = uid.substring(idx + 1) + "@" + domain;
-			} else {
-				uid = uid.substring(idx + 1);
-			}
-		}
+		String uid = getLoginAtDomain(userID);
 
 		BackendSession bs = null;
 		if (sessions.containsKey(uid)) {
@@ -178,6 +172,21 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 		bs.setRequest(r);
 		return bs;
+	}
+
+	private String getLoginAtDomain(String userID) {
+		String uid = userID;
+		int idx = uid.indexOf("\\");
+		if (idx > 0) {
+			if (!uid.contains("@")) {
+				String domain = uid.substring(0, idx);
+				logger.info("uid: " + uid + " domain: " + domain);
+				uid = uid.substring(idx + 1) + "@" + domain;
+			} else {
+				uid = uid.substring(idx + 1);
+			}
+		}
+		return uid;
 	}
 
 	private void sendServerInfos(HttpServletResponse response) {
