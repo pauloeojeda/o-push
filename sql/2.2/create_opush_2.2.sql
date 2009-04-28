@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS sync_state;
+DROP TABLE IF EXISTS id_mapping;
+DROP TABLE IF EXISTS device;
+
 CREATE TABLE device (
        id 		SERIAL PRIMARY KEY,
        identifier 	VARCHAR(255) NOT NULL,
