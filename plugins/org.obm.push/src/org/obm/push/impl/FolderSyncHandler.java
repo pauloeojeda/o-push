@@ -38,7 +38,7 @@ public class FolderSyncHandler implements IRequestHandler {
 		String syncKey = DOMUtils.getElementText(doc.getDocumentElement(),
 				"SyncKey");
 
-		StateMachine sm = new StateMachine();
+		StateMachine sm = new StateMachine(backend.getStore());
 		SyncState state = sm.getSyncState(syncKey);
 
 		// look for Add, Modify, Remove

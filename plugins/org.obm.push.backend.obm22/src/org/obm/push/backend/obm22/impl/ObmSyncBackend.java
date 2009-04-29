@@ -10,6 +10,7 @@ import org.minig.obm.pool.IOBMConnection;
 import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.obm22.calendar.UIDMapper;
+import org.obm.push.store.ISyncStorage;
 
 import fr.aliasource.utils.JDBCUtils;
 
@@ -20,9 +21,9 @@ public class ObmSyncBackend {
 	protected String obmSyncHost;
 	protected UIDMapper mapper;
 	
-	protected ObmSyncBackend() {
+	protected ObmSyncBackend(ISyncStorage storage) {
 		validateOBMConnection();
-		this.mapper = new UIDMapper();
+		this.mapper = new UIDMapper(storage);
 	}
 	
 	protected void locateObmSync(BackendSession bs) {

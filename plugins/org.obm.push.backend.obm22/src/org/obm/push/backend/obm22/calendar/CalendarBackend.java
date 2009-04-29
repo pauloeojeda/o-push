@@ -10,6 +10,7 @@ import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.calendar.Attendee;
 import org.obm.sync.calendar.CalendarInfo;
@@ -22,7 +23,8 @@ import org.obm.sync.locators.CalendarLocator;
 
 public class CalendarBackend extends ObmSyncBackend {
 
-	public CalendarBackend() {
+	public CalendarBackend(ISyncStorage storage) {
+		super(storage);
 	}
 
 	private CalendarClient getClient(BackendSession bs) {
@@ -90,7 +92,7 @@ public class CalendarBackend extends ObmSyncBackend {
 			EventChanges changes = cc.getSync(token, calendar, ls);
 			Event[] evs = changes.getUpdated();
 			for (Event e : evs) {
-				ItemChange change = addCalendarChange(e);
+				ItemChange change = addCalendarChange(bs.getDevId(), e);
 				addUpd.add(change);
 			}
 			bs.setUpdatedSyncDate(changes.getLastSync());
@@ -112,11 +114,11 @@ public class CalendarBackend extends ObmSyncBackend {
 		return collectionId.substring(slash + 1, at);
 	}
 
-	private ItemChange addCalendarChange(Event e) {
+	private ItemChange addCalendarChange(String deviceId, Event e) {
 		ItemChange ic = new ItemChange();
 		ic.setServerId(UIDMapper.UID_CAL_PREFIX + e.getUid());
 		MSEvent cal = new EventConverter().convertEvent(e);
-		cal.setUID(mapper.toDevice(ic.getServerId()));
+		cal.setUID(mapper.toDevice(deviceId, ic.getServerId()));
 		ic.setData(cal);
 		return ic;
 	}
@@ -133,8 +135,9 @@ public class CalendarBackend extends ObmSyncBackend {
 		String id = null;
 		if (serverId != null) {
 			id = serverId;
-		} else if (data.getUID() != null && mapper.toOBM(data.getUID()) != null) {
-			id = mapper.toOBM(data.getUID());
+		} else if (data.getUID() != null
+				&& mapper.toOBM(bs.getDevId(), data.getUID()) != null) {
+			id = mapper.toOBM(bs.getDevId(), data.getUID());
 		}
 		Event event = new EventConverter().convertEvent(data);
 		if (event.getAttendees().isEmpty()) {
@@ -171,7 +174,7 @@ public class CalendarBackend extends ObmSyncBackend {
 		}
 		cc.logout(token);
 		String obm = UIDMapper.UID_CAL_PREFIX + id;
-		mapper.addMapping(device, obm);
+		mapper.addMapping(bs.getDevId(), device, obm);
 		return obm;
 	}
 
