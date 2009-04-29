@@ -11,8 +11,8 @@ CREATE TABLE device (
 
 CREATE TABLE id_mapping (
        device_id	INTEGER NOT NULL REFERENCES device(id),
-       client_id	VARCHAR(64) NOT NULL,
-       server_id	VARCHAR(64) NOT NULL
+       client_id	VARCHAR(255) NOT NULL,
+       server_id	VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE sync_state (
