@@ -79,13 +79,15 @@ public class SyncStorage implements ISyncStorage {
 			if (rs.next()) {
 				ret = new SyncState();
 				ret.setKey(syncKey);
-				ret.setLastSync(rs.getDate(2));
+				ret.setLastSync(rs.getTimestamp(2));
 			}
 		} catch (SQLException se) {
 			logger.error(se.getMessage(), se);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
 		}
+		System.err.println("sync state for key " + syncKey + " "
+				+ (ret != null ? ret.getLastSync() : "null"));
 		return ret;
 	}
 
@@ -229,7 +231,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public void updateState(String devId, SyncState state) {
+	public void updateState(String devId, SyncState oldState, SyncState state) {
 		int id = devIdCache.get(devId);
 
 		Connection con = null;
@@ -239,8 +241,8 @@ public class SyncStorage implements ISyncStorage {
 			con = OBMPoolActivator.getDefault().getConnection();
 			con.setAutoCommit(false);
 			ps = con
-					.prepareStatement("DELETE FROM sync_state WHERE device_id=?");
-			ps.setInt(1, id);
+					.prepareStatement("DELETE FROM sync_state WHERE sync_key=?");
+			ps.setString(1, oldState.getKey());
 			ps.executeUpdate();
 
 			ps.close();

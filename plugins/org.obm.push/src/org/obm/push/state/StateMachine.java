@@ -30,7 +30,7 @@ public class StateMachine {
 		return ret;
 	}
 
-	public String allocateNewSyncKey(BackendSession bs) {
+	public String allocateNewSyncKey(BackendSession bs, SyncState oldState) {
 		SyncState newState = new SyncState();
 		Date nd = bs.getUpdatedSyncDate();
 		if (nd != null) {
@@ -38,7 +38,7 @@ public class StateMachine {
 		}
 		String newSk = UUID.randomUUID().toString();
 		newState.setKey(newSk);
-		store.updateState(bs.getDevId(), newState);
+		store.updateState(bs.getDevId(), oldState, newState);
 		return newSk;
 	}
 
