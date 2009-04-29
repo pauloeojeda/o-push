@@ -4,7 +4,7 @@ import org.obm.push.state.SyncState;
 
 public interface ISyncStorage {
 
-	void updateState(String devId, SyncState state);
+	void updateState(String devId, SyncState oldState, SyncState state);
 	
 	SyncState findStateForDevice(String devId);
 	
