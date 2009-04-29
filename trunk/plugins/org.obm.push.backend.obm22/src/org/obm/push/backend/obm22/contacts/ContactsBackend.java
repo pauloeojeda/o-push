@@ -10,6 +10,7 @@ import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSContact;
 import org.obm.push.backend.obm22.calendar.UIDMapper;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.book.BookType;
 import org.obm.sync.book.Contact;
@@ -25,7 +26,8 @@ import org.obm.sync.locators.AddressBookLocator;
  */
 public class ContactsBackend extends ObmSyncBackend {
 
-	public ContactsBackend() {
+	public ContactsBackend(ISyncStorage storage) {
+		super(storage);
 	}
 
 	private BookClient getClient(BackendSession bs) {

@@ -73,7 +73,7 @@ public class SyncHandler implements IRequestHandler {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 
-		StateMachine sm = new StateMachine();
+		StateMachine sm = new StateMachine(backend.getStore());
 
 		NodeList nl = doc.getDocumentElement().getElementsByTagName(
 				"Collection");

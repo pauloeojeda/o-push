@@ -31,8 +31,8 @@ public class OBMBackend implements IBackend {
 
 	public OBMBackend(ISyncStorage store) {
 		MailBackend mailExporter = new MailBackend();
-		CalendarBackend calendarExporter = new CalendarBackend();
-		ContactsBackend contactsBackend = new ContactsBackend();
+		CalendarBackend calendarExporter = new CalendarBackend(store);
+		ContactsBackend contactsBackend = new ContactsBackend(store);
 		this.store = store;
 
 		hImporter = new HierarchyImporter();

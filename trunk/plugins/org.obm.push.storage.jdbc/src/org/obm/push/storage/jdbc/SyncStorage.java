@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +16,13 @@ import org.obm.push.store.ISyncStorage;
 
 import fr.aliasource.utils.JDBCUtils;
 
+/**
+ * Store device infos, id mappings & last sync dates into OBM database
+ * 
+ * 
+ * @author tom
+ * 
+ */
 public class SyncStorage implements ISyncStorage {
 
 	private Map<String, Integer> devIdCache;
@@ -26,26 +34,113 @@ public class SyncStorage implements ISyncStorage {
 
 	@Override
 	public SyncState findStateForDevice(String devId) {
-		// TODO Auto-generated method stub
-		return null;
+		int id = devIdCache.get(devId);
+
+		SyncState ret = null;
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("SELECT sync_key, last_sync FROM sync_state WHERE device_id=?");
+			ps.setInt(1, id);
+
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				ret = new SyncState();
+				ret.setKey(rs.getString(1));
+				ret.setLastSync(rs.getDate(2));
+			}
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+		return ret;
 	}
 
 	@Override
 	public SyncState findStateForKey(String syncKey) {
-		// TODO Auto-generated method stub
-		return null;
+
+		SyncState ret = null;
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("SELECT device_id, last_sync FROM sync_state WHERE sync_key=?");
+			ps.setString(1, syncKey);
+
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				ret = new SyncState();
+				ret.setKey(syncKey);
+				ret.setLastSync(rs.getDate(2));
+			}
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+		return ret;
 	}
 
 	@Override
 	public String getClientId(String deviceId, String serverId) {
-		// TODO Auto-generated method stub
-		return null;
+		int id = devIdCache.get(deviceId);
+
+		String ret = null;
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("SELECT client_id FROM id_mapping WHERE device_id=? AND server_id=?");
+			ps.setInt(1, id);
+			ps.setString(2, serverId);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				ret = rs.getString(1);
+			}
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+		return ret;
 	}
 
 	@Override
 	public String getServerId(String deviceId, String clientId) {
-		// TODO Auto-generated method stub
-		return null;
+		int id = devIdCache.get(deviceId);
+
+		String ret = null;
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("SELECT server_id FROM id_mapping WHERE device_id=? AND client_id=?");
+			ps.setInt(1, id);
+			ps.setString(2, clientId);
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				ret = rs.getString(1);
+			}
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+		return ret;
 	}
 
 	@Override
@@ -74,7 +169,7 @@ public class SyncStorage implements ISyncStorage {
 			if (!rs.next()) {
 				rs.close();
 				ps.close();
-				
+
 				ps = con
 						.prepareStatement("INSERT INTO device (identifier, type, owner) "
 								+ "SELECT ?, ?, userobm_id FROM UserObm "
@@ -113,13 +208,55 @@ public class SyncStorage implements ISyncStorage {
 
 	@Override
 	public void storeMapping(String deviceId, String clientId, String serverId) {
-		// TODO Auto-generated method stub
+		int id = devIdCache.get(deviceId);
 
+		Connection con = null;
+		PreparedStatement ps = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("INSERT INTO id_mapping (device_id, client_id, server_id) VALUES (?, ?, ?)");
+			ps.setInt(1, id);
+			ps.setString(2, clientId);
+			ps.setString(3, serverId);
+			ps.executeUpdate();
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
 	}
 
 	@Override
 	public void updateState(String devId, SyncState state) {
-		// TODO Auto-generated method stub
+		int id = devIdCache.get(devId);
+
+		Connection con = null;
+		PreparedStatement ps = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			con.setAutoCommit(false);
+			ps = con
+					.prepareStatement("DELETE FROM sync_state WHERE device_id=?");
+			ps.setInt(1, id);
+			ps.executeUpdate();
+
+			ps.close();
+			ps = con
+					.prepareStatement("INSERT INTO sync_state (sync_key, device_id, last_sync) VALUES (?, ?, ?)");
+			ps.setString(1, state.getKey());
+			ps.setInt(2, id);
+			ps.setTimestamp(3, new Timestamp(state.getLastSync().getTime()));
+			ps.executeUpdate();
+			con.commit();
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+			JDBCUtils.rollback(con);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
 
 	}
 

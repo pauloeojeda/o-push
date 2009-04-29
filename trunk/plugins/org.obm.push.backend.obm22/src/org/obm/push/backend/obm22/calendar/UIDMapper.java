@@ -1,53 +1,40 @@
 package org.obm.push.backend.obm22.calendar;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.store.ISyncStorage;
 
 public class UIDMapper {
 
-	public static final String UID_CAL_PREFIX="obm-calendar-";
-	public static final String UID_BOOK_PREFIX="obm-contacts-";
-	
+	public static final String UID_CAL_PREFIX = "obm-calendar-";
+	public static final String UID_BOOK_PREFIX = "obm-contacts-";
+
 	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(UIDMapper.class);
-	
-	// obm, device
-	private Map<String, String> toDevice;
 
-	// device, obm
-	private Map<String, String> toOBM;
+	private ISyncStorage storage;
 
-	public UIDMapper() {
-		toDevice = new HashMap<String, String>();
-		toOBM = new HashMap<String, String>();
+	public UIDMapper(ISyncStorage storage) {
+		this.storage = storage;
 	}
 
-	public String toDevice(String obm) {
-		String ret = null;
-		if (toDevice.containsKey(obm)) {
-			ret = toDevice.get(obm);
-		} else {
+	public String toDevice(String deviceId, String obm) {
+		String ret = storage.getClientId(deviceId, obm);
+		if (ret == null) {
 			ret = obm;
 		}
 		return ret;
 	}
 
-	public String toOBM(String device) {
-		if (device.startsWith(UID_CAL_PREFIX)) {
-			return device;
+	public String toOBM(String deviceId, String clientId) {
+		if (clientId.startsWith(UID_CAL_PREFIX)) {
+			return clientId;
 		}
-		if (toOBM.containsKey(device)) {
-			return toOBM.get(device);
-		}
-		return null;
+		return storage.getServerId(deviceId, clientId);
 	}
 
-	public void addMapping(String device, String obm) {
-		toDevice.put(obm, device);
-		toOBM.put(device, obm);
+	public void addMapping(String deviceId, String clientId, String obm) {
+		storage.storeMapping(deviceId, clientId, obm);
 	}
 
 }

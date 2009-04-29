@@ -68,7 +68,7 @@ public class GetItemEstimateHandler implements IRequestHandler {
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId());
 				Element estim = DOMUtils.createElement(ce, "Estimate");
-				StateMachine sm = new StateMachine();
+				StateMachine sm = new StateMachine(backend.getStore());
 				SyncState state = sm.getSyncState(c.getSyncKey());
 				IContentsExporter exporter = backend.getContentsExporter(bs);
 				exporter.configure(bs, c.getDataClass(), c.getFilterType(), state,
