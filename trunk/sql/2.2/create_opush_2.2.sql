@@ -16,7 +16,7 @@ CREATE TABLE id_mapping (
 );
 
 CREATE TABLE sync_state (
-       sync_key		SERIAL PRIMARY KEY,
+       sync_key		VARCHAR(64) NOT NULL,
        device_id	INTEGER NOT NULL REFERENCES device(id),
        last_sync	TIMESTAMP NOT NULL
 );
