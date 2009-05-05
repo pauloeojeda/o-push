@@ -34,7 +34,7 @@ public class WBXMLTools {
 	 */
 	public static Document toXml(byte[] wbxml) throws IOException {
 
-		storeWbxml(wbxml);
+		// storeWbxml(wbxml);
 
 		WbxmlParser parser = new WbxmlParser();
 		parser.setTagTable(0, TagsTables.CP_0); // AirSync
@@ -71,6 +71,7 @@ public class WBXMLTools {
 
 	}
 
+	@SuppressWarnings("unused")
 	private static void storeWbxml(byte[] wbxml) {
 		try {
 			File tmp = File.createTempFile("debug_", ".wbxml");
@@ -94,10 +95,10 @@ public class WBXMLTools {
 			out = new ByteArrayOutputStream();
 			encoder.convert(is, out);
 			byte[] ret = out.toByteArray();
-			 storeWbxml(ret);
 
-//			logger.info("reconverted version");
-//			DOMUtils.logDom(toXml(ret));
+			// storeWbxml(ret);
+			// logger.info("reconverted version");
+			// DOMUtils.logDom(toXml(ret));
 
 			return ret;
 		} catch (Exception e) {
