@@ -95,7 +95,8 @@ public class CalendarEncoder implements IDataEncoder {
 			case YEARLY:
 				cal.setTimeInMillis(ev.getStartTime().getTime());
 				DOMUtils.createElementAndText(r,
-						"Calendar:RecurrenceDayOfMonth", "2");
+						"Calendar:RecurrenceDayOfMonth", ""
+								+ cal.get(Calendar.DAY_OF_MONTH));
 				DOMUtils.createElementAndText(r,
 						"Calendar:RecurrenceMonthOfYear", ""
 								+ (cal.get(Calendar.MONTH) + 1));

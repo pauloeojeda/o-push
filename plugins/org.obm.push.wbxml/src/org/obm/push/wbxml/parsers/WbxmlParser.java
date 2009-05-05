@@ -6,6 +6,7 @@
 
 package org.obm.push.wbxml.parsers;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -54,6 +55,8 @@ public class WbxmlParser {
 
 	private int publicIdentifierId;
 	private Vector<String> stack = new Vector<String>();
+
+	private String docCharset;
 
 	public WbxmlParser() {
 		this.tagsTables = new HashMap<Integer, String[]>();
@@ -111,7 +114,9 @@ public class WbxmlParser {
 		if (publicIdentifierId == 0)
 			readInt();
 
-		readInt(); // skip charset
+		int charset = readInt();
+		docCharset = new CharsetMappings().getCharset(charset);
+		logger.info("document charset is "+docCharset);
 
 		int strTabSize = readInt();
 		stringTable = new char[strTabSize];
@@ -355,15 +360,15 @@ public class WbxmlParser {
 	}
 
 	String readStrI() throws IOException, SAXException {
-		StringBuffer buf = new StringBuffer();
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		while (true) {
 			int i = in.read();
 			if (i == -1)
 				throw new SAXException("Unexpected EOF");
 			if (i == 0)
-				return buf.toString();
-			buf.append((char) i);
+				return new String(out.toByteArray(), docCharset);
+			out.write(i);
 		}
 	}
 

@@ -2,6 +2,8 @@ package org.obm.push.backend.obm22.contacts;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.MSContact;
 import org.obm.sync.book.Address;
 import org.obm.sync.book.Contact;
@@ -18,6 +20,8 @@ import org.obm.sync.book.Website;
  */
 public class ContactConverter {
 
+	private static final Log logger = LogFactory.getLog(ContactConverter.class);
+	
 	/**
 	 * OBM to PDA
 	 * 
@@ -120,15 +124,18 @@ public class ContactConverter {
 	}
 
 	private String obmMail(Contact c, String lbl) {
+		String ret = null;
 		Email p = c.getEmails().get(lbl);
 		if (p != null) {
-			return p.getEmail();
+			ret = p.getEmail();
+		} else {
+			p = c.getEmails().get("PREF;" + lbl);
+			if (p != null) {
+				ret = p.getEmail();
+			}
 		}
-		p = c.getEmails().get("PREF;" + lbl);
-		if (p != null) {
-			return p.getEmail();
-		}
-		return null;
+		logger.info("found mail in "+c.getLastname()+": "+ret);
+		return ret;
 	}
 
 	/**

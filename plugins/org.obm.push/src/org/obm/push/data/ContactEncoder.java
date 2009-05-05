@@ -53,6 +53,10 @@ public class ContactEncoder implements IDataEncoder {
 		// e(parent, "Contacts2:IMAddress", c.getIMAddress());
 		// e(parent, "Contacts2:IMAddress2", c.getIMAddress2());
 		// e(parent, "Contacts2:IMAddress3", c.getIMAddress3());
+		
+		e(parent, "Contacts:Email1Address", c.getEmail1Address());
+		e(parent, "Contacts:Email2Address", c.getEmail2Address());
+		e(parent, "Contacts:Email3Address", c.getEmail3Address());
 
 		DOMUtils.createElement(parent, "Contacts:CompressedRTF");
 		DOMUtils.createElement(parent, "Contacts:Picture");
