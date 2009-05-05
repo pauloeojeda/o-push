@@ -86,8 +86,6 @@ public class SyncStorage implements ISyncStorage {
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
 		}
-		System.err.println("sync state for key " + syncKey + " "
-				+ (ret != null ? ret.getLastSync() : "null"));
 		return ret;
 	}
 
