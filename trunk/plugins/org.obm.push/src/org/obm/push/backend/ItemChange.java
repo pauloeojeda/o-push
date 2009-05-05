@@ -7,6 +7,7 @@ public class ItemChange {
 	public String displayName;
 	public FolderType itemType;
 	private IApplicationData data;
+	private String clientId;
 
 	public String getServerId() {
 		return serverId;
@@ -46,6 +47,14 @@ public class ItemChange {
 
 	public void setData(IApplicationData data) {
 		this.data = data;
+	}
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+
+	public String getClientId() {
+		return clientId;
 	}
 
 }

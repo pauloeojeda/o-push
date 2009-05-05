@@ -58,7 +58,7 @@ public class WbxmlEncoder {
 
 		out.write(0x03); // version
 		out.write(0x01); // unknown or missing public identifier
-		out.write(0x6a); // iso-8859-1
+		out.write(0x6a); // UTF-8
 		out.write(0x00); // no string table
 
 		// write buf

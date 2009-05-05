@@ -1,3 +1,37 @@
+2009-05-05  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Calendar & Contacts encoding improvements
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter.importMessageChange):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactConverter.java: (ContactConverter),
+	(ContactConverter.obmMail):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java:
+	(ContactsBackend.getContentChanges),
+	(ContactsBackend.getContactChange),
+	(ContactsBackend.createOrUpdate):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/Charset
+	Mappings.java: (CharsetMappings),
+	(CharsetMappings.CharsetMappings), (CharsetMappings.getCharset):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/WbxmlEn
+	coder.java: (WbxmlEncoder.convert):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/WbxmlPa
+	rser.java: (WbxmlParser), (WbxmlParser.parse),
+	(WbxmlParser.readStrI):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsImporter.j
+	ava: (IContentsImporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/ItemChange.java:
+	(ItemChange), (ItemChange.setClientId), (ItemChange.getClientId):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactEncoder.java:
+	(ContactEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler), (SyncHandler.process), (SyncHandler.doUpdates),
+	(SyncHandler.doFetch), (SyncHandler.processModification):
+
 2009-04-24  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	Contacts encoding work.

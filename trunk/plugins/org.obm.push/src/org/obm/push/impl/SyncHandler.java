@@ -69,7 +69,8 @@ public class SyncHandler implements IRequestHandler {
 	}
 
 	@Override
-	public void process(Continuation continuation, BackendSession bs, Document doc, Responder responder) {
+	public void process(Continuation continuation, BackendSession bs,
+			Document doc, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 
@@ -98,7 +99,7 @@ public class SyncHandler implements IRequestHandler {
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId());
 				if (!st.isValid()) {
-					logger.info("invalid sync key: "+st);
+					logger.info("invalid sync key: " + st);
 					DOMUtils.createElementAndText(ce, "Status",
 							SyncStatus.INVALID_SYNC_KEY.asXmlValue());
 				} else {
@@ -136,6 +137,9 @@ public class SyncHandler implements IRequestHandler {
 		for (ItemChange ic : changed) {
 			Element add = DOMUtils.createElement(commands, "Add");
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
+			if (ic.getClientId() != null ) {
+				DOMUtils.createElementAndText(add, "ClientId", ic.getClientId());
+			}
 			serializeChange(bs, add, c, ic);
 		}
 
@@ -153,6 +157,9 @@ public class SyncHandler implements IRequestHandler {
 		for (ItemChange ic : changed) {
 			Element add = DOMUtils.createElement(commands, "Fetch");
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
+			if (ic.getClientId() != null ) {
+				DOMUtils.createElementAndText(add, "ClientId", ic.getClientId());
+			}
 			DOMUtils.createElementAndText(add, "Status", "1");
 			serializeChange(bs, add, c, ic);
 		}
@@ -240,12 +247,12 @@ public class SyncHandler implements IRequestHandler {
 					importer.importMessageReadFlag(bs, serverId, data.isRead());
 				} else {
 					importer.importMessageChange(bs, collection
-							.getCollectionId(), serverId, data);
+							.getCollectionId(), serverId, clientId, data);
 				}
 			} else if (modType.equals("Add") || modType.equals("Change")) {
 				logger.info("processing Add/Change !!! (" + serverId + ")");
 				String id = importer.importMessageChange(bs, collection
-						.getCollectionId(), serverId, data);
+						.getCollectionId(), serverId, clientId, data);
 				if (clientId != null && id != null) {
 					collection.getClientIds().put(clientId, id);
 				}

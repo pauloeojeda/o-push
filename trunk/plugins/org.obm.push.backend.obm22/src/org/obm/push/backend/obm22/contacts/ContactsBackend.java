@@ -22,7 +22,7 @@ import org.obm.sync.locators.AddressBookLocator;
  * OBM contacts backend implementation
  * 
  * @author tom
- *
+ * 
  */
 public class ContactsBackend extends ObmSyncBackend {
 
@@ -64,7 +64,7 @@ public class ContactsBackend extends ObmSyncBackend {
 			ContactChanges changes = bc.getSync(token, BookType.contacts, bs
 					.getState().getLastSync());
 			for (Contact c : changes.getUpdated()) {
-				ItemChange change = getContactChange(c);
+				ItemChange change = getContactChange(bs, c);
 				addUpd.add(change);
 			}
 			bs.setUpdatedSyncDate(changes.getLastSync());
@@ -76,20 +76,27 @@ public class ContactsBackend extends ObmSyncBackend {
 		return new DataDelta(addUpd, deletions);
 	}
 
-	private ItemChange getContactChange(Contact c) {
+	private ItemChange getContactChange(BackendSession bs, Contact c) {
 		ItemChange ic = new ItemChange();
 		ic.setServerId(UIDMapper.UID_BOOK_PREFIX + c.getUid());
 		MSContact cal = new ContactConverter().convert(c);
+
+		String clientId = mapper.toDevice(bs.getDevId(), ic.getServerId());
+		if (!ic.getServerId().equals(clientId)) {
+			ic.setClientId(clientId);
+		}
 		// cal.setUID(mapper.toDevice(ic.getServerId()));
 		ic.setData(cal);
 		return ic;
 	}
 
 	public String createOrUpdate(BackendSession bs, String collectionId,
-			String serverId, MSContact data) {
-		logger.info("create in "+collectionId+" (contact: "+data.getFirstName()+" "+data.getLastName()+")");
+			String serverId, String clientId, MSContact data) {
+		logger.info("create in " + collectionId + " (contact: "
+				+ data.getFirstName() + " " + data.getLastName() + ")");
 		BookClient bc = getClient(bs);
-		AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(), "o-push");
+		AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(),
+				"o-push");
 
 		String id = null;
 		Contact oc = null;
@@ -100,15 +107,18 @@ public class ContactsBackend extends ObmSyncBackend {
 				oc.setUid(Integer.parseInt(id));
 				oc = bc.modifyContact(token, BookType.contacts, oc);
 			} else {
-			 oc = bc.createContact(token, BookType.contacts, new ContactConverter().contact(data));
+				oc = bc.createContact(token, BookType.contacts,
+						new ContactConverter().contact(data));
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 		bc.logout(token);
 		if (id != null) {
-		id = UIDMapper.UID_BOOK_PREFIX+oc.getUid();
+			id = UIDMapper.UID_BOOK_PREFIX + oc.getUid();
+			mapper.addMapping(bs.getDevId(), clientId, id);
 		}
+
 		return id;
 	}
 }
