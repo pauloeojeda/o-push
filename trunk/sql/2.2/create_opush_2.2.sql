@@ -17,6 +17,9 @@ CREATE TABLE id_mapping (
 
 CREATE TABLE sync_state (
        sync_key		VARCHAR(64) UNIQUE NOT NULL,
+       collection	VARCHAR(255) NOT NULL,
        device_id	INTEGER NOT NULL REFERENCES device(id) ON DELETE CASCADE,
        last_sync	TIMESTAMP NOT NULL
 );
+ALTER TABLE ONLY sync_state ADD CONSTRAINT 
+unique_col_dev UNIQUE (collection, device_id);
