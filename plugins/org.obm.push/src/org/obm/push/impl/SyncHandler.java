@@ -116,7 +116,7 @@ public class SyncHandler implements IRequestHandler {
 							doFetch(bs, c, ce, cex);
 						}
 					}
-					sk.setTextContent(sm.allocateNewSyncKey(bs, st));
+					sk.setTextContent(sm.allocateNewSyncKey(bs, c.getCollectionId(), st));
 				}
 			}
 
