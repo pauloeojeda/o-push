@@ -11,7 +11,6 @@ import org.obm.push.state.SyncState;
 public class SyncCollection {
 	
 	private SyncState syncState;
-	private Map<String, String> clientIds;
 	private List<String> fetchIds;
 	private String dataClass;
 	private Integer conflict;
@@ -23,7 +22,6 @@ public class SyncCollection {
 	private Integer filterType;
 	
 	public SyncCollection() {
-		clientIds = new HashMap<String, String>();
 		fetchIds = new LinkedList<String>();
 		conflict = 1;
 		truncation = SyncHandler.SYNC_TRUNCATION_ALL;
@@ -34,12 +32,6 @@ public class SyncCollection {
 	}
 	public void setSyncState(SyncState syncState) {
 		this.syncState = syncState;
-	}
-	public Map<String, String> getClientIds() {
-		return clientIds;
-	}
-	public void setClientIds(Map<String, String> clientIds) {
-		this.clientIds = clientIds;
 	}
 	public String getDataClass() {
 		return dataClass;

@@ -137,8 +137,9 @@ public class SyncHandler implements IRequestHandler {
 		for (ItemChange ic : changed) {
 			Element add = DOMUtils.createElement(commands, "Add");
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
-			if (ic.getClientId() != null ) {
-				DOMUtils.createElementAndText(add, "ClientId", ic.getClientId());
+			if (ic.getClientId() != null) {
+				DOMUtils
+						.createElementAndText(add, "ClientId", ic.getClientId());
 			}
 			serializeChange(bs, add, c, ic);
 		}
@@ -157,8 +158,9 @@ public class SyncHandler implements IRequestHandler {
 		for (ItemChange ic : changed) {
 			Element add = DOMUtils.createElement(commands, "Fetch");
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
-			if (ic.getClientId() != null ) {
-				DOMUtils.createElementAndText(add, "ClientId", ic.getClientId());
+			if (ic.getClientId() != null) {
+				DOMUtils
+						.createElementAndText(add, "ClientId", ic.getClientId());
 			}
 			DOMUtils.createElementAndText(add, "Status", "1");
 			serializeChange(bs, add, c, ic);
@@ -250,12 +252,10 @@ public class SyncHandler implements IRequestHandler {
 							.getCollectionId(), serverId, clientId, data);
 				}
 			} else if (modType.equals("Add") || modType.equals("Change")) {
-				logger.info("processing Add/Change !!! (" + serverId + ")");
-				String id = importer.importMessageChange(bs, collection
-						.getCollectionId(), serverId, clientId, data);
-				if (clientId != null && id != null) {
-					collection.getClientIds().put(clientId, id);
-				}
+				logger.info("processing Add/Change (srv: " + serverId
+						+ ", cli:" + clientId + ")");
+				importer.importMessageChange(bs, collection.getCollectionId(),
+						serverId, clientId, data);
 			} else if (modType.equals("Delete")) {
 				if (collection.isDeletesAsMoves()) {
 					String trash = backend.getWasteBasket();
@@ -264,7 +264,7 @@ public class SyncHandler implements IRequestHandler {
 					}
 				} else {
 					importer.importMessageDeletion(bs, PIMDataType
-							.valueOf(dataClass), serverId);
+							.valueOf(dataClass.toUpperCase()), serverId);
 				}
 			}
 		} else {

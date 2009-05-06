@@ -109,15 +109,14 @@ public class ContactsBackend extends ObmSyncBackend {
 			} else {
 				oc = bc.createContact(token, BookType.contacts,
 						new ContactConverter().contact(data));
+				id = oc.getUid().toString();
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 		bc.logout(token);
-		if (id != null) {
-			id = UIDMapper.UID_BOOK_PREFIX + oc.getUid();
-			mapper.addMapping(bs.getDevId(), clientId, id);
-		}
+		id = UIDMapper.UID_BOOK_PREFIX + oc.getUid();
+		mapper.addMapping(bs.getDevId(), clientId, id);
 
 		return id;
 	}

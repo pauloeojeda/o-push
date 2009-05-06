@@ -51,11 +51,13 @@ public class CalendarEncoder implements IDataEncoder {
 
 		e(p, "Calendar:StartTime", sdf.format(ev.getStartTime()));
 		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
-		e(p, "Calendar:UID", ev.getUID());
+
+		if (!ev.getUID().contains("obm-calendar-")) {
+			e(p, "Calendar:UID", ev.getUID());
+		}
+
 		e(p, "Calendar:Subject", ev.getSubject());
 		e(p, "Calendar:Location", ev.getLocation());
-		e(p, "Calendar:MeetingStatus", CalendarMeetingStatus.IS_NOT_IN_MEETING
-				.asIntString());
 
 		e(p, "Calendar:AllDayEvent", (ev.getAllDayEvent() ? "1" : "0"));
 
@@ -67,50 +69,16 @@ public class CalendarEncoder implements IDataEncoder {
 		}
 
 		if (ev.getRecurrence() != null) {
-			Element r = DOMUtils.createElement(p, "Calendar:Recurrence");
-			DOMUtils.createElementAndText(r, "Calendar:RecurrenceType", rec(ev)
-					.getType().asIntString());
-			if (rec(ev).getInterval() != null) {
-				DOMUtils.createElementAndText(r, "Calendar:RecurrenceInterval",
-						rec(ev).getInterval().toString());
-			}
-			if (rec(ev).getUntil() != null) {
-				DOMUtils.createElementAndText(r, "Calendar:RecurrenceUntil",
-						sdf.format(rec(ev).getUntil()));
-			}
-
-			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-			switch (rec(ev).getType()) {
-			case DAILY:
-				break;
-			case MONTHLY:
-				cal.setTimeInMillis(ev.getStartTime().getTime());
-				DOMUtils.createElementAndText(r,
-						"Calendar:RecurrenceDayOfMonth", "2");
-				break;
-			case MONTHLY_NDAY:
-				break;
-			case WEEKLY:
-				break;
-			case YEARLY:
-				cal.setTimeInMillis(ev.getStartTime().getTime());
-				DOMUtils.createElementAndText(r,
-						"Calendar:RecurrenceDayOfMonth", ""
-								+ cal.get(Calendar.DAY_OF_MONTH));
-				DOMUtils.createElementAndText(r,
-						"Calendar:RecurrenceMonthOfYear", ""
-								+ (cal.get(Calendar.MONTH) + 1));
-				break;
-			case YEARLY_NDAY:
-				break;
-
-			}
-
+			encoreRecurrence(p, ev);
 		}
 
-		DOMUtils.createElement(p, "Calendar:Compressed_RTF");
+		// DOMUtils.createElement(p, "Calendar:Compressed_RTF");
+		DOMUtils.createElement(p, "Calendar:Body");
 
 		if (bs.checkHint("hint.loadAttendees", true)) {
+			e(p, "Calendar:MeetingStatus",
+					CalendarMeetingStatus.IS_NOT_IN_MEETING.asIntString());
+
 			Element at = DOMUtils.createElement(p, "Calendar:Attendees");
 			for (MSAttendee ma : ev.getAttendees()) {
 				Element ae = DOMUtils.createElement(at, "Calendar:Attendee");
@@ -123,6 +91,47 @@ public class CalendarEncoder implements IDataEncoder {
 			}
 		}
 
+	}
+
+	private void encoreRecurrence(Element p, MSEvent ev) {
+		Element r = DOMUtils.createElement(p, "Calendar:Recurrence");
+		DOMUtils.createElementAndText(r, "Calendar:RecurrenceType", rec(ev)
+				.getType().asIntString());
+		if (rec(ev).getInterval() != null) {
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceInterval",
+					rec(ev).getInterval().toString());
+		}
+		if (rec(ev).getUntil() != null) {
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceUntil",
+					sdf.format(rec(ev).getUntil()));
+		}
+
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		switch (rec(ev).getType()) {
+		case DAILY:
+			break;
+		case MONTHLY:
+			cal.setTimeInMillis(ev.getStartTime().getTime());
+			DOMUtils.createElementAndText(r,
+					"Calendar:RecurrenceDayOfMonth", "2");
+			break;
+		case MONTHLY_NDAY:
+			break;
+		case WEEKLY:
+			break;
+		case YEARLY:
+			cal.setTimeInMillis(ev.getStartTime().getTime());
+			DOMUtils.createElementAndText(r,
+					"Calendar:RecurrenceDayOfMonth", ""
+							+ cal.get(Calendar.DAY_OF_MONTH));
+			DOMUtils.createElementAndText(r,
+					"Calendar:RecurrenceMonthOfYear", ""
+							+ (cal.get(Calendar.MONTH) + 1));
+			break;
+		case YEARLY_NDAY:
+			break;
+
+		}
 	}
 
 	private Recurrence rec(MSEvent ev) {

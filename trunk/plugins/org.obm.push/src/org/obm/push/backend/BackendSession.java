@@ -37,6 +37,10 @@ public class BackendSession {
 		loadHints();
 	}
 
+	public void setHint(String key, boolean value) {
+		hints.put(key, value);
+	}
+
 	public boolean checkHint(String key, boolean defaultValue) {
 		if (!hints.containsKey(key)) {
 			return defaultValue;
@@ -48,8 +52,8 @@ public class BackendSession {
 	private void loadHints() {
 		hints = new Properties();
 		try {
-			hints.load(BackendSession.class.getClassLoader().getResourceAsStream("hints/"
-					+ devType + ".hints"));
+			hints.load(BackendSession.class.getClassLoader()
+					.getResourceAsStream("hints/" + devType + ".hints"));
 		} catch (Throwable e) {
 			logger.warn("could not load hints for device type " + devType);
 		}

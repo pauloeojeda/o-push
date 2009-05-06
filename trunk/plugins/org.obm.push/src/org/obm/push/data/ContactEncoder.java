@@ -17,6 +17,10 @@ public class ContactEncoder implements IDataEncoder {
 
 		e(parent, "Contacts:FirstName", c.getFirstName());
 		e(parent, "Contacts:LastName", c.getLastName());
+		e(parent, "Contacts:MiddleName", c.getMiddleName());
+
+		e(parent, "Contacts:JobTitle", c.getJobTitle());
+		e(parent, "Contacts:Department", c.getDepartment());
 
 		e(parent, "Contacts:BusinessAddressStreet", c.getBusinessStreet());
 		e(parent, "Contacts:BusinessAddressPostalCode", c
