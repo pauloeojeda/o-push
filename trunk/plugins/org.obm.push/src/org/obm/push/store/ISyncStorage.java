@@ -4,9 +4,9 @@ import org.obm.push.state.SyncState;
 
 public interface ISyncStorage {
 
-	void updateState(String devId, SyncState oldState, SyncState state);
+	void updateState(String devId, String collectionId, SyncState oldState, SyncState state);
 	
-	SyncState findStateForDevice(String devId);
+	SyncState findStateForDevice(String devId, String collectionId);
 	
 	SyncState findStateForKey(String syncKey);
 	

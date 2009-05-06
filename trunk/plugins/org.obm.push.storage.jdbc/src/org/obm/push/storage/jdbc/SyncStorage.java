@@ -33,7 +33,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public SyncState findStateForDevice(String devId) {
+	public SyncState findStateForDevice(String devId, String collectionId) {
 		int id = devIdCache.get(devId);
 
 		SyncState ret = null;
@@ -44,9 +44,9 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
 			ps = con
-					.prepareStatement("SELECT sync_key, last_sync FROM sync_state WHERE device_id=?");
+					.prepareStatement("SELECT sync_key, last_sync FROM sync_state WHERE device_id=? AND collection=?");
 			ps.setInt(1, id);
-
+			ps.setString(2, collectionId);
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				ret = new SyncState();
@@ -229,7 +229,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public void updateState(String devId, SyncState oldState, SyncState state) {
+	public void updateState(String devId, String collectionId, SyncState oldState, SyncState state) {
 		int id = devIdCache.get(devId);
 
 		Connection con = null;
@@ -239,16 +239,18 @@ public class SyncStorage implements ISyncStorage {
 			con = OBMPoolActivator.getDefault().getConnection();
 			con.setAutoCommit(false);
 			ps = con
-					.prepareStatement("DELETE FROM sync_state WHERE sync_key=?");
-			ps.setString(1, oldState.getKey());
+					.prepareStatement("DELETE FROM sync_state WHERE device_id=? AND collection=?");
+			ps.setInt(1, devIdCache.get(devId));
+			ps.setString(2, collectionId);
 			ps.executeUpdate();
 
 			ps.close();
 			ps = con
-					.prepareStatement("INSERT INTO sync_state (sync_key, device_id, last_sync) VALUES (?, ?, ?)");
+					.prepareStatement("INSERT INTO sync_state (sync_key, device_id, last_sync, collection) VALUES (?, ?, ?, ?)");
 			ps.setString(1, state.getKey());
 			ps.setInt(2, id);
 			ps.setTimestamp(3, new Timestamp(state.getLastSync().getTime()));
+			ps.setString(4, collectionId);
 			ps.executeUpdate();
 			con.commit();
 		} catch (SQLException se) {
