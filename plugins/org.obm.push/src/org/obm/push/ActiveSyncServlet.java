@@ -22,6 +22,7 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IBackendFactory;
 import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.GetItemEstimateHandler;
+import org.obm.push.impl.HintsLoader;
 import org.obm.push.impl.IRequestHandler;
 import org.obm.push.impl.PingHandler;
 import org.obm.push.impl.ProvisionHandler;
@@ -63,7 +64,8 @@ public class ActiveSyncServlet extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 		Continuation c = ContinuationSupport.getContinuation(request, request);
 		logger.info("c.isPending() => " + c.isPending() + " c.isResumed() => "
-				+ c.isResumed());
+				+ c.isResumed() + " method: " + request.getMethod() + " uri: "
+				+ request.getRequestURI() + " " + request.getQueryString());
 		if (c.isResumed()) {
 			PingHandler ph = (PingHandler) handlers.get("Ping");
 			ph.sendResponse((BackendSession) c.getObject(), new Responder(
@@ -98,7 +100,7 @@ public class ActiveSyncServlet extends HttpServlet {
 						valid = validatePassword(loginAtDomain, password);
 						valid = valid
 								&& storage.initDevice(loginAtDomain, p(request,
-										"DeviceId"), p(request, "DeviceType"));
+										"DeviceId"), extractDeviceType(request));
 					}
 				}
 			}
@@ -114,6 +116,14 @@ public class ActiveSyncServlet extends HttpServlet {
 		} else {
 			processActiveSyncMethod(c, userId, password, request, response);
 		}
+	}
+
+	private String extractDeviceType(HttpServletRequest request) {
+		String ret = p(request, "DeviceType");
+		if (ret.startsWith("IMEI")) {
+			ret = request.getHeader("User-Agent");
+		}
+		return ret;
 	}
 
 	private String p(HttpServletRequest r, String name) {
@@ -167,8 +177,8 @@ public class ActiveSyncServlet extends HttpServlet {
 			bs = sessions.get(uid);
 			bs.setCommand(p(r, "Cmd"));
 		} else {
-			bs = new BackendSession(uid, password, p(r, "DeviceId"), p(r,
-					"DeviceType"), p(r, "Cmd"));
+			bs = new BackendSession(uid, password, p(r, "DeviceId"), extractDeviceType(r), p(r, "Cmd"));
+			new HintsLoader().addHints(r, bs);
 		}
 		bs.setRequest(r);
 		return bs;

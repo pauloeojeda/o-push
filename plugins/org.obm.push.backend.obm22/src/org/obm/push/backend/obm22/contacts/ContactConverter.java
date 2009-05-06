@@ -20,6 +20,7 @@ import org.obm.sync.book.Website;
  */
 public class ContactConverter {
 
+	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(ContactConverter.class);
 	
 	/**
@@ -33,6 +34,7 @@ public class ContactConverter {
 
 		msc.setFirstName(c.getFirstname());
 		msc.setLastName(c.getLastname());
+		msc.setMiddleName(c.getMiddlename());
 		msc.setJobTitle(c.getTitle());
 		msc.setDepartment(c.getService());
 
@@ -134,7 +136,6 @@ public class ContactConverter {
 				ret = p.getEmail();
 			}
 		}
-		logger.info("found mail in "+c.getLastname()+": "+ret);
 		return ret;
 	}
 
@@ -149,6 +150,7 @@ public class ContactConverter {
 
 		oc.setFirstname(c.getFirstName());
 		oc.setLastname(c.getLastName());
+		oc.setMiddlename(c.getMiddleName());
 		oc.setTitle(c.getJobTitle());
 		oc.setService(c.getDepartment());
 
