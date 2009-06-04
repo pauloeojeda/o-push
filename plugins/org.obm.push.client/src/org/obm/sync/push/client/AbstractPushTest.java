@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.URLEncoder;
 
 import junit.framework.TestCase;
 
@@ -46,17 +47,16 @@ public class AbstractPushTest extends TestCase {
 //		this.devType = "PocketPC";
 //		this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
 
-		this.userId = "Administrator";
+		this.userId = "TEST\\Administrator";
 		this.devId = "junitDevId";
 		this.devType = "PocketPC";
-		this.url = "http://10.31.232.196/Microsoft-Server-ActiveSync";
+		this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
 
 		this.hc = createHttpClient();
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		// TODO Auto-generated method stub
 		super.tearDown();
 	}
 
@@ -69,7 +69,7 @@ public class AbstractPushTest extends TestCase {
 		mp.setMaxTotalConnections(8);
 //		ret.getState().setCredentials(new AuthScope("10.0.0.5", 443, "ZPush"),
 //				new UsernamePasswordCredentials(userId, "aliacom"));
-		ret.getState().setCredentials(new AuthScope("10.31.232.196", 80, "10.31.232.196"),
+		ret.getState().setCredentials(new AuthScope("2k3.test.tlse.lng", 80, "2k3.test.tlse.lng"),
 				new UsernamePasswordCredentials(userId, "aliacom"));
 		
 		return ret;
@@ -85,7 +85,7 @@ public class AbstractPushTest extends TestCase {
 			throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		byte[] data = WBXMLTools.toWbxml(namespace, doc);
-		PostMethod pm = new PostMethod(url + "?User=" + userId + "&DeviceId="
+		PostMethod pm = new PostMethod(url + "?User=" + URLEncoder.encode(userId) + "&DeviceId="
 				+ devId + "&DeviceType=" + devType + "&Cmd=" + cmd);
 		pm.setRequestBody(new ByteArrayInputStream(data));
 		pm.setRequestHeader("MS-Asprotocolversion", "2.5");

@@ -4,7 +4,7 @@
 <Collection>
 <Class>Calendar</Class>
 <SyncKey>FILL_ME</SyncKey>
-<CollectionId>4</CollectionId>
+<CollectionId>1</CollectionId>
 <DeletesAsMoves/>
 <GetChanges/>
 <WindowSize>50</WindowSize>
