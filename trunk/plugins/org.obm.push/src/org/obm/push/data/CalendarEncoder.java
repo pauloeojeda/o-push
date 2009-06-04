@@ -37,7 +37,6 @@ public class CalendarEncoder implements IDataEncoder {
 	@Override
 	public void encode(BackendSession bs, Element p, IApplicationData data) {
 
-		// TODO Auto-generated method stub
 		MSEvent ev = (MSEvent) data;
 
 		Element tz = DOMUtils.createElement(p, "Calendar:TimeZone");
@@ -55,7 +54,23 @@ public class CalendarEncoder implements IDataEncoder {
 		if (ev.getOrganizerEmail() != null) {
 			e(p, "Calendar:OrganizerEmail", ev.getOrganizerEmail());
 		}
-		// TODO OrganizerMail
+		
+		if (bs.checkHint("hint.loadAttendees", true)) {
+			e(p, "Calendar:MeetingStatus",
+					CalendarMeetingStatus.IS_NOT_IN_MEETING.asIntString());
+
+			Element at = DOMUtils.createElement(p, "Calendar:Attendees");
+			for (MSAttendee ma : ev.getAttendees()) {
+				Element ae = DOMUtils.createElement(at, "Calendar:Attendee");
+				e(ae, "Calendar:AttendeeEmail", ma.getEmail());
+				e(ae, "Calendar:AttendeeName", ma.getName());
+				e(ae, "Calendar:AttendeeStatus", ma.getAttendeeStatus()
+						.asIntString());
+				e(ae, "Calendar:AttendeeType", ma.getAttendeeType()
+						.asIntString());
+			}
+		}
+
 
 		e(p, "Calendar:Location", ev.getLocation());
 		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
@@ -77,21 +92,6 @@ public class CalendarEncoder implements IDataEncoder {
 
 		DOMUtils.createElement(p, "Calendar:Body");
 
-		if (bs.checkHint("hint.loadAttendees", true)) {
-			e(p, "Calendar:MeetingStatus",
-					CalendarMeetingStatus.IS_NOT_IN_MEETING.asIntString());
-
-			Element at = DOMUtils.createElement(p, "Calendar:Attendees");
-			for (MSAttendee ma : ev.getAttendees()) {
-				Element ae = DOMUtils.createElement(at, "Calendar:Attendee");
-				e(ae, "Calendar:AttendeeEmail", ma.getEmail());
-				e(ae, "Calendar:AttendeeName", ma.getName());
-				e(ae, "Calendar:AttendeeStatus", ma.getAttendeeStatus()
-						.asIntString());
-				e(ae, "Calendar:AttendeeType", ma.getAttendeeType()
-						.asIntString());
-			}
-		}
 
 	}
 
