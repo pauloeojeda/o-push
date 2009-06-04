@@ -64,6 +64,7 @@ public class ContactEncoder implements IDataEncoder {
 
 		DOMUtils.createElement(parent, "Contacts:CompressedRTF");
 		DOMUtils.createElement(parent, "Contacts:Picture");
+		DOMUtils.createElement(parent, "Contacts:Body");
 	}
 
 	private String getFileAs(MSContact c) {

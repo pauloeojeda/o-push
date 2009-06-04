@@ -44,25 +44,26 @@ public class CalendarEncoder implements IDataEncoder {
 		// taken from exchange 2k7 : eastern greenland, gmt+0, no dst
 		tz
 				.setTextContent("xP///1IAbwBtAGEAbgBjAGUAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAbwBtAGEAbgBjAGUAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
-		e(p, "Calendar:AllDayEvent", "0");
-		e(p, "Calendar:BusyStatus", CalendarBusyStatus.BUSY.asIntString());
-		e(p, "Calendar:Sensitivity", "0");
 		e(p, "Calendar:DTStamp", sdf.format(new Date()));
-
 		e(p, "Calendar:StartTime", sdf.format(ev.getStartTime()));
-		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
+		e(p, "Calendar:Subject", ev.getSubject());
 
 		if (!ev.getUID().contains("obm-calendar-")) {
 			e(p, "Calendar:UID", ev.getUID());
 		}
+		e(p, "Calendar:OrganizerName", ev.getOrganizerName());
+		if (ev.getOrganizerEmail() != null) {
+			e(p, "Calendar:OrganizerEmail", ev.getOrganizerEmail());
+		}
+		// TODO OrganizerMail
 
-		e(p, "Calendar:Subject", ev.getSubject());
 		e(p, "Calendar:Location", ev.getLocation());
+		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
+
+		e(p, "Calendar:Sensitivity", "0");
+		e(p, "Calendar:BusyStatus", CalendarBusyStatus.BUSY.asIntString());
 
 		e(p, "Calendar:AllDayEvent", (ev.getAllDayEvent() ? "1" : "0"));
-
-		e(p, "Calendar:OrganizerName", ev.getOrganizerName());
-		// TODO OrganizerMail
 
 		if (ev.getReminder() != null) {
 			e(p, "Calendar:ReminderMinsBefore", ev.getReminder().toString());
@@ -72,7 +73,8 @@ public class CalendarEncoder implements IDataEncoder {
 			encoreRecurrence(p, ev);
 		}
 
-		// DOMUtils.createElement(p, "Calendar:Compressed_RTF");
+		DOMUtils.createElement(p, "Calendar:Compressed_RTF");
+
 		DOMUtils.createElement(p, "Calendar:Body");
 
 		if (bs.checkHint("hint.loadAttendees", true)) {
@@ -102,8 +104,8 @@ public class CalendarEncoder implements IDataEncoder {
 					rec(ev).getInterval().toString());
 		}
 		if (rec(ev).getUntil() != null) {
-			DOMUtils.createElementAndText(r, "Calendar:RecurrenceUntil",
-					sdf.format(rec(ev).getUntil()));
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceUntil", sdf
+					.format(rec(ev).getUntil()));
 		}
 
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -112,8 +114,8 @@ public class CalendarEncoder implements IDataEncoder {
 			break;
 		case MONTHLY:
 			cal.setTimeInMillis(ev.getStartTime().getTime());
-			DOMUtils.createElementAndText(r,
-					"Calendar:RecurrenceDayOfMonth", "2");
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceDayOfMonth",
+					"2");
 			break;
 		case MONTHLY_NDAY:
 			break;
@@ -121,12 +123,10 @@ public class CalendarEncoder implements IDataEncoder {
 			break;
 		case YEARLY:
 			cal.setTimeInMillis(ev.getStartTime().getTime());
-			DOMUtils.createElementAndText(r,
-					"Calendar:RecurrenceDayOfMonth", ""
-							+ cal.get(Calendar.DAY_OF_MONTH));
-			DOMUtils.createElementAndText(r,
-					"Calendar:RecurrenceMonthOfYear", ""
-							+ (cal.get(Calendar.MONTH) + 1));
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceDayOfMonth",
+					"" + cal.get(Calendar.DAY_OF_MONTH));
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceMonthOfYear",
+					"" + (cal.get(Calendar.MONTH) + 1));
 			break;
 		case YEARLY_NDAY:
 			break;

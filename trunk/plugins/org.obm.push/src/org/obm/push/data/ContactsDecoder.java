@@ -31,11 +31,11 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		MSContact contact = new MSContact();
 		
 		contact.setAssistantName(parseDOMString(DOMUtils.getUniqueElement(syncData, "AssistantName")));
-		contact.setAssistantPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "AssistantPhoneNumber")));
-		contact.setAssistnamePhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "AssistnamePhoneNumber")));
-		contact.setBusiness2PhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "Business2PhoneNumber")));
+		contact.setAssistantPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "AssistantTelephoneNumber")));
+		contact.setAssistnamePhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "AssistnameTelephoneNumber")));
+		contact.setBusiness2PhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "Business2TelephoneNumber")));
 		contact.setBusinessAddressCity(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressCity")));
-		contact.setBusinessPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessPhoneNumber")));
+		contact.setBusinessPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessTelephoneNumber")));
 		contact.setWebPage(parseDOMString(DOMUtils.getUniqueElement(syncData, "WebPage")));
 		contact.setBusinessAddressCountry(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressCountry")));
 		contact.setDepartment(parseDOMString(DOMUtils.getUniqueElement(syncData, "Department")));
@@ -49,17 +49,17 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setHomeAddressCity(parseDOMString(DOMUtils.getUniqueElement(syncData, "HomeAddressCity")));
 		contact.setHomeAddressCountry(parseDOMString(DOMUtils.getUniqueElement(syncData, "HomeAddressCountry")));
 		contact.setHomeFaxNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "HomeFaxNumber")));
-		contact.setHomePhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "HomePhoneNumber")));
-		contact.setHome2PhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "Home2PhoneNumber")));
+		contact.setHomePhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "HomeTelephoneNumber")));
+		contact.setHome2PhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "Home2TelephoneNumber")));
 		contact.setHomeAddressPostalCode(parseDOMString(DOMUtils.getUniqueElement(syncData, "HomeAddressPostalCode")));
 		contact.setHomeAddressState(parseDOMString(DOMUtils.getUniqueElement(syncData, "HomeAddressState")));
 		contact.setHomeAddressStreet(parseDOMString(DOMUtils.getUniqueElement(syncData, "HomeAddressStreet")));
-		contact.setMobilePhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "MobilePhoneNumber")));
+		contact.setMobilePhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "MobileTelephoneNumber")));
 		contact.setSuffix(parseDOMString(DOMUtils.getUniqueElement(syncData, "Suffix")));
 		contact.setCompanyName(parseDOMString(DOMUtils.getUniqueElement(syncData, "CompanyName")));
 		contact.setOtherAddressCity(parseDOMString(DOMUtils.getUniqueElement(syncData, "OtherAddressCity")));
 		contact.setOtherAddressCountry(parseDOMString(DOMUtils.getUniqueElement(syncData, "OtherAddressCountry")));
-		contact.setCarPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "CarPhoneNumber")));
+		contact.setCarPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "CarTelephoneNumber")));
 		contact.setOtherAddressPostalCode(parseDOMString(DOMUtils.getUniqueElement(syncData, "OtherAddressPostalCode")));
 		contact.setOtherAddressState(parseDOMString(DOMUtils.getUniqueElement(syncData, "OtherAddressState")));
 		contact.setOtherAddressStreet(parseDOMString(DOMUtils.getUniqueElement(syncData, "OtherAddressStreet")));
@@ -75,7 +75,7 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setYomiLastName(parseDOMString(DOMUtils.getUniqueElement(syncData, "YomiLastName")));
 		contact.setYomiCompanyName(parseDOMString(DOMUtils.getUniqueElement(syncData, "YomiCompanyName")));
 		contact.setOfficeLocation(parseDOMString(DOMUtils.getUniqueElement(syncData, "OfficeLocation")));
-		contact.setRadioPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "RadioPhoneNumber")));
+		contact.setRadioPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "RadioTelephoneNumber")));
 		contact.setPicture(parseDOMString(DOMUtils.getUniqueElement(syncData, "Picture")));
 		contact.setAnniversary(parseDOMDate(DOMUtils.getUniqueElement(syncData, "Anniversary")));
 		contact.setBirthday(parseDOMDate(DOMUtils.getUniqueElement(syncData, "Birthday")));
@@ -92,7 +92,7 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setIMAddress2(parseDOMString(DOMUtils.getUniqueElement(syncData, "IMAddress2")));
 		contact.setIMAddress3(parseDOMString(DOMUtils.getUniqueElement(syncData, "IMAddress3")));
 		contact.setManagerName(parseDOMString(DOMUtils.getUniqueElement(syncData, "ManagerName")));
-		contact.setCompanyMainPhone(parseDOMString(DOMUtils.getUniqueElement(syncData, "CompanyMainPhone")));
+		contact.setCompanyMainPhone(parseDOMString(DOMUtils.getUniqueElement(syncData, "CompanyMainTelephone")));
 		contact.setAccountName(parseDOMString(DOMUtils.getUniqueElement(syncData, "AccountName")));
 		contact.setNickName(parseDOMString(DOMUtils.getUniqueElement(syncData, "NickName")));
 		contact.setMMS(parseDOMString(DOMUtils.getUniqueElement(syncData, "MMS")));

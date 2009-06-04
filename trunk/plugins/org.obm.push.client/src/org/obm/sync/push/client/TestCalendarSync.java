@@ -9,7 +9,7 @@ import org.w3c.dom.NodeList;
 
 public class TestCalendarSync extends AbstractPushTest {
 
-	public void testMailSync() throws Exception {
+	public void testCalSync() throws Exception {
 		InputStream in = loadDataFile("FolderSyncRequest.xml");
 		Document doc = DOMUtils.parse(in);
 		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
