@@ -1,7 +1,9 @@
 package org.obm.push.backend;
 
 import java.util.Date;
+import java.util.Set;
 
+import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.data.calendarenum.RecurrenceType;
 
 public class Recurrence {
@@ -12,7 +14,8 @@ public class Recurrence {
 	private Integer dayOfMonth;
 	private Integer occurrences;
 	private Integer interval;
-	private Integer dayOfWeek;
+	
+	private Set<RecurrenceDayOfWeek> dayOfWeek;
 	
 	public RecurrenceType getType() {
 		return type;
@@ -50,10 +53,10 @@ public class Recurrence {
 	public void setInterval(Integer interval) {
 		this.interval = interval;
 	}
-	public Integer getDayOfWeek() {
+	public Set<RecurrenceDayOfWeek> getDayOfWeek() {
 		return dayOfWeek;
 	}
-	public void setDayOfWeek(Integer dayOfWeek) {
+	public void setDayOfWeek(Set<RecurrenceDayOfWeek> dayOfWeek) {
 		this.dayOfWeek = dayOfWeek;
 	}
 	public Date getUntil() {

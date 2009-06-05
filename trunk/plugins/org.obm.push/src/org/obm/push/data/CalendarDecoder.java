@@ -11,6 +11,7 @@ import org.obm.push.data.calendarenum.AttendeeType;
 import org.obm.push.data.calendarenum.CalendarBusyStatus;
 import org.obm.push.data.calendarenum.CalendarMeetingStatus;
 import org.obm.push.data.calendarenum.CalendarSensitivity;
+import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.data.calendarenum.RecurrenceType;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
@@ -135,8 +136,8 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 					containerNode, "RecurrenceOccurrences")));
 			recurrence.setInterval(parseDOMInt(DOMUtils.getUniqueElement(
 					containerNode, "RecurrenceInterval")));
-			recurrence.setDayOfWeek(parseDOMInt(DOMUtils.getUniqueElement(
-					containerNode, "RecurrenceDayOfWeek")));
+			recurrence.setDayOfWeek(RecurrenceDayOfWeek.fromInt(parseDOMInt(DOMUtils.getUniqueElement(
+					containerNode, "RecurrenceDayOfWeek"))));
 
 			switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(containerNode,
 					"RecurrenceType"))) {
