@@ -2,8 +2,10 @@ package org.obm.push.backend.obm22.calendar;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
@@ -13,6 +15,7 @@ import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.Recurrence;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.data.calendarenum.AttendeeType;
+import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.data.calendarenum.RecurrenceType;
 import org.obm.sync.calendar.Attendee;
 import org.obm.sync.calendar.Event;
@@ -68,7 +71,7 @@ public class EventConverter {
 		Recurrence pr = msev.getRecurrence();
 		EventRecurrence or = new EventRecurrence();
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		
+
 		int multiply = 0;
 		switch (pr.getType()) {
 		case DAILY:
@@ -139,6 +142,7 @@ public class EventConverter {
 			break;
 		case weekly:
 			r.setType(RecurrenceType.WEEKLY);
+			r.setDayOfWeek(daysOfWeek(recurrence.getDays()));
 			break;
 		case yearly:
 			r.setType(RecurrenceType.YEARLY);
@@ -150,6 +154,36 @@ public class EventConverter {
 
 		// TODO Auto-generated method stub
 		return r;
+	}
+
+	private Set<RecurrenceDayOfWeek> daysOfWeek(String string) {
+		char[] days = string.toCharArray();
+		Set<RecurrenceDayOfWeek> daysList = new HashSet<RecurrenceDayOfWeek>();
+		int i = 0;
+
+		if (days[i++] == '1') {
+			daysList.add(RecurrenceDayOfWeek.SUNDAY);
+		}
+		if (days[i++] == '1') {
+			daysList.add(RecurrenceDayOfWeek.MONDAY);
+		}
+		if (days[i++] == '1') {
+			daysList.add(RecurrenceDayOfWeek.TUESDAY);
+		}
+		if (days[i++] == '1') {
+			daysList.add(RecurrenceDayOfWeek.WEDNESDAY);
+		}
+		if (days[i++] == '1') {
+			daysList.add(RecurrenceDayOfWeek.THURSDAY);
+		}
+		if (days[i++] == '1') {
+			daysList.add(RecurrenceDayOfWeek.FRIDAY);
+		}
+		if (days[i++] == '1') {
+			daysList.add(RecurrenceDayOfWeek.SATURDAY);
+		}
+
+		return daysList;
 	}
 
 	private MSAttendee convertAttendee(Attendee at) {

@@ -12,6 +12,7 @@ import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.Recurrence;
 import org.obm.push.data.calendarenum.CalendarBusyStatus;
 import org.obm.push.data.calendarenum.CalendarMeetingStatus;
+import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
 
@@ -54,7 +55,7 @@ public class CalendarEncoder implements IDataEncoder {
 		if (ev.getOrganizerEmail() != null) {
 			e(p, "Calendar:OrganizerEmail", ev.getOrganizerEmail());
 		}
-		
+
 		if (bs.checkHint("hint.loadAttendees", true)) {
 			e(p, "Calendar:MeetingStatus",
 					CalendarMeetingStatus.IS_NOT_IN_MEETING.asIntString());
@@ -71,9 +72,12 @@ public class CalendarEncoder implements IDataEncoder {
 			}
 		}
 
-
 		e(p, "Calendar:Location", ev.getLocation());
 		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
+
+		if (ev.getRecurrence() != null) {
+			encoreRecurrence(p, ev);
+		}
 
 		e(p, "Calendar:Sensitivity", "0");
 		e(p, "Calendar:BusyStatus", CalendarBusyStatus.BUSY.asIntString());
@@ -84,14 +88,9 @@ public class CalendarEncoder implements IDataEncoder {
 			e(p, "Calendar:ReminderMinsBefore", ev.getReminder().toString());
 		}
 
-		if (ev.getRecurrence() != null) {
-			encoreRecurrence(p, ev);
-		}
-
 		DOMUtils.createElement(p, "Calendar:Compressed_RTF");
 
 		DOMUtils.createElement(p, "Calendar:Body");
-
 
 	}
 
@@ -109,20 +108,26 @@ public class CalendarEncoder implements IDataEncoder {
 		}
 
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		cal.setTimeInMillis(ev.getStartTime().getTime());
 		switch (rec(ev).getType()) {
 		case DAILY:
 			break;
 		case MONTHLY:
-			cal.setTimeInMillis(ev.getStartTime().getTime());
+
 			DOMUtils.createElementAndText(r, "Calendar:RecurrenceDayOfMonth",
-					"2");
+					"" + cal.get(Calendar.DAY_OF_MONTH));
 			break;
 		case MONTHLY_NDAY:
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceWeekOfMonth",
+					"" + cal.get(Calendar.WEEK_OF_MONTH));
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceDayOfWeek", ""
+					+ RecurrenceDayOfWeek.dayOfWeekToInt(cal.get(Calendar.DAY_OF_WEEK)));
 			break;
 		case WEEKLY:
+			DOMUtils.createElementAndText(r, "Calendar:RecurrenceDayOfWeek", ""
+					+ RecurrenceDayOfWeek.asInt(rec(ev).getDayOfWeek()));
 			break;
 		case YEARLY:
-			cal.setTimeInMillis(ev.getStartTime().getTime());
 			DOMUtils.createElementAndText(r, "Calendar:RecurrenceDayOfMonth",
 					"" + cal.get(Calendar.DAY_OF_MONTH));
 			DOMUtils.createElementAndText(r, "Calendar:RecurrenceMonthOfYear",

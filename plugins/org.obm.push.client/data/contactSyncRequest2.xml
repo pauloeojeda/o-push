@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sync>
+<Collections>
+<Collection>
+<Class>Contacts</Class>
+<SyncKey>FILL_ME</SyncKey>
+<CollectionId>2</CollectionId>
+<DeletesAsMoves/>
+<GetChanges/>
+<WindowSize>50</WindowSize>
+</Collection>
+</Collections>
+</Sync>

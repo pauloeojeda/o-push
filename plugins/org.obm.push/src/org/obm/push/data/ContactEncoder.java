@@ -13,6 +13,8 @@ public class ContactEncoder implements IDataEncoder {
 		// TODO Auto-generated method stub
 		MSContact c = (MSContact) data;
 
+		DOMUtils.createElement(parent, "Contacts:CompressedRTF");
+
 		DOMUtils.createElementAndText(parent, "Contacts:FileAs", getFileAs(c));
 
 		e(parent, "Contacts:FirstName", c.getFirstName());
@@ -57,14 +59,13 @@ public class ContactEncoder implements IDataEncoder {
 		// e(parent, "Contacts2:IMAddress", c.getIMAddress());
 		// e(parent, "Contacts2:IMAddress2", c.getIMAddress2());
 		// e(parent, "Contacts2:IMAddress3", c.getIMAddress3());
-		
+
 		e(parent, "Contacts:Email1Address", c.getEmail1Address());
 		e(parent, "Contacts:Email2Address", c.getEmail2Address());
 		e(parent, "Contacts:Email3Address", c.getEmail3Address());
 
-		DOMUtils.createElement(parent, "Contacts:CompressedRTF");
-		DOMUtils.createElement(parent, "Contacts:Picture");
-		DOMUtils.createElement(parent, "Contacts:Body");
+		// DOMUtils.createElement(parent, "Contacts:Picture");
+		// DOMUtils.createElement(parent, "Contacts:Body");
 	}
 
 	private String getFileAs(MSContact c) {
