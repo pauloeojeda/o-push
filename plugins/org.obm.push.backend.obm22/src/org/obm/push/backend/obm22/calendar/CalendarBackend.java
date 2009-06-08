@@ -176,7 +176,9 @@ public class CalendarBackend extends ObmSyncBackend {
 		}
 		cc.logout(token);
 		String obm = UIDMapper.UID_CAL_PREFIX + id;
-		mapper.addMapping(bs.getDevId(), clientId, obm);
+		if (clientId != null) {
+			mapper.addMapping(bs.getDevId(), clientId, obm);
+		}
 		return obm;
 	}
 
