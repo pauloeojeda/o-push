@@ -62,7 +62,7 @@ public class EventConverter {
 		if (e.getAlert() != null && e.getAlert() > 0) {
 			cal.setReminder(e.getAlert());
 		}
-
+		cal.setUID(e.getExtId());
 		return cal;
 	}
 
@@ -243,7 +243,7 @@ public class EventConverter {
 		if (data.getRecurrence() != null) {
 			e.setRecurrence(getRecurrence(data));
 		}
-
+		e.setExtId(data.getUID());
 		return e;
 	}
 

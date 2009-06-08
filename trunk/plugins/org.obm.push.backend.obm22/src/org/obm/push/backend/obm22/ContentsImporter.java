@@ -40,7 +40,7 @@ public class ContentsImporter implements IContentsImporter {
 		String id = null;
 		switch (data.getType()) {
 			case CALENDAR:
-				id = calBackend.createOrUpdate(bs, collectionId, serverId, (MSEvent) data);
+				id = calBackend.createOrUpdate(bs, collectionId, serverId, clientId, (MSEvent) data);
 				break;
 			case CONTACTS:
 				id = contactBackend.createOrUpdate(bs, collectionId, serverId, clientId, (MSContact) data);

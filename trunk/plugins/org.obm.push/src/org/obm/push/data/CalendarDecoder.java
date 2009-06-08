@@ -136,8 +136,11 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 					containerNode, "RecurrenceOccurrences")));
 			recurrence.setInterval(parseDOMInt(DOMUtils.getUniqueElement(
 					containerNode, "RecurrenceInterval")));
-			recurrence.setDayOfWeek(RecurrenceDayOfWeek.fromInt(parseDOMInt(DOMUtils.getUniqueElement(
-					containerNode, "RecurrenceDayOfWeek"))));
+			Integer i = parseDOMInt(DOMUtils.getUniqueElement(containerNode,
+					"RecurrenceDayOfWeek"));
+			if (i != null) {
+				recurrence.setDayOfWeek(RecurrenceDayOfWeek.fromInt(i));
+			}
 
 			switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(containerNode,
 					"RecurrenceType"))) {

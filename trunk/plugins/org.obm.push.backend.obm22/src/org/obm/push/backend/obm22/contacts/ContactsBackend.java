@@ -8,8 +8,8 @@ import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSContact;
-import org.obm.push.backend.obm22.calendar.UIDMapper;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.push.backend.obm22.impl.UIDMapper;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.book.BookType;
@@ -85,7 +85,6 @@ public class ContactsBackend extends ObmSyncBackend {
 		if (!ic.getServerId().equals(clientId)) {
 			ic.setClientId(clientId);
 		}
-		// cal.setUID(mapper.toDevice(ic.getServerId()));
 		ic.setData(cal);
 		return ic;
 	}
