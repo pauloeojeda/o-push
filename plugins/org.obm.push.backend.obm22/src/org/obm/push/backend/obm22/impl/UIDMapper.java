@@ -1,4 +1,4 @@
-package org.obm.push.backend.obm22.calendar;
+package org.obm.push.backend.obm22.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -116,7 +116,8 @@ public class SyncHandler implements IRequestHandler {
 							doFetch(bs, c, ce, cex);
 						}
 					}
-					sk.setTextContent(sm.allocateNewSyncKey(bs, c.getCollectionId(), st));
+					sk.setTextContent(sm.allocateNewSyncKey(bs, c
+							.getCollectionId(), st));
 				}
 			}
 
@@ -132,16 +133,25 @@ public class SyncHandler implements IRequestHandler {
 		DataDelta delta = cex.getChanged(bs, c.getCollectionId());
 		changed = delta.getChanges();
 		logger.info("should send " + changed.size() + " change(s).");
+		Element responses = DOMUtils.createElement(ce, "Responses");
 		Element commands = DOMUtils.createElement(ce, "Commands");
 
 		for (ItemChange ic : changed) {
-			Element add = DOMUtils.createElement(commands, "Add");
-			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
 			if (ic.getClientId() != null) {
+				Element add = DOMUtils.createElement(responses, "Add");
 				DOMUtils
-						.createElementAndText(add, "ClientId", ic.getClientId());
+				.createElementAndText(add, "ClientId", ic.getClientId());
+				DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
+				DOMUtils.createElementAndText(add, "Status", "1");
+			} else {
+				Element add = DOMUtils.createElement(commands, "Add");
+				DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
+				serializeChange(bs, add, c, ic);
 			}
-			serializeChange(bs, add, c, ic);
+		}
+		
+		if (responses.getChildNodes().getLength() == 0) {
+			responses.getParentNode().removeChild(responses);
 		}
 
 		List<ItemChange> del = delta.getDeletions();

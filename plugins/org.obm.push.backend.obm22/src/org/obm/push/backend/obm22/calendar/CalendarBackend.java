@@ -10,6 +10,7 @@ import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.push.backend.obm22.impl.UIDMapper;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.calendar.Attendee;
@@ -118,26 +119,27 @@ public class CalendarBackend extends ObmSyncBackend {
 		ItemChange ic = new ItemChange();
 		ic.setServerId(UIDMapper.UID_CAL_PREFIX + e.getUid());
 		MSEvent cal = new EventConverter().convertEvent(e);
-		cal.setUID(mapper.toDevice(deviceId, ic.getServerId()));
+		String clientId = mapper.toDevice(deviceId, ic.getServerId());
+		if (!ic.getServerId().equals(clientId)) {
+			ic.setClientId(clientId);
+		}
 		ic.setData(cal);
 		return ic;
 	}
 
 	public String createOrUpdate(BackendSession bs, String collectionId,
-			String serverId, MSEvent data) {
+			String serverId, String clientId, MSEvent data) {
 		logger.info("createOrUpdate(" + bs.getLoginAtDomain() + ", " + serverId
 				+ ", " + data.getSubject() + ")");
 
 		CalendarClient cc = getClient(bs);
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
-		String device = data.getUID();
 		String id = null;
 		if (serverId != null) {
 			id = serverId;
-		} else if (data.getUID() != null
-				&& mapper.toOBM(bs.getDevId(), data.getUID()) != null) {
-			id = mapper.toOBM(bs.getDevId(), data.getUID());
+		} else if (clientId != null) {
+			id = mapper.toOBM(bs.getDevId(), clientId);
 		}
 		Event event = new EventConverter().convertEvent(data);
 		if (event.getAttendees().isEmpty()) {
@@ -174,7 +176,7 @@ public class CalendarBackend extends ObmSyncBackend {
 		}
 		cc.logout(token);
 		String obm = UIDMapper.UID_CAL_PREFIX + id;
-		mapper.addMapping(bs.getDevId(), device, obm);
+		mapper.addMapping(bs.getDevId(), clientId, obm);
 		return obm;
 	}
 
