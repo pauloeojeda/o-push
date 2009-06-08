@@ -153,6 +153,9 @@ public class SyncHandler implements IRequestHandler {
 		if (responses.getChildNodes().getLength() == 0) {
 			responses.getParentNode().removeChild(responses);
 		}
+		if (commands.getChildNodes().getLength() == 0) {
+			commands.getParentNode().removeChild(commands);
+		}
 
 		List<ItemChange> del = delta.getDeletions();
 		for (ItemChange ic : del) {

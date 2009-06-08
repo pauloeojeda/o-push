@@ -115,7 +115,9 @@ public class ContactsBackend extends ObmSyncBackend {
 		}
 		bc.logout(token);
 		id = UIDMapper.UID_BOOK_PREFIX + oc.getUid();
-		mapper.addMapping(bs.getDevId(), clientId, id);
+		if (clientId != null) {
+			mapper.addMapping(bs.getDevId(), clientId, id);
+		}
 
 		return id;
 	}
