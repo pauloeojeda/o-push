@@ -29,8 +29,10 @@ public class GetItemEstimateHandler implements IRequestHandler {
 	}
 
 	@Override
-	public void process(Continuation continuation, BackendSession bs, Document doc, Responder responder) {
-		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType() + ")");
+	public void process(Continuation continuation, BackendSession bs,
+			Document doc, Responder responder) {
+		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
+				+ ")");
 
 		List<SyncCollection> cols = new LinkedList<SyncCollection>();
 
@@ -61,19 +63,36 @@ public class GetItemEstimateHandler implements IRequestHandler {
 			Document rep = DOMUtils.createDoc(null, "GetItemEstimate");
 			Element root = rep.getDocumentElement();
 			for (SyncCollection c : cols) {
+				String collectionId = null;
+				int col = -1;
+				try {
+					col = Integer.parseInt(c.getCollectionId());
+					collectionId = backend.getStore().getCollectionString(col);
+				} catch (NumberFormatException nfe) {
+				}
 				Element response = DOMUtils.createElement(root, "Response");
-				DOMUtils.createElementAndText(response, "Status", "1");
-				Element ce = DOMUtils.createElement(response, "Collection");
-				DOMUtils.createElementAndText(ce, "Class", c.getDataClass());
-				DOMUtils.createElementAndText(ce, "CollectionId", c
-						.getCollectionId());
-				Element estim = DOMUtils.createElement(ce, "Estimate");
-				StateMachine sm = new StateMachine(backend.getStore());
-				SyncState state = sm.getSyncState(c.getSyncKey());
-				IContentsExporter exporter = backend.getContentsExporter(bs);
-				exporter.configure(bs, c.getDataClass(), c.getFilterType(), state,
-						0, 0);
-				estim.setTextContent(exporter.getCount(bs, c.getCollectionId()) + "");
+				if (collectionId != null) {
+					DOMUtils.createElementAndText(response, "Status", "1");
+					Element ce = DOMUtils.createElement(response, "Collection");
+					DOMUtils
+							.createElementAndText(ce, "Class", c.getDataClass());
+					DOMUtils.createElementAndText(ce, "CollectionId", c
+							.getCollectionId());
+					Element estim = DOMUtils.createElement(ce, "Estimate");
+					StateMachine sm = new StateMachine(backend.getStore());
+					SyncState state = sm.getSyncState(c.getSyncKey());
+					IContentsExporter exporter = backend
+							.getContentsExporter(bs);
+					exporter.configure(bs, c.getDataClass(), c.getFilterType(),
+							state, 0, 0);
+					estim.setTextContent(exporter.getCount(bs, collectionId)
+							+ "");
+				} else {
+					logger.warn("no mapping for collection with id " + c.getCollectionId());
+					// one collection id was invalid
+					DOMUtils.createElementAndText(response, "Status", "2");
+					break;
+				}
 			}
 			responder.sendResponse("ItemEstimate", rep);
 		} catch (Exception e) {

@@ -8,10 +8,16 @@ import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSMail;
+import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.push.store.ISyncStorage;
 
-public class MailBackend {
-	
-	public static final String FOLDER_PREFIX="obm:\\\\mail\\";
+public class MailBackend extends ObmSyncBackend {
+
+	public static final String FOLDER_PREFIX = "obm:\\\\mail\\";
+
+	public MailBackend(ISyncStorage storage) {
+		super(storage);
+	}
 
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
@@ -30,12 +36,12 @@ public class MailBackend {
 		ic.setItemType(FolderType.DEFAULT_SENT_MAIL_FOLDER);
 		ret.add(ic);
 
-		 ic = new ItemChange();
-		 ic.setServerId(genServerId(bs, "Trash"));
-		 ic.setParentId("0");
-		 ic.setDisplayName("Trash");
-		 ic.setItemType(FolderType.DEFAULT_DELETED_ITEMS_FOLDERS);
-		 ret.add(ic);
+		ic = new ItemChange();
+		ic.setServerId(genServerId(bs, "Trash"));
+		ic.setParentId("0");
+		ic.setDisplayName("Trash");
+		ic.setItemType(FolderType.DEFAULT_DELETED_ITEMS_FOLDERS);
+		ret.add(ic);
 
 		return ret;
 
@@ -46,14 +52,14 @@ public class MailBackend {
 		sb.append(bs.getLoginAtDomain());
 		sb.append('\\');
 		sb.append(imapFolder);
-		return sb.toString();
+		String s = sb.toString();
+		return mapper.getClientIdFor(bs.getDevId(), s, null);
 	}
-	
+
 	public DataDelta getContentChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		LinkedList<ItemChange> deletions = new LinkedList<ItemChange>();
-		
-		
+
 		// FIXME fake data
 		ItemChange ic = new ItemChange();
 		ic.setServerId("358");
@@ -66,7 +72,7 @@ public class MailBackend {
 	public List<ItemChange> fetchItems(List<String> fetchIds) {
 		// TODO Fake data
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		
+
 		ItemChange ic = new ItemChange();
 		ic.setServerId("358");
 		ic.setData(new MSMail());
@@ -77,7 +83,7 @@ public class MailBackend {
 
 	public void delete(BackendSession bs, String serverId) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 }

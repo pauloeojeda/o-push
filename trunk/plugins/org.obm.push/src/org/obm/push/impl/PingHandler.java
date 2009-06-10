@@ -47,7 +47,8 @@ public class PingHandler implements IRequestHandler {
 			Element f = (Element) folders.item(i);
 			SyncCollection sc = new SyncCollection();
 			sc.setDataClass(DOMUtils.getElementText(f, "Class"));
-			sc.setCollectionId(DOMUtils.getElementText(f, "Id"));
+			int id = Integer.parseInt(DOMUtils.getElementText(f, "Id"));
+			sc.setCollectionId(backend.getStore().getCollectionString(id));
 			toMonitor.add(sc);
 		}
 

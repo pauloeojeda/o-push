@@ -229,7 +229,8 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public void updateState(String devId, String collectionId, SyncState oldState, SyncState state) {
+	public void updateState(String devId, String collectionId,
+			SyncState oldState, SyncState state) {
 		int id = devIdCache.get(devId);
 
 		Connection con = null;
@@ -240,7 +241,7 @@ public class SyncStorage implements ISyncStorage {
 			con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("DELETE FROM sync_state WHERE device_id=? AND collection=?");
-			ps.setInt(1, devIdCache.get(devId));
+			ps.setInt(1, id);
 			ps.setString(2, collectionId);
 			ps.executeUpdate();
 
@@ -260,6 +261,75 @@ public class SyncStorage implements ISyncStorage {
 			JDBCUtils.cleanup(con, ps, null);
 		}
 
+	}
+
+	@Override
+	public Integer getCollectionMapping(String deviceId, String collectionId) {
+		int id = devIdCache.get(deviceId);
+		Integer ret = null;
+
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			con.setAutoCommit(false);
+			ps = con
+					.prepareStatement("SELECT id FROM folder_mapping WHERE device_id=? AND collection=?");
+			ps.setInt(1, id);
+			ps.setString(2, collectionId);
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				ret = rs.getInt(1);
+			} else {
+				rs.close();
+				rs = null;
+				ps.close();
+
+				ps = con
+						.prepareStatement("INSERT INTO folder_mapping (device_id, collection) VALUES (?, ?)");
+				ps.setInt(1, id);
+				ps.setString(2, collectionId);
+				ps.executeUpdate();
+				ret = JDBCUtils.lastInsertId(con);
+			}
+
+			con.commit();
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+			JDBCUtils.rollback(con);
+		} finally {
+			JDBCUtils.cleanup(con, ps, rs);
+		}
+		return ret;
+	}
+
+	@Override
+	public String getCollectionString(int collectionId) {
+		String ret = null;
+
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("SELECT collection FROM folder_mapping WHERE id=?");
+			ps.setInt(1, collectionId);
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				ret = rs.getString(1);
+			}
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, rs);
+		}
+		return ret;
 	}
 
 }

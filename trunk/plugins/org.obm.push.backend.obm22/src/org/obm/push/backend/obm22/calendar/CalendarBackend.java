@@ -10,7 +10,6 @@ import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
-import org.obm.push.backend.obm22.impl.UIDMapper;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.calendar.Attendee;
@@ -44,8 +43,9 @@ public class CalendarBackend extends ObmSyncBackend {
 
 		if (!bs.checkHint("hint.multipleCalendars", true)) {
 			ItemChange ic = new ItemChange();
-			ic.setServerId("obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
-					+ bs.getLoginAtDomain());
+			String col = "obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
+					+ bs.getLoginAtDomain();
+			ic.setServerId(mapper.getClientIdFor(bs.getDevId(), col, null));
 			ic.setParentId("0");
 			ic.setDisplayName(bs.getLoginAtDomain());
 			ic.setItemType(FolderType.DEFAULT_CALENDAR_FOLDER);
@@ -61,8 +61,9 @@ public class CalendarBackend extends ObmSyncBackend {
 			int i = 0;
 			for (CalendarInfo ci : cals) {
 				ItemChange ic = new ItemChange();
-				ic.setServerId("obm:\\\\" + bs.getLoginAtDomain()
-						+ "\\calendar\\" + ci.getUid() + "@domain");
+				String col = "obm:\\\\" + bs.getLoginAtDomain()
+						+ "\\calendar\\" + ci.getUid() + "@domain";
+				ic.setServerId(mapper.getClientIdFor(bs.getDevId(), col, null));
 				ic.setParentId("0");
 				ic.setDisplayName(ci.getMail());
 				if (i++ == 0) {
@@ -93,7 +94,8 @@ public class CalendarBackend extends ObmSyncBackend {
 			EventChanges changes = cc.getSync(token, calendar, ls);
 			Event[] evs = changes.getUpdated();
 			for (Event e : evs) {
-				ItemChange change = addCalendarChange(bs.getDevId(), e);
+				ItemChange change = addCalendarChange(bs.getDevId(),
+						collectionId, e);
 				addUpd.add(change);
 			}
 			bs.setUpdatedSyncDate(changes.getLastSync());
@@ -109,18 +111,22 @@ public class CalendarBackend extends ObmSyncBackend {
 
 	private String parseCalendarId(String collectionId) {
 		// parse obm:\\thomas@zz.com\calendar\sylvaing@zz.com
+		logger.info("collectionId: " + collectionId);
 		int slash = collectionId.lastIndexOf("\\");
 		int at = collectionId.lastIndexOf("@");
 
 		return collectionId.substring(slash + 1, at);
 	}
 
-	private ItemChange addCalendarChange(String deviceId, Event e) {
+	private ItemChange addCalendarChange(String deviceId, String collection,
+			Event e) {
 		ItemChange ic = new ItemChange();
-		ic.setServerId(UIDMapper.UID_CAL_PREFIX + e.getUid());
+		ic.setServerId(mapper.getClientIdFor(deviceId, collection, e.getUid()));
 		MSEvent cal = new EventConverter().convertEvent(e);
 		String clientId = mapper.toDevice(deviceId, ic.getServerId());
 		if (!ic.getServerId().equals(clientId)) {
+			int idx = clientId.lastIndexOf(":");
+			clientId = clientId.substring(idx + 1);
 			ic.setClientId(clientId);
 		}
 		ic.setData(cal);
@@ -129,8 +135,9 @@ public class CalendarBackend extends ObmSyncBackend {
 
 	public String createOrUpdate(BackendSession bs, String collectionId,
 			String serverId, String clientId, MSEvent data) {
-		logger.info("createOrUpdate(" + bs.getLoginAtDomain() + ", " + serverId
-				+ ", " + data.getSubject() + ")");
+		logger.info("createOrUpdate(" + bs.getLoginAtDomain() + ", "
+				+ collectionId + ", " + serverId + ", " + clientId + ", "
+				+ data.getSubject() + ")");
 
 		CalendarClient cc = getClient(bs);
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
@@ -139,7 +146,8 @@ public class CalendarBackend extends ObmSyncBackend {
 		if (serverId != null) {
 			id = serverId;
 		} else if (clientId != null) {
-			id = mapper.toOBM(bs.getDevId(), clientId);
+			id = mapper.toOBM(bs.getDevId(), mapper.getClientIdFor(bs
+					.getDevId(), collectionId, clientId));
 		}
 		Event event = new EventConverter().convertEvent(data);
 		if (event.getAttendees().isEmpty()) {
@@ -157,7 +165,8 @@ public class CalendarBackend extends ObmSyncBackend {
 			event.addAttendee(at);
 		}
 		if (id != null) {
-			id = id.replace(UIDMapper.UID_CAL_PREFIX, "");
+			int idx = id.lastIndexOf(":");
+			id = id.substring(idx + 1);
 			try {
 				event.setUid(id);
 				cc.modifyEvent(token, parseCalendarId(collectionId), event,
@@ -175,9 +184,10 @@ public class CalendarBackend extends ObmSyncBackend {
 			}
 		}
 		cc.logout(token);
-		String obm = UIDMapper.UID_CAL_PREFIX + id;
+		String obm = mapper.getClientIdFor(bs.getDevId(), collectionId, id);
 		if (clientId != null) {
-			mapper.addMapping(bs.getDevId(), clientId, obm);
+			mapper.addMapping(bs.getDevId(), mapper.getClientIdFor(bs
+					.getDevId(), collectionId, clientId), obm);
 		}
 		return obm;
 	}

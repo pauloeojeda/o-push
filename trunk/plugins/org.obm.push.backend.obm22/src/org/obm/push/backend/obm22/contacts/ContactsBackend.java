@@ -44,7 +44,8 @@ public class ContactsBackend extends ObmSyncBackend {
 		List<ItemChange> ret = new LinkedList<ItemChange>();
 
 		ItemChange ic = new ItemChange();
-		ic.setServerId("obm:\\\\" + bs.getLoginAtDomain() + "\\contacts");
+		String col = "obm:\\\\" + bs.getLoginAtDomain() + "\\contacts";
+		ic.setServerId(mapper.getClientIdFor(bs.getDevId(), col, null));
 		ic.setParentId("0");
 		ic.setDisplayName(bs.getLoginAtDomain() + " contacts");
 		ic.setItemType(FolderType.DEFAULT_CONTACTS_FOLDER);
@@ -120,5 +121,10 @@ public class ContactsBackend extends ObmSyncBackend {
 		}
 
 		return id;
+	}
+
+	public void delete(BackendSession bs, String serverId) {
+		// TODO Auto-generated method stub
+		
 	}
 }
