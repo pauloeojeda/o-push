@@ -30,7 +30,7 @@ public class OBMBackend implements IBackend {
 	private static final Log logger = LogFactory.getLog(OBMBackend.class);
 
 	public OBMBackend(ISyncStorage store) {
-		MailBackend mailExporter = new MailBackend();
+		MailBackend mailExporter = new MailBackend(store);
 		CalendarBackend calendarExporter = new CalendarBackend(store);
 		ContactsBackend contactsBackend = new ContactsBackend(store);
 		this.store = store;

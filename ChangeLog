@@ -1,3 +1,46 @@
+2009-06-10  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Use integer identifier for folders to match exchange 2k7.
+
+	Advertise as protocol v12 & v12.1 to match exchange 2k7.
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter.importMessageDeletion):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java:
+	(CalendarBackend.getHierarchyChanges),
+	(CalendarBackend.getContentChanges),
+	(CalendarBackend.parseCalendarId), (CalendarBackend),
+	(CalendarBackend.addCalendarChange),
+	(CalendarBackend.createOrUpdate):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java:
+	(ContactsBackend.getHierarchyChanges), (ContactsBackend),
+	(ContactsBackend.delete):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/UIDMapper.java: (UIDMapper), (UIDMapper.getClientIdFor):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend), (MailBackend.MailBackend),
+	(MailBackend.getHierarchyChanges), (MailBackend.genServerId),
+	(MailBackend.getContentChanges), (MailBackend.fetchItems),
+	(MailBackend.delete):
+	* plugins/org.obm.push.storage.jdbc/src/org/obm/push/storage/jdbc/S
+	yncStorage.java: (SyncStorage), (SyncStorage.updateState),
+	(SyncStorage.getCollectionMapping),
+	(SyncStorage.getCollectionString):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.sendServerInfos):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler), (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.doUpdates), (SyncHandler.processModification):
+	* plugins/org.obm.push/src/org/obm/push/store/ISyncStorage.java:
+	(ISyncStorage):
+
 2009-05-05  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	Calendar & Contacts encoding improvements

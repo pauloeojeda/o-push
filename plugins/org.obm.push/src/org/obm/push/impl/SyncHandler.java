@@ -130,7 +130,8 @@ public class SyncHandler implements IRequestHandler {
 	private void doUpdates(BackendSession bs, SyncCollection c, Element ce,
 			IContentsExporter cex) {
 		List<ItemChange> changed;
-		DataDelta delta = cex.getChanged(bs, c.getCollectionId());
+		String col = backend.getStore().getCollectionString(Integer.parseInt(c.getCollectionId()));
+		DataDelta delta = cex.getChanged(bs, col);
 		changed = delta.getChanges();
 		logger.info("should send " + changed.size() + " change(s).");
 		Element responses = DOMUtils.createElement(ce, "Responses");
@@ -244,6 +245,8 @@ public class SyncHandler implements IRequestHandler {
 	private void processModification(BackendSession bs,
 			SyncCollection collection, IContentsImporter importer,
 			Element modification) {
+		int col = Integer.parseInt(collection.getCollectionId());
+		String collectionId = backend.getStore().getCollectionString(col);
 		String modType = modification.getNodeName();
 		logger.info("modType: " + modType);
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
@@ -261,13 +264,12 @@ public class SyncHandler implements IRequestHandler {
 				if (data.isRead()) {
 					importer.importMessageReadFlag(bs, serverId, data.isRead());
 				} else {
-					importer.importMessageChange(bs, collection
-							.getCollectionId(), serverId, clientId, data);
+					importer.importMessageChange(bs, collectionId, serverId, clientId, data);
 				}
 			} else if (modType.equals("Add") || modType.equals("Change")) {
 				logger.info("processing Add/Change (srv: " + serverId
 						+ ", cli:" + clientId + ")");
-				importer.importMessageChange(bs, collection.getCollectionId(),
+				importer.importMessageChange(bs, collectionId,
 						serverId, clientId, data);
 			} else if (modType.equals("Delete")) {
 				if (collection.isDeletesAsMoves()) {

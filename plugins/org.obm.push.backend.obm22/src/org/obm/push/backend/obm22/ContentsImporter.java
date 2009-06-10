@@ -62,6 +62,7 @@ public class ContentsImporter implements IContentsImporter {
 			calBackend.delete(bs, serverId);
 			break;
 		case CONTACTS:
+			contactBackend.delete(bs, serverId);
 			break;
 		case EMAIL:
 			mailBackend.delete(bs, serverId);

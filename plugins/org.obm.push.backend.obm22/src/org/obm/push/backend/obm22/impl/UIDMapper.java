@@ -36,5 +36,16 @@ public class UIDMapper {
 	public void addMapping(String deviceId, String clientId, String obm) {
 		storage.storeMapping(deviceId, clientId, obm);
 	}
+	
+	public String getClientIdFor(String deviceId, String collection, String clientId) {
+		int folderId = storage.getCollectionMapping(deviceId, collection);
+		StringBuilder sb = new StringBuilder(10);
+		sb.append(folderId);
+		if (clientId != null) {
+			sb.append(':');
+			sb.append(clientId);
+		}
+		return sb.toString();
+	}
 
 }

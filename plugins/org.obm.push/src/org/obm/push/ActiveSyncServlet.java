@@ -200,9 +200,9 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private void sendServerInfos(HttpServletResponse response) {
-		response.setHeader("MS-Server-ActiveSync", "8.0");
-		response.setHeader("X-MS-RP", "1.0,2.0,2.1,2.5");
-		response.setHeader("MS-ASProtocolVersions", "1.0,2.0,2.1,2.5");
+		response.setHeader("MS-Server-ActiveSync", "8.1");
+		response.setHeader("X-MS-RP", "1.0,2.0,2.1,2.5,12.0,12.1");
+		response.setHeader("MS-ASProtocolVersions", "1.0,2.0,2.1,2.5,12.0,12.1");
 		response
 				.setHeader(
 						"MS-ASProtocolCommands",
