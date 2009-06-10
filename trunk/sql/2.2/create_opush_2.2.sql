@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS sync_state;
 DROP TABLE IF EXISTS id_mapping;
+DROP TABLE IF EXISTS folder_mapping;
 DROP TABLE IF EXISTS device;
 
 CREATE TABLE device (
@@ -7,6 +8,12 @@ CREATE TABLE device (
        identifier 	VARCHAR(255) NOT NULL,
        owner		INTEGER REFERENCES userobm(userobm_id) ON DELETE CASCADE,
        type		VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE folder_mapping (
+       id		SERIAL PRIMARY KEY,
+       device_id	INTEGER NOT NULL REFERENCES device(id) ON DELETE CASCADE,
+       collection	VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE id_mapping (
