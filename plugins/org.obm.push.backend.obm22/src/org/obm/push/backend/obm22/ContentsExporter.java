@@ -34,11 +34,19 @@ public class ContentsExporter implements IContentsExporter {
 
 	@Override
 	public void configure(BackendSession bs, String dataClass,
-			Integer filterType, SyncState state, int i, int j) {
+			Integer filterType, SyncState state, String collectionId) {
 		logger.info("configure(" + dataClass + ", " + filterType + ", " + state
-				+ ", " + i + ", " + j + ")");
+				+ ", " + collectionId + ")");
 		bs.setState(state);
-		bs.setDataType(PIMDataType.valueOf(dataClass.toUpperCase()));
+		if (dataClass != null) {
+			bs.setDataType(PIMDataType.valueOf(dataClass.toUpperCase()));
+		} else if (collectionId.contains("\\calendar\\")) {
+			bs.setDataType(PIMDataType.CALENDAR);
+		} else if (collectionId.endsWith("\\contacts")) {
+			bs.setDataType(PIMDataType.CONTACTS);
+		} else {
+			bs.setDataType(PIMDataType.EMAIL);
+		}
 	}
 
 	@Override
@@ -94,16 +102,16 @@ public class ContentsExporter implements IContentsExporter {
 	public List<ItemChange> fetch(BackendSession bs, List<String> fetchIds) {
 		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
 		switch (bs.getDataType()) {
-			case CALENDAR:
-				break;
-			case CONTACTS:
-				break;
-			case EMAIL:
-				changes.addAll(mailExporter.fetchItems(fetchIds));
-				break;
-			case TASKS:
-				break;
-		
+		case CALENDAR:
+			break;
+		case CONTACTS:
+			break;
+		case EMAIL:
+			changes.addAll(mailExporter.fetchItems(fetchIds));
+			break;
+		case TASKS:
+			break;
+
 		}
 		return changes;
 	}

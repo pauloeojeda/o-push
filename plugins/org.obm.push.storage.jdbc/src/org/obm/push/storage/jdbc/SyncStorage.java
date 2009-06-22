@@ -332,4 +332,48 @@ public class SyncStorage implements ISyncStorage {
 		return ret;
 	}
 
+	@Override
+	public String getDataClass(String collectionId) {
+		// TODO add mail & tasks
+		if (collectionId.contains("\\calendar\\")) {
+			return "Calendar";
+		} else {
+			return "Contacts";
+		}
+	}
+
+	@Override
+	public void resetForFullSync(String devId) {
+		int id = devIdCache.get(devId);
+
+		Connection con = null;
+		PreparedStatement ps = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			con.setAutoCommit(false);
+			ps = con
+					.prepareStatement("DELETE FROM id_mapping WHERE device_id=?");
+			ps.setInt(1, id);
+			ps.executeUpdate();
+
+			ps.close();
+			ps = null;
+
+			ps = con
+					.prepareStatement("DELETE FROM sync_state WHERE device_id=?");
+			ps.setInt(1, id);
+			ps.executeUpdate();
+
+			con.commit();
+			logger.warn("mappings & states cleared for full sync of device "
+					+ devId);
+		} catch (Exception e) {
+			JDBCUtils.rollback(con);
+			logger.error(e.getMessage(), e);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+	}
+
 }

@@ -48,11 +48,13 @@ public class CalendarEncoder implements IDataEncoder {
 		e(p, "Calendar:StartTime", sdf.format(ev.getStartTime()));
 		e(p, "Calendar:Subject", ev.getSubject());
 
-		if (!ev.getUID().contains("obm-calendar-")) {
+		if (!ev.getUID().startsWith("OBM-")) {
 			e(p, "Calendar:UID", ev.getUID());
+		} else {
+			e(p, "Calendar:UID", Integer.toHexString(ev.getUID().hashCode()));
 		}
-		e(p, "Calendar:OrganizerName", ev.getOrganizerName());
 		if (ev.getOrganizerEmail() != null) {
+			e(p, "Calendar:OrganizerName", ev.getOrganizerName());
 			e(p, "Calendar:OrganizerEmail", ev.getOrganizerEmail());
 		}
 
@@ -75,6 +77,10 @@ public class CalendarEncoder implements IDataEncoder {
 		e(p, "Calendar:Location", ev.getLocation());
 		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
 
+		Element d = DOMUtils.createElement(p, "AirSyncBase:Data");
+		e(d, "AirSyncBase:Type", "1");
+		DOMUtils.createElement(d, "AirSyncBase:EstimatedDataSize");
+
 		if (ev.getRecurrence() != null) {
 			encoreRecurrence(p, ev);
 		}
@@ -82,15 +88,16 @@ public class CalendarEncoder implements IDataEncoder {
 		e(p, "Calendar:Sensitivity", "0");
 		e(p, "Calendar:BusyStatus", CalendarBusyStatus.BUSY.asIntString());
 
-		e(p, "Calendar:AllDayEvent", (ev.getAllDayEvent() ? "1" : "0"));
+		if (ev.getAllDayEvent()) {
+			e(p, "Calendar:AllDayEvent", (ev.getAllDayEvent() ? "1" : "0"));
+		}
 
 		if (ev.getReminder() != null) {
 			e(p, "Calendar:ReminderMinsBefore", ev.getReminder().toString());
 		}
 
-		DOMUtils.createElement(p, "Calendar:Compressed_RTF");
-
-		DOMUtils.createElement(p, "Calendar:Body");
+//		DOMUtils.createElement(p, "Calendar:Compressed_RTF");
+//		DOMUtils.createElement(p, "Calendar:Body");
 
 	}
 
@@ -121,7 +128,8 @@ public class CalendarEncoder implements IDataEncoder {
 			DOMUtils.createElementAndText(r, "Calendar:RecurrenceWeekOfMonth",
 					"" + cal.get(Calendar.WEEK_OF_MONTH));
 			DOMUtils.createElementAndText(r, "Calendar:RecurrenceDayOfWeek", ""
-					+ RecurrenceDayOfWeek.dayOfWeekToInt(cal.get(Calendar.DAY_OF_WEEK)));
+					+ RecurrenceDayOfWeek.dayOfWeekToInt(cal
+							.get(Calendar.DAY_OF_WEEK)));
 			break;
 		case WEEKLY:
 			DOMUtils.createElementAndText(r, "Calendar:RecurrenceDayOfWeek", ""

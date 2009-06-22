@@ -2,7 +2,6 @@
 <Sync>
 <Collections>
 <Collection>
-<Class>Calendar</Class>
 <SyncKey>FILL_ME</SyncKey>
 <CollectionId>1</CollectionId>
 <DeletesAsMoves/>

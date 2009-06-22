@@ -27,6 +27,7 @@ import org.obm.push.impl.IRequestHandler;
 import org.obm.push.impl.PingHandler;
 import org.obm.push.impl.ProvisionHandler;
 import org.obm.push.impl.Responder;
+import org.obm.push.impl.SettingsHandler;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.store.IStorageFactory;
 import org.obm.push.store.ISyncStorage;
@@ -99,8 +100,10 @@ public class ActiveSyncServlet extends HttpServlet {
 						String loginAtDomain = getLoginAtDomain(userId);
 						valid = validatePassword(loginAtDomain, password);
 						valid = valid
-								&& storage.initDevice(loginAtDomain, p(request,
-										"DeviceId"), extractDeviceType(request));
+								&& storage
+										.initDevice(loginAtDomain, p(request,
+												"DeviceId"),
+												extractDeviceType(request));
 					}
 				}
 			}
@@ -177,7 +180,8 @@ public class ActiveSyncServlet extends HttpServlet {
 			bs = sessions.get(uid);
 			bs.setCommand(p(r, "Cmd"));
 		} else {
-			bs = new BackendSession(uid, password, p(r, "DeviceId"), extractDeviceType(r), p(r, "Cmd"));
+			bs = new BackendSession(uid, password, p(r, "DeviceId"),
+					extractDeviceType(r), p(r, "Cmd"));
 			new HintsLoader().addHints(r, bs);
 		}
 		bs.setRequest(r);
@@ -202,7 +206,8 @@ public class ActiveSyncServlet extends HttpServlet {
 	private void sendServerInfos(HttpServletResponse response) {
 		response.setHeader("MS-Server-ActiveSync", "8.1");
 		response.setHeader("X-MS-RP", "1.0,2.0,2.1,2.5,12.0,12.1");
-		response.setHeader("MS-ASProtocolVersions", "1.0,2.0,2.1,2.5,12.0,12.1");
+		response
+				.setHeader("MS-ASProtocolVersions", "1.0,2.0,2.1,2.5,12.0,12.1");
 		response
 				.setHeader(
 						"MS-ASProtocolCommands",
@@ -234,6 +239,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		handlers.put("GetItemEstimate", new GetItemEstimateHandler(backend));
 		handlers.put("Provision", new ProvisionHandler(backend));
 		handlers.put("Ping", new PingHandler(backend));
+		handlers.put("Settings", new SettingsHandler(backend));
 
 		System.out.println("ActiveSync servlet initialised.");
 	}

@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.URLEncoder;
+import java.util.Random;
 
 import junit.framework.TestCase;
 
@@ -14,10 +14,10 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.OptionsMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.obm.push.utils.Base64;
 import org.obm.push.utils.DOMUtils;
 import org.obm.push.utils.FileUtils;
 import org.obm.push.wbxml.WBXMLTools;
@@ -30,6 +30,7 @@ public class AbstractPushTest extends TestCase {
 	private String devType;
 	private String url;
 	private HttpClient hc;
+	private String login;
 
 	protected AbstractPushTest() {
 		XTrustProvider.install();
@@ -42,13 +43,14 @@ public class AbstractPushTest extends TestCase {
 		// TODO Auto-generated method stub
 		super.setUp();
 
-//		this.userId = "thomas@zz.com";
-//		this.devId = "junitDevId";
-//		this.devType = "PocketPC";
-//		this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
+		// this.userId = "thomas@zz.com";
+		// this.devId = "junitDevId";
+		// this.devType = "PocketPC";
+		// this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
 
-		this.userId = "TEST\\Administrator";
-		this.devId = "junitDevId";
+		this.login = "Administrator";
+		this.userId = "test\\Administrator";
+		this.devId = "IMEI351940035621459";
 		this.devType = "PocketPC";
 		this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
 
@@ -67,11 +69,15 @@ public class AbstractPushTest extends TestCase {
 				.getParams();
 		mp.setDefaultMaxConnectionsPerHost(4);
 		mp.setMaxTotalConnections(8);
-//		ret.getState().setCredentials(new AuthScope("10.0.0.5", 443, "ZPush"),
+
+		// ret.getState().setCredentials(new AuthScope("10.0.0.5", 443,
+		// "ZPush"),
+		// new UsernamePasswordCredentials(userId, "aliacom"));
+
+//		ret.getState().setCredentials(
+//				new AuthScope("2k3.test.tlse.lng", 80, "2k3.test.tlse.lng"),
 //				new UsernamePasswordCredentials(userId, "aliacom"));
-		ret.getState().setCredentials(new AuthScope("2k3.test.tlse.lng", 80, "2k3.test.tlse.lng"),
-				new UsernamePasswordCredentials(userId, "aliacom"));
-		
+
 		return ret;
 	}
 
@@ -79,17 +85,52 @@ public class AbstractPushTest extends TestCase {
 		return AbstractPushTest.class.getClassLoader().getResourceAsStream(
 				"data/" + name);
 	}
+	
+	private String authValue() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Basic ");
+		String encoded = new String(Base64.encode((userId+":aliacom").getBytes()));
+		sb.append(encoded);
+		return sb.toString();
+	}
+
+	protected void optionsQuery() throws Exception {
+		OptionsMethod pm = new OptionsMethod(url + "?User=" + login
+				+ "&DeviceId=" + devId + "&DeviceType=" + devType);
+		pm.setRequestHeader("User-Agent", "NokiaE71/2.09(158)MailforExchange");
+		pm.setRequestHeader("Authorization", authValue());
+		synchronized (hc) {
+			try {
+				int ret = hc.executeMethod(pm);
+				if (ret != HttpStatus.SC_OK) {
+					System.err.println("method failed:\n" + pm.getStatusLine()
+							+ "\n" + pm.getResponseBodyAsString());
+				} else {
+					Header[] hs = pm.getResponseHeaders();
+					for (Header h : hs) {
+						System.err.println("head[" + h.getName() + "] => "
+								+ h.getValue());
+					}
+				}
+			} finally {
+				pm.releaseConnection();
+			}
+		}
+	}
 
 	@SuppressWarnings("deprecation")
 	protected Document postXml(String namespace, Document doc, String cmd)
 			throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		byte[] data = WBXMLTools.toWbxml(namespace, doc);
-		PostMethod pm = new PostMethod(url + "?User=" + URLEncoder.encode(userId) + "&DeviceId="
+		PostMethod pm = new PostMethod(url + "?User=" + login + "&DeviceId="
 				+ devId + "&DeviceType=" + devType + "&Cmd=" + cmd);
 		pm.setRequestBody(new ByteArrayInputStream(data));
-		pm.setRequestHeader("MS-Asprotocolversion", "2.5");
+		pm.setRequestHeader("Authorization", authValue());
+		pm.setRequestHeader("User-Agent", "NokiaE71/2.09(158)MailforExchange");
+		pm.setRequestHeader("MS-ASProtocolversion", "12.1");
 		pm.setRequestHeader("Content-Type", "application/vnd.ms-sync.wbxml");
+
 		Document xml = null;
 		synchronized (hc) {
 			try {
@@ -100,7 +141,8 @@ public class AbstractPushTest extends TestCase {
 				} else {
 					Header[] hs = pm.getResponseHeaders();
 					for (Header h : hs) {
-						System.err.println("head["+h.getName()+"] => "+h.getValue());
+						System.err.println("head[" + h.getName() + "] => "
+								+ h.getValue());
 					}
 					InputStream is = pm.getResponseBodyAsStream();
 					File localCopy = File.createTempFile("pushresp_", ".bin");
