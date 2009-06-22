@@ -77,9 +77,11 @@ public class CalendarEncoder implements IDataEncoder {
 		e(p, "Calendar:Location", ev.getLocation());
 		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
 
-		Element d = DOMUtils.createElement(p, "AirSyncBase:Data");
-		e(d, "AirSyncBase:Type", "1");
-		DOMUtils.createElement(d, "AirSyncBase:EstimatedDataSize");
+		if (bs.getProtocolVersion() > 12) {
+			Element d = DOMUtils.createElement(p, "AirSyncBase:Data");
+			e(d, "AirSyncBase:Type", "1");
+			DOMUtils.createElement(d, "AirSyncBase:EstimatedDataSize");
+		}
 
 		if (ev.getRecurrence() != null) {
 			encoreRecurrence(p, ev);
@@ -96,8 +98,8 @@ public class CalendarEncoder implements IDataEncoder {
 			e(p, "Calendar:ReminderMinsBefore", ev.getReminder().toString());
 		}
 
-//		DOMUtils.createElement(p, "Calendar:Compressed_RTF");
-//		DOMUtils.createElement(p, "Calendar:Body");
+		// DOMUtils.createElement(p, "Calendar:Compressed_RTF");
+		// DOMUtils.createElement(p, "Calendar:Body");
 
 	}
 

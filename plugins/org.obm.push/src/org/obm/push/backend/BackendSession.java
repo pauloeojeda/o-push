@@ -26,6 +26,8 @@ public class BackendSession {
 	private Set<SyncCollection> changedFolders;
 	private Date updatedSyncDate;
 
+	private double protocolVersion;
+
 	public BackendSession(String loginAtDomain, String password, String devId,
 			String devType, String command) {
 		super();
@@ -137,6 +139,14 @@ public class BackendSession {
 
 	public void setUpdatedSyncDate(Date updatedSyncDate) {
 		this.updatedSyncDate = updatedSyncDate;
+	}
+
+	public void setProtocolVersion(double parseInt) {
+		this.protocolVersion = parseInt;
+	}
+
+	public double getProtocolVersion() {
+		return protocolVersion;
 	}
 
 }
