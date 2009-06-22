@@ -84,7 +84,7 @@ public class GetItemEstimateHandler implements IRequestHandler {
 					IContentsExporter exporter = backend
 							.getContentsExporter(bs);
 					exporter.configure(bs, c.getDataClass(), c.getFilterType(),
-							state, 0, 0);
+							state, collectionId);
 					estim.setTextContent(exporter.getCount(bs, collectionId)
 							+ "");
 				} else {

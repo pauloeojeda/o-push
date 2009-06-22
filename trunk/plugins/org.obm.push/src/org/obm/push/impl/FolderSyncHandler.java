@@ -37,6 +37,10 @@ public class FolderSyncHandler implements IRequestHandler {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType() + ")");
 		String syncKey = DOMUtils.getElementText(doc.getDocumentElement(),
 				"SyncKey");
+		
+		if ("0".equals(syncKey)) {
+			backend.getStore().resetForFullSync(bs.getDevId());
+		}
 
 		StateMachine sm = new StateMachine(backend.getStore());
 		SyncState state = sm.getSyncState(syncKey);

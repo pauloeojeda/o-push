@@ -145,10 +145,14 @@ public class CalendarBackend extends ObmSyncBackend {
 		String id = null;
 		if (serverId != null) {
 			id = serverId;
-		} else if (clientId != null) {
-			id = mapper.toOBM(bs.getDevId(), mapper.getClientIdFor(bs
-					.getDevId(), collectionId, clientId));
 		}
+
+		// disabled for nokia tests
+		// else if (clientId != null) {
+		// id = mapper.toOBM(bs.getDevId(), mapper.getClientIdFor(bs
+		// .getDevId(), collectionId, clientId));
+		// }
+		
 		Event event = new EventConverter().convertEvent(data);
 		if (event.getAttendees().isEmpty()) {
 			String email = bs.getLoginAtDomain();

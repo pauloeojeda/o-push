@@ -40,4 +40,8 @@ public interface ISyncStorage {
 	
 	String getCollectionString(int collectionId);
 
+	String getDataClass(String collectionId);
+
+	void resetForFullSync(String devId);
+
 }

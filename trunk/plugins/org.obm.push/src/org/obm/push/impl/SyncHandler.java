@@ -1,6 +1,7 @@
 package org.obm.push.impl;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -79,9 +80,10 @@ public class SyncHandler implements IRequestHandler {
 		NodeList nl = doc.getDocumentElement().getElementsByTagName(
 				"Collection");
 		LinkedList<SyncCollection> collections = new LinkedList<SyncCollection>();
+		HashSet<String> processedClientIds = new HashSet<String>();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Element col = (Element) nl.item(i);
-			collections.add(processCollection(bs, sm, col));
+			collections.add(processCollection(bs, sm, col, processedClientIds));
 		}
 
 		Document reply = null;
@@ -94,7 +96,10 @@ public class SyncHandler implements IRequestHandler {
 				String oldSyncKey = c.getSyncKey();
 				SyncState st = sm.getSyncState(oldSyncKey);
 				Element ce = DOMUtils.createElement(cols, "Collection");
-				DOMUtils.createElementAndText(ce, "Class", c.getDataClass());
+				if (c.getDataClass() != null) {
+					DOMUtils
+							.createElementAndText(ce, "Class", c.getDataClass());
+				}
 				Element sk = DOMUtils.createElement(ce, "SyncKey");
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId());
@@ -105,12 +110,15 @@ public class SyncHandler implements IRequestHandler {
 				} else {
 					DOMUtils.createElementAndText(ce, "Status", "1");
 					if (!oldSyncKey.equals("0")) {
+						int col = Integer.parseInt(c.getCollectionId());
+						String colStr = backend.getStore().getCollectionString(
+								col);
 						IContentsExporter cex = backend.getContentsExporter(bs);
 						cex.configure(bs, c.getDataClass(), c.getFilterType(),
-								st, 0, 0);
+								st, colStr);
 
 						if (c.getFetchIds().size() == 0) {
-							doUpdates(bs, c, ce, cex);
+							doUpdates(bs, c, ce, cex, processedClientIds);
 						} else {
 							// fetch
 							doFetch(bs, c, ce, cex);
@@ -128,9 +136,10 @@ public class SyncHandler implements IRequestHandler {
 	}
 
 	private void doUpdates(BackendSession bs, SyncCollection c, Element ce,
-			IContentsExporter cex) {
+			IContentsExporter cex, HashSet<String> processedClientIds) {
 		List<ItemChange> changed;
-		String col = backend.getStore().getCollectionString(Integer.parseInt(c.getCollectionId()));
+		String col = backend.getStore().getCollectionString(
+				Integer.parseInt(c.getCollectionId()));
 		DataDelta delta = cex.getChanged(bs, col);
 		changed = delta.getChanges();
 		logger.info("should send " + changed.size() + " change(s).");
@@ -138,19 +147,21 @@ public class SyncHandler implements IRequestHandler {
 		Element commands = DOMUtils.createElement(ce, "Commands");
 
 		for (ItemChange ic : changed) {
-			if (ic.getClientId() != null) {
+			if (ic.getClientId() != null && processedClientIds.contains(ic.getClientId())) {
 				Element add = DOMUtils.createElement(responses, "Add");
 				DOMUtils
-				.createElementAndText(add, "ClientId", ic.getClientId());
-				DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
+						.createElementAndText(add, "ClientId", ic.getClientId());
+				DOMUtils
+						.createElementAndText(add, "ServerId", ic.getServerId());
 				DOMUtils.createElementAndText(add, "Status", "1");
 			} else {
 				Element add = DOMUtils.createElement(commands, "Add");
-				DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
+				DOMUtils
+						.createElementAndText(add, "ServerId", ic.getServerId());
 				serializeChange(bs, add, c, ic);
 			}
 		}
-		
+
 		if (responses.getChildNodes().getLength() == 0) {
 			responses.getParentNode().removeChild(responses);
 		}
@@ -195,7 +206,7 @@ public class SyncHandler implements IRequestHandler {
 	}
 
 	private SyncCollection processCollection(BackendSession bs,
-			StateMachine sm, Element col) {
+			StateMachine sm, Element col, HashSet<String> processedClientIds) {
 		SyncCollection collection = new SyncCollection();
 		collection.setDataClass(DOMUtils.getElementText(col, "Class"));
 		collection.setSyncKey(DOMUtils.getElementText(col, "SyncKey"));
@@ -228,7 +239,8 @@ public class SyncHandler implements IRequestHandler {
 			NodeList mod = perform.getChildNodes();
 			for (int j = 0; j < mod.getLength(); j++) {
 				Element modification = (Element) mod.item(j);
-				processModification(bs, collection, importer, modification);
+				processModification(bs, collection, importer, modification,
+						processedClientIds);
 			}
 		}
 		return collection;
@@ -241,19 +253,23 @@ public class SyncHandler implements IRequestHandler {
 	 * @param collection
 	 * @param importer
 	 * @param modification
+	 * @param processedClientIds
 	 */
 	private void processModification(BackendSession bs,
 			SyncCollection collection, IContentsImporter importer,
-			Element modification) {
+			Element modification, HashSet<String> processedClientIds) {
 		int col = Integer.parseInt(collection.getCollectionId());
 		String collectionId = backend.getStore().getCollectionString(col);
 		String modType = modification.getNodeName();
 		logger.info("modType: " + modType);
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
 		String clientId = DOMUtils.getElementText(modification, "ClientId");
+		if (clientId != null) {
+			processedClientIds.add(clientId);
+		}
 		Element syncData = DOMUtils.getUniqueElement(modification,
 				"ApplicationData");
-		String dataClass = collection.getDataClass();
+		String dataClass = backend.getStore().getDataClass(collectionId);
 		IDataDecoder dd = getDecoder(dataClass);
 		IApplicationData data = null;
 		if (dd != null) {
@@ -264,13 +280,14 @@ public class SyncHandler implements IRequestHandler {
 				if (data.isRead()) {
 					importer.importMessageReadFlag(bs, serverId, data.isRead());
 				} else {
-					importer.importMessageChange(bs, collectionId, serverId, clientId, data);
+					importer.importMessageChange(bs, collectionId, serverId,
+							clientId, data);
 				}
 			} else if (modType.equals("Add") || modType.equals("Change")) {
 				logger.info("processing Add/Change (srv: " + serverId
 						+ ", cli:" + clientId + ")");
-				importer.importMessageChange(bs, collectionId,
-						serverId, clientId, data);
+				importer.importMessageChange(bs, collectionId, serverId,
+						clientId, data);
 			} else if (modType.equals("Delete")) {
 				if (collection.isDeletesAsMoves()) {
 					String trash = backend.getWasteBasket();
@@ -283,7 +300,7 @@ public class SyncHandler implements IRequestHandler {
 				}
 			}
 		} else {
-			logger.info("no decoder for " + dataClass);
+			logger.error("no decoder for " + dataClass);
 			if (modType.equals("Fetch")) {
 				logger.info("adding id to fetch " + serverId);
 				collection.getFetchIds().add(serverId);
