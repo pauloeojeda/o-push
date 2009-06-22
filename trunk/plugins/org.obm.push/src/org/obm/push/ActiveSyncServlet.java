@@ -139,6 +139,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		BackendSession bs = getSession(userID, password, request);
 		logger.info("activeSyncMethod: " + bs.getCommand());
 		String proto = request.getHeader("MS-ASProtocolVersion");
+		bs.setProtocolVersion(Double.parseDouble(proto));
 		logger.info("Client supports protocol " + proto);
 
 		if (bs.getCommand() == null) {
