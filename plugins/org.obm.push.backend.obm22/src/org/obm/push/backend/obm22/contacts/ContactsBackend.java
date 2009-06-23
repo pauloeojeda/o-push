@@ -53,7 +53,7 @@ public class ContactsBackend extends ObmSyncBackend {
 		return ret;
 	}
 
-	public DataDelta getContentChanges(BackendSession bs) {
+	public DataDelta getContentChanges(BackendSession bs, String collection) {
 		List<ItemChange> addUpd = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 		logger.info("getContentChanges(" + bs.getState().getLastSync() + ")");
@@ -65,7 +65,7 @@ public class ContactsBackend extends ObmSyncBackend {
 			ContactChanges changes = bc.getSync(token, BookType.contacts, bs
 					.getState().getLastSync());
 			for (Contact c : changes.getUpdated()) {
-				ItemChange change = getContactChange(bs, c);
+				ItemChange change = getContactChange(bs, collection, c);
 				addUpd.add(change);
 			}
 			bs.setUpdatedSyncDate(changes.getLastSync());
@@ -77,13 +77,14 @@ public class ContactsBackend extends ObmSyncBackend {
 		return new DataDelta(addUpd, deletions);
 	}
 
-	private ItemChange getContactChange(BackendSession bs, Contact c) {
+	private ItemChange getContactChange(BackendSession bs, String collection, Contact c) {
 		ItemChange ic = new ItemChange();
-		ic.setServerId(UIDMapper.UID_BOOK_PREFIX + c.getUid());
+		ic.setServerId(mapper.getClientIdFor(bs.getDevId(), collection, ""+c.getUid()));
 		MSContact cal = new ContactConverter().convert(c);
-
 		String clientId = mapper.toDevice(bs.getDevId(), ic.getServerId());
 		if (!ic.getServerId().equals(clientId)) {
+			int idx = clientId.lastIndexOf(":");
+			clientId = clientId.substring(idx + 1);
 			ic.setClientId(clientId);
 		}
 		ic.setData(cal);
