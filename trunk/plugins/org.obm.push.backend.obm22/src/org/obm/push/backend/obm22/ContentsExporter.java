@@ -54,8 +54,8 @@ public class ContentsExporter implements IContentsExporter {
 		return bs.getState();
 	}
 
-	private DataDelta getContactsChanges(BackendSession bs) {
-		return contactsBackend.getContentChanges(bs);
+	private DataDelta getContactsChanges(BackendSession bs, String collectionId) {
+		return contactsBackend.getContentChanges(bs, collectionId);
 	}
 
 	private DataDelta getTasksChanges(BackendSession bs) {
@@ -80,7 +80,7 @@ public class ContentsExporter implements IContentsExporter {
 			delta = getCalendarChanges(bs, collectionId);
 			break;
 		case CONTACTS:
-			delta = getContactsChanges(bs);
+			delta = getContactsChanges(bs, collectionId);
 			break;
 		case EMAIL:
 			delta = getMailChanges(bs);
