@@ -64,6 +64,13 @@ public class ContactEncoder implements IDataEncoder {
 		e(parent, "Contacts:Email2Address", c.getEmail2Address());
 		e(parent, "Contacts:Email3Address", c.getEmail3Address());
 
+		if (bs.getProtocolVersion() > 12) {
+			Element d = DOMUtils.createElement(parent, "AirSyncBase:Data");
+			e(d, "AirSyncBase:Type", "1");
+			DOMUtils.createElement(d, "AirSyncBase:EstimatedDataSize");
+		}
+
+		
 		// DOMUtils.createElement(parent, "Contacts:Picture");
 		// DOMUtils.createElement(parent, "Contacts:Body");
 	}
