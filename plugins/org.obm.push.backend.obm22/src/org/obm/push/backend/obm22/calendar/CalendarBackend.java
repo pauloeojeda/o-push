@@ -196,9 +196,23 @@ public class CalendarBackend extends ObmSyncBackend {
 		return obm;
 	}
 
-	public void delete(BackendSession bs, String serverId) {
-		// TODO Auto-generated method stub
-
+	public void delete(BackendSession bs, String collectionId, String serverId) {
+		logger.info("delete serverId "+serverId);
+		if (serverId != null) {
+			int idx = serverId.indexOf(":");
+			if (idx > 0) {
+				String id = serverId.substring(idx+1);
+				CalendarClient bc = getClient(bs);
+				AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(),
+						"o-push");
+				try {
+					bc.removeEvent(token, parseCalendarId(collectionId), id);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				}
+				bc.logout(token);
+			}
+		}
 	}
 
 }

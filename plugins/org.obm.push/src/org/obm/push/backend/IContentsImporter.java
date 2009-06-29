@@ -2,6 +2,12 @@ package org.obm.push.backend;
 
 import org.obm.push.state.SyncState;
 
+/**
+ * Content management interface, ie. CRUD API.
+ * 
+ * @author tom
+ *
+ */
 public interface IContentsImporter {
 
 	void configure(BackendSession bs, SyncState syncState,
@@ -14,7 +20,7 @@ public interface IContentsImporter {
 
 	void importMessageMove(BackendSession bs, String serverId, String trash);
 
-	void importMessageDeletion(BackendSession bs, PIMDataType type,
+	void importMessageDeletion(BackendSession bs, PIMDataType type, String collectionId,
 			String serverId);
 
 	SyncState getState(BackendSession bs);

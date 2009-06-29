@@ -296,7 +296,7 @@ public class SyncHandler implements IRequestHandler {
 					}
 				} else {
 					importer.importMessageDeletion(bs, PIMDataType
-							.valueOf(dataClass.toUpperCase()), serverId);
+							.valueOf(dataClass.toUpperCase()), collectionId, serverId);
 				}
 			}
 		} else {

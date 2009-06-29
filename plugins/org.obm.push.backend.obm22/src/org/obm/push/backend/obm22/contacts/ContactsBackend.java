@@ -76,9 +76,11 @@ public class ContactsBackend extends ObmSyncBackend {
 		return new DataDelta(addUpd, deletions);
 	}
 
-	private ItemChange getContactChange(BackendSession bs, String collection, Contact c) {
+	private ItemChange getContactChange(BackendSession bs, String collection,
+			Contact c) {
 		ItemChange ic = new ItemChange();
-		ic.setServerId(mapper.getClientIdFor(bs.getDevId(), collection, ""+c.getUid()));
+		ic.setServerId(mapper.getClientIdFor(bs.getDevId(), collection, ""
+				+ c.getUid()));
 		MSContact cal = new ContactConverter().convert(c);
 		String clientId = mapper.toDevice(bs.getDevId(), ic.getServerId());
 		if (!ic.getServerId().equals(clientId)) {
@@ -116,7 +118,7 @@ public class ContactsBackend extends ObmSyncBackend {
 			logger.error(e.getMessage(), e);
 		}
 		bc.logout(token);
-		
+
 		String obm = mapper.getClientIdFor(bs.getDevId(), collectionId, id);
 		if (clientId != null) {
 			mapper.addMapping(bs.getDevId(), mapper.getClientIdFor(bs
@@ -126,7 +128,21 @@ public class ContactsBackend extends ObmSyncBackend {
 	}
 
 	public void delete(BackendSession bs, String serverId) {
-		// TODO Auto-generated method stub
-		
+		logger.info("delete serverId " + serverId);
+		if (serverId != null) {
+			int idx = serverId.indexOf(":");
+			if (idx > 0) {
+				String id = serverId.substring(idx + 1);
+				BookClient bc = getClient(bs);
+				AccessToken token = bc.login(bs.getLoginAtDomain(), bs
+						.getPassword(), "o-push");
+				try {
+					bc.removeContact(token, BookType.contacts, id);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				}
+				bc.logout(token);
+			}
+		}
 	}
 }
