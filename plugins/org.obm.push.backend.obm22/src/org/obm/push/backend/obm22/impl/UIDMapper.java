@@ -6,9 +6,6 @@ import org.obm.push.store.ISyncStorage;
 
 public class UIDMapper {
 
-	public static final String UID_CAL_PREFIX = "obm-calendar-";
-	public static final String UID_BOOK_PREFIX = "obm-contacts-";
-
 	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(UIDMapper.class);
 
@@ -27,9 +24,6 @@ public class UIDMapper {
 	}
 
 	public String toOBM(String deviceId, String clientId) {
-		if (clientId.startsWith(UID_CAL_PREFIX)) {
-			return clientId;
-		}
 		return storage.getServerId(deviceId, clientId);
 	}
 
