@@ -9,7 +9,6 @@ import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSContact;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
-import org.obm.push.backend.obm22.impl.UIDMapper;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.book.BookType;
@@ -103,7 +102,8 @@ public class ContactsBackend extends ObmSyncBackend {
 		Contact oc = null;
 		try {
 			if (serverId != null) {
-				id = serverId.replace(UIDMapper.UID_BOOK_PREFIX, "");
+				int idx = serverId.lastIndexOf(":");
+				id = serverId.substring(idx + 1);
 				oc = new ContactConverter().contact(data);
 				oc.setUid(Integer.parseInt(id));
 				oc = bc.modifyContact(token, BookType.contacts, oc);
@@ -116,12 +116,13 @@ public class ContactsBackend extends ObmSyncBackend {
 			logger.error(e.getMessage(), e);
 		}
 		bc.logout(token);
-		id = UIDMapper.UID_BOOK_PREFIX + oc.getUid();
+		
+		String obm = mapper.getClientIdFor(bs.getDevId(), collectionId, id);
 		if (clientId != null) {
-			mapper.addMapping(bs.getDevId(), clientId, id);
+			mapper.addMapping(bs.getDevId(), mapper.getClientIdFor(bs
+					.getDevId(), collectionId, clientId), obm);
 		}
-
-		return id;
+		return obm;
 	}
 
 	public void delete(BackendSession bs, String serverId) {
