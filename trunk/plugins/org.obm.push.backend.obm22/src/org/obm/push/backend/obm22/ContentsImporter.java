@@ -54,12 +54,12 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public void importMessageDeletion(BackendSession bs, PIMDataType type,
+	public void importMessageDeletion(BackendSession bs, PIMDataType type, String collectionId, 
 			String serverId) {
 		// TODO Auto-generated method stub
 		switch (type) {
 		case CALENDAR:
-			calBackend.delete(bs, serverId);
+			calBackend.delete(bs, collectionId, serverId);
 			break;
 		case CONTACTS:
 			contactBackend.delete(bs, serverId);
