@@ -37,6 +37,11 @@ public class ContentsExporter implements IContentsExporter {
 			Integer filterType, SyncState state, String collectionId) {
 		logger.info("configure(" + dataClass + ", " + filterType + ", " + state
 				+ ", " + collectionId + ")");
+		if (collectionId == null) {
+			logger.warn("null collection, skipping");
+			return;
+		}
+		
 		bs.setState(state);
 		if (dataClass != null) {
 			bs.setDataType(PIMDataType.valueOf(dataClass.toUpperCase()));
