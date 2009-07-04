@@ -1,4 +1,4 @@
-#summary O-Push status (draft)
+#summary O-Push implementation status (draft)
 
 = Architecture =
 
