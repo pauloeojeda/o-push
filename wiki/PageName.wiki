@@ -1,0 +1,28 @@
+#summary O-Push status (draft)
+
+= Architecture =
+
+  * Persistent storage is in place. 
+  * Push is implementend in the Ping command using Jetty6 continuations.
+  * FolderSync is implemented.
+  * FolderUpdate, FolderDelete, FolderCreate, MoveItems are not implemented
+
+= Contact sync status =
+
+  * Mostly ok for Windows Mobile and iPhone. 
+  * Nokia tests are needed.
+  * Search active sync command not implemented.
+
+= Calendar sync status =
+
+  * Mostly ok for iPhone, wm, nokia. 
+  * Recurrence exceptions are not implemented.
+
+= Email sync status =
+
+  * Just sends some dummy data to the device. 
+  * SendMessage, SmartForward, SmartReply, ResolveRecipients are not implemented.
+
+= Task sync status =
+
+  * Not implemented
