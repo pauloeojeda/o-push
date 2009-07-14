@@ -44,20 +44,23 @@ public class Base64QueryString {
 	public Base64QueryString(String b64) {
 		this.data = Base64.decode(b64.toCharArray());
 		int i = 0;
-		protocolVersion = "" + (((float) data[i++]) / 10.0); // 0
+		protocolVersion = "" + (((float) data[i++]) / 10.0); // i==0
 		logger.info("version: " + protocolVersion);
 		cmdCode = "" + data[i++]; // 1
 		logger.info("cmd: " + cmdCode);
-		int locale = (data[i++] << 8) + data[i++]; // 2 3
+		int locale = (data[i++] << 8) + data[i++]; // i==2 and i==3
 
-		String devId = "unknownDevId";
+		// windows mobile 6.5 use a GUID instead of a string, so we cannot
+		// create a string from those bytes directly
+		byte[] devId = new byte[0];
 		if (data[i] > 0) {
-			logger.info("devId size: " + data[4] + " current pos: " + i);
-			for (int j = i+1; j < i+1+data[i];j++) {
-				logger.info("data["+j+"]: "+data[j]);
+			logger.info("devId size: " + data[i]);
+			devId = new byte[data[i]];
+			for (int j = i + 1; j < i + 1 + data[i]; j++) {
+				logger.info("data[" + j + "]: " + data[j]);
 			}
-			devId = new String(data, i + 1, data[i]); // 4
-			i += data[i] + 1;
+			System.arraycopy(data, i + 1, devId, 0, data[i]); // i==4
+			i += data[i] + 1; // i is now on policy key size
 		}
 
 		int policyKey = 0;
@@ -68,7 +71,7 @@ public class Base64QueryString {
 		String devType = new String(data, i + 1, data[i]);
 		i += data[i] + 1;
 		logger.info("protoVersion: " + protocolVersion + " cmd: " + cmdCode
-				+ " locInt: " + locale + " devId: aGUID"  + " pKey: "
+				+ " locInt: " + locale + " devId: aGUID" + " pKey: "
 				+ policyKey + " type: " + devType);
 
 		// TODO variable parts
