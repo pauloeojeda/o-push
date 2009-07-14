@@ -74,9 +74,9 @@ public class AbstractPushTest extends TestCase {
 		// "ZPush"),
 		// new UsernamePasswordCredentials(userId, "aliacom"));
 
-//		ret.getState().setCredentials(
-//				new AuthScope("2k3.test.tlse.lng", 80, "2k3.test.tlse.lng"),
-//				new UsernamePasswordCredentials(userId, "aliacom"));
+		// ret.getState().setCredentials(
+		// new AuthScope("2k3.test.tlse.lng", 80, "2k3.test.tlse.lng"),
+		// new UsernamePasswordCredentials(userId, "aliacom"));
 
 		return ret;
 	}
@@ -85,13 +85,16 @@ public class AbstractPushTest extends TestCase {
 		return AbstractPushTest.class.getClassLoader().getResourceAsStream(
 				"data/" + name);
 	}
-	
+
 	private String authValue() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Basic ");
-		String encoded = new String(Base64.encode((userId+":aliacom").getBytes()));
+		String encoded = new String(Base64.encode((userId + ":aliacom")
+				.getBytes()));
 		sb.append(encoded);
-		return sb.toString();
+		String ret = sb.toString();
+		System.err.println("authString: " + ret);
+		return ret;
 	}
 
 	protected void optionsQuery() throws Exception {
@@ -105,12 +108,12 @@ public class AbstractPushTest extends TestCase {
 				if (ret != HttpStatus.SC_OK) {
 					System.err.println("method failed:\n" + pm.getStatusLine()
 							+ "\n" + pm.getResponseBodyAsString());
-				} else {
-					Header[] hs = pm.getResponseHeaders();
-					for (Header h : hs) {
-						System.err.println("head[" + h.getName() + "] => "
-								+ h.getValue());
-					}
+				}
+				Header[] hs = pm.getResponseHeaders();
+				for (Header h : hs) {
+					System.err.println("resp head[" + h.getName() + "] => "
+							+ h.getValue());
+
 				}
 			} finally {
 				pm.releaseConnection();
@@ -130,26 +133,30 @@ public class AbstractPushTest extends TestCase {
 		pm.setRequestHeader("User-Agent", "NokiaE71/2.09(158)MailforExchange");
 		pm.setRequestHeader("MS-ASProtocolversion", "12.1");
 		pm.setRequestHeader("Content-Type", "application/vnd.ms-sync.wbxml");
+		pm.setRequestHeader("Accept-Language", "fr-fr");
+		pm.setRequestHeader("Accept", "*/*");
+		pm.setRequestHeader("X-Ms-PolicyKey", "0");
 
 		Document xml = null;
 		synchronized (hc) {
 			try {
 				int ret = hc.executeMethod(pm);
+				Header[] hs = pm.getResponseHeaders();
+				for (Header h : hs) {
+					System.err.println("head[" + h.getName() + "] => "
+							+ h.getValue());
+				}
 				if (ret != HttpStatus.SC_OK) {
 					System.err.println("method failed:\n" + pm.getStatusLine()
 							+ "\n" + pm.getResponseBodyAsString());
 				} else {
-					Header[] hs = pm.getResponseHeaders();
-					for (Header h : hs) {
-						System.err.println("head[" + h.getName() + "] => "
-								+ h.getValue());
-					}
 					InputStream is = pm.getResponseBodyAsStream();
 					File localCopy = File.createTempFile("pushresp_", ".bin");
 					FileUtils.transfer(is, new FileOutputStream(localCopy),
 							true);
 					System.out.println("binary response stored in "
 							+ localCopy.getAbsolutePath());
+
 					FileInputStream in = new FileInputStream(localCopy);
 					out = new ByteArrayOutputStream();
 					FileUtils.transfer(in, out, true);

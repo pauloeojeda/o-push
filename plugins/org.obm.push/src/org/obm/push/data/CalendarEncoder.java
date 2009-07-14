@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
@@ -19,6 +20,8 @@ import org.w3c.dom.Element;
 public class CalendarEncoder implements IDataEncoder {
 
 	private SimpleDateFormat sdf;
+	
+	private static final Pattern hexa = Pattern.compile("[0-9a-fA-F]");
 
 	public CalendarEncoder() {
 		sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
@@ -48,7 +51,7 @@ public class CalendarEncoder implements IDataEncoder {
 		e(p, "Calendar:StartTime", sdf.format(ev.getStartTime()));
 		e(p, "Calendar:Subject", ev.getSubject());
 
-		if (!ev.getUID().startsWith("OBM-")) {
+		if (hexa.matcher(ev.getUID()).matches()) {
 			e(p, "Calendar:UID", ev.getUID());
 		} else {
 			e(p, "Calendar:UID", Integer.toHexString(ev.getUID().hashCode()));

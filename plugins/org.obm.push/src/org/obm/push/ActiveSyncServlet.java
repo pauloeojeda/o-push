@@ -2,6 +2,7 @@ package org.obm.push;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.mortbay.util.ajax.ContinuationSupport;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IBackendFactory;
+import org.obm.push.impl.Credentials;
 import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.GetItemEstimateHandler;
 import org.obm.push.impl.HintsLoader;
@@ -27,6 +29,7 @@ import org.obm.push.impl.IRequestHandler;
 import org.obm.push.impl.PingHandler;
 import org.obm.push.impl.ProvisionHandler;
 import org.obm.push.impl.Responder;
+import org.obm.push.impl.SearchHandler;
 import org.obm.push.impl.SettingsHandler;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.store.IStorageFactory;
@@ -64,9 +67,12 @@ public class ActiveSyncServlet extends HttpServlet {
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		Continuation c = ContinuationSupport.getContinuation(request, request);
-		logger.info("c.isPending() => " + c.isPending() + " c.isResumed() => "
-				+ c.isResumed() + " method: " + request.getMethod() + " uri: "
-				+ request.getRequestURI() + " " + request.getQueryString());
+
+		logger.info(" uri: " + request.getRequestURI() + " "
+				+ request.getQueryString() + " pending => " + c.isPending()
+				+ " resumed => " + c.isResumed() + " method: "
+				+ request.getMethod());
+
 		if (c.isResumed()) {
 			PingHandler ph = (PingHandler) handlers.get("Ping");
 			ph.sendResponse((BackendSession) c.getObject(), new Responder(
@@ -74,9 +80,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			return;
 		}
 
-		String userId = null;
-		String password = null;
-		boolean valid = false;
+		Credentials creds = null;
 
 		String m = request.getMethod();
 		if ("OPTIONS".equals(m)) {
@@ -84,6 +88,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			return;
 		}
 
+		boolean valid = false;
 		String authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
 			StringTokenizer st = new StringTokenizer(authHeader);
@@ -95,8 +100,8 @@ public class ActiveSyncServlet extends HttpServlet {
 							.toCharArray()));
 					int p = userPass.indexOf(":");
 					if (p != -1) {
-						userId = userPass.substring(0, p);
-						password = userPass.substring(p + 1);
+						String userId = userPass.substring(0, p);
+						String password = userPass.substring(p + 1);
 						String loginAtDomain = getLoginAtDomain(userId);
 						valid = validatePassword(loginAtDomain, password);
 						valid = valid
@@ -104,6 +109,7 @@ public class ActiveSyncServlet extends HttpServlet {
 										.initDevice(loginAtDomain, p(request,
 												"DeviceId"),
 												extractDeviceType(request));
+						creds = new Credentials(loginAtDomain, password);
 					}
 				}
 			}
@@ -116,9 +122,22 @@ public class ActiveSyncServlet extends HttpServlet {
 			String s = "Basic realm=\"OBMPushService\"";
 			response.setHeader("WWW-Authenticate", s);
 			response.setStatus(401);
-		} else {
-			processActiveSyncMethod(c, userId, password, request, response);
+			return;
 		}
+
+		String policy = request.getHeader("X-Ms-PolicyKey");
+		if (policy != null && policy.equals("0")) {
+			// force device provisioning
+			logger.info("[" + creds.getLoginAtDomain()
+					+ "] forcing device (ua: "
+					+ request.getHeader("User-Agent") + ") provisioning ");
+			response.setStatus(449);
+			return;
+		}
+
+		processActiveSyncMethod(c, creds.getLoginAtDomain(), creds
+				.getPassword(), request, response);
+
 	}
 
 	private String extractDeviceType(HttpServletRequest request) {
@@ -130,7 +149,13 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private String p(HttpServletRequest r, String name) {
-		return r.getParameter(name);
+		String qs = r.getQueryString();
+		if (qs.contains("User=")) {
+			return r.getParameter(name);
+		} else {
+			Base64QueryString bqs = new Base64QueryString(qs);
+			return bqs.getValue(name);
+		}
 	}
 
 	private void processActiveSyncMethod(Continuation continuation,
@@ -168,7 +193,17 @@ public class ActiveSyncServlet extends HttpServlet {
 			sendServerInfos(response);
 			rh.process(continuation, bs, doc, new Responder(response));
 		} else {
-			logger.warn("no handler for command " + bs.getCommand());
+			noHandlerError(request, bs);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void noHandlerError(HttpServletRequest request, BackendSession bs) {
+		logger.warn("no handler for command " + bs.getCommand());
+		Enumeration heads = request.getHeaderNames();
+		while (heads.hasMoreElements()) {
+			String h = (String) heads.nextElement();
+			logger.warn(h + ": " + request.getHeader(h));
 		}
 	}
 
@@ -205,14 +240,19 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private void sendServerInfos(HttpServletResponse response) {
+		response.setStatus(200);
+		response.setHeader("Server", "Microsoft-IIS/6.0");
 		response.setHeader("MS-Server-ActiveSync", "8.1");
-		response.setHeader("X-MS-RP", "1.0,2.0,2.1,2.5,12.0,12.1");
 		response
 				.setHeader("MS-ASProtocolVersions", "1.0,2.0,2.1,2.5,12.0,12.1");
 		response
 				.setHeader(
 						"MS-ASProtocolCommands",
-						"Sync,SendMail,SmartForward,SmartReply,GetAttachment,GetHierarchy,CreateCollection,DeleteCollection,MoveCollection,FolderSync,FolderCreate,FolderDelete,FolderUpdate,MoveItems,GetItemEstimate,MeetingResponse,ResolveRecipipents,ValidateCert,Provision,Search,Ping");
+						"Sync,SendMail,SmartForward,SmartReply,GetAttachment,GetHierarchy,CreateCollection,DeleteCollection,MoveCollection,FolderSync,FolderCreate,FolderDelete,FolderUpdate,MoveItems,GetItemEstimate,MeetingResponse,Search,Settings,Ping,ItemOperations,Provision,ResolveRecipients,ValidateCert");
+		response.setHeader("Public", "OPTIONS,POST");
+		response.setHeader("Allow", "OPTIONS,POST");
+		response.setHeader("Cache-Control", "private");
+		response.setContentLength(0);
 	}
 
 	private IRequestHandler getHandler(BackendSession p) {
@@ -241,6 +281,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		handlers.put("Provision", new ProvisionHandler(backend));
 		handlers.put("Ping", new PingHandler(backend));
 		handlers.put("Settings", new SettingsHandler(backend));
+		handlers.put("Search", new SearchHandler(backend));
 
 		System.out.println("ActiveSync servlet initialised.");
 	}
