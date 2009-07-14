@@ -450,7 +450,6 @@ public class TagsTables {
 			"DevicePasswordEnabled", // 0x0E <3>
 			"AlphanumericDevicePasswordRequired", // 0x0F <3>
 			"DeviceEncryptionEnabled", // 0x10 <3>
-			"RequireStorageCardEncryption", // 0x10 <4>
 			"PasswordRecoveryEnabled", // 0x11 <3>
 			"DocumentBrowseEnabled", // 0x12 <3>
 			"AttachmentsEnabled", // 0x13 <3>
@@ -483,8 +482,7 @@ public class TagsTables {
 			"RequireEncryptedSMIMEMessages", // 0x2E <4>
 			"RequireSignedSMIMEAlgorithm", // 0x2F <4>
 			"RequireEncryptionSMIMEAlgorithm", // 0x30 <4>
-			"AllowSMIMEEncryptionAlgorithmNegoti", // 0x31 <4>
-			"ation", // 0x31 <4>
+			"AllowSMIMEEncryptionAlgorithmNegotiation", // 0x31 <4>
 			"AllowSMIMESoftCerts", // 0x32 <4>
 			"AllowBrowser", // 0x33 <4>
 			"AllowConsumerEmail", // 0x34 <4>

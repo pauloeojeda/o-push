@@ -7,7 +7,7 @@ import org.w3c.dom.Document;
 
 public class TestSettings extends AbstractPushTest {
 
-	public void testSettings() throws Exception {
+	public void testSettingsSet() throws Exception {
 		optionsQuery();
 
 		InputStream in = loadDataFile("SettingsRequest.xml");
@@ -16,4 +16,12 @@ public class TestSettings extends AbstractPushTest {
 		assertNotNull(ret);
 	}
 
+	public void testSettingsGet() throws Exception {
+		optionsQuery();
+
+		InputStream in = loadDataFile("SettingsGet.xml");
+		Document doc = DOMUtils.parse(in);
+		Document ret = postXml("Settings", doc, "Settings");
+		assertNotNull(ret);
+	}
 }

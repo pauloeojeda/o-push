@@ -76,9 +76,9 @@ public class ContactEncoder implements IDataEncoder {
 	}
 
 	private String getFileAs(MSContact c) {
-		if (c.getFirstName() != null && c.getLastName() != null) {
+		if (c.getFirstName() != null && c.getLastName() != null && c.getFirstName().length() > 0) {
 			return c.getLastName() + ", " + c.getFirstName();
-		} else if (c.getFirstName() != null) {
+		} else if (c.getFirstName() != null && c.getFirstName().length() > 0) {
 			return c.getFirstName();
 		} else {
 			return c.getLastName();
