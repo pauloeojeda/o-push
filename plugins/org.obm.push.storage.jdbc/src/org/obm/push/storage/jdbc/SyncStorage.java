@@ -147,8 +147,8 @@ public class SyncStorage implements ISyncStorage {
 	public boolean initDevice(String loginAtDomain, String deviceId,
 			String deviceType) {
 		String[] parts = loginAtDomain.split("@");
-		String login = parts[0];
-		String domain = parts[1];
+		String login = parts[0].toLowerCase();
+		String domain = parts[1].toLowerCase();
 
 		Connection con = null;
 		PreparedStatement ps = null;
@@ -160,7 +160,7 @@ public class SyncStorage implements ISyncStorage {
 					.prepareStatement("SELECT id FROM opush_device "
 							+ "INNER JOIN UserObm ON owner=userobm_id "
 							+ "INNER JOIN Domain ON userobm_domain_id=domain_id "
-							+ "WHERE identifier=? AND type=? AND userobm_login=? AND domain_name=?");
+							+ "WHERE identifier=? AND type=? AND lower(userobm_login)=? AND lower(domain_name)=?");
 			ps.setString(1, deviceId);
 			ps.setString(2, deviceType);
 			ps.setString(3, login);
@@ -174,7 +174,7 @@ public class SyncStorage implements ISyncStorage {
 						.prepareStatement("INSERT INTO opush_device (identifier, type, owner) "
 								+ "SELECT ?, ?, userobm_id FROM UserObm "
 								+ "INNER JOIN Domain ON userobm_domain_id=domain_id "
-								+ "WHERE userobm_login=? AND domain_name=?");
+								+ "WHERE lower(userobm_login)=? AND lower(domain_name)=?");
 				ps.setString(1, deviceId);
 				ps.setString(2, deviceType);
 				ps.setString(3, login);

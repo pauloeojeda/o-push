@@ -28,6 +28,8 @@ public class BackendSession {
 
 	private double protocolVersion;
 
+	private String policyKey;
+
 	public BackendSession(String loginAtDomain, String password, String devId,
 			String devType, String command) {
 		super();
@@ -147,6 +149,14 @@ public class BackendSession {
 
 	public double getProtocolVersion() {
 		return protocolVersion;
+	}
+
+	public void setPolicyKey(String pKey) {
+		this.policyKey = pKey;
+	}
+
+	public String getPolicyKey() {
+		return policyKey;
 	}
 
 }
