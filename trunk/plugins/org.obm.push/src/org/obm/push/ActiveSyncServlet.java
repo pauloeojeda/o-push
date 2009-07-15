@@ -82,7 +82,7 @@ public class ActiveSyncServlet extends HttpServlet {
 
 		String m = request.getMethod();
 		if ("OPTIONS".equals(m)) {
-			sendServerInfos(response);
+			sendOptionsResponse(response);
 			return;
 		}
 
@@ -223,7 +223,7 @@ public class ActiveSyncServlet extends HttpServlet {
 
 		IRequestHandler rh = getHandler(bs);
 		if (rh != null) {
-			sendServerInfos(response);
+			sendASHeaders(response);
 			rh.process(continuation, bs, doc, new Responder(response));
 		} else {
 			noHandlerError(request, bs);
@@ -259,20 +259,26 @@ public class ActiveSyncServlet extends HttpServlet {
 
 	private String getLoginAtDomain(String userID) {
 		String uid = userID;
+		String domain = null;
 		int idx = uid.indexOf("\\");
 		if (idx > 0) {
+			domain = uid.substring(0, idx);
 			if (!uid.contains("@")) {
-				String domain = uid.substring(0, idx);
-				logger.info("uid: " + uid + " domain: " + domain);
 				uid = uid.substring(idx + 1) + "@" + domain;
 			} else {
 				uid = uid.substring(idx + 1);
 			}
 		}
+		uid = uid.toLowerCase();
+		logger.info("loginAtDomain: " + uid + " domain: " + domain);
 		return uid;
 	}
 
-	private void sendServerInfos(HttpServletResponse response) {
+	private void sendASHeaders(HttpServletResponse response) {
+		// response.setStatus(200);
+	}
+
+	private void sendOptionsResponse(HttpServletResponse response) {
 		response.setStatus(200);
 		response.setHeader("Server", "Microsoft-IIS/6.0");
 		response.setHeader("MS-Server-ActiveSync", "8.1");

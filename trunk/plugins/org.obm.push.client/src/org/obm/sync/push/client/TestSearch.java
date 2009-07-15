@@ -8,7 +8,7 @@ import org.w3c.dom.Document;
 public class TestSearch extends AbstractPushTest {
 
 	public void testSearch() throws Exception {
-//		optionsQuery();
+		optionsQuery();
 
 		InputStream in = loadDataFile("SearchRequest.xml");
 		Document doc = DOMUtils.parse(in);

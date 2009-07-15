@@ -30,7 +30,7 @@ public class Responder {
 		} catch (TransformerException e) {
 		}
 		byte[] wbxml = WBXMLTools.toWbxml(defaultNamespace, doc);
-		resp.setContentLength(wbxml.length);
+//		resp.setContentLength(wbxml.length);
 		ServletOutputStream out = resp.getOutputStream();
 		out.write(wbxml);
 		out.flush();
