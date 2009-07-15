@@ -80,14 +80,46 @@ public class ActiveSyncServlet extends HttpServlet {
 			return;
 		}
 
-		Credentials creds = null;
-
 		String m = request.getMethod();
 		if ("OPTIONS".equals(m)) {
 			sendServerInfos(response);
 			return;
 		}
 
+		Credentials creds = performAuthentification(request, response);
+		if (creds == null) {
+			return;
+		}
+
+		String policy = p(request, "X-Ms-PolicyKey");
+		if (policy != null && policy.equals("0")) {
+			// force device provisioning
+			logger.info("[" + creds.getLoginAtDomain()
+					+ "] forcing device (ua: " + p(request, "User-Agent")
+					+ ") provisioning ");
+			response.setStatus(449);
+			return;
+		} else {
+			logger.info("[" + creds.getLoginAtDomain() + "] policy used: "
+					+ policy);
+		}
+
+		processActiveSyncMethod(c, creds.getLoginAtDomain(), creds
+				.getPassword(), request, response);
+
+	}
+
+	/**
+	 * Checks authentification headers. Returns non null value if login/password
+	 * is valid & the device has been authorized.
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	private Credentials performAuthentification(HttpServletRequest request,
+			HttpServletResponse response) {
+		Credentials creds = null;
 		boolean valid = false;
 		String authHeader = request.getHeader("Authorization");
 		if (authHeader != null) {
@@ -109,7 +141,9 @@ public class ActiveSyncServlet extends HttpServlet {
 										.initDevice(loginAtDomain, p(request,
 												"DeviceId"),
 												extractDeviceType(request));
-						creds = new Credentials(loginAtDomain, password);
+						if (valid) {
+							creds = new Credentials(loginAtDomain, password);
+						}
 					}
 				}
 			}
@@ -122,40 +156,39 @@ public class ActiveSyncServlet extends HttpServlet {
 			String s = "Basic realm=\"OBMPushService\"";
 			response.setHeader("WWW-Authenticate", s);
 			response.setStatus(401);
-			return;
 		}
-
-		String policy = request.getHeader("X-Ms-PolicyKey");
-		if (policy != null && policy.equals("0")) {
-			// force device provisioning
-			logger.info("[" + creds.getLoginAtDomain()
-					+ "] forcing device (ua: "
-					+ request.getHeader("User-Agent") + ") provisioning ");
-			response.setStatus(449);
-			return;
-		}
-
-		processActiveSyncMethod(c, creds.getLoginAtDomain(), creds
-				.getPassword(), request, response);
-
+		return creds;
 	}
 
 	private String extractDeviceType(HttpServletRequest request) {
 		String ret = p(request, "DeviceType");
 		if (ret.startsWith("IMEI")) {
-			ret = request.getHeader("User-Agent");
+			ret = p(request, "User-Agent");
 		}
 		return ret;
 	}
 
+	/**
+	 * Parameters can be in query string or in header, whether a base64 query
+	 * string is used.
+	 * 
+	 * @param r
+	 * @param name
+	 * @return
+	 */
 	private String p(HttpServletRequest r, String name) {
+		String ret = null;
 		String qs = r.getQueryString();
 		if (qs.contains("User=")) {
-			return r.getParameter(name);
+			ret = r.getParameter(name);
 		} else {
 			Base64QueryString bqs = new Base64QueryString(qs);
-			return bqs.getValue(name);
+			ret = bqs.getValue(name);
 		}
+		if (ret == null) {
+			ret = r.getHeader(name);
+		}
+		return ret;
 	}
 
 	private void processActiveSyncMethod(Continuation continuation,
@@ -163,7 +196,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			HttpServletResponse response) throws IOException {
 		BackendSession bs = getSession(userID, password, request);
 		logger.info("activeSyncMethod: " + bs.getCommand());
-		String proto = request.getHeader("MS-ASProtocolVersion");
+		String proto = p(request, "MS-ASProtocolVersion");
 		bs.setProtocolVersion(Double.parseDouble(proto));
 		logger.info("Client supports protocol " + proto);
 

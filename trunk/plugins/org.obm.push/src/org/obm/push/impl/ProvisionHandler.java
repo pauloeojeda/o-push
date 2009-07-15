@@ -34,8 +34,12 @@ public class ProvisionHandler implements IRequestHandler {
 
 		String policyType = DOMUtils.getUniqueElement(doc.getDocumentElement(),
 				"PolicyType").getTextContent();
-		String pKey = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"PolicyKey").getTextContent();
+		Element pKeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"PolicyKey");
+		String pKey = "0";
+		if (pKeyElem != null) {
+			pKey = pKeyElem.getTextContent();
+		}
 		logger.info("required policyType: " + policyType + " key: " + pKey);
 
 		try {
@@ -46,6 +50,9 @@ public class ProvisionHandler implements IRequestHandler {
 			Element policy = DOMUtils.createElement(policies, "Policy");
 			DOMUtils.createElementAndText(policy, "PolicyType", policyType);
 			DOMUtils.createElementAndText(policy, "Status", "1");
+			if ("0".equals(pKey)) {
+				pKey = "" + System.currentTimeMillis();
+			}
 			DOMUtils.createElementAndText(policy, "PolicyKey", pKey);
 			Element data = DOMUtils.createElement(policy, "Data");
 
@@ -94,13 +101,9 @@ public class ProvisionHandler implements IRequestHandler {
 			// <UnapprovedInROMApplicationList/>
 
 			Element provDoc = DOMUtils.createElement(data, "EASProvisionDoc");
-			DOMUtils
-					.createElementAndText(provDoc, "DevicePasswordEnabled", "0");
 
 			Policy pol = backend.getDevicePolicy(bs);
-			if (pol != null) {
-				serializePolicy(provDoc, pol);
-			}
+			serializePolicy(provDoc, pol);
 
 			// TODO
 			// <eas-provisioningdoc>
@@ -127,7 +130,6 @@ public class ProvisionHandler implements IRequestHandler {
 	}
 
 	private void serializePolicy(Element provDoc, Policy p) {
-		// TODO Auto-generated method stub
-
+		DOMUtils.createElementAndText(provDoc, "DevicePasswordEnabled", "0");
 	}
 }
