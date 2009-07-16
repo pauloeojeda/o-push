@@ -1,3 +1,34 @@
+2009-07-16  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Working Provision dialog with iPhone 3.0 & AS protocol 12.1 :-)
+	
+	* plugins/org.obm.push.client/data/ProvisionRequest1.xml:
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/Abstract
+	PushTest.java: (AbstractPushTest), (AbstractPushTest.setUp),
+	(AbstractPushTest.authValue), (AbstractPushTest.optionsQuery),
+	(AbstractPushTest.postXml):
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/TestProv
+	ision.java: (TestProvision), (TestProvision.testSettingsProvision):
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/TestiPho
+	neExchante2k7.java: (TestiPhoneExchante2k7),
+	(TestiPhoneExchante2k7.testDiffOpushExchange):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/TagsTables.java
+	:
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/Encoder
+	Handler.java: (EncoderHandler), (EncoderHandler.EncoderHandler),
+	(EncoderHandler.startElement), (EncoderHandler.queueStart),
+	(EncoderHandler.flushNormal), (EncoderHandler.flushEmptyElem),
+	(EncoderHandler.switchToNs), (EncoderHandler.characters),
+	(EncoderHandler.endElement), (EncoderHandler.ignorableWhitespace):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/WbxmlEn
+	coder.java: (WbxmlEncoder), (WbxmlEncoder.writeEmptyElement):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.sendASHeaders):
+	* plugins/org.obm.push/src/org/obm/push/impl/ProvisionHandler.java:
+	(ProvisionHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/Responder.java:
+	(Responder.sendResponse):
+
 2009-06-10  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	Use integer identifier for folders to match exchange 2k7.

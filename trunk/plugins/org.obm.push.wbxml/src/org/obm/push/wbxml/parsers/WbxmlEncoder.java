@@ -121,4 +121,14 @@ public class WbxmlEncoder {
 		}
 		writeInt(buf, stringTable.get(name) + 64);
 	}
+
+	public void writeEmptyElement(String name) throws IOException {
+		System.err.println("write empty " + name);
+		Integer mapping = stringTable.get(name);
+		if (mapping == null) {
+			logger.warn("no mapping for '" + name + "'");
+			throw new IOException("no mapping for '" + name + "'");
+		}
+		writeInt(buf, stringTable.get(name));
+	}
 }

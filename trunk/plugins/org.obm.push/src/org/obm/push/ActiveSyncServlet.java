@@ -275,7 +275,20 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private void sendASHeaders(HttpServletResponse response) {
-		// response.setStatus(200);
+		// HTTP/1.1 200 OK
+		// Connection: Keep-Alive
+		// Content-Length: 1069
+		// Date: Mon, 01 May 2006 20:15:15 GMT
+		// Content-Type: application/vnd.ms-sync.wbxml
+		// Server: Microsoft-IIS/6.0
+		// X-Powered-By: ASP.NET
+		// X-AspNet-Version: 2.0.50727
+		// MS-Server-ActiveSync: 8.0
+		// Cache-Control: private
+
+		response.setHeader("Server", "Microsoft-IIS/6.0");
+		response.setHeader("MS-Server-ActiveSync", "8.1");
+		response.setHeader("Cache-Control", "private");
 	}
 
 	private void sendOptionsResponse(HttpServletResponse response) {

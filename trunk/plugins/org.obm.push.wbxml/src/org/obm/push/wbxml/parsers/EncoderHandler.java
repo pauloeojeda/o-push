@@ -3,6 +3,7 @@ package org.obm.push.wbxml.parsers;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Stack;
 
 import org.obm.push.wbxml.TagsTables;
 import org.xml.sax.Attributes;
@@ -16,25 +17,29 @@ class EncoderHandler extends DefaultHandler {
 	private String defaultNamespace;
 	private String currentXmlns;
 
+	private Stack<String> stackedStarts;
+
 	public EncoderHandler(WbxmlEncoder we, ByteArrayOutputStream buf,
 			String defaultNamespace) throws IOException {
+		this.stackedStarts = new Stack<String>();
 		this.defaultNamespace = defaultNamespace;
 		this.we = we;
 		this.buf = buf;
-//		if (!"AirSync".equals(defaultNamespace)) {
-//			switchToNs(defaultNamespace);
-//		} else {
-//			we.setStringTable(TagsTables.getElementMappings("AirSync"));
-//		}
-		switchToNs(defaultNamespace);
+		try {
+			switchToNs(defaultNamespace);
+		} catch (SAXException e) {
+		}
 		currentXmlns = defaultNamespace;
 	}
 
 	public void startElement(String uri, String localName, String qName,
 			Attributes attr) throws SAXException {
 
+		if (!stackedStarts.isEmpty()) {
+			flushNormal();
+		}
+
 		try {
-			// TODO handle namespace here !!!
 			String newNs = null;
 			if (!qName.contains(":")) {
 				newNs = defaultNamespace;
@@ -48,13 +53,39 @@ class EncoderHandler extends DefaultHandler {
 			}
 			currentXmlns = newNs;
 
-			we.writeElement(qName);
+//			we.writeElement(qName);
+			queueStart(qName);
 		} catch (IOException e) {
 			throw new SAXException(e);
 		}
 	}
 
-	private void switchToNs(String newNs) throws IOException {
+	private void queueStart(String qName) {
+		stackedStarts.add(qName);
+	}
+
+	private void flushNormal() throws SAXException {
+		String e = stackedStarts.pop();
+		try {
+			we.writeElement(e);
+		} catch (IOException e1) {
+			throw new SAXException(e);
+		}
+	}
+
+	private void flushEmptyElem() throws SAXException {
+		String e = stackedStarts.pop();
+		try {
+			we.writeEmptyElement(e);
+		} catch (IOException e1) {
+			throw new SAXException(e);
+		}
+	}
+
+	private void switchToNs(String newNs) throws IOException, SAXException {
+		if (!stackedStarts.isEmpty()) {
+			flushNormal();
+		}
 		Map<String, Integer> table = TagsTables.getElementMappings(newNs);
 		we.setStringTable(table);
 		we.switchPage(TagsTables.NAMESPACES_IDS.get(newNs));
@@ -62,6 +93,11 @@ class EncoderHandler extends DefaultHandler {
 
 	public void characters(char[] chars, int start, int len)
 			throws SAXException {
+
+		if (!stackedStarts.isEmpty()) {
+			flushNormal();
+		}
+
 		String s = new String(chars, start, len);
 		s = s.trim();
 		if (s.length() == 0) {
@@ -77,12 +113,19 @@ class EncoderHandler extends DefaultHandler {
 
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
-		buf.write(Wbxml.END);
+		if (!stackedStarts.isEmpty()) {
+			flushEmptyElem();
+		} else {
+			buf.write(Wbxml.END);
+		}
 	}
 
 	@Override
 	public void ignorableWhitespace(char[] ch, int start, int length)
 			throws SAXException {
+		if (!stackedStarts.isEmpty()) {
+			flushNormal();
+		}
 		System.err.println("ignorable whitespace");
 	}
 
