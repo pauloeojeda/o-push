@@ -32,4 +32,12 @@ public class TestiPhoneExchante2k7 extends AbstractPushTest {
 		System.err.println("exchange response 2");
 		decode("ex2k7provResp2.wbxml");
 	}
+	
+	public void testDiffOpushExchange() throws Exception {
+		System.err.println("opush response");
+		decode("tom_prov_resp.wbxml");
+		System.err.println("exchange response");
+		decode("ex_prov_resp.wbxml");
+		
+	}
 }

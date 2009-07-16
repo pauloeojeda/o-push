@@ -647,88 +647,88 @@ public class TagsTables {
 		NAMESPACES_TAGS = new HashMap<Integer, String[]>();
 		NAMESPACES_MAPPINGS = new HashMap<String, Map<String, Integer>>();
 
-		NAMESPACES_IDS.put("AirSync", 0x0);
-		NAMESPACES_TAGS.put(0x0, CP_0);
+		NAMESPACES_IDS.put("AirSync", 0);
+		NAMESPACES_TAGS.put(0, CP_0);
 		createMappings("AirSync");
 
-		NAMESPACES_IDS.put("Contacts", 0x1);
-		NAMESPACES_TAGS.put(0x1, CP_1);
+		NAMESPACES_IDS.put("Contacts", 1);
+		NAMESPACES_TAGS.put(1, CP_1);
 		createMappings("Contacts");
 
-		NAMESPACES_IDS.put("Email", 0x2);
-		NAMESPACES_TAGS.put(0x2, CP_2);
+		NAMESPACES_IDS.put("Email", 2);
+		NAMESPACES_TAGS.put(2, CP_2);
 		createMappings("Email");
 
-		NAMESPACES_IDS.put("AirNotify", 0x3);
-		NAMESPACES_TAGS.put(0x3, CP_3);
+		NAMESPACES_IDS.put("AirNotify", 3);
+		NAMESPACES_TAGS.put(3, CP_3);
 		createMappings("AirNotify");
 
-		NAMESPACES_IDS.put("Calendar", 0x4);
-		NAMESPACES_TAGS.put(0x4, CP_4);
+		NAMESPACES_IDS.put("Calendar", 4);
+		NAMESPACES_TAGS.put(4, CP_4);
 		createMappings("Calendar");
 
-		NAMESPACES_IDS.put("Move", 0x5);
-		NAMESPACES_TAGS.put(0x5, CP_5);
+		NAMESPACES_IDS.put("Move", 5);
+		NAMESPACES_TAGS.put(5, CP_5);
 		createMappings("Move");
 
-		NAMESPACES_IDS.put("ItemEstimate", 0x6);
-		NAMESPACES_TAGS.put(0x6, CP_6);
+		NAMESPACES_IDS.put("ItemEstimate", 6);
+		NAMESPACES_TAGS.put(6, CP_6);
 		createMappings("ItemEstimate");
 
-		NAMESPACES_IDS.put("FolderHierarchy", 0x7);
-		NAMESPACES_TAGS.put(0x7, CP_7);
+		NAMESPACES_IDS.put("FolderHierarchy", 7);
+		NAMESPACES_TAGS.put(7, CP_7);
 		createMappings("FolderHierarchy");
 
-		NAMESPACES_IDS.put("MeetingResponse", 0x8);
-		NAMESPACES_TAGS.put(0x8, CP_8);
+		NAMESPACES_IDS.put("MeetingResponse", 8);
+		NAMESPACES_TAGS.put(8, CP_8);
 		createMappings("MeetingResponse");
 
-		NAMESPACES_IDS.put("Tasks", 0x9);
-		NAMESPACES_TAGS.put(0x9, CP_9);
+		NAMESPACES_IDS.put("Tasks", 9);
+		NAMESPACES_TAGS.put(9, CP_9);
 		createMappings("Tasks");
 
-		NAMESPACES_IDS.put("ResolveRecipients", 0x10);
-		NAMESPACES_TAGS.put(0x10, CP_10);
+		NAMESPACES_IDS.put("ResolveRecipients", 10);
+		NAMESPACES_TAGS.put(10, CP_10);
 		createMappings("ResolveRecipients");
 
-		NAMESPACES_IDS.put("ValidateCert", 0x11);
-		NAMESPACES_TAGS.put(0x11, CP_11);
+		NAMESPACES_IDS.put("ValidateCert", 11);
+		NAMESPACES_TAGS.put(11, CP_11);
 		createMappings("ValidateCert");
 
-		NAMESPACES_IDS.put("Contacts2", 0x12);
-		NAMESPACES_TAGS.put(0x12, CP_12);
+		NAMESPACES_IDS.put("Contacts2", 12);
+		NAMESPACES_TAGS.put(12, CP_12);
 		createMappings("Contacts2");
 
-		NAMESPACES_IDS.put("Ping", 0x13);
-		NAMESPACES_TAGS.put(0x13, CP_13);
+		NAMESPACES_IDS.put("Ping", 13);
+		NAMESPACES_TAGS.put(13, CP_13);
 		createMappings("Ping");
 
-		NAMESPACES_IDS.put("Provision", 0x14);
-		NAMESPACES_TAGS.put(0x14, CP_14);
+		NAMESPACES_IDS.put("Provision", 14);
+		NAMESPACES_TAGS.put(14, CP_14);
 		createMappings("Provision");
 
-		NAMESPACES_IDS.put("Search", 0x15);
-		NAMESPACES_TAGS.put(0x15, CP_15);
+		NAMESPACES_IDS.put("Search", 15);
+		NAMESPACES_TAGS.put(15, CP_15);
 		createMappings("Search");
 
-		NAMESPACES_IDS.put("GAL", 0x16);
-		NAMESPACES_TAGS.put(0x16, CP_16);
+		NAMESPACES_IDS.put("GAL", 16);
+		NAMESPACES_TAGS.put(16, CP_16);
 		createMappings("GAL");
 
-		NAMESPACES_IDS.put("AirSyncBase", 0x17);
-		NAMESPACES_TAGS.put(0x17, CP_17);
+		NAMESPACES_IDS.put("AirSyncBase", 17);
+		NAMESPACES_TAGS.put(17, CP_17);
 		createMappings("AirSyncBase");
 
-		NAMESPACES_IDS.put("Settings", 0x18);
-		NAMESPACES_TAGS.put(0x18, CP_18);
+		NAMESPACES_IDS.put("Settings", 18);
+		NAMESPACES_TAGS.put(18, CP_18);
 		createMappings("Settings");
 
-		NAMESPACES_IDS.put("DocumentLibrary", 0x19);
-		NAMESPACES_TAGS.put(0x19, CP_19);
+		NAMESPACES_IDS.put("DocumentLibrary", 19);
+		NAMESPACES_TAGS.put(19, CP_19);
 		createMappings("DocumentLibrary");
 
-		NAMESPACES_IDS.put("ItemOperations", 0x20);
-		NAMESPACES_TAGS.put(0x20, CP_20);
+		NAMESPACES_IDS.put("ItemOperations", 20);
+		NAMESPACES_TAGS.put(20, CP_20);
 		createMappings("ItemOperations");
 	}
 

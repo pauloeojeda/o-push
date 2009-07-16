@@ -30,6 +30,8 @@ public class AbstractPushTest extends TestCase {
 	private String url;
 	private HttpClient hc;
 	private String login;
+	private String userAgent;
+	private String password;
 
 	protected AbstractPushTest() {
 		XTrustProvider.install();
@@ -48,9 +50,11 @@ public class AbstractPushTest extends TestCase {
 		// this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
 
 		this.login = "Administrator";
-		this.userId = "test\\Administrator";
-		this.devId = "IMEI351940035621459";
-		this.devType = "PocketPC";
+		this.userId = "test.tlse.lng\\Administrator";
+		this.password = "aliacom";
+		this.devId = "Appl8683191J1R4";
+		this.devType = "iPhone";
+		this.userAgent = "Apple-iPhone/701.341";
 		this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
 
 		this.hc = createHttpClient();
@@ -88,7 +92,7 @@ public class AbstractPushTest extends TestCase {
 	private String authValue() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Basic ");
-		String encoded = new String(Base64.encode((userId + ":aliacom")
+		String encoded = new String(Base64.encode((userId + ":" + password)
 				.getBytes()));
 		sb.append(encoded);
 		String ret = sb.toString();
@@ -99,7 +103,7 @@ public class AbstractPushTest extends TestCase {
 	protected void optionsQuery() throws Exception {
 		OptionsMethod pm = new OptionsMethod(url + "?User=" + login
 				+ "&DeviceId=" + devId + "&DeviceType=" + devType);
-		pm.setRequestHeader("User-Agent", "NokiaE71/2.09(158)MailforExchange");
+		pm.setRequestHeader("User-Agent", userAgent);
 		pm.setRequestHeader("Authorization", authValue());
 		synchronized (hc) {
 			try {
@@ -120,21 +124,31 @@ public class AbstractPushTest extends TestCase {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	protected Document postXml(String namespace, Document doc, String cmd)
 			throws Exception {
+		return postXml(namespace, doc, cmd, null);
+	}
+
+	@SuppressWarnings("deprecation")
+	protected Document postXml(String namespace, Document doc, String cmd,
+			String policyKey) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		byte[] data = WBXMLTools.toWbxml(namespace, doc);
 		PostMethod pm = new PostMethod(url + "?User=" + login + "&DeviceId="
 				+ devId + "&DeviceType=" + devType + "&Cmd=" + cmd);
+		pm.setRequestHeader("Content-Length", ""+data.length);
 		pm.setRequestBody(new ByteArrayInputStream(data));
-		pm.setRequestHeader("Authorization", authValue());
-		pm.setRequestHeader("User-Agent", "NokiaE71/2.09(158)MailforExchange");
-		pm.setRequestHeader("MS-ASProtocolversion", "12.1");
 		pm.setRequestHeader("Content-Type", "application/vnd.ms-sync.wbxml");
-		pm.setRequestHeader("Accept-Language", "fr-fr");
+		pm.setRequestHeader("Authorization", authValue());
+		pm.setRequestHeader("User-Agent", userAgent);
+		pm.setRequestHeader("Ms-Asprotocolversion", "12.1");
 		pm.setRequestHeader("Accept", "*/*");
-		pm.setRequestHeader("X-Ms-PolicyKey", "0");
+		pm.setRequestHeader("Accept-Language", "fr-fr");
+		pm.setRequestHeader("Connection", "keep-alive");
+//		pm.setRequestHeader("Accept-Encoding", "gzip, deflate");
+		if (policyKey != null) {
+			pm.setRequestHeader("X-MS-PolicyKey", policyKey);
+		}
 
 		Document xml = null;
 		synchronized (hc) {

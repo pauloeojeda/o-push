@@ -57,7 +57,8 @@ public class ProvisionHandler implements IRequestHandler {
 				Element policy = DOMUtils.createElement(policies, "Policy");
 				DOMUtils.createElementAndText(policy, "PolicyType", policyType);
 				DOMUtils.createElementAndText(policy, "Status", "1");
-				pKey = "" + Math.abs((random.nextInt() >> 2));
+//				pKey = "" + Math.abs((random.nextInt() >> 2));
+				pKey = "3378841480";
 				DOMUtils.createElementAndText(policy, "PolicyKey", pKey);
 				Element data = DOMUtils.createElement(policy, "Data");
 
