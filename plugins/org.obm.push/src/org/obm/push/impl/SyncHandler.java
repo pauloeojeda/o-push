@@ -146,15 +146,35 @@ public class SyncHandler implements IRequestHandler {
 		Element responses = DOMUtils.createElement(ce, "Responses");
 		Element commands = DOMUtils.createElement(ce, "Commands");
 
+		StringBuilder processedIds = new StringBuilder();
+		for (String k : processedClientIds) {
+			processedIds.append(' ');
+			processedIds.append(k);
+		}
+
 		for (ItemChange ic : changed) {
-			if (ic.getClientId() != null && processedClientIds.contains(ic.getClientId())) {
+
+			logger.info("processedIds:" + processedIds.toString()
+					+ " ic.clientId: " + ic.getClientId() + " ic.serverId: "
+					+ ic.getServerId());
+
+			if (ic.getClientId() != null
+					&& processedClientIds.contains(ic.getClientId())) {
+				// Acks Add done by pda
 				Element add = DOMUtils.createElement(responses, "Add");
 				DOMUtils
 						.createElementAndText(add, "ClientId", ic.getClientId());
 				DOMUtils
 						.createElementAndText(add, "ServerId", ic.getServerId());
 				DOMUtils.createElementAndText(add, "Status", "1");
+			} else if (processedClientIds.contains(ic.getServerId())) {
+				// Change asked by device
+				Element add = DOMUtils.createElement(responses, "Change");
+				DOMUtils
+						.createElementAndText(add, "ServerId", ic.getServerId());
+				DOMUtils.createElementAndText(add, "Status", "1");
 			} else {
+				// New change done on server
 				Element add = DOMUtils.createElement(commands, "Add");
 				DOMUtils
 						.createElementAndText(add, "ServerId", ic.getServerId());
@@ -267,6 +287,9 @@ public class SyncHandler implements IRequestHandler {
 		if (clientId != null) {
 			processedClientIds.add(clientId);
 		}
+		if (serverId != null) {
+			processedClientIds.add(serverId);
+		}
 		Element syncData = DOMUtils.getUniqueElement(modification,
 				"ApplicationData");
 		String dataClass = backend.getStore().getDataClass(collectionId);
@@ -296,7 +319,8 @@ public class SyncHandler implements IRequestHandler {
 					}
 				} else {
 					importer.importMessageDeletion(bs, PIMDataType
-							.valueOf(dataClass.toUpperCase()), collectionId, serverId);
+							.valueOf(dataClass.toUpperCase()), collectionId,
+							serverId);
 				}
 			}
 		} else {
