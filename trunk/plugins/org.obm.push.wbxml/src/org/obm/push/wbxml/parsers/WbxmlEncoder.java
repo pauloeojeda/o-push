@@ -123,7 +123,9 @@ public class WbxmlEncoder {
 	}
 
 	public void writeEmptyElement(String name) throws IOException {
-		System.err.println("write empty " + name);
+		if (logger.isDebugEnabled()) {
+			logger.debug("write empty tag " + name);
+		}
 		Integer mapping = stringTable.get(name);
 		if (mapping == null) {
 			logger.warn("no mapping for '" + name + "'");

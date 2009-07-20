@@ -105,7 +105,7 @@ public class CalendarBackend extends ObmSyncBackend {
 
 		cc.logout(token);
 		logger.info("getContentChanges(" + calendar + ", " + collectionId
-				+ ") => " + addUpd.size() + " entries.");
+				+ ", lastSync: "+ls+") => " + addUpd.size() + " entries.");
 		return new DataDelta(addUpd, deletions);
 	}
 
