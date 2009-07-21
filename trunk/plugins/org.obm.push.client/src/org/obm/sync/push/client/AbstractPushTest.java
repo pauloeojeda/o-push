@@ -126,26 +126,26 @@ public class AbstractPushTest extends TestCase {
 
 	protected Document postXml(String namespace, Document doc, String cmd)
 			throws Exception {
-		return postXml(namespace, doc, cmd, null);
+		return postXml(namespace, doc, cmd, null, "12.1");
 	}
 
 	@SuppressWarnings("deprecation")
 	protected Document postXml(String namespace, Document doc, String cmd,
-			String policyKey) throws Exception {
+			String policyKey, String protocolVersion) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		byte[] data = WBXMLTools.toWbxml(namespace, doc);
 		PostMethod pm = new PostMethod(url + "?User=" + login + "&DeviceId="
 				+ devId + "&DeviceType=" + devType + "&Cmd=" + cmd);
-		pm.setRequestHeader("Content-Length", ""+data.length);
+		pm.setRequestHeader("Content-Length", "" + data.length);
 		pm.setRequestBody(new ByteArrayInputStream(data));
 		pm.setRequestHeader("Content-Type", "application/vnd.ms-sync.wbxml");
 		pm.setRequestHeader("Authorization", authValue());
 		pm.setRequestHeader("User-Agent", userAgent);
-		pm.setRequestHeader("Ms-Asprotocolversion", "12.1");
+		pm.setRequestHeader("Ms-Asprotocolversion", protocolVersion);
 		pm.setRequestHeader("Accept", "*/*");
 		pm.setRequestHeader("Accept-Language", "fr-fr");
 		pm.setRequestHeader("Connection", "keep-alive");
-//		pm.setRequestHeader("Accept-Encoding", "gzip, deflate");
+		// pm.setRequestHeader("Accept-Encoding", "gzip, deflate");
 		if (policyKey != null) {
 			pm.setRequestHeader("X-MS-PolicyKey", policyKey);
 		}
