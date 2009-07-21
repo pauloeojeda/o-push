@@ -88,7 +88,8 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		String policy = p(request, "X-Ms-PolicyKey");
-		if (policy != null && policy.equals("0")) {
+		if (policy != null && policy.equals("0")
+				&& !p(request, "Cmd").equals("Provision")) {
 			// force device provisioning
 			logger.info("[" + creds.getLoginAtDomain()
 					+ "] forcing device (ua: " + p(request, "User-Agent")
