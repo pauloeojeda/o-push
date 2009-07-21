@@ -3,8 +3,6 @@ package org.obm.push.impl;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
@@ -17,15 +15,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-public class GetItemEstimateHandler implements IRequestHandler {
-
-	private static final Log logger = LogFactory
-			.getLog(GetItemEstimateHandler.class);
-
-	private IBackend backend;
+public class GetItemEstimateHandler extends WbxmlRequestHandler {
 
 	public GetItemEstimateHandler(IBackend backend) {
-		this.backend = backend;
+		super(backend);
 	}
 
 	@Override

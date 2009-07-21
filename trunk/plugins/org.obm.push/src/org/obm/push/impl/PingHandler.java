@@ -3,8 +3,6 @@ package org.obm.push.impl;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
@@ -20,14 +18,10 @@ import org.w3c.dom.NodeList;
  * @author tom
  * 
  */
-public class PingHandler implements IRequestHandler {
-
-	private static final Log logger = LogFactory.getLog(PingHandler.class);
-
-	private IBackend backend;
+public class PingHandler extends WbxmlRequestHandler {
 
 	public PingHandler(IBackend backend) {
-		this.backend = backend;
+		super(backend);
 	}
 
 	@Override

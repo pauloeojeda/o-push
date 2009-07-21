@@ -12,7 +12,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,16 +29,13 @@ import org.obm.push.impl.PingHandler;
 import org.obm.push.impl.ProvisionHandler;
 import org.obm.push.impl.Responder;
 import org.obm.push.impl.SearchHandler;
+import org.obm.push.impl.SendMailHandler;
 import org.obm.push.impl.SettingsHandler;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.store.IStorageFactory;
 import org.obm.push.store.ISyncStorage;
 import org.obm.push.utils.Base64;
-import org.obm.push.utils.DOMUtils;
-import org.obm.push.utils.FileUtils;
 import org.obm.push.utils.RunnableExtensionLoader;
-import org.obm.push.wbxml.WBXMLTools;
-import org.w3c.dom.Document;
 
 /**
  * ActiveSync server implementation. Routes all request to appropriate request
@@ -205,29 +201,15 @@ public class ActiveSyncServlet extends HttpServlet {
 			return;
 		}
 
-		InputStream in = request.getInputStream();
-		byte[] input = FileUtils.streamBytes(in, true);
-		Document doc = null;
-		try {
-			doc = WBXMLTools.toXml(input);
-		} catch (IOException e) {
-			logger.error("Error parsing wbxml data.", e);
+		IRequestHandler rh = getHandler(bs);
+		if (rh == null) {
+			noHandlerError(request, bs);
 			return;
 		}
 
-		logger.info("from pda:");
-		try {
-			DOMUtils.logDom(doc);
-		} catch (TransformerException e) {
-		}
-
-		IRequestHandler rh = getHandler(bs);
-		if (rh != null) {
-			sendASHeaders(response);
-			rh.process(continuation, bs, doc, new Responder(response));
-		} else {
-			noHandlerError(request, bs);
-		}
+		InputStream in = request.getInputStream();
+		sendASHeaders(response);
+		rh.process(continuation, bs, in, new Responder(response));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -334,6 +316,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		handlers.put("Ping", new PingHandler(backend));
 		handlers.put("Settings", new SettingsHandler(backend));
 		handlers.put("Search", new SearchHandler(backend));
+		handlers.put("SendMail", new SendMailHandler(backend));
 
 		System.out.println("ActiveSync servlet initialised.");
 	}

@@ -2,8 +2,6 @@ package org.obm.push.impl;
 
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
@@ -18,16 +16,12 @@ import org.w3c.dom.Element;
  * @author tom
  * 
  */
-public class ProvisionHandler implements IRequestHandler {
-
-	private static final Log logger = LogFactory.getLog(ProvisionHandler.class);
-
-	private IBackend backend;
+public class ProvisionHandler extends WbxmlRequestHandler {
 
 	private Random random;
 
 	public ProvisionHandler(IBackend backend) {
-		this.backend = backend;
+		super(backend);
 		this.random = new Random();
 	}
 
@@ -57,7 +51,7 @@ public class ProvisionHandler implements IRequestHandler {
 				Element policy = DOMUtils.createElement(policies, "Policy");
 				DOMUtils.createElementAndText(policy, "PolicyType", policyType);
 				DOMUtils.createElementAndText(policy, "Status", "1");
-//				pKey = "" + Math.abs((random.nextInt() >> 2));
+				// pKey = "" + Math.abs((random.nextInt() >> 2));
 				pKey = "3378841480";
 				DOMUtils.createElementAndText(policy, "PolicyKey", pKey);
 				Element data = DOMUtils.createElement(policy, "Data");
