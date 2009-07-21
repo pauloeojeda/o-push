@@ -3,7 +3,7 @@
 
 = Introduction =
 
-This pages explains how to run the binary releases available from this site.
+This page explains how to run the binary releases available from this site.
 
 = Requirements =
 
