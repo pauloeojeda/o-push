@@ -105,4 +105,9 @@ public class OBMBackend implements IBackend {
 		return store;
 	}
 
+	@Override
+	public void sendMail(BackendSession bs, byte[] mailContent) {
+		logger.warn("not implemented: should send email");
+	}
+
 }
