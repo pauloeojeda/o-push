@@ -1,7 +1,5 @@
 package org.obm.push.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
@@ -15,11 +13,10 @@ import org.w3c.dom.Element;
  * @author tom
  * 
  */
-public class SearchHandler implements IRequestHandler {
-
-	private static final Log logger = LogFactory.getLog(SearchHandler.class);
+public class SearchHandler extends WbxmlRequestHandler {
 
 	public SearchHandler(IBackend backend) {
+		super(backend);
 	}
 
 	@Override

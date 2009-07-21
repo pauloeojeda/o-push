@@ -6,8 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.DataDelta;
@@ -49,20 +47,16 @@ import org.w3c.dom.NodeList;
 //</Collections>
 //</Sync>
 
-public class SyncHandler implements IRequestHandler {
+public class SyncHandler extends WbxmlRequestHandler {
 
 	public static final Integer SYNC_TRUNCATION_ALL = 9;
-
-	private static final Log logger = LogFactory.getLog(SyncHandler.class);
-
-	private IBackend backend;
 
 	private Map<String, IDataDecoder> decoders;
 
 	private EncoderFactory encoders;
 
 	public SyncHandler(IBackend backend) {
-		this.backend = backend;
+		super(backend);
 		this.decoders = new HashMap<String, IDataDecoder>();
 		decoders.put("Contacts", new ContactsDecoder());
 		decoders.put("Calendar", new CalendarDecoder());

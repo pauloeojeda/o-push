@@ -21,15 +21,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-public class FolderSyncHandler implements IRequestHandler {
+public class FolderSyncHandler extends WbxmlRequestHandler {
 
 	private static final Log logger = LogFactory
 			.getLog(FolderSyncHandler.class);
 
-	private IBackend backend;
-
 	public FolderSyncHandler(IBackend backend) {
-		this.backend = backend;
+		super(backend);
 	}
 
 	@Override

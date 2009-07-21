@@ -13,11 +13,12 @@ import org.w3c.dom.Document;
  * @author tom
  * 
  */
-public class SettingsHandler implements IRequestHandler {
+public class SettingsHandler extends WbxmlRequestHandler {
 
 	private static final Log logger = LogFactory.getLog(SettingsHandler.class);
 
 	public SettingsHandler(IBackend backend) {
+		super(backend);
 	}
 
 	@Override
