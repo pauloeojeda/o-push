@@ -36,6 +36,8 @@ public class SendMailHandler implements IRequestHandler {
 		logger.info("Mail content:\n" + new String(mailContent));
 
 		logger.info("not implemented for backend "+backend);
+		
+		backend.sendMail(bs, mailContent);
 	}
 
 }
