@@ -15,11 +15,18 @@ import org.obm.push.utils.FileUtils;
 import org.obm.push.wbxml.WBXMLTools;
 import org.w3c.dom.Document;
 
+/**
+ * Abstract class for handling client requests with a Content-Type set to
+ * <code>application/vnd.ms-sync.wbxml</code>
+ * 
+ * @author tom
+ * 
+ */
 public abstract class WbxmlRequestHandler implements IRequestHandler {
 
 	protected Log logger = LogFactory.getLog(getClass());
 	protected IBackend backend;
-	
+
 	protected WbxmlRequestHandler(IBackend backend) {
 		this.backend = backend;
 	}
@@ -45,7 +52,17 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 		process(continuation, bs, doc, responder);
 	}
 
-	protected abstract void process(Continuation continuation, BackendSession bs,
-			Document doc, Responder responder);
+	/**
+	 * Handles the client request. The wbxml was already decoded and is
+	 * available in the doc parameter.
+	 * 
+	 * @param continuation
+	 * @param bs
+	 * @param doc
+	 *            the decoded wbxml document.
+	 * @param responder
+	 */
+	protected abstract void process(Continuation continuation,
+			BackendSession bs, Document doc, Responder responder);
 
 }
