@@ -32,6 +32,7 @@ import org.obm.sync.calendar.RecurrenceKind;
  */
 public class EventConverter {
 
+	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(EventConverter.class);
 
 	public MSEvent convertEvent(Event e) {
@@ -236,15 +237,9 @@ public class EventConverter {
 					if (!excep.isDeletedException()) {
 						Event obmEvent = convertEventOne(e, excep);
 						r.addEventException(obmEvent);
-						logger.info("changed occurence for event "
-								+ data.getSubject() + " (" + excep.getSubject()
-								+ ") " + excep.getExceptionStartTime());
 					}
 					r.addException(excep.getExceptionStartTime());
 				}
-			} else {
-				logger.info(data.getSubject()
-						+ " repeating event without exceptions.");
 			}
 		}
 
