@@ -32,7 +32,6 @@ import org.obm.sync.calendar.RecurrenceKind;
  */
 public class EventConverter {
 
-	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(EventConverter.class);
 
 	public MSEvent convertEvent(Event e) {
@@ -226,8 +225,34 @@ public class EventConverter {
 	}
 
 	public Event convertEvent(MSEvent data) {
+		Event e = convertEventOne(null, data);
+		e.setExtId(data.getUID());
+
+		if (data.getRecurrence() != null) {
+			EventRecurrence r = getRecurrence(data);
+			e.setRecurrence(r);
+			if (data.getExceptions() != null && !data.getExceptions().isEmpty()) {
+				for (MSEvent excep : data.getExceptions()) {
+					if (!excep.isDeletedException()) {
+						Event obmEvent = convertEventOne(e, excep);
+						r.addEventException(obmEvent);
+						logger.info("changed occurence for event "
+								+ data.getSubject() + " (" + excep.getSubject()
+								+ ") " + excep.getExceptionStartTime());
+					}
+					r.addException(excep.getExceptionStartTime());
+				}
+			} else {
+				logger.info(data.getSubject()
+						+ " repeating event without exceptions.");
+			}
+		}
+
+		return e;
+	}
+
+	private Event convertEventOne(Event parentEvent, MSEvent data) {
 		Event e = new Event();
-		// TODO Auto-generated method stub
 		e.setTitle(data.getSubject());
 		e.setLocation(data.getLocation());
 		e.setDate(data.getStartTime());
@@ -240,11 +265,6 @@ public class EventConverter {
 			e.setAlert(data.getReminder());
 		}
 
-		if (data.getRecurrence() != null) {
-			e.setRecurrence(getRecurrence(data));
-		}
-		e.setExtId(data.getUID());
 		return e;
 	}
-
 }

@@ -9,12 +9,11 @@ import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.obm.push.impl.SyncHandler;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
 
 public class Decoder {
-	protected static final Log logger = LogFactory.getLog(SyncHandler.class);
+	protected Log logger = LogFactory.getLog(getClass());
 
 	public String parseDOMString(Element elt, String default_value) {
 		if (elt != null) {
