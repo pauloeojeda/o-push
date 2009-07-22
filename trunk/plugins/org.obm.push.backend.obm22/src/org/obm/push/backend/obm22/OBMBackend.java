@@ -16,6 +16,8 @@ import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.impl.PollingThread;
 import org.obm.push.backend.obm22.mail.MailBackend;
+import org.obm.push.provisioning.MSEASProvisioingWBXML;
+import org.obm.push.provisioning.MSWAPProvisioningXML;
 import org.obm.push.provisioning.Policy;
 import org.obm.push.store.ISyncStorage;
 
@@ -72,8 +74,11 @@ public class OBMBackend implements IBackend {
 
 	@Override
 	public Policy getDevicePolicy(BackendSession bs) {
-		// TODO Auto-generated method stub
-		return null;
+		if (bs.getProtocolVersion() <= 2.5) {
+			return new MSWAPProvisioningXML();
+		} else {
+			return new MSEASProvisioingWBXML();
+		}
 	}
 
 	@Override
