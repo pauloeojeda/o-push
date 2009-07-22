@@ -111,9 +111,10 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 				setEventCalendar(exception, subnode);
 
 				exception.setDeleted(parseDOMInt2Boolean(DOMUtils
-						.getUniqueElement(subnode, "Exception_IsDeleted")));
+						.getUniqueElement(subnode, "ExceptionIsDeleted")));
 				exception.setExceptionStartTime(parseDOMDate(DOMUtils
-						.getUniqueElement(subnode, "Exception_StartTime")));
+						.getUniqueElement(subnode, "ExceptionStartTime")));
+				exceptions.add(exception);
 			}
 			calendar.setExceptions(exceptions);
 		}
@@ -188,13 +189,9 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		calendar.setAllDayEvent(parseDOMInt2Boolean(DOMUtils.getUniqueElement(
 				domSource, "AllDayEvent")));
 		calendar.setReminder(parseDOMInt(DOMUtils.getUniqueElement(domSource,
-				"Reminder_MinsBefore")));
+				"ReminderMinsBefore")));
 		calendar.setCategories(parseDOMStringCollection(DOMUtils
 				.getUniqueElement(domSource, "Categories"), "Category"));
-
-		logger.info("alldayevent: "
-				+ (parseDOMInt2Boolean(DOMUtils.getUniqueElement(domSource,
-						"AllDayEvent"))));
 
 		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource,
 				"BusyStatus"))) {

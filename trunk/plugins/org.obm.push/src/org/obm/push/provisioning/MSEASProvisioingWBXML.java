@@ -3,6 +3,12 @@ package org.obm.push.provisioning;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
 
+/**
+ * Policy type for protocol 12.x (windows mobile 6, iPhone, etc)
+ * 
+ * @author tom
+ *
+ */
 public class MSEASProvisioingWBXML extends Policy {
 
 	private void p(Element provDoc, String field, String value) {
