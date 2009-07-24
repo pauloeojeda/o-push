@@ -260,6 +260,41 @@ public class EventConverter {
 			e.setAlert(data.getReminder());
 		}
 
+		if (data.getAttendees() == null || data.getAttendees().isEmpty()) {
+			// copy parent attendees. CalendarBackend ensured parentEvent has
+			// attendees.
+			e.setAttendees(parentEvent.getAttendees());
+		} else {
+			for (MSAttendee at : data.getAttendees()) {
+				e.addAttendee(convertAttendee(at));
+			}
+		}
+
 		return e;
+	}
+
+	private Attendee convertAttendee(MSAttendee at) {
+		Attendee ret = new Attendee();
+		ret.setEmail(at.getEmail());
+		ret.setRequired(ParticipationRole.REQ);
+		ret.setState(status(at.getAttendeeStatus()));
+		return ret;
+	}
+
+	private ParticipationState status(AttendeeStatus attendeeStatus) {
+		switch (attendeeStatus) {
+		case DECLINE:
+			return ParticipationState.DECLINED;
+		case NOT_RESPONDED:
+			return ParticipationState.NEEDSACTION;
+		case RESPONSE_UNKNOWN:
+			return ParticipationState.NEEDSACTION;
+		case TENTATIVE:
+			return ParticipationState.NEEDSACTION;
+		default:
+		case ACCEPT:
+			return ParticipationState.ACCEPTED;
+
+		}
 	}
 }

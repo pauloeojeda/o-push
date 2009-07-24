@@ -8,7 +8,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Handles the Provision cmd
+ * Handles the search cmd
  * 
  * @author tom
  * 

@@ -1,5 +1,6 @@
 package org.obm.push.backend.obm22.calendar;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,15 +9,15 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
+import org.obm.push.backend.MSAttendee;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.push.data.calendarenum.AttendeeStatus;
+import org.obm.push.data.calendarenum.AttendeeType;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
-import org.obm.sync.calendar.Attendee;
 import org.obm.sync.calendar.CalendarInfo;
 import org.obm.sync.calendar.Event;
-import org.obm.sync.calendar.ParticipationRole;
-import org.obm.sync.calendar.ParticipationState;
 import org.obm.sync.client.calendar.CalendarClient;
 import org.obm.sync.items.EventChanges;
 import org.obm.sync.locators.CalendarLocator;
@@ -147,27 +148,22 @@ public class CalendarBackend extends ObmSyncBackend {
 			id = serverId;
 		}
 
-		// disabled for nokia tests
-		// else if (clientId != null) {
-		// id = mapper.toOBM(bs.getDevId(), mapper.getClientIdFor(bs
-		// .getDevId(), collectionId, clientId));
-		// }
-		
-		Event event = new EventConverter().convertEvent(data);
-		if (event.getAttendees().isEmpty()) {
+		if (data.getAttendees() == null || data.getAttendees().isEmpty()) {
 			String email = bs.getLoginAtDomain();
 			try {
 				email = cc.getUserEmail(token);
 			} catch (Exception e) {
 				logger.error("Error finding email: " + e.getMessage(), e);
 			}
-			Attendee at = new Attendee();
+			List<MSAttendee> msal = new ArrayList<MSAttendee>(1);
+			MSAttendee at = new MSAttendee();
 			at.setEmail(email);
-			at.setRequired(ParticipationRole.REQ);
-			at.setState(ParticipationState.ACCEPTED);
-			at.setDisplayName(email);
-			event.addAttendee(at);
+			at.setAttendeeStatus(AttendeeStatus.ACCEPT);
+			at.setAttendeeType(AttendeeType.REQUIRED);
+			msal.add(at);
+			data.setAttendees(msal);
 		}
+		Event event = new EventConverter().convertEvent(data);
 		if (id != null) {
 			int idx = id.lastIndexOf(":");
 			id = id.substring(idx + 1);
