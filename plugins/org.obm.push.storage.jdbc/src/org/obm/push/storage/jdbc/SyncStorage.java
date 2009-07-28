@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.minig.obm.pool.IOBMConnection;
 import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
@@ -150,7 +151,7 @@ public class SyncStorage implements ISyncStorage {
 		String login = parts[0].toLowerCase();
 		String domain = parts[1].toLowerCase();
 
-		Connection con = null;
+		IOBMConnection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		int id = 0;
@@ -181,7 +182,7 @@ public class SyncStorage implements ISyncStorage {
 				ps.setString(4, domain);
 				int insert = ps.executeUpdate();
 				if (insert > 0) {
-					id = JDBCUtils.lastInsertId(con);
+					id = con.lastInsertValue();
 				} else {
 					logger
 							.warn("did not insert any row in device table for device "
@@ -268,7 +269,7 @@ public class SyncStorage implements ISyncStorage {
 		int id = devIdCache.get(deviceId);
 		Integer ret = null;
 
-		Connection con = null;
+		IOBMConnection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
@@ -293,7 +294,7 @@ public class SyncStorage implements ISyncStorage {
 				ps.setInt(1, id);
 				ps.setString(2, collectionId);
 				ps.executeUpdate();
-				ret = JDBCUtils.lastInsertId(con);
+				ret = con.lastInsertValue();
 			}
 
 			con.commit();
