@@ -40,6 +40,7 @@
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.minig.obm.jdbc.mysql"/>
       <plugin id="org.minig.obm.jdbc.pgsql"/>
       <plugin id="org.minig.obm.pool"/>
       <plugin id="org.mortbay.jetty.server"/>
