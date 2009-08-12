@@ -1,13 +1,18 @@
 #!/bin/bash
-set -x
+#set -x
 set -e
 # Author: Thomas Cataldo <thomas.cataldo@aliasource.fr>
+#         Sylvain Garcia <sylvain.garcia@obm.org>
 #
 # Uses an headless eclipse to build ${product_name}
 #
 # 
 # user build settings should be put in
 # `whoami`.product_build.properties
+
+#You can use first parameters to also download plugin dependencies from
+# other repository (minig)
+
 
 pbuild_dir=`dirname $0`
 pushd $pbuild_dir >/dev/null 2>&1
@@ -17,27 +22,59 @@ product_name=o-push
 product_file=`pwd`/plugins/org.obm.push/push.product
 ## END USER VARS
 
+#Download plugin from other repository
+echo "Warning: this project use some plugins of other repository"
+echo "===> Use \"download\" as parameter"
+echo "To Build, this script download require plugins"
+echo "DOUBLE WARNING: do not import this plugin in your VCS ::::::::"
+
+if [ $1 == "download" ]; then
+  list_plugin=`cat ${product_file} | grep "<plugin " | cut -d'"' -f2 `
+  for i in ${list_plugin}; do
+    case "$i" in
+      fr.aliasource.utils)
+      echo "Download from minig..."
+      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
+      fr.aliasource.webmail.log4j)
+      echo "Download from minig..."
+      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
+      fr.aliasource.webmail.pool)
+      echo "Download from minig..."
+      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
+      org.minig.obm.jdbc.mysql)
+      echo "Download from minig..."
+      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
+      org.minig.obm.jdbc.pgsql)
+      echo "Download from minig..."
+      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
+      org.minig.obm.pool)
+      echo "Download from minig..."
+      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
+    esac
+  done
+fi
+
 test $UID -eq 0 && {
-    echo "WARNING: this script is not runnable under fakeroot."
+echo "WARNING: this script is not runnable under fakeroot."
 }
 
 source product_build.properties
 test -f `whoami`.product_build.properties && { 
-    echo "Loading ${pbuild_dir}/`whoami`.product_build.properties"
-    source `whoami`.product_build.properties 
+echo "Loading ${pbuild_dir}/`whoami`.product_build.properties"
+source `whoami`.product_build.properties 
 }
 
 # files to use in the build
 product_build_file=`find ${eclipse_home} -name 'productBuild.xml'`
 equinox_launcher=`find ${eclipse_home} -name 'org.eclipse.equinox.launcher_*'`
 test -f $equinox_launcher || {
-    echo "$equinox_launcher not found."
-    exit 1
+echo "$equinox_launcher not found."
+exit 1
 }
 
 test -f $product_build_file || {
-    echo "$product_build_file not found"
-    exit 1
+echo "$product_build_file not found"
+exit 1
 }
 
 echo "Found valid PDE & Equinox launcher."
@@ -86,8 +123,8 @@ $JAVA_HOME/bin/java -cp ${equinox_launcher} org.eclipse.equinox.launcher.Main \
 -Dbuilder=`pwd`/build_conf_dir
 #-Dbuilder=`pwd`/build_conf_dir >/dev/null 2>&1
 test -f build_directory/svn_build/${product_name}-svn-linux.gtk.x86_64.zip || {
-    echo "FAILED: Cannot find `pwd`/build_directory/svn_build/${product_name}-svn-linux.gtk.x86_64.zip."
-    exit 1
+echo "FAILED: Cannot find `pwd`/build_directory/svn_build/${product_name}-svn-linux.gtk.x86_64.zip."
+exit 1
 }
 echo "Build finished."
 
