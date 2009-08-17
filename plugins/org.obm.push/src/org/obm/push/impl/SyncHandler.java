@@ -176,6 +176,11 @@ public class SyncHandler extends WbxmlRequestHandler {
 			}
 		}
 
+		List<ItemChange> del = delta.getDeletions();
+		for (ItemChange ic : del) {
+			serializeDeletion(ce, ic);
+		}
+
 		if (responses.getChildNodes().getLength() == 0) {
 			responses.getParentNode().removeChild(responses);
 		}
@@ -183,10 +188,6 @@ public class SyncHandler extends WbxmlRequestHandler {
 			commands.getParentNode().removeChild(commands);
 		}
 
-		List<ItemChange> del = delta.getDeletions();
-		for (ItemChange ic : del) {
-			serializeDeletion(ce, ic);
-		}
 	}
 
 	private void doFetch(BackendSession bs, SyncCollection c, Element ce,
@@ -207,8 +208,8 @@ public class SyncHandler extends WbxmlRequestHandler {
 	}
 
 	private void serializeDeletion(Element commands, ItemChange ic) {
-		// TODO Auto-generated method stub
-
+		Element del = DOMUtils.createElement(commands, "Delete");
+		DOMUtils.createElementAndText(del, "ServerId", ic.getServerId());
 	}
 
 	private void serializeChange(BackendSession bs, Element col,
