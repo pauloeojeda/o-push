@@ -99,6 +99,9 @@ public class CalendarBackend extends ObmSyncBackend {
 						collectionId, e);
 				addUpd.add(change);
 			}
+			for (String del : changes.getRemoved()) {
+				deletions.add(getDeletion(bs, collectionId, del));
+			}
 			bs.setUpdatedSyncDate(changes.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

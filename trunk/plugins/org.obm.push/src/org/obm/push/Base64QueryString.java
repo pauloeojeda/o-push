@@ -2,6 +2,7 @@ package org.obm.push;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.impl.Base64CommandCodes;
 import org.obm.push.utils.Base64;
 
 public class Base64QueryString {
@@ -39,14 +40,16 @@ public class Base64QueryString {
 			.getLog(Base64QueryString.class);
 	private byte[] data;
 	private String protocolVersion;
-	private String cmdCode;
+	private String devType;
+	private String deviceId;
+	private int cmdCode;
 
 	public Base64QueryString(String b64) {
 		this.data = Base64.decode(b64.toCharArray());
 		int i = 0;
 		protocolVersion = "" + (((float) data[i++]) / 10.0); // i==0
 		logger.info("version: " + protocolVersion);
-		cmdCode = "" + data[i++]; // 1
+		cmdCode = data[i++]; // 1
 		logger.info("cmd: " + cmdCode);
 		int locale = (data[i++] << 8) + data[i++]; // i==2 and i==3
 
@@ -54,13 +57,10 @@ public class Base64QueryString {
 		// create a string from those bytes directly
 		byte[] devId = new byte[0];
 		if (data[i] > 0) {
-			logger.info("devId size: " + data[i]);
 			devId = new byte[data[i]];
-			for (int j = i + 1; j < i + 1 + data[i]; j++) {
-				logger.info("data[" + j + "]: " + data[j]);
-			}
 			System.arraycopy(data, i + 1, devId, 0, data[i]); // i==4
 			i += data[i] + 1; // i is now on policy key size
+			deviceId = new String(Base64.encode(devId));
 		}
 
 		int policyKey = 0;
@@ -68,10 +68,10 @@ public class Base64QueryString {
 			policyKey = policyKey + (data[i++] << 24) + (data[i++] << 16)
 					+ (data[i++] << 8) + (data[i++]);
 		}
-		String devType = new String(data, i + 1, data[i]);
+		devType = new String(data, i + 1, data[i]);
 		i += data[i] + 1;
 		logger.info("protoVersion: " + protocolVersion + " cmd: " + cmdCode
-				+ " locInt: " + locale + " devId: aGUID" + " pKey: "
+				+ " locInt: " + locale + " devId: "+deviceId + " pKey: "
 				+ policyKey + " type: " + devType);
 
 		// TODO variable parts
@@ -81,9 +81,21 @@ public class Base64QueryString {
 
 		if (key.equalsIgnoreCase("MS-ASProtocolVersion")) {
 			return protocolVersion;
-		} else {
-			logger.warn("cannot fetch '" + key + "' in b64 query string");
 		}
+
+		if (key.equalsIgnoreCase("DeviceType")) {
+			return devType;
+		}
+
+		if (key.equalsIgnoreCase("Cmd")) {
+			return Base64CommandCodes.getCmd(cmdCode);
+		}
+		
+		if (key.equalsIgnoreCase("DeviceId")) {
+			return deviceId;
+		}
+
+		logger.warn("cannot fetch '" + key + "' in b64 query string");
 
 		return null;
 	}

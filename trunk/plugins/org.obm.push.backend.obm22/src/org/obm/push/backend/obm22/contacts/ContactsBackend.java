@@ -67,6 +67,10 @@ public class ContactsBackend extends ObmSyncBackend {
 				ItemChange change = getContactChange(bs, collection, c);
 				addUpd.add(change);
 			}
+			for (Integer del : changes.getRemoved()) {
+				ItemChange change = getDeletion(bs, collection, "" + del);
+				deletions.add(change);
+			}
 			bs.setUpdatedSyncDate(changes.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
