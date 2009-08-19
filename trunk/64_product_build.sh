@@ -22,38 +22,6 @@ product_name=o-push
 product_file=`pwd`/plugins/org.obm.push/push.product
 ## END USER VARS
 
-#Download plugin from other repository
-echo "Warning: this project use some plugins of other repository"
-echo "===> Use \"download\" as parameter"
-echo "To Build, this script download require plugins"
-echo "DOUBLE WARNING: do not import this plugin in your VCS ::::::::"
-
-if [ $1 == "download" ]; then
-  list_plugin=`cat ${product_file} | grep "<plugin " | cut -d'"' -f2 `
-  for i in ${list_plugin}; do
-    case "$i" in
-      fr.aliasource.utils)
-      echo "Download from minig..."
-      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
-      fr.aliasource.webmail.log4j)
-      echo "Download from minig..."
-      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
-      fr.aliasource.webmail.pool)
-      echo "Download from minig..."
-      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
-      org.minig.obm.jdbc.mysql)
-      echo "Download from minig..."
-      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
-      org.minig.obm.jdbc.pgsql)
-      echo "Download from minig..."
-      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
-      org.minig.obm.pool)
-      echo "Download from minig..."
-      svn checkout http://minig.googlecode.com/svn/trunk/plugins/$i plugins/$i;;
-    esac
-  done
-fi
-
 test $UID -eq 0 && {
 echo "WARNING: this script is not runnable under fakeroot."
 }
