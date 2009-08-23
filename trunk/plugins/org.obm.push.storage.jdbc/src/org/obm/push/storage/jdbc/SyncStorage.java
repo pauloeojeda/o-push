@@ -8,6 +8,14 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.minig.obm.pool.OBMPoolActivator;
+import org.obm.push.state.SyncState;
+import org.obm.push.store.ISyncStorage;
+
+import fr.aliasource.utils.JDBCUtils;
+
 /**
  * Store device infos, id mappings & last sync dates into OBM database
  * 
@@ -173,7 +181,7 @@ public class SyncStorage implements ISyncStorage {
 				ps.setString(4, domain);
 				int insert = ps.executeUpdate();
 				if (insert > 0) {
-					id = con.lastInsertValue();
+					id = OBMPoolActivator.getDefault().lastInsertId(con);
 				} else {
 					logger
 							.warn("did not insert any row in device table for device "
@@ -285,7 +293,7 @@ public class SyncStorage implements ISyncStorage {
 				ps.setInt(1, id);
 				ps.setString(2, collectionId);
 				ps.executeUpdate();
-				ret = con.lastInsertValue();
+				ret = OBMPoolActivator.getDefault().lastInsertId(con);
 			}
 
 			con.commit();

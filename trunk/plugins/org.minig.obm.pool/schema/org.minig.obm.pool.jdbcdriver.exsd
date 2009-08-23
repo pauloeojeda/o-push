@@ -3,7 +3,7 @@
 <schema targetNamespace="org.minig.obm.pool" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.minig.obm.pool" id="org.minig.obm.pool.jdbcconnectionfactory" name="jdbcconnectionfactory"/>
+         <meta.schema plugin="org.minig.obm.pool" id="org.minig.obm.pool.jdbcdriver" name="jdbcdriver"/>
       </appInfo>
       <documentation>
          [Enter description of this extension point.]
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <sequence>
-            <element ref="connection_factory" minOccurs="1" maxOccurs="unbounded"/>
+            <element ref="jdbc_driver" minOccurs="1" maxOccurs="unbounded"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,7 +47,7 @@
       </complexType>
    </element>
 
-   <element name="connection_factory">
+   <element name="jdbc_driver">
       <complexType>
          <attribute name="implementation" type="string" use="required">
             <annotation>
@@ -55,7 +55,7 @@
                   
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.minig.obm.pool.IJDBCConnectionFactory"/>
+                  <meta.attribute kind="java" basedOn=":org.minig.obm.pool.IJDBCDriver"/>
                </appInfo>
             </annotation>
          </attribute>

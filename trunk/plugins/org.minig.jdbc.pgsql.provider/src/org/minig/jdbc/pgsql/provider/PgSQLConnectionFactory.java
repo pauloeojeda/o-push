@@ -41,4 +41,9 @@ public class PgSQLConnectionFactory implements IJDBCDriver {
 		return "SELECT 1";
 	}
 
+	@Override
+	public String getLastInsertIdQuery() {
+		return "SELECT lastval()";
+	}
+
 }

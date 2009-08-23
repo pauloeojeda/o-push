@@ -37,4 +37,6 @@ public interface IJDBCDriver {
 
 	String getJDBCUrl(String host, String dbName, String login, String password);
 
+	String getLastInsertIdQuery();
+
 }

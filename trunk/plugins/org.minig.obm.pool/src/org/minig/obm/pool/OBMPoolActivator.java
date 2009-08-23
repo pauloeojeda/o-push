@@ -17,6 +17,9 @@
 package org.minig.obm.pool;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import javax.transaction.UserTransaction;
@@ -29,6 +32,7 @@ import org.osgi.framework.BundleContext;
 
 import fr.aliasource.obm.aliapool.PoolActivator;
 import fr.aliasource.obm.aliapool.pool.DataSource;
+import fr.aliasource.utils.JDBCUtils;
 import fr.aliasource.utils.RunnableExtensionLoader;
 
 /**
@@ -49,6 +53,7 @@ public class OBMPoolActivator extends Plugin {
 	private Log logger = LogFactory.getLog(getClass());
 
 	private DataSource ds;
+	private String lastInsertIdQuery;
 
 	/**
 	 * The constructor
@@ -81,8 +86,7 @@ public class OBMPoolActivator extends Plugin {
 			IJDBCDriver cf = null;
 			RunnableExtensionLoader<IJDBCDriver> rel = new RunnableExtensionLoader<IJDBCDriver>();
 			List<IJDBCDriver> factories = rel.loadExtensions(PLUGIN_ID,
-					"jdbcconnectionfactory", "connection_factory",
-					"implementation");
+					"jdbcdriver", "jdbc_driver", "implementation");
 			for (IJDBCDriver icf : factories) {
 				if (icf.getSupportedDbType().equalsIgnoreCase(dbType)) {
 					cf = icf;
@@ -99,6 +103,7 @@ public class OBMPoolActivator extends Plugin {
 				String drvClass = cf.getDriverClass();
 				String query = cf.getKeepAliveQuery();
 				String jdbcUrl = cf.getJDBCUrl(dbHost, dbName, login, password);
+				lastInsertIdQuery = cf.getLastInsertIdQuery();
 
 				ds = PoolActivator.getDefault().createDataSource(drvClass,
 						jdbcUrl, login, password, 4, query);
@@ -142,7 +147,23 @@ public class OBMPoolActivator extends Plugin {
 		}
 		return con;
 	}
-	
+
+	public int lastInsertId(Connection con) throws SQLException {
+		int ret = 0;
+		Statement st = null;
+		ResultSet rs = null;
+		try {
+			st = con.createStatement();
+			rs = st.executeQuery(lastInsertIdQuery);
+			if (rs.next()) {
+				ret = rs.getInt(1);
+			}
+		} finally {
+			JDBCUtils.cleanup(null, st, rs);
+		}
+		return ret;
+	}
+
 	public UserTransaction getUserTransaction() {
 		return PoolActivator.getDefault().getTransactionManager();
 	}
