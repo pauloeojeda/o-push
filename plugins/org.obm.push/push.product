@@ -26,7 +26,6 @@
       <plugin id="fr.aliasource.obm.jta"/>
       <plugin id="fr.aliasource.utils"/>
       <plugin id="fr.aliasource.webmail.log4j" fragment="true"/>
-      <plugin id="fr.aliasource.webmail.pool"/>
       <plugin id="javax.servlet"/>
       <plugin id="org.apache.commons.logging"/>
       <plugin id="org.eclipse.core.contenttype"/>
