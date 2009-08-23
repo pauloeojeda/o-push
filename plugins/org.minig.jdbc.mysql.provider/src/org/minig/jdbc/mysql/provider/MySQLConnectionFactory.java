@@ -58,4 +58,9 @@ public class MySQLConnectionFactory implements IJDBCDriver {
 		return "SELECT 1";
 	}
 
+	@Override
+	public String getLastInsertIdQuery() {
+		return "SELECT last_insert_id()";
+	}
+
 }

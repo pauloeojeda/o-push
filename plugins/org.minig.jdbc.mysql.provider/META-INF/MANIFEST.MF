@@ -2,10 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.minig.jdbc.mysql.provider
 Bundle-SymbolicName: org.minig.jdbc.mysql.provider;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0
 Bundle-Activator: org.minig.jdbc.mysql.provider.Activator
 Bundle-Vendor: minig.org
-Require-Bundle: org.eclipse.core.runtime,
- org.minig.obm.pool
+Require-Bundle: org.minig.obm.pool;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
