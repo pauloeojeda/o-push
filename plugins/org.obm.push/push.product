@@ -22,6 +22,8 @@
    </vm>
 
    <plugins>
+      <plugin id="fr.aliasource.obm.aliapool"/>
+      <plugin id="fr.aliasource.obm.jta"/>
       <plugin id="fr.aliasource.utils"/>
       <plugin id="fr.aliasource.webmail.log4j" fragment="true"/>
       <plugin id="fr.aliasource.webmail.pool"/>
@@ -40,8 +42,10 @@
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.services"/>
-      <plugin id="org.minig.obm.jdbc.mysql"/>
-      <plugin id="org.minig.obm.jdbc.pgsql"/>
+      <plugin id="org.minig.jdbc.driver.mysql" fragment="true"/>
+      <plugin id="org.minig.jdbc.driver.pgsql" fragment="true"/>
+      <plugin id="org.minig.jdbc.mysql.provider"/>
+      <plugin id="org.minig.jdbc.pgsql.provider"/>
       <plugin id="org.minig.obm.pool"/>
       <plugin id="org.mortbay.jetty.server"/>
       <plugin id="org.mortbay.jetty.util"/>
