@@ -8,15 +8,6 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.minig.obm.pool.IOBMConnection;
-import org.minig.obm.pool.OBMPoolActivator;
-import org.obm.push.state.SyncState;
-import org.obm.push.store.ISyncStorage;
-
-import fr.aliasource.utils.JDBCUtils;
-
 /**
  * Store device infos, id mappings & last sync dates into OBM database
  * 
@@ -151,7 +142,7 @@ public class SyncStorage implements ISyncStorage {
 		String login = parts[0].toLowerCase();
 		String domain = parts[1].toLowerCase();
 
-		IOBMConnection con = null;
+		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		int id = 0;
@@ -269,7 +260,7 @@ public class SyncStorage implements ISyncStorage {
 		int id = devIdCache.get(deviceId);
 		Integer ret = null;
 
-		IOBMConnection con = null;
+		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 

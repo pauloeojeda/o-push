@@ -1,12 +1,12 @@
 package org.obm.push.backend.obm22.impl;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.minig.obm.pool.IOBMConnection;
 import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.ItemChange;
@@ -46,7 +46,7 @@ public class ObmSyncBackend {
 	}
 
 	private void validateOBMConnection() {
-		IOBMConnection con = OBMPoolActivator.getDefault().getConnection();
+		Connection con = OBMPoolActivator.getDefault().getConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {

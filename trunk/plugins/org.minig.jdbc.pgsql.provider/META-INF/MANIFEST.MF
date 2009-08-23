@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.minig.jdbc.pgsql.provider
+Bundle-SymbolicName: org.minig.jdbc.pgsql.provider;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.minig.jdbc.pgsql.provider.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.minig.obm.pool
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

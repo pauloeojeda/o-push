@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0
 Bundle-Activator: org.obm.push.storage.jdbc.Activator
 Require-Bundle: org.eclipse.core.runtime,
  org.obm.push;bundle-version="1.0.0",
- org.minig.obm.pool;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4"
+ org.apache.commons.logging,
+ org.minig.obm.pool;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

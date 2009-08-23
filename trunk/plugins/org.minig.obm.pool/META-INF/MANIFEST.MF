@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.minig.obm.pool
+Bundle-SymbolicName: org.minig.obm.pool;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: fr.aliasource.utils;bundle-version="1.0.0";visibility:=reexport,
+ org.apache.commons.logging;bundle-version="1.0.4",
+ org.eclipse.core.runtime;bundle-version="3.4.0",
+ fr.aliasource.obm.aliapool;bundle-version="1.0.0"
+Bundle-Activator: org.minig.obm.pool.OBMPoolActivator
+Bundle-ActivationPolicy: lazy
+Eclipse-RegisterBuddy: fr.aliasource.webmail.pool
+Export-Package: org.minig.obm.pool;uses:="org.eclipse.core.runtime,javax.transaction,org.osgi.framework"
