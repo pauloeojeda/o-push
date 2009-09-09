@@ -59,8 +59,6 @@ rm -fr build_directory/*/bin
 rm -fr build_directory/*.tests
 cp log4j.properties.prod build_directory/fr.aliasource.webmail.log4j/log4j.properties
 
-echo "osgi.noShutdown=true" >> configuration/config.ini
-echo "osgi.configuration.area=/var/lib/obm-locator/" >> configuration/config.ini
 
 cat > build_conf_dir/build.properties <<EOF
 product=${product_file}
@@ -119,6 +117,10 @@ rm ../${product_name}-svn-linux.gtk.x86_64.zip
 popd >/dev/null 2>&1
 rm -fr zip_update_dir
 echo "Done."
+
+
+echo "osgi.noShutdown=true" >> configuration/config.ini
+echo "osgi.configuration.area=/var/lib/obm-locator/" >> configuration/config.ini
 
 echo "Product is in '${product_name}.tar.bz2'"
 
