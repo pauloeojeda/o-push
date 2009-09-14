@@ -26,7 +26,7 @@ test $UID -eq 0 && {
 echo "WARNING: this script is not runnable under fakeroot."
 }
 
-source product_build.properties
+source `pwd`/product_build.properties
 test -f `whoami`.product_build.properties && { 
 echo "Loading ${pbuild_dir}/`whoami`.product_build.properties"
 source `whoami`.product_build.properties 
