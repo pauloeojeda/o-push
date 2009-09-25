@@ -23,14 +23,14 @@ public class ObmConfIni extends IniFile {
 	public ObmConfIni() {
 		super("/etc/obm/obm_conf.ini");
 	}
-	
+
 	@Override
 	public String getCategory() {
 		return "obm";
 	}
 
 	public String get(String string) {
-		return getData().get(string);
+		return getData().get(string).replace("\"", "");
 	}
 
 }

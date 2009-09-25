@@ -238,7 +238,7 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			con.setAutoCommit(false);
+//			con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection=?");
 			ps.setInt(1, id);
@@ -253,10 +253,10 @@ public class SyncStorage implements ISyncStorage {
 			ps.setTimestamp(3, new Timestamp(state.getLastSync().getTime()));
 			ps.setString(4, collectionId);
 			ps.executeUpdate();
-			con.commit();
+//			con.commit();
 		} catch (SQLException se) {
 			logger.error(se.getMessage(), se);
-			JDBCUtils.rollback(con);
+//			JDBCUtils.rollback(con);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
 		}
@@ -274,7 +274,7 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			con.setAutoCommit(false);
+//			con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("SELECT id FROM opush_folder_mapping WHERE device_id=? AND collection=?");
 			ps.setInt(1, id);
@@ -296,10 +296,10 @@ public class SyncStorage implements ISyncStorage {
 				ret = OBMPoolActivator.getDefault().lastInsertId(con);
 			}
 
-			con.commit();
+//			con.commit();
 		} catch (SQLException se) {
 			logger.error(se.getMessage(), se);
-			JDBCUtils.rollback(con);
+//			JDBCUtils.rollback(con);
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
@@ -351,7 +351,7 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			con.setAutoCommit(false);
+			// con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("DELETE FROM opush_id_mapping WHERE device_id=?");
 			ps.setInt(1, id);
@@ -365,11 +365,11 @@ public class SyncStorage implements ISyncStorage {
 			ps.setInt(1, id);
 			ps.executeUpdate();
 
-			con.commit();
+			// con.commit();
 			logger.warn("mappings & states cleared for full sync of device "
 					+ devId);
 		} catch (Exception e) {
-			JDBCUtils.rollback(con);
+			// JDBCUtils.rollback(con);
 			logger.error(e.getMessage(), e);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
