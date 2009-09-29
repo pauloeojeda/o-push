@@ -2,6 +2,8 @@ package org.obm.push;
 
 import java.util.Hashtable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -12,9 +14,11 @@ import org.osgi.framework.BundleException;
 
 public class Application implements IApplication {
 
+	private Log logger = LogFactory.getLog(getClass());
+	
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
-		System.out.println("Push server started...");
+		logger.info("Push server started...");
 		Hashtable<String, Object> settings = new Hashtable<String, Object>();
 		settings.put(JettyConstants.HTTP_PORT, 8082);
 		settings.put(JettyConstants.CONTEXT_PATH, "");

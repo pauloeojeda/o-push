@@ -319,7 +319,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		handlers.put("Search", new SearchHandler(backend));
 		handlers.put("SendMail", new SendMailHandler(backend));
 
-		System.out.println("ActiveSync servlet initialised.");
+		logger.info("ActiveSync servlet initialised.");
 	}
 
 	private IBackend loadBackend(PushConfiguration pc) {
