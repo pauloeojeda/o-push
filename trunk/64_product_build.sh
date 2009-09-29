@@ -112,7 +112,7 @@ cp ../../scripts/equinox.lib .
 cp ../../scripts/opush .
 
 echo "osgi.noShutdown=true" >> configuration/config.ini
-echo "osgi.configuration.area=/var/lib/obm-locator/" >> configuration/config.ini
+echo "osgi.configuration.area=/var/lib/obm-opush/" >> configuration/config.ini
 #cp ../../scripts/obm-caldav-profile .
 popd >/dev/null 2>&1
 tar cfj ../${product_name}.tar.bz2 ${product_name}
