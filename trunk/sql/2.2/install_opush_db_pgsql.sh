@@ -11,7 +11,7 @@ host=$3
 
 
 psql -U ${user} ${db} -h ${host} -f \
-create_opush.sql > /tmp/opush.log 2>&1
+create_opush_pgsql.sql > /tmp/opush.log 2>&1
 grep -i error /tmp/opush.log && {
     echo "error in pg script, look at /tmp/opush.log"
     exit 1
