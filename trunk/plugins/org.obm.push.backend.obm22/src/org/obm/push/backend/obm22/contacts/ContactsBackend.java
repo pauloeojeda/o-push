@@ -44,7 +44,7 @@ public class ContactsBackend extends ObmSyncBackend {
 
 		ItemChange ic = new ItemChange();
 		String col = "obm:\\\\" + bs.getLoginAtDomain() + "\\contacts";
-		ic.setServerId(mapper.getClientIdFor(bs.getDevId(), col, null));
+		ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
 		ic.setParentId("0");
 		ic.setDisplayName(bs.getLoginAtDomain() + " contacts");
 		ic.setItemType(FolderType.DEFAULT_CONTACTS_FOLDER);
@@ -83,15 +83,9 @@ public class ContactsBackend extends ObmSyncBackend {
 	private ItemChange getContactChange(BackendSession bs, String collection,
 			Contact c) {
 		ItemChange ic = new ItemChange();
-		ic.setServerId(mapper.getClientIdFor(bs.getDevId(), collection, ""
+		ic.setServerId(getServerIdFor(bs.getDevId(), collection, ""
 				+ c.getUid()));
 		MSContact cal = new ContactConverter().convert(c);
-		String clientId = mapper.toDevice(bs.getDevId(), ic.getServerId());
-		if (!ic.getServerId().equals(clientId)) {
-			int idx = clientId.lastIndexOf(":");
-			clientId = clientId.substring(idx + 1);
-			ic.setClientId(clientId);
-		}
 		ic.setData(cal);
 		return ic;
 	}
@@ -123,12 +117,7 @@ public class ContactsBackend extends ObmSyncBackend {
 		}
 		bc.logout(token);
 
-		String obm = mapper.getClientIdFor(bs.getDevId(), collectionId, id);
-		if (clientId != null) {
-			mapper.addMapping(bs.getDevId(), mapper.getClientIdFor(bs
-					.getDevId(), collectionId, clientId), obm);
-		}
-		return obm;
+		return getServerIdFor(bs.getDevId(), collectionId, id);
 	}
 
 	public void delete(BackendSession bs, String serverId) {

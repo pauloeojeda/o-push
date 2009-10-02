@@ -19,11 +19,11 @@ public class ObmSyncBackend {
 	protected Log logger = LogFactory.getLog(getClass());
 
 	protected String obmSyncHost;
-	protected UIDMapper mapper;
+	private ISyncStorage storage;
 
 	protected ObmSyncBackend(ISyncStorage storage) {
 		validateOBMConnection();
-		this.mapper = new UIDMapper(storage);
+		this.storage = storage;
 	}
 
 	protected void locateObmSync(BackendSession bs) {
@@ -41,7 +41,7 @@ public class ObmSyncBackend {
 	protected ItemChange getDeletion(BackendSession bs, String collection,
 			String del) {
 		ItemChange ic = new ItemChange();
-		ic.setServerId(mapper.getClientIdFor(bs.getDevId(), collection, del));
+		ic.setServerId(getServerIdFor(bs.getDevId(), collection, del));
 		return ic;
 	}
 
@@ -60,6 +60,18 @@ public class ObmSyncBackend {
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
+	}
+
+	public String getServerIdFor(String deviceId, String collection,
+			String clientId) {
+		int folderId = storage.getCollectionMapping(deviceId, collection);
+		StringBuilder sb = new StringBuilder(10);
+		sb.append(folderId);
+		if (clientId != null) {
+			sb.append(':');
+			sb.append(clientId);
+		}
+		return sb.toString();
 	}
 
 }

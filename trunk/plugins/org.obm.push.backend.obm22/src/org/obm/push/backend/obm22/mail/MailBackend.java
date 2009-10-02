@@ -53,7 +53,7 @@ public class MailBackend extends ObmSyncBackend {
 		sb.append('\\');
 		sb.append(imapFolder);
 		String s = sb.toString();
-		return mapper.getClientIdFor(bs.getDevId(), s, null);
+		return getServerIdFor(bs.getDevId(), s, null);
 	}
 
 	public DataDelta getContentChanges(BackendSession bs) {

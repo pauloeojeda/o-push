@@ -1,10 +1,10 @@
 package org.obm.push.impl;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
@@ -74,7 +74,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 		NodeList nl = doc.getDocumentElement().getElementsByTagName(
 				"Collection");
 		LinkedList<SyncCollection> collections = new LinkedList<SyncCollection>();
-		HashSet<String> processedClientIds = new HashSet<String>();
+		HashMap<String, String> processedClientIds = new HashMap<String, String>();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Element col = (Element) nl.item(i);
 			collections.add(processCollection(bs, sm, col, processedClientIds));
@@ -130,38 +130,39 @@ public class SyncHandler extends WbxmlRequestHandler {
 	}
 
 	private void doUpdates(BackendSession bs, SyncCollection c, Element ce,
-			IContentsExporter cex, HashSet<String> processedClientIds) {
-		List<ItemChange> changed;
+			IContentsExporter cex, HashMap<String, String> processedClientIds) {
 		String col = backend.getStore().getCollectionString(
 				Integer.parseInt(c.getCollectionId()));
 		DataDelta delta = cex.getChanged(bs, col);
-		changed = delta.getChanges();
+		List<ItemChange> changed = delta.getChanges();
 		logger.info("should send " + changed.size() + " change(s).");
 		Element responses = DOMUtils.createElement(ce, "Responses");
 		Element commands = DOMUtils.createElement(ce, "Commands");
 
 		StringBuilder processedIds = new StringBuilder();
-		for (String k : processedClientIds) {
+		for (Entry<String, String> k : processedClientIds.entrySet()) {
 			processedIds.append(' ');
-			processedIds.append(k);
+			if (k.getValue() != null) {
+				processedIds.append(k.getValue());
+			} else {
+				processedIds.append(k.getValue());
+			}
 		}
 
 		for (ItemChange ic : changed) {
-
+			String clientId = processedClientIds.get(ic.getServerId());
 			logger.info("processedIds:" + processedIds.toString()
-					+ " ic.clientId: " + ic.getClientId() + " ic.serverId: "
+					+ " ic.clientId: " + clientId + " ic.serverId: "
 					+ ic.getServerId());
 
-			if (ic.getClientId() != null
-					&& processedClientIds.contains(ic.getClientId())) {
+			if (clientId != null) {
 				// Acks Add done by pda
 				Element add = DOMUtils.createElement(responses, "Add");
-				DOMUtils
-						.createElementAndText(add, "ClientId", ic.getClientId());
+				DOMUtils.createElementAndText(add, "ClientId", clientId);
 				DOMUtils
 						.createElementAndText(add, "ServerId", ic.getServerId());
 				DOMUtils.createElementAndText(add, "Status", "1");
-			} else if (processedClientIds.contains(ic.getServerId())) {
+			} else if (processedClientIds.keySet().contains(ic.getServerId())) {
 				// Change asked by device
 				Element add = DOMUtils.createElement(responses, "Change");
 				DOMUtils
@@ -198,10 +199,6 @@ public class SyncHandler extends WbxmlRequestHandler {
 		for (ItemChange ic : changed) {
 			Element add = DOMUtils.createElement(commands, "Fetch");
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
-			if (ic.getClientId() != null) {
-				DOMUtils
-						.createElementAndText(add, "ClientId", ic.getClientId());
-			}
 			DOMUtils.createElementAndText(add, "Status", "1");
 			serializeChange(bs, add, c, ic);
 		}
@@ -221,7 +218,8 @@ public class SyncHandler extends WbxmlRequestHandler {
 	}
 
 	private SyncCollection processCollection(BackendSession bs,
-			StateMachine sm, Element col, HashSet<String> processedClientIds) {
+			StateMachine sm, Element col,
+			HashMap<String, String> processedClientIds) {
 		SyncCollection collection = new SyncCollection();
 		collection.setDataClass(DOMUtils.getElementText(col, "Class"));
 		collection.setSyncKey(DOMUtils.getElementText(col, "SyncKey"));
@@ -272,19 +270,14 @@ public class SyncHandler extends WbxmlRequestHandler {
 	 */
 	private void processModification(BackendSession bs,
 			SyncCollection collection, IContentsImporter importer,
-			Element modification, HashSet<String> processedClientIds) {
+			Element modification, HashMap<String, String> processedClientIds) {
 		int col = Integer.parseInt(collection.getCollectionId());
 		String collectionId = backend.getStore().getCollectionString(col);
 		String modType = modification.getNodeName();
 		logger.info("modType: " + modType);
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
 		String clientId = DOMUtils.getElementText(modification, "ClientId");
-		if (clientId != null) {
-			processedClientIds.add(clientId);
-		}
-		if (serverId != null) {
-			processedClientIds.add(serverId);
-		}
+
 		Element syncData = DOMUtils.getUniqueElement(modification,
 				"ApplicationData");
 		String dataClass = backend.getStore().getDataClass(collectionId);
@@ -304,8 +297,15 @@ public class SyncHandler extends WbxmlRequestHandler {
 			} else if (modType.equals("Add") || modType.equals("Change")) {
 				logger.info("processing Add/Change (srv: " + serverId
 						+ ", cli:" + clientId + ")");
-				importer.importMessageChange(bs, collectionId, serverId,
-						clientId, data);
+
+				String obmId = importer.importMessageChange(bs, collectionId,
+						serverId, clientId, data);
+				if (clientId != null) {
+					processedClientIds.put(obmId, clientId);
+				}
+				if (serverId != null) {
+					processedClientIds.put(obmId, null);
+				}
 			} else if (modType.equals("Delete")) {
 				if (collection.isDeletesAsMoves()) {
 					String trash = backend.getWasteBasket();

@@ -18,12 +18,6 @@ CREATE TABLE opush_folder_mapping (
        collection	VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE opush_id_mapping (
-       device_id	INTEGER NOT NULL REFERENCES opush_device(id) ON DELETE CASCADE,
-       client_id	VARCHAR(255) NOT NULL,
-       server_id	VARCHAR(255) NOT NULL
-);
-
 -- store last sync dates
 CREATE TABLE opush_sync_state (
        sync_key		VARCHAR(64) UNIQUE NOT NULL,

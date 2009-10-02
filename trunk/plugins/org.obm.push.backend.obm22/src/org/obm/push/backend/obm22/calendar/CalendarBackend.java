@@ -46,7 +46,7 @@ public class CalendarBackend extends ObmSyncBackend {
 			ItemChange ic = new ItemChange();
 			String col = "obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
 					+ bs.getLoginAtDomain();
-			ic.setServerId(mapper.getClientIdFor(bs.getDevId(), col, null));
+			ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
 			ic.setParentId("0");
 			ic.setDisplayName(bs.getLoginAtDomain());
 			ic.setItemType(FolderType.DEFAULT_CALENDAR_FOLDER);
@@ -64,7 +64,7 @@ public class CalendarBackend extends ObmSyncBackend {
 				ItemChange ic = new ItemChange();
 				String col = "obm:\\\\" + bs.getLoginAtDomain()
 						+ "\\calendar\\" + ci.getUid() + "@domain";
-				ic.setServerId(mapper.getClientIdFor(bs.getDevId(), col, null));
+				ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
 				ic.setParentId("0");
 				ic.setDisplayName(ci.getMail());
 				if (i++ == 0) {
@@ -109,7 +109,7 @@ public class CalendarBackend extends ObmSyncBackend {
 
 		cc.logout(token);
 		logger.info("getContentChanges(" + calendar + ", " + collectionId
-				+ ", lastSync: "+ls+") => " + addUpd.size() + " entries.");
+				+ ", lastSync: " + ls + ") => " + addUpd.size() + " entries.");
 		return new DataDelta(addUpd, deletions);
 	}
 
@@ -125,14 +125,8 @@ public class CalendarBackend extends ObmSyncBackend {
 	private ItemChange addCalendarChange(String deviceId, String collection,
 			Event e) {
 		ItemChange ic = new ItemChange();
-		ic.setServerId(mapper.getClientIdFor(deviceId, collection, e.getUid()));
+		ic.setServerId(getServerIdFor(deviceId, collection, e.getUid()));
 		MSEvent cal = new EventConverter().convertEvent(e);
-		String clientId = mapper.toDevice(deviceId, ic.getServerId());
-		if (!ic.getServerId().equals(clientId)) {
-			int idx = clientId.lastIndexOf(":");
-			clientId = clientId.substring(idx + 1);
-			ic.setClientId(clientId);
-		}
 		ic.setData(cal);
 		return ic;
 	}
@@ -187,23 +181,19 @@ public class CalendarBackend extends ObmSyncBackend {
 			}
 		}
 		cc.logout(token);
-		String obm = mapper.getClientIdFor(bs.getDevId(), collectionId, id);
-		if (clientId != null) {
-			mapper.addMapping(bs.getDevId(), mapper.getClientIdFor(bs
-					.getDevId(), collectionId, clientId), obm);
-		}
-		return obm;
+
+		return getServerIdFor(bs.getDevId(), collectionId, id);
 	}
 
 	public void delete(BackendSession bs, String collectionId, String serverId) {
-		logger.info("delete serverId "+serverId);
+		logger.info("delete serverId " + serverId);
 		if (serverId != null) {
 			int idx = serverId.indexOf(":");
 			if (idx > 0) {
-				String id = serverId.substring(idx+1);
+				String id = serverId.substring(idx + 1);
 				CalendarClient bc = getClient(bs);
-				AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(),
-						"o-push");
+				AccessToken token = bc.login(bs.getLoginAtDomain(), bs
+						.getPassword(), "o-push");
 				try {
 					bc.removeEvent(token, parseCalendarId(collectionId), id);
 				} catch (Exception e) {
