@@ -22,12 +22,6 @@ public interface ISyncStorage {
 	 */
 	boolean initDevice(String loginAtDomain, String deviceId, String deviceType);
 
-	void storeMapping(String deviceId, String clientId, String serverId);
-
-	String getServerId(String deviceId, String clientId);
-
-	String getClientId(String deviceId, String serverId);
-
 	/**
 	 * Fetches the id associated with a given collection id string. Creates a
 	 * new one if missing.

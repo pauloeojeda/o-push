@@ -1,3 +1,41 @@
+2009-10-02  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	refactoring of serverId and clientId management
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java:
+	(CalendarBackend.getHierarchyChanges),
+	(CalendarBackend.getContentChanges),
+	(CalendarBackend.addCalendarChange),
+	(CalendarBackend.createOrUpdate), (CalendarBackend.delete):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java:
+	(ContactsBackend.getHierarchyChanges),
+	(ContactsBackend.getContactChange),
+	(ContactsBackend.createOrUpdate):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmSyncBackend.java: (ObmSyncBackend),
+	(ObmSyncBackend.ObmSyncBackend), (ObmSyncBackend.getDeletion),
+	(ObmSyncBackend.getServerIdFor):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/UIDMapper.java:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend.genServerId):
+	* plugins/org.obm.push.storage.jdbc/src/org/obm/push/storage/jdbc/S
+	yncStorage.java: (SyncStorage), (SyncStorage.initDevice),
+	(SyncStorage.updateState), (SyncStorage.getCollectionMapping),
+	(SyncStorage.resetForFullSync):
+	* plugins/org.obm.push/src/org/obm/push/backend/ItemChange.java:
+	(ItemChange), (ItemChange.setData):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process), (SyncHandler.doUpdates),
+	(SyncHandler.doFetch), (SyncHandler),
+	(SyncHandler.processCollection), (SyncHandler.processModification):
+	* plugins/org.obm.push/src/org/obm/push/store/ISyncStorage.java:
+	(ISyncStorage):
+	* sql/2.2/create_opush_mysql.sql:
+	* sql/2.2/create_opush_pgsql.sql:
+
 2009-07-22  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
 
 	Refactor 2.5 & 12.1 EAS policies.

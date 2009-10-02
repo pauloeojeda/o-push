@@ -90,60 +90,6 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public String getClientId(String deviceId, String serverId) {
-		int id = devIdCache.get(deviceId);
-
-		String ret = null;
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT client_id FROM opush_id_mapping WHERE device_id=? AND server_id=?");
-			ps.setInt(1, id);
-			ps.setString(2, serverId);
-			rs = ps.executeQuery();
-			if (rs.next()) {
-				ret = rs.getString(1);
-			}
-		} catch (SQLException se) {
-			logger.error(se.getMessage(), se);
-		} finally {
-			JDBCUtils.cleanup(con, ps, null);
-		}
-		return ret;
-	}
-
-	@Override
-	public String getServerId(String deviceId, String clientId) {
-		int id = devIdCache.get(deviceId);
-
-		String ret = null;
-		Connection con = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-
-		try {
-			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT server_id FROM opush_id_mapping WHERE device_id=? AND client_id=?");
-			ps.setInt(1, id);
-			ps.setString(2, clientId);
-			rs = ps.executeQuery();
-			if (rs.next()) {
-				ret = rs.getString(1);
-			}
-		} catch (SQLException se) {
-			logger.error(se.getMessage(), se);
-		} finally {
-			JDBCUtils.cleanup(con, ps, null);
-		}
-		return ret;
-	}
-
-	@Override
 	public boolean initDevice(String loginAtDomain, String deviceId,
 			String deviceType) {
 		String[] parts = loginAtDomain.split("@");
@@ -207,28 +153,6 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public void storeMapping(String deviceId, String clientId, String serverId) {
-		int id = devIdCache.get(deviceId);
-
-		Connection con = null;
-		PreparedStatement ps = null;
-
-		try {
-			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("INSERT INTO opush_id_mapping (device_id, client_id, server_id) VALUES (?, ?, ?)");
-			ps.setInt(1, id);
-			ps.setString(2, clientId);
-			ps.setString(3, serverId);
-			ps.executeUpdate();
-		} catch (SQLException se) {
-			logger.error(se.getMessage(), se);
-		} finally {
-			JDBCUtils.cleanup(con, ps, null);
-		}
-	}
-
-	@Override
 	public void updateState(String devId, String collectionId,
 			SyncState oldState, SyncState state) {
 		int id = devIdCache.get(devId);
@@ -238,7 +162,7 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-//			con.setAutoCommit(false);
+			// con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection=?");
 			ps.setInt(1, id);
@@ -253,10 +177,10 @@ public class SyncStorage implements ISyncStorage {
 			ps.setTimestamp(3, new Timestamp(state.getLastSync().getTime()));
 			ps.setString(4, collectionId);
 			ps.executeUpdate();
-//			con.commit();
+			// con.commit();
 		} catch (SQLException se) {
 			logger.error(se.getMessage(), se);
-//			JDBCUtils.rollback(con);
+			// JDBCUtils.rollback(con);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
 		}
@@ -274,7 +198,7 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-//			con.setAutoCommit(false);
+			// con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("SELECT id FROM opush_folder_mapping WHERE device_id=? AND collection=?");
 			ps.setInt(1, id);
@@ -296,10 +220,10 @@ public class SyncStorage implements ISyncStorage {
 				ret = OBMPoolActivator.getDefault().lastInsertId(con);
 			}
 
-//			con.commit();
+			// con.commit();
 		} catch (SQLException se) {
 			logger.error(se.getMessage(), se);
-//			JDBCUtils.rollback(con);
+			// JDBCUtils.rollback(con);
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
@@ -352,14 +276,6 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
 			// con.setAutoCommit(false);
-			ps = con
-					.prepareStatement("DELETE FROM opush_id_mapping WHERE device_id=?");
-			ps.setInt(1, id);
-			ps.executeUpdate();
-
-			ps.close();
-			ps = null;
-
 			ps = con
 					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=?");
 			ps.setInt(1, id);
