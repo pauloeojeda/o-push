@@ -178,7 +178,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 
 		List<ItemChange> del = delta.getDeletions();
 		for (ItemChange ic : del) {
-			serializeDeletion(ce, ic);
+			serializeDeletion(commands, ic);
 		}
 
 		if (responses.getChildNodes().getLength() == 0) {
