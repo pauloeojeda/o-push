@@ -1,5 +1,6 @@
 package org.obm.push.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -43,10 +44,13 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 			return;
 		}
 
-		logger.info("from pda:");
-		try {
-			DOMUtils.logDom(doc);
-		} catch (TransformerException e) {
+		if (logger.isInfoEnabled()) {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			try {
+				DOMUtils.serialise(doc, out, true);
+				logger.info("from pda:\n" + out.toString());
+			} catch (TransformerException e) {
+			}
 		}
 
 		process(continuation, bs, doc, responder);

@@ -214,7 +214,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 		IApplicationData data = ic.getData();
 		IDataEncoder encoder = encoders.getEncoder(data);
 		Element apData = DOMUtils.createElement(col, "ApplicationData");
-		encoder.encode(bs, apData, data);
+		encoder.encode(bs, apData, data, true);
 	}
 
 	private SyncCollection processCollection(BackendSession bs,

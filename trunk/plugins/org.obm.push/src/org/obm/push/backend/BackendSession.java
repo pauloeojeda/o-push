@@ -1,5 +1,6 @@
 package org.obm.push.backend;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
@@ -56,8 +57,11 @@ public class BackendSession {
 	private void loadHints() {
 		hints = new Properties();
 		try {
-			hints.load(BackendSession.class.getClassLoader()
-					.getResourceAsStream("hints/" + devType + ".hints"));
+			InputStream in = BackendSession.class.getClassLoader()
+			.getResourceAsStream("hints/" + devType + ".hints");
+			hints.load(in);
+			in.close();
+			logger.info("Loaded hints for "+devType);
 		} catch (Throwable e) {
 			logger.warn("could not load hints for device type " + devType);
 		}

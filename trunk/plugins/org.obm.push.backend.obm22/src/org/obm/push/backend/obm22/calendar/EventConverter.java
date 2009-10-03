@@ -36,34 +36,36 @@ public class EventConverter {
 	private static final Log logger = LogFactory.getLog(EventConverter.class);
 
 	public MSEvent convertEvent(Event e) {
-		MSEvent cal = new MSEvent();
+		MSEvent mse = new MSEvent();
 
-		cal.setSubject(e.getTitle());
-		cal.setLocation(e.getLocation());
-		cal.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
-		cal.setStartTime(e.getDate());
+		mse.setDtStamp(e.getTimeUpdate());
+		
+		mse.setSubject(e.getTitle());
+		mse.setLocation(e.getLocation());
+		mse.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
+		mse.setStartTime(e.getDate());
 
 		Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		c.setTimeInMillis(e.getDate().getTime());
 		c.add(Calendar.SECOND, e.getDuration());
-		cal.setEndTime(c.getTime());
+		mse.setEndTime(c.getTime());
 
 		List<MSAttendee> l = new LinkedList<MSAttendee>();
 		for (Attendee at : e.getAttendees()) {
 			l.add(convertAttendee(at));
 		}
-		cal.setAttendees(l);
+		mse.setAttendees(l);
 
-		cal.setOrganizerName(e.getOwner());
-		cal.setAllDayEvent(e.isAllday());
+		mse.setOrganizerName(e.getOwner());
+		mse.setAllDayEvent(e.isAllday());
 
-		cal.setRecurrence(getRecurrence(e.getRecurrence()));
+		mse.setRecurrence(getRecurrence(e.getRecurrence()));
 
 		if (e.getAlert() != null && e.getAlert() > 0) {
-			cal.setReminder(e.getAlert());
+			mse.setReminder(e.getAlert());
 		}
-		cal.setUID(e.getExtId());
-		return cal;
+		mse.setUID(e.getExtId());
+		return mse;
 	}
 
 	private EventRecurrence getRecurrence(MSEvent msev) {

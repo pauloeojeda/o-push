@@ -6,6 +6,6 @@ import org.w3c.dom.Element;
 
 public interface IDataEncoder {
 
-	void encode(BackendSession bs, Element parent, IApplicationData data);
+	void encode(BackendSession bs, Element parent, IApplicationData data, boolean isResponse);
 
 }
