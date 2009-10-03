@@ -20,7 +20,7 @@ import org.w3c.dom.Element;
 public class CalendarEncoder implements IDataEncoder {
 
 	private SimpleDateFormat sdf;
-	
+
 	private static final Pattern hexa = Pattern.compile("[0-9a-fA-F]");
 
 	public CalendarEncoder() {
@@ -39,7 +39,8 @@ public class CalendarEncoder implements IDataEncoder {
 	// <MeetingStatus>0</MeetingStatus>
 
 	@Override
-	public void encode(BackendSession bs, Element p, IApplicationData data) {
+	public void encode(BackendSession bs, Element p, IApplicationData data,
+			boolean isReponse) {
 
 		MSEvent ev = (MSEvent) data;
 
@@ -47,7 +48,7 @@ public class CalendarEncoder implements IDataEncoder {
 		// taken from exchange 2k7 : eastern greenland, gmt+0, no dst
 		tz
 				.setTextContent("xP///1IAbwBtAGEAbgBjAGUAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAbwBtAGEAbgBjAGUAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
-		e(p, "Calendar:DTStamp", sdf.format(new Date()));
+		e(p, "Calendar:DTStamp", sdf.format(ev.getDtStamp()));
 		e(p, "Calendar:StartTime", sdf.format(ev.getStartTime()));
 		e(p, "Calendar:Subject", ev.getSubject());
 
@@ -59,12 +60,19 @@ public class CalendarEncoder implements IDataEncoder {
 		if (ev.getOrganizerEmail() != null) {
 			e(p, "Calendar:OrganizerName", ev.getOrganizerName());
 			e(p, "Calendar:OrganizerEmail", ev.getOrganizerEmail());
+		} else {
+			// FIXME we need a proper name & email
+			String l = bs.getLoginAtDomain();
+			int idx = l.indexOf("@");
+			if (idx > 0) {
+				l = l.substring(0, idx);
+			}
+			e(p, "Calendar:OrganizerName", l);
+			e(p, "Calendar:OrganizerEmail", bs.getLoginAtDomain());
 		}
 
-		if (bs.checkHint("hint.loadAttendees", true)) {
-			e(p, "Calendar:MeetingStatus",
-					CalendarMeetingStatus.IS_NOT_IN_MEETING.asIntString());
-
+		if (bs.checkHint("hint.loadAttendees", true)
+				&& ev.getAttendees().size() > 1) {
 			Element at = DOMUtils.createElement(p, "Calendar:Attendees");
 			for (MSAttendee ma : ev.getAttendees()) {
 				Element ae = DOMUtils.createElement(at, "Calendar:Attendee");
@@ -81,9 +89,11 @@ public class CalendarEncoder implements IDataEncoder {
 		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
 
 		if (bs.getProtocolVersion() > 12) {
-			Element d = DOMUtils.createElement(p, "AirSyncBase:Data");
-			e(d, "AirSyncBase:Type", "1");
-			DOMUtils.createElement(d, "AirSyncBase:EstimatedDataSize");
+			Element d = DOMUtils.createElement(p, "AirSyncBase:Body");
+			e(d, "AirSyncBase:Type", AirSyncBaseType.PLAIN_TEXT.toString());
+			DOMUtils.createElementAndText(d, "AirSyncBase:EstimatedDataSize",
+					"0");
+			DOMUtils.createElementAndText(d, "AirSyncBase:Truncated", "1");
 		}
 
 		if (ev.getRecurrence() != null) {
@@ -95,6 +105,22 @@ public class CalendarEncoder implements IDataEncoder {
 
 		if (ev.getAllDayEvent()) {
 			e(p, "Calendar:AllDayEvent", (ev.getAllDayEvent() ? "1" : "0"));
+		} else {
+			e(p, "Calendar:AllDayEvent", "0");
+		}
+
+		if (bs.checkHint("hint.loadAttendees", true)
+				&& ev.getAttendees().size() > 1) {
+			e(p, "Calendar:MeetingStatus", CalendarMeetingStatus.IS_IN_MEETING
+					.asIntString());
+		} else {
+			e(p, "Calendar:MeetingStatus",
+					CalendarMeetingStatus.IS_NOT_IN_MEETING.asIntString());
+		}
+
+		if (isReponse && bs.getProtocolVersion() > 12) {
+			e(p, "AirSyncBase:NativeBodyType", AirSyncBaseType.PLAIN_TEXT
+					.toString());
 		}
 
 		if (ev.getReminder() != null) {

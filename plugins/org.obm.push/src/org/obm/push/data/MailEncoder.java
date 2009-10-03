@@ -21,7 +21,7 @@ public class MailEncoder implements IDataEncoder {
 //    <InternetCPID>20127</InternetCPID>
 	
 	@Override
-	public void encode(BackendSession bs, Element parent, IApplicationData data) {
+	public void encode(BackendSession bs, Element parent, IApplicationData data, boolean isResponse) {
 		// TODO Auto-generated method stub
 		DOMUtils.createElementAndText(parent, "Email:To", "thomas@zz.com");
 		DOMUtils.createElementAndText(parent, "Email:From", "root@buffy.kvm");

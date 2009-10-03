@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 public class TaskEncoder implements IDataEncoder {
 
 	@Override
-	public void encode(BackendSession bs, Element parent, IApplicationData data) {
+	public void encode(BackendSession bs, Element parent, IApplicationData data, boolean isResponse) {
 		// TODO Auto-generated method stub
 
 	}

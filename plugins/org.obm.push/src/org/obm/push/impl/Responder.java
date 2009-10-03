@@ -1,5 +1,6 @@
 package org.obm.push.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.servlet.ServletOutputStream;
@@ -23,10 +24,13 @@ public class Responder {
 
 	public void sendResponse(String defaultNamespace, Document doc)
 			throws IOException {
-		logger.info("to pda:");
-		try {
-			DOMUtils.logDom(doc);
-		} catch (TransformerException e) {
+		if (logger.isInfoEnabled()) {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			try {
+				DOMUtils.serialise(doc, out, true);
+				logger.info("to pda:\n" + out.toString());
+			} catch (TransformerException e) {
+			}
 		}
 		byte[] wbxml = WBXMLTools.toWbxml(defaultNamespace, doc);
 		resp.setContentType("application/vnd.ms-sync.wbxml");
