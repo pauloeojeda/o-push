@@ -551,6 +551,7 @@ public class TagsTables {
 			"Type", // 0x06
 			"TruncationSize", // 0x07
 			"AllOrNone", // 0x08
+			"UNDEFINED_IN_MICROSOFT_SPEC",
 			"Body", // 0x0A
 			"Data", // 0x0B
 			"EstimatedDataSize", // 0x0C
