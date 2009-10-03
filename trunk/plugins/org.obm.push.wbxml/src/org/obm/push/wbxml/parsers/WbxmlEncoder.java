@@ -88,13 +88,12 @@ public class WbxmlEncoder {
 	}
 
 	void writeStrI(OutputStream out, String s) throws IOException {
-		for (int i = 0; i < s.length(); i++) {
-			out.write((byte) s.charAt(i));
-		}
+		out.write(s.getBytes());
 		out.write(0);
 	}
 
-	void writeStrT(String s) throws IOException {
+	@SuppressWarnings("unused")
+	private void writeStrT(String s) throws IOException {
 
 		Integer idx = stringTable.get(s);
 
