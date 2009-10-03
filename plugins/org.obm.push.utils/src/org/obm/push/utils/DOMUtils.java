@@ -223,7 +223,7 @@ public final class DOMUtils {
 		return el;
 	}
 
-	private static void serialise(Document doc, OutputStream out, boolean pretty)
+	public static void serialise(Document doc, OutputStream out, boolean pretty)
 			throws TransformerException {
 		Transformer tf = fac.newTransformer();
 		if (pretty) {
