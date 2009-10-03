@@ -2,6 +2,7 @@ package org.obm.push;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -70,10 +71,12 @@ public class ActiveSyncServlet extends HttpServlet {
 				+ request.getMethod());
 
 		if (c.isResumed()) {
-			PingHandler ph = (PingHandler) handlers.get("Ping");
-			ph.sendResponse((BackendSession) c.getObject(), new Responder(
-					response));
-			return;
+			synchronized (handlers) {
+				PingHandler ph = (PingHandler) handlers.get("Ping");
+				ph.sendResponse((BackendSession) c.getObject(), new Responder(
+						response));
+				return;
+			}
 		}
 
 		String m = request.getMethod();
@@ -228,16 +231,20 @@ public class ActiveSyncServlet extends HttpServlet {
 		String uid = getLoginAtDomain(userID);
 
 		BackendSession bs = null;
-		if (sessions.containsKey(uid)) {
-			bs = sessions.get(uid);
-			bs.setCommand(p(r, "Cmd"));
-		} else {
-			bs = new BackendSession(uid, password, p(r, "DeviceId"),
-					extractDeviceType(r), p(r, "Cmd"));
-			new HintsLoader().addHints(r, bs);
+		synchronized (sessions) {
+			if (sessions.containsKey(uid)) {
+				bs = sessions.get(uid);
+				bs.setCommand(p(r, "Cmd"));
+			} else {
+				bs = new BackendSession(uid, password, p(r, "DeviceId"),
+						extractDeviceType(r), p(r, "Cmd"));
+				sessions.put(uid, bs);
+				new HintsLoader().addHints(r, bs);
+			}
+
+			bs.setRequest(r);
+			return bs;
 		}
-		bs.setRequest(r);
-		return bs;
 	}
 
 	private String getLoginAtDomain(String userID) {
@@ -291,7 +298,9 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private IRequestHandler getHandler(BackendSession p) {
-		return handlers.get(p.getCommand());
+		synchronized (handlers) {
+			return handlers.get(p.getCommand());
+		}
 	}
 
 	private boolean validatePassword(String userID, String password) {
@@ -307,17 +316,22 @@ public class ActiveSyncServlet extends HttpServlet {
 
 		IBackend backend = loadBackend(pc);
 
-		sessions = new HashMap<String, BackendSession>();
+		sessions = Collections
+				.synchronizedMap(new HashMap<String, BackendSession>());
 
-		handlers = new HashMap<String, IRequestHandler>();
-		handlers.put("FolderSync", new FolderSyncHandler(backend));
-		handlers.put("Sync", new SyncHandler(backend));
-		handlers.put("GetItemEstimate", new GetItemEstimateHandler(backend));
-		handlers.put("Provision", new ProvisionHandler(backend));
-		handlers.put("Ping", new PingHandler(backend));
-		handlers.put("Settings", new SettingsHandler(backend));
-		handlers.put("Search", new SearchHandler(backend));
-		handlers.put("SendMail", new SendMailHandler(backend));
+		handlers = Collections
+				.synchronizedMap(new HashMap<String, IRequestHandler>());
+		synchronized (handlers) {
+			handlers.put("FolderSync", new FolderSyncHandler(backend));
+			handlers.put("Sync", new SyncHandler(backend));
+			handlers
+					.put("GetItemEstimate", new GetItemEstimateHandler(backend));
+			handlers.put("Provision", new ProvisionHandler(backend));
+			handlers.put("Ping", new PingHandler(backend));
+			handlers.put("Settings", new SettingsHandler(backend));
+			handlers.put("Search", new SearchHandler(backend));
+			handlers.put("SendMail", new SendMailHandler(backend));
+		}
 
 		logger.info("ActiveSync servlet initialised.");
 	}
