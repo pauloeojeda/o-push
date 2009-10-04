@@ -21,13 +21,15 @@ public class BackendSession {
 	private SyncState state;
 	private PIMDataType dataType;
 	private Properties hints;
-	private Set<SyncCollection> changedFolders;
 	private Date updatedSyncDate;
 
 	private double protocolVersion;
 
 	private String policyKey;
 
+	private long lastHeartbeat;
+	private Set<SyncCollection> lastMonitored;
+	
 	public BackendSession(String loginAtDomain, String password, String devId,
 			String devType, String command) {
 		super();
@@ -120,14 +122,6 @@ public class BackendSession {
 		this.dataType = dataType;
 	}
 
-	public Set<SyncCollection> getChangedFolders() {
-		return changedFolders;
-	}
-
-	public void setChangedFolders(Set<SyncCollection> changedFolders) {
-		this.changedFolders = changedFolders;
-	}
-
 	public Date getUpdatedSyncDate() {
 		return updatedSyncDate;
 	}
@@ -150,6 +144,22 @@ public class BackendSession {
 
 	public String getPolicyKey() {
 		return policyKey;
+	}
+
+	public long getLastHeartbeat() {
+		return lastHeartbeat;
+	}
+
+	public void setLastHeartbeat(long lastHeartbeat) {
+		this.lastHeartbeat = lastHeartbeat;
+	}
+
+	public Set<SyncCollection> getLastMonitored() {
+		return lastMonitored;
+	}
+
+	public void setLastMonitored(Set<SyncCollection> lastMonitored) {
+		this.lastMonitored = lastMonitored;
 	}
 
 }

@@ -37,14 +37,32 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 			InputStream in, Responder responder) throws IOException {
 		byte[] input = FileUtils.streamBytes(in, true);
 		Document doc = null;
-		try {
-			doc = WBXMLTools.toXml(input);
-		} catch (IOException e) {
-			logger.error("Error parsing wbxml data.", e);
-			return;
+
+		if (input != null && input.length > 0) {
+			try {
+				doc = WBXMLTools.toXml(input);
+			} catch (IOException e) {
+				logger.error("Error parsing wbxml data.", e);
+				return;
+			}
+		} else {
+			logger.debug("empty wbxml command (valid for Ping & Sync)");
+			// To reduce the amount of data sent in a Ping command request, the
+			// server caches the heartbeat
+			// interval and folder list. The client can omit the heartbeat
+			// interval, the folder list, or both from
+			// subsequent Ping requests if those parameters have not changed
+			// from the previous Ping
+			// request. If neither the heartbeat interval nor the folder list
+			// has changed, the client can issue a
+			// Ping request that does not contain an XML body. If the Ping
+			// element is specified in an XML
+			// request body, either the HeartbeatInterval element or the Folders
+			// element or both MUST be
+			// specified.
 		}
 
-		if (logger.isInfoEnabled()) {
+		if (doc != null && logger.isInfoEnabled()) {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			try {
 				DOMUtils.serialise(doc, out, true);
@@ -55,7 +73,7 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 
 		process(continuation, bs, doc, responder);
 	}
-	
+
 	/**
 	 * Handles the client request. The wbxml was already decoded and is
 	 * available in the doc parameter.

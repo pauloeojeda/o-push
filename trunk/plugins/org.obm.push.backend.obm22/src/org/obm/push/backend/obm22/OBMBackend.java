@@ -1,7 +1,5 @@
 package org.obm.push.backend.obm22;
 
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
@@ -13,10 +11,8 @@ import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.IListenerRegistration;
-import org.obm.push.backend.SyncCollection;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
-import org.obm.push.backend.obm22.impl.PollingThread;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.provisioning.MSEASProvisioingWBXML;
 import org.obm.push.provisioning.MSWAPProvisioningXML;
@@ -81,21 +77,6 @@ public class OBMBackend implements IBackend {
 		} else {
 			return new MSEASProvisioingWBXML();
 		}
-	}
-
-	@Override
-	public Set<SyncCollection> pollForChanges(IContinuation c,
-			BackendSession bs, Set<SyncCollection> toMonitor, long msTimeout) {
-		logger.info("starting polling thread");
-		PollingThread pt = new PollingThread(bs, toMonitor, this, c, msTimeout);
-		Thread t = new Thread(pt);
-		t.start();
-
-		synchronized (bs) {
-			c.suspend(msTimeout);
-		}
-		logger.info("After suspend returned !!");
-		return ((BackendSession) c.getObject()).getChangedFolders();
 	}
 
 	public void onChangeFound(IContinuation continuation, BackendSession bs) {

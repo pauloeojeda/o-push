@@ -65,20 +65,20 @@ public class WBXMLTools {
 			parser.parse(new ByteArrayInputStream(wbxml));
 			return pdh.getDocument();
 		} catch (SAXException e) {
+			storeWbxml(wbxml);
 			logger.error(e.getMessage(), e);
 			throw new IOException(e.getMessage());
 		}
 
 	}
 
-	@SuppressWarnings("unused")
 	private static void storeWbxml(byte[] wbxml) {
 		try {
 			File tmp = File.createTempFile("debug_", ".wbxml");
 			FileOutputStream fout = new FileOutputStream(tmp);
 			fout.write(wbxml);
 			fout.close();
-			logger.info("wbxml saved in " + tmp.getAbsolutePath());
+			logger.error("unparsable wbxml saved in " + tmp.getAbsolutePath());
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
