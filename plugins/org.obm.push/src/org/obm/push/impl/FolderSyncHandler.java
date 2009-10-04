@@ -88,6 +88,7 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 			changes = DOMUtils.createElement(root, "Changes");
 
 			exporter.synchronize(bs);
+
 			// FIXME we know that we do not monitor hierarchy, so just respond
 			// that nothing changed
 			if ("0".equals(syncKey)) {
