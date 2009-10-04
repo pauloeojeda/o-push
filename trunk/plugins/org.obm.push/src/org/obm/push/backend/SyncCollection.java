@@ -96,4 +96,14 @@ public class SyncCollection {
 		this.filterType = filterType;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		return collectionId.equals(((SyncCollection) obj).collectionId);
+	}
+
+	@Override
+	public int hashCode() {
+		return collectionId.hashCode();
+	}
+
 }
