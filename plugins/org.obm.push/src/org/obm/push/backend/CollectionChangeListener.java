@@ -1,5 +1,6 @@
 package org.obm.push.backend;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class CollectionChangeListener implements
@@ -15,6 +16,7 @@ public class CollectionChangeListener implements
 		this.bs = bs;
 		this.monitoredCollections = monitoredCollections;
 		this.continuation = c;
+		this.dirtyCollections = new HashSet<SyncCollection>(0);
 	}
 
 	@Override

@@ -68,27 +68,34 @@ public class ActiveSyncServlet extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 		Continuation c = ContinuationSupport.getContinuation(request, request);
 
-		logger.info(" uri: " + request.getRequestURI() + " "
-				+ request.getQueryString() + " pending => " + c.isPending()
-				+ " resumed => " + c.isResumed() + " method: "
+		logger.info("q: " + request.getQueryString() + " pending: "
+				+ c.isPending() + " resumed: " + c.isResumed() + " m: "
 				+ request.getMethod());
 
-		if (c.isResumed()) { // FIXME needs || c.isPending()
+		if (c.isResumed() || c.isPending()) {
+			PingHandler ph = null;
 			synchronized (handlers) {
-				PingHandler ph = (PingHandler) handlers.get("Ping");
-				IListenerRegistration reg = (IListenerRegistration) request.getAttribute(ICollectionChangeListener.REG_NAME);
-				reg.cancel();
-				
-				ICollectionChangeListener ccl = (ICollectionChangeListener) request.getAttribute(ICollectionChangeListener.LISTENER);
-				if (ccl == null) {
-					logger.warn("no listener", new Throwable());
-				} else {
-					ph.sendResponse((BackendSession) c.getObject(), new Responder(
-							response), ccl.getDirtyCollections());
-				}
-				
-				return;
+				ph = (PingHandler) handlers.get("Ping");
 			}
+
+			IListenerRegistration reg = (IListenerRegistration) request
+					.getAttribute(ICollectionChangeListener.REG_NAME);
+			if (reg != null) {
+				reg.cancel();
+			} else {
+				logger.warn("Could not cancel listener registration, expect a memory leak");
+			}
+
+			ICollectionChangeListener ccl = (ICollectionChangeListener) request
+					.getAttribute(ICollectionChangeListener.LISTENER);
+			if (ccl == null) {
+				logger.warn("no listener", new Throwable());
+			} else {
+				ph.sendResponse((BackendSession) c.getObject(), new Responder(
+						response), ccl.getDirtyCollections());
+			}
+
+			return;
 		}
 
 		String m = request.getMethod();
@@ -225,7 +232,8 @@ public class ActiveSyncServlet extends HttpServlet {
 
 		InputStream in = request.getInputStream();
 		sendASHeaders(response);
-		rh.process(new PushContinuation(continuation, request), bs, in, new Responder(response));
+		rh.process(new PushContinuation(continuation, request), bs, in,
+				new Responder(response));
 	}
 
 	@SuppressWarnings("unchecked")

@@ -21,6 +21,10 @@ import org.w3c.dom.NodeList;
  * @author tom
  * 
  */
+/**
+ * @author tom
+ * 
+ */
 public class PingHandler extends WbxmlRequestHandler {
 
 	public PingHandler(IBackend backend) {
@@ -33,37 +37,51 @@ public class PingHandler extends WbxmlRequestHandler {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 
-		Element pr = doc.getDocumentElement();
+		Set<SyncCollection> toMonitor = null;
+		long intervalSeconds = 0;
+		if (doc == null) {
+			logger
+					.info("Empty Ping, reusing cached heartbeat & monitored folders");
+			toMonitor = bs.getLastMonitored();
+			intervalSeconds = bs.getLastHeartbeat();
+		} else {
+			Element pr = doc.getDocumentElement();
 
-		long intervalSeconds = Long.parseLong(DOMUtils.getUniqueElement(pr,
-				"HeartbeatInterval").getTextContent());
+			intervalSeconds = Long.parseLong(DOMUtils.getUniqueElement(pr,
+					"HeartbeatInterval").getTextContent());
 
-		NodeList folders = pr.getElementsByTagName("Folder");
-		Set<SyncCollection> toMonitor = new HashSet<SyncCollection>();
-		for (int i = 0; i < folders.getLength(); i++) {
-			Element f = (Element) folders.item(i);
-			SyncCollection sc = new SyncCollection();
-			sc.setDataClass(DOMUtils.getElementText(f, "Class"));
-			int id = Integer.parseInt(DOMUtils.getElementText(f, "Id"));
-			sc.setCollectionId(backend.getStore().getCollectionString(id));
-			toMonitor.add(sc);
+			toMonitor = new HashSet<SyncCollection>();
+			NodeList folders = pr.getElementsByTagName("Folder");
+			for (int i = 0; i < folders.getLength(); i++) {
+				Element f = (Element) folders.item(i);
+				SyncCollection sc = new SyncCollection();
+				sc.setDataClass(DOMUtils.getElementText(f, "Class"));
+				int id = Integer.parseInt(DOMUtils.getElementText(f, "Id"));
+				sc.setCollectionId(backend.getStore().getCollectionString(id));
+				toMonitor.add(sc);
+			}
+			bs.setLastMonitored(toMonitor);
+			bs.setLastHeartbeat(intervalSeconds);
 		}
 
-		logger.info("suspend for " + intervalSeconds + " seconds");
-
-		CollectionChangeListener l = new CollectionChangeListener(bs, continuation, toMonitor);
+		CollectionChangeListener l = new CollectionChangeListener(bs,
+				continuation, toMonitor);
 		IListenerRegistration reg = backend.addChangeListener(l);
 		continuation.storeData(ICollectionChangeListener.REG_NAME, reg);
 		continuation.storeData(ICollectionChangeListener.LISTENER, l);
+		logger.info("suspend for " + intervalSeconds + " seconds");
 		synchronized (bs) {
-			continuation.suspend(intervalSeconds * 1000);
+			 logger.warn("for testing purpose, we will only suspend for 5sec");
+			 continuation.suspend(5 * 1000);
+			// continuation.suspend(intervalSeconds * 1000);
 		}
 	}
 
-	public void sendResponse(BackendSession bs, Responder responder, Set<SyncCollection> changedFolders) {
+	public void sendResponse(BackendSession bs, Responder responder,
+			Set<SyncCollection> changedFolders) {
 		Document ret = DOMUtils.createDoc(null, "Ping");
 
-		fillResponse(ret.getDocumentElement(), bs.getChangedFolders());
+		fillResponse(ret.getDocumentElement(), changedFolders);
 		try {
 			responder.sendResponse("Ping", ret);
 		} catch (Exception e) {
@@ -73,19 +91,18 @@ public class PingHandler extends WbxmlRequestHandler {
 
 	private void fillResponse(Element element,
 			Set<SyncCollection> changedFolders) {
-		if (changedFolders == null) {
-			DOMUtils.createElementAndText(element, "Status", "1");
+		if (changedFolders == null || changedFolders.isEmpty()) {
+			DOMUtils.createElementAndText(element, "Status",
+					PingStatus.NO_CHANGES.toString());
 		} else {
-			DOMUtils.createElementAndText(element, "Status", "2");
+			DOMUtils.createElementAndText(element, "Status",
+					PingStatus.CHANGES_OCCURED.toString());
 			DOMUtils.createElement(element, "Folders");
 			for (SyncCollection sc : changedFolders) {
 				DOMUtils.createElementAndText(element, "Folder", sc
 						.getCollectionId());
 			}
 		}
-
-		// TODO Auto-generated method stub
-
 	}
 
 }

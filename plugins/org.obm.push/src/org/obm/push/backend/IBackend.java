@@ -1,7 +1,5 @@
 package org.obm.push.backend;
 
-import java.util.Set;
-
 import org.obm.push.provisioning.Policy;
 import org.obm.push.store.ISyncStorage;
 
@@ -24,10 +22,6 @@ public interface IBackend {
 	String getWasteBasket();
 
 	Policy getDevicePolicy(BackendSession bs);
-
-	@Deprecated
-	Set<SyncCollection> pollForChanges(IContinuation c, BackendSession bs,
-			Set<SyncCollection> toMonitor, long msTimeout);
 
 	ISyncStorage getStore();
 

@@ -116,7 +116,7 @@ public class WbxmlParser {
 
 		int charset = readInt();
 		docCharset = new CharsetMappings().getCharset(charset);
-		logger.info("document charset is "+docCharset);
+		logger.info("document charset is " + docCharset);
 
 		int strTabSize = readInt();
 		stringTable = new char[strTabSize];
