@@ -4,8 +4,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.backend.obm22.OBMBackend;
 
@@ -21,14 +21,14 @@ public class PollingThread implements Runnable {
 
 	private OBMBackend backend;
 
-	private Continuation continuation;
+	private IContinuation continuation;
 
 	private long msTimeout;
 
 	private static final Log logger = LogFactory.getLog(PollingThread.class);
 
 	public PollingThread(BackendSession bs, Set<SyncCollection> toMonitor,
-			OBMBackend obmBackend, Continuation c, long msTimeout) {
+			OBMBackend obmBackend, IContinuation c, long msTimeout) {
 		this.bs = bs;
 		this.backend = obmBackend;
 		this.continuation = c;

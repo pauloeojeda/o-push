@@ -3,9 +3,9 @@ package org.obm.push.impl;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
+import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
@@ -25,7 +25,7 @@ public class PingHandler extends WbxmlRequestHandler {
 	}
 
 	@Override
-	public void process(Continuation continuation, BackendSession bs,
+	public void process(IContinuation continuation, BackendSession bs,
 			Document doc, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");

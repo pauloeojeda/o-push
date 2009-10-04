@@ -3,10 +3,10 @@ package org.obm.push.impl;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
+import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
@@ -22,7 +22,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 	}
 
 	@Override
-	public void process(Continuation continuation, BackendSession bs,
+	public void process(IContinuation continuation, BackendSession bs,
 			Document doc, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");

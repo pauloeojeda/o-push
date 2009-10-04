@@ -4,11 +4,11 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
+import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.SyncCollection;
@@ -82,7 +82,7 @@ public class OBMBackend implements IBackend {
 	}
 
 	@Override
-	public Set<SyncCollection> pollForChanges(Continuation c,
+	public Set<SyncCollection> pollForChanges(IContinuation c,
 			BackendSession bs, Set<SyncCollection> toMonitor, long msTimeout) {
 		logger.info("starting polling thread");
 		PollingThread pt = new PollingThread(bs, toMonitor, this, c, msTimeout);
@@ -96,7 +96,7 @@ public class OBMBackend implements IBackend {
 		return ((BackendSession) c.getObject()).getChangedFolders();
 	}
 
-	public void onChangeFound(Continuation continuation, BackendSession bs) {
+	public void onChangeFound(IContinuation continuation, BackendSession bs) {
 		logger.info("onChangesFound");
 		synchronized (bs) {
 			continuation.setObject(bs);
