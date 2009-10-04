@@ -37,19 +37,18 @@ public class PingHandler extends WbxmlRequestHandler {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 
-		Set<SyncCollection> toMonitor = null;
 		long intervalSeconds = 0;
 		if (doc == null) {
 			logger
 					.info("Empty Ping, reusing cached heartbeat & monitored folders");
-			toMonitor = bs.getLastMonitored();
 			intervalSeconds = bs.getLastHeartbeat();
 			// 5sec, why not ? a mobile device asking for <5sec is just stupid
-			if (toMonitor == null || toMonitor.isEmpty() || intervalSeconds < 5) {
+			if (bs.getLastMonitored() == null
+					|| bs.getLastMonitored().isEmpty() || intervalSeconds < 5) {
 				logger.error("Don't know what to monitor, "
 						+ "db table for storing ping params missing..."
 						+ "interval: " + intervalSeconds + " toMonitor: "
-						+ toMonitor, new RuntimeException());
+						+ bs.getLastMonitored(), new RuntimeException());
 			}
 		} else {
 			Element pr = doc.getDocumentElement();
@@ -57,7 +56,7 @@ public class PingHandler extends WbxmlRequestHandler {
 			intervalSeconds = Long.parseLong(DOMUtils.getUniqueElement(pr,
 					"HeartbeatInterval").getTextContent());
 
-			toMonitor = new HashSet<SyncCollection>();
+			Set<SyncCollection> toMonitor = new HashSet<SyncCollection>();
 			NodeList folders = pr.getElementsByTagName("Folder");
 			for (int i = 0; i < folders.getLength(); i++) {
 				Element f = (Element) folders.item(i);
@@ -69,20 +68,23 @@ public class PingHandler extends WbxmlRequestHandler {
 			}
 			// pda is allowed to only send the folder list on the first ping
 			if (folders.getLength() > 0) {
+				logger.warn("=========== setting monitored to "
+						+ toMonitor.size());
 				bs.setLastMonitored(toMonitor);
 			}
 			bs.setLastHeartbeat(intervalSeconds);
 		}
 
-		logger.info("folders wainting for push: " + toMonitor);
 		CollectionChangeListener l = new CollectionChangeListener(bs,
-				continuation, toMonitor);
+				continuation, bs.getLastMonitored());
 		IListenerRegistration reg = backend.addChangeListener(l);
 		continuation.storeData(ICollectionChangeListener.REG_NAME, reg);
 		continuation.storeData(ICollectionChangeListener.LISTENER, l);
 		logger.info("suspend for " + intervalSeconds + " seconds");
 		synchronized (bs) {
-			logger.warn("for testing purpose, we will only suspend for 20sec");
+			logger
+					.warn("for testing purpose, we will only suspend for 20sec (to monitor: "
+							+ bs.getLastMonitored() + ")");
 			continuation.suspend(20 * 1000);
 			// continuation.suspend(intervalSeconds * 1000);
 		}

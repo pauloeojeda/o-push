@@ -257,6 +257,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		synchronized (sessions) {
 			if (sessions.containsKey(sessionId)) {
 				bs = sessions.get(sessionId);
+				logger.info("[[[[[[ Existing session: "+bs+" "+bs.getLastMonitored()+" ]]]]]]");
 				bs.setCommand(p(r, "Cmd"));
 			} else {
 				bs = new BackendSession(uid, password, p(r, "DeviceId"),
@@ -282,7 +283,9 @@ public class ActiveSyncServlet extends HttpServlet {
 			}
 		}
 		uid = uid.toLowerCase();
-		logger.info("loginAtDomain: " + uid + " domain: " + domain);
+		if (logger.isDebugEnabled()) {
+			logger.info("loginAtDomain: " + uid + " domain: " + domain);
+		}
 		return uid;
 	}
 
