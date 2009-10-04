@@ -78,6 +78,7 @@ public abstract class MonitoringThread implements Runnable {
 			if (monitoredCollections.contains(sc)) {
 				logger.info("******** PUSH " + sc.getCollectionId()
 						+ " ********");
+				ret.add(sc);
 			} else {
 				logger.info("** " + sc.getCollectionId()
 						+ " modified but nobody cares **");
