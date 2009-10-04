@@ -42,6 +42,7 @@ public class CollectionChangeListener implements
 	public void changesDetected(Set<SyncCollection> dirtyCollections) {
 		this.dirtyCollections = dirtyCollections;
 		synchronized (bs) {
+			continuation.setObject(bs);
 			continuation.resume();
 		}
 	}
