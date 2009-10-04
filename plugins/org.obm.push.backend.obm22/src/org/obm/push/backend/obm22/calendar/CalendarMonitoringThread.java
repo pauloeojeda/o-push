@@ -51,7 +51,7 @@ public class CalendarMonitoringThread extends MonitoringThread {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal.setTimeInMillis(lastSync.getTime());
 		Timestamp ts = new Timestamp(cal.getTimeInMillis());
-		
+		logger.info("poll date is " + cal.getTime());
 		int idx = 1;
 		try {
 			con = newCon();
@@ -62,7 +62,7 @@ public class CalendarMonitoringThread extends MonitoringThread {
 			ps.setTimestamp(idx++, ts);
 			ps.setTimestamp(idx++, ts);
 			rs = ps.executeQuery();
-			lastSync = fillChangedCollections(rs, changed, lastSync);
+			dbDate = fillChangedCollections(rs, changed, lastSync);
 		} catch (Throwable t) {
 			logger.error("Error running calendar poll query", t);
 		} finally {
@@ -82,7 +82,7 @@ public class CalendarMonitoringThread extends MonitoringThread {
 		while (rs.next()) {
 			String login = rs.getString(1);
 			String domain = rs.getString(2);
-			ret = rs.getDate(3);
+			ret = new Date(rs.getTimestamp(3).getTime());
 
 			StringBuffer colId = new StringBuffer(255);
 			colId.append("obm:\\\\");
