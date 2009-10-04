@@ -5,9 +5,9 @@ import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
+import org.obm.push.backend.IContinuation;
 import org.obm.push.utils.FileUtils;
 
 /**
@@ -26,7 +26,7 @@ public class SendMailHandler implements IRequestHandler {
 	}
 
 	@Override
-	public void process(Continuation continuation, BackendSession bs,
+	public void process(IContinuation continuation, BackendSession bs,
 			InputStream in, Responder responder) throws IOException {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");

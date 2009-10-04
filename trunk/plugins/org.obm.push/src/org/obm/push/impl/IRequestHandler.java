@@ -3,8 +3,8 @@ package org.obm.push.impl;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.IContinuation;
 
 /**
  * Interface to handle client ActiveSync requests
@@ -14,7 +14,7 @@ import org.obm.push.backend.BackendSession;
  */
 public interface IRequestHandler {
 
-	public void process(Continuation continuation, BackendSession bs,
+	public void process(IContinuation continuation, BackendSession bs,
 			InputStream in, Responder responder) throws IOException;
 
 }

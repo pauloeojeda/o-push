@@ -2,7 +2,6 @@ package org.obm.push.backend;
 
 import java.util.Set;
 
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.provisioning.Policy;
 import org.obm.push.store.ISyncStorage;
 
@@ -20,7 +19,7 @@ public interface IBackend {
 
 	Policy getDevicePolicy(BackendSession bs);
 
-	Set<SyncCollection> pollForChanges(Continuation c, BackendSession bs,
+	Set<SyncCollection> pollForChanges(IContinuation c, BackendSession bs,
 			Set<SyncCollection> toMonitor, long msTimeout);
 
 	ISyncStorage getStore();

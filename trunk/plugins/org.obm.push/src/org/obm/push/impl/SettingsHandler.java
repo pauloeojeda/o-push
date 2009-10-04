@@ -2,9 +2,9 @@ package org.obm.push.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
+import org.obm.push.backend.IContinuation;
 import org.w3c.dom.Document;
 
 /**
@@ -22,7 +22,7 @@ public class SettingsHandler extends WbxmlRequestHandler {
 	}
 
 	@Override
-	public void process(Continuation continuation, BackendSession bs,
+	public void process(IContinuation continuation, BackendSession bs,
 			Document doc, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");

@@ -1,8 +1,8 @@
 package org.obm.push.impl;
 
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
+import org.obm.push.backend.IContinuation;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,7 +20,7 @@ public class SearchHandler extends WbxmlRequestHandler {
 	}
 
 	@Override
-	public void process(Continuation continuation, BackendSession bs,
+	public void process(IContinuation continuation, BackendSession bs,
 			Document doc, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");

@@ -28,6 +28,7 @@ import org.obm.push.impl.HintsLoader;
 import org.obm.push.impl.IRequestHandler;
 import org.obm.push.impl.PingHandler;
 import org.obm.push.impl.ProvisionHandler;
+import org.obm.push.impl.PushContinuation;
 import org.obm.push.impl.Responder;
 import org.obm.push.impl.SearchHandler;
 import org.obm.push.impl.SendMailHandler;
@@ -213,7 +214,7 @@ public class ActiveSyncServlet extends HttpServlet {
 
 		InputStream in = request.getInputStream();
 		sendASHeaders(response);
-		rh.process(continuation, bs, in, new Responder(response));
+		rh.process(new PushContinuation(continuation), bs, in, new Responder(response));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -241,8 +242,6 @@ public class ActiveSyncServlet extends HttpServlet {
 				sessions.put(uid, bs);
 				new HintsLoader().addHints(r, bs);
 			}
-
-			bs.setRequest(r);
 			return bs;
 		}
 	}

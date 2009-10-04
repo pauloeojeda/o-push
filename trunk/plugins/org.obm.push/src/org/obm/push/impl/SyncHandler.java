@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
+import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.SyncCollection;
@@ -64,7 +64,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 	}
 
 	@Override
-	public void process(Continuation continuation, BackendSession bs,
+	public void process(IContinuation continuation, BackendSession bs,
 			Document doc, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");

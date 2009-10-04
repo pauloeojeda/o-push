@@ -8,9 +8,9 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mortbay.util.ajax.Continuation;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
+import org.obm.push.backend.IContinuation;
 import org.obm.push.utils.DOMUtils;
 import org.obm.push.utils.FileUtils;
 import org.obm.push.wbxml.WBXMLTools;
@@ -33,7 +33,7 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 	}
 
 	@Override
-	public void process(Continuation continuation, BackendSession bs,
+	public void process(IContinuation continuation, BackendSession bs,
 			InputStream in, Responder responder) throws IOException {
 		byte[] input = FileUtils.streamBytes(in, true);
 		Document doc = null;
@@ -66,7 +66,7 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 	 *            the decoded wbxml document.
 	 * @param responder
 	 */
-	protected abstract void process(Continuation continuation,
+	protected abstract void process(IContinuation continuation,
 			BackendSession bs, Document doc, Responder responder);
 
 }
