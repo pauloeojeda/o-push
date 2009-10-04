@@ -44,6 +44,13 @@ public class PingHandler extends WbxmlRequestHandler {
 					.info("Empty Ping, reusing cached heartbeat & monitored folders");
 			toMonitor = bs.getLastMonitored();
 			intervalSeconds = bs.getLastHeartbeat();
+			// 5sec, why not ? a mobile device asking for <5sec is just stupid
+			if (toMonitor == null || toMonitor.isEmpty() || intervalSeconds < 5) {
+				logger.error("Don't know what to monitor, "
+						+ "db table for storing ping params missing..."
+						+ "interval: " + intervalSeconds + " toMonitor: "
+						+ toMonitor, new RuntimeException());
+			}
 		} else {
 			Element pr = doc.getDocumentElement();
 
@@ -60,10 +67,14 @@ public class PingHandler extends WbxmlRequestHandler {
 				sc.setCollectionId(backend.getStore().getCollectionString(id));
 				toMonitor.add(sc);
 			}
-			bs.setLastMonitored(toMonitor);
+			// pda is allowed to only send the folder list on the first ping
+			if (folders.getLength() > 0) {
+				bs.setLastMonitored(toMonitor);
+			}
 			bs.setLastHeartbeat(intervalSeconds);
 		}
 
+		logger.info("folders wainting for push: " + toMonitor);
 		CollectionChangeListener l = new CollectionChangeListener(bs,
 				continuation, toMonitor);
 		IListenerRegistration reg = backend.addChangeListener(l);
@@ -71,8 +82,8 @@ public class PingHandler extends WbxmlRequestHandler {
 		continuation.storeData(ICollectionChangeListener.LISTENER, l);
 		logger.info("suspend for " + intervalSeconds + " seconds");
 		synchronized (bs) {
-			 logger.warn("for testing purpose, we will only suspend for 20sec");
-			 continuation.suspend(20 * 1000);
+			logger.warn("for testing purpose, we will only suspend for 20sec");
+			continuation.suspend(20 * 1000);
 			// continuation.suspend(intervalSeconds * 1000);
 		}
 	}

@@ -83,7 +83,8 @@ public class ActiveSyncServlet extends HttpServlet {
 			if (reg != null) {
 				reg.cancel();
 			} else {
-				logger.warn("Could not cancel listener registration, expect a memory leak");
+				logger
+						.warn("Could not cancel listener registration, expect a memory leak");
 			}
 
 			ICollectionChangeListener ccl = (ICollectionChangeListener) request
@@ -211,8 +212,9 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private void processActiveSyncMethod(Continuation continuation,
-			String userID, String password, String devId, HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
+			String userID, String password, String devId,
+			HttpServletRequest request, HttpServletResponse response)
+			throws IOException {
 		BackendSession bs = getSession(userID, password, devId, request);
 		logger.info("activeSyncMethod: " + bs.getCommand());
 		String proto = p(request, "MS-ASProtocolVersion");
@@ -249,7 +251,7 @@ public class ActiveSyncServlet extends HttpServlet {
 	private BackendSession getSession(String userID, String password,
 			String devId, HttpServletRequest r) {
 		String uid = getLoginAtDomain(userID);
-		String sessionId = uid + "/"+devId;
+		String sessionId = uid + "/" + devId;
 
 		BackendSession bs = null;
 		synchronized (sessions) {
@@ -261,6 +263,7 @@ public class ActiveSyncServlet extends HttpServlet {
 						extractDeviceType(r), p(r, "Cmd"));
 				sessions.put(sessionId, bs);
 				new HintsLoader().addHints(r, bs);
+				logger.info("[[[[[[[[[ new session: " + sessionId + " ]]]]]]]");
 			}
 			return bs;
 		}

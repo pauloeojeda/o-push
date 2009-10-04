@@ -23,7 +23,8 @@ public abstract class MonitoringThread implements Runnable {
 	protected Log logger = LogFactory.getLog(getClass());
 	private long freqMillisec;
 
-	protected MonitoringThread(long freqMillisec, Set<ICollectionChangeListener> ccls) {
+	protected MonitoringThread(long freqMillisec,
+			Set<ICollectionChangeListener> ccls) {
 		this.freqMillisec = freqMillisec;
 		this.stopped = false;
 		this.ccls = ccls;
@@ -54,7 +55,7 @@ public abstract class MonitoringThread implements Runnable {
 				for (ICollectionChangeListener ccl : ccls) {
 					Set<SyncCollection> monitoredCollections = ccl
 							.getMonitoredCollections();
-					Set<SyncCollection> changes = getMonitoredCollections(cols,
+					Set<SyncCollection> changes = getChangedCollections(cols,
 							monitoredCollections);
 					if (!changes.isEmpty()) {
 						toNotify.add(new PushNotification(changes, ccl));
@@ -67,10 +68,24 @@ public abstract class MonitoringThread implements Runnable {
 		}
 	}
 
-	private Set<SyncCollection> getMonitoredCollections(
-			ChangedCollections cols, Set<SyncCollection> monitoredCollections) {
+	private Set<SyncCollection> getChangedCollections(ChangedCollections cols,
+			Set<SyncCollection> monitoredCollections) {
 		Set<SyncCollection> ret = new HashSet<SyncCollection>();
 		// TODO Auto-generated method stub
+
+		for (SyncCollection sc : cols.getChanged()) {
+			logger.info("processing sc: " + sc.getCollectionId());
+			if (monitoredCollections.contains(sc)) {
+				logger.info("******** PUSH " + sc.getCollectionId()
+						+ " ********");
+			} else {
+				logger.info("** " + sc.getCollectionId()
+						+ " modified but nobody cares **");
+				for (SyncCollection mon : monitoredCollections) {
+					logger.info("   * monitored: " + mon.getCollectionId());
+				}
+			}
+		}
 
 		return ret;
 	}
