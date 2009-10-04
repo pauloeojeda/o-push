@@ -55,7 +55,7 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 
 		process(continuation, bs, doc, responder);
 	}
-
+	
 	/**
 	 * Handles the client request. The wbxml was already decoded and is
 	 * available in the doc parameter.

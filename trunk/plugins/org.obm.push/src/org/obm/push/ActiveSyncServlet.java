@@ -21,6 +21,8 @@ import org.mortbay.util.ajax.ContinuationSupport;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IBackendFactory;
+import org.obm.push.backend.ICollectionChangeListener;
+import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.impl.Credentials;
 import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.GetItemEstimateHandler;
@@ -71,11 +73,20 @@ public class ActiveSyncServlet extends HttpServlet {
 				+ " resumed => " + c.isResumed() + " method: "
 				+ request.getMethod());
 
-		if (c.isResumed()) {
+		if (c.isResumed()) { // FIXME needs || c.isPending()
 			synchronized (handlers) {
 				PingHandler ph = (PingHandler) handlers.get("Ping");
-				ph.sendResponse((BackendSession) c.getObject(), new Responder(
-						response));
+				IListenerRegistration reg = (IListenerRegistration) request.getAttribute(ICollectionChangeListener.REG_NAME);
+				reg.cancel();
+				
+				ICollectionChangeListener ccl = (ICollectionChangeListener) request.getAttribute(ICollectionChangeListener.LISTENER);
+				if (ccl == null) {
+					logger.warn("no listener", new Throwable());
+				} else {
+					ph.sendResponse((BackendSession) c.getObject(), new Responder(
+							response), ccl.getDirtyCollections());
+				}
+				
 				return;
 			}
 		}
@@ -214,7 +225,7 @@ public class ActiveSyncServlet extends HttpServlet {
 
 		InputStream in = request.getInputStream();
 		sendASHeaders(response);
-		rh.process(new PushContinuation(continuation), bs, in, new Responder(response));
+		rh.process(new PushContinuation(continuation, request), bs, in, new Responder(response));
 	}
 
 	@SuppressWarnings("unchecked")

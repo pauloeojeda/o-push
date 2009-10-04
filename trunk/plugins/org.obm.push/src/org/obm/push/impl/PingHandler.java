@@ -4,8 +4,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.CollectionChangeListener;
 import org.obm.push.backend.IBackend;
+import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.IContinuation;
+import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
@@ -32,7 +35,7 @@ public class PingHandler extends WbxmlRequestHandler {
 
 		Element pr = doc.getDocumentElement();
 
-		long interval = Long.parseLong(DOMUtils.getUniqueElement(pr,
+		long intervalSeconds = Long.parseLong(DOMUtils.getUniqueElement(pr,
 				"HeartbeatInterval").getTextContent());
 
 		NodeList folders = pr.getElementsByTagName("Folder");
@@ -46,11 +49,18 @@ public class PingHandler extends WbxmlRequestHandler {
 			toMonitor.add(sc);
 		}
 
-		logger.info("suspend for " + interval + " seconds");
-		backend.pollForChanges(continuation, bs, toMonitor, interval * 1000);
+		logger.info("suspend for " + intervalSeconds + " seconds");
+
+		CollectionChangeListener l = new CollectionChangeListener(bs, continuation, toMonitor);
+		IListenerRegistration reg = backend.addChangeListener(l);
+		continuation.storeData(ICollectionChangeListener.REG_NAME, reg);
+		continuation.storeData(ICollectionChangeListener.LISTENER, l);
+		synchronized (bs) {
+			continuation.suspend(intervalSeconds * 1000);
+		}
 	}
 
-	public void sendResponse(BackendSession bs, Responder responder) {
+	public void sendResponse(BackendSession bs, Responder responder, Set<SyncCollection> changedFolders) {
 		Document ret = DOMUtils.createDoc(null, "Ping");
 
 		fillResponse(ret.getDocumentElement(), bs.getChangedFolders());

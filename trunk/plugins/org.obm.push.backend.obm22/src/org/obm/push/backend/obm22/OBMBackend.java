@@ -6,11 +6,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
+import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
+import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
@@ -113,6 +115,12 @@ public class OBMBackend implements IBackend {
 	@Override
 	public void sendMail(BackendSession bs, byte[] mailContent) {
 		logger.warn("not implemented: should send email");
+	}
+
+	@Override
+	public IListenerRegistration addChangeListener(ICollectionChangeListener ccl) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

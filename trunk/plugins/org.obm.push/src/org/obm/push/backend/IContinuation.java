@@ -9,4 +9,6 @@ public interface IContinuation {
 	void suspend(long msTimeout);
 
 	void resume();
+
+	void storeData(String regName, Object reg);
 }
