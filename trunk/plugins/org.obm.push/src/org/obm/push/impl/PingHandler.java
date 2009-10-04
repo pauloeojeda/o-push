@@ -71,8 +71,8 @@ public class PingHandler extends WbxmlRequestHandler {
 		continuation.storeData(ICollectionChangeListener.LISTENER, l);
 		logger.info("suspend for " + intervalSeconds + " seconds");
 		synchronized (bs) {
-			 logger.warn("for testing purpose, we will only suspend for 5sec");
-			 continuation.suspend(5 * 1000);
+			 logger.warn("for testing purpose, we will only suspend for 20sec");
+			 continuation.suspend(20 * 1000);
 			// continuation.suspend(intervalSeconds * 1000);
 		}
 	}
