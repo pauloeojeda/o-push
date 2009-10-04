@@ -31,11 +31,13 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 	}
 
 	@Override
-	public void process(IContinuation continuation, BackendSession bs, Document doc, Responder responder) {
-		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType() + ")");
+	public void process(IContinuation continuation, BackendSession bs,
+			Document doc, Responder responder) {
+		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
+				+ ")");
 		String syncKey = DOMUtils.getElementText(doc.getDocumentElement(),
 				"SyncKey");
-		
+
 		if ("0".equals(syncKey)) {
 			backend.getStore().resetForFullSync(bs.getDevId());
 		}
@@ -86,17 +88,23 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 			changes = DOMUtils.createElement(root, "Changes");
 
 			exporter.synchronize(bs);
-			DOMUtils.createElementAndText(changes, "Count", exporter.getCount(bs)
-					+ "");
-			List<ItemChange> changed = exporter.getChanged(bs);
-			for (ItemChange sf : changed) {
-				Element add = DOMUtils.createElement(changes, "Add");
-				encode(add, sf);
-			}
-			List<ItemChange> deleted = exporter.getDeleted(bs);
-			for (ItemChange sf : deleted) {
-				Element remove = DOMUtils.createElement(changes, "Remove");
-				encode(remove, sf);
+			// FIXME we know that we do not monitor hierarchy, so just respond
+			// that nothing changed
+			if ("0".equals(syncKey)) {
+				int cnt = exporter.getCount(bs);
+				DOMUtils.createElementAndText(changes, "Count", cnt + "");
+				List<ItemChange> changed = exporter.getChanged(bs);
+				for (ItemChange sf : changed) {
+					Element add = DOMUtils.createElement(changes, "Add");
+					encode(add, sf);
+				}
+				List<ItemChange> deleted = exporter.getDeleted(bs);
+				for (ItemChange sf : deleted) {
+					Element remove = DOMUtils.createElement(changes, "Remove");
+					encode(remove, sf);
+				}
+			} else {
+				DOMUtils.createElementAndText(changes, "Count", "0");
 			}
 
 			sk.setTextContent(sm.allocateNewSyncKey(bs, "FolderSync", state));
