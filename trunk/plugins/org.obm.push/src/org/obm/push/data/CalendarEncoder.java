@@ -2,6 +2,7 @@ package org.obm.push.data;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -47,7 +48,10 @@ public class CalendarEncoder implements IDataEncoder {
 		// taken from exchange 2k7 : eastern greenland, gmt+0, no dst
 		tz
 				.setTextContent("xP///1IAbwBtAGEAbgBjAGUAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAbwBtAGEAbgBjAGUAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
-		e(p, "Calendar:DTStamp", sdf.format(ev.getDtStamp()));
+
+		e(p, "Calendar:DTStamp", sdf.format(ev.getDtStamp() != null ? ev
+				.getDtStamp() : new Date()));
+
 		e(p, "Calendar:StartTime", sdf.format(ev.getStartTime()));
 		e(p, "Calendar:Subject", ev.getSubject());
 
