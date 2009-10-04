@@ -41,4 +41,9 @@ public class Responder {
 		out.close();
 	}
 
+	public void sendNoChangeResponse() {
+		// TODO Auto-generated method stub
+		logger.warn("must inform the device that nothing changed");
+	}
+
 }
