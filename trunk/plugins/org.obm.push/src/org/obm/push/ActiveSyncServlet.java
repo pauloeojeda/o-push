@@ -124,7 +124,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		processActiveSyncMethod(c, creds.getLoginAtDomain(), creds
-				.getPassword(), request, response);
+				.getPassword(), p(request, "DeviceId"), request, response);
 
 	}
 
@@ -211,9 +211,9 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private void processActiveSyncMethod(Continuation continuation,
-			String userID, String password, HttpServletRequest request,
+			String userID, String password, String devId, HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
-		BackendSession bs = getSession(userID, password, request);
+		BackendSession bs = getSession(userID, password, devId, request);
 		logger.info("activeSyncMethod: " + bs.getCommand());
 		String proto = p(request, "MS-ASProtocolVersion");
 		bs.setProtocolVersion(Double.parseDouble(proto));
@@ -247,18 +247,19 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private BackendSession getSession(String userID, String password,
-			HttpServletRequest r) {
+			String devId, HttpServletRequest r) {
 		String uid = getLoginAtDomain(userID);
+		String sessionId = uid + "/"+devId;
 
 		BackendSession bs = null;
 		synchronized (sessions) {
-			if (sessions.containsKey(uid)) {
-				bs = sessions.get(uid);
+			if (sessions.containsKey(sessionId)) {
+				bs = sessions.get(sessionId);
 				bs.setCommand(p(r, "Cmd"));
 			} else {
 				bs = new BackendSession(uid, password, p(r, "DeviceId"),
 						extractDeviceType(r), p(r, "Cmd"));
-				sessions.put(uid, bs);
+				sessions.put(sessionId, bs);
 				new HintsLoader().addHints(r, bs);
 			}
 			return bs;
