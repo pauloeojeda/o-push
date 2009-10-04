@@ -1,5 +1,9 @@
 package org.obm.push.backend.obm22;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
@@ -13,6 +17,7 @@ import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
+import org.obm.push.backend.obm22.impl.ListenerRegistration;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.provisioning.MSEASProvisioingWBXML;
 import org.obm.push.provisioning.MSWAPProvisioningXML;
@@ -27,9 +32,14 @@ public class OBMBackend implements IBackend {
 	private IContentsExporter contentsExporter;
 	private ISyncStorage store;
 
+	private Set<ICollectionChangeListener> registeredListeners;
+
 	private static final Log logger = LogFactory.getLog(OBMBackend.class);
 
 	public OBMBackend(ISyncStorage store) {
+		registeredListeners = Collections
+				.synchronizedSet(new HashSet<ICollectionChangeListener>());
+
 		MailBackend mailExporter = new MailBackend(store);
 		CalendarBackend calendarExporter = new CalendarBackend(store);
 		ContactsBackend contactsBackend = new ContactsBackend(store);
@@ -100,8 +110,14 @@ public class OBMBackend implements IBackend {
 
 	@Override
 	public IListenerRegistration addChangeListener(ICollectionChangeListener ccl) {
-		// TODO Auto-generated method stub
-		return null;
+		ListenerRegistration ret = new ListenerRegistration(ccl,
+				registeredListeners);
+		synchronized (registeredListeners) {
+			registeredListeners.add(ccl);
+		}
+		logger.info("[" + ccl.getSession().getLoginAtDomain()
+				+ "] change listener registered on backend");
+		return ret;
 	}
 
 }
