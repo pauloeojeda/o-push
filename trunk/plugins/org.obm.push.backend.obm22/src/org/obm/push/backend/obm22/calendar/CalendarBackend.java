@@ -136,7 +136,6 @@ public class CalendarBackend extends ObmSyncBackend {
 		logger.info("createOrUpdate(" + bs.getLoginAtDomain() + ", "
 				+ collectionId + ", " + serverId + ", " + clientId + ", "
 				+ data.getSubject() + ")");
-
 		CalendarClient cc = getClient(bs);
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
