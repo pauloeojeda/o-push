@@ -15,6 +15,7 @@ import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.backend.obm22.impl.ChangedCollections;
 import org.obm.push.backend.obm22.impl.MonitoringThread;
+import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 
 import fr.aliasource.utils.JDBCUtils;
 
@@ -34,9 +35,9 @@ public class CalendarMonitoringThread extends MonitoringThread {
 			+ "inner join Domain on userobm_domain_id=domain_id "
 			+ "where deletedevent_timestamp >= ? ";
 
-	public CalendarMonitoringThread(long freqMs,
+	public CalendarMonitoringThread(ObmSyncBackend cb, long freqMs,
 			Set<ICollectionChangeListener> ccls) {
-		super(freqMs, ccls);
+		super(cb, freqMs, ccls);
 	}
 
 	@Override
