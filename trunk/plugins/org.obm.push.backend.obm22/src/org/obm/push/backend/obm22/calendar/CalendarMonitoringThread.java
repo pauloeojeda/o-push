@@ -29,7 +29,7 @@ public class CalendarMonitoringThread extends MonitoringThread {
 			+ "inner join Event on eventlink_event_id=event_id "
 			+ "where eventlink_timeupdate >= ? OR eventlink_timecreate >= ? OR event_timeupdate >= ? OR event_timecreate >= ? "
 			+ "UNION " + "select " + "userobm_login, domain_name, now() "
-			+ "from deletedevent "
+			+ "from DeletedEvent "
 			+ "inner join UserObm on deletedevent_user_id=userobm_id "
 			+ "inner join Domain on userobm_domain_id=domain_id "
 			+ "where deletedevent_timestamp >= ? ";
