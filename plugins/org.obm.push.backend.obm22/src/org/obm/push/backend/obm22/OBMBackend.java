@@ -55,11 +55,11 @@ public class OBMBackend implements IBackend {
 		contentsExporter = new ContentsExporter(mailExporter, calendarExporter,
 				contactsBackend);
 		
-		startOBMMonitoringThreads();
+		startOBMMonitoringThreads(calendarExporter);
 	}
 
-	private void startOBMMonitoringThreads() {
-		calendarPushMonitor = new CalendarMonitoringThread(5000, registeredListeners);
+	private void startOBMMonitoringThreads(CalendarBackend cb) {
+		calendarPushMonitor = new CalendarMonitoringThread(cb, 5000, registeredListeners);
 		Thread calThread = new Thread(calendarPushMonitor);
 		calThread.setDaemon(true);
 		calThread.start();

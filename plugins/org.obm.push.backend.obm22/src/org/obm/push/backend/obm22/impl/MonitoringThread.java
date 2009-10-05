@@ -9,6 +9,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.minig.obm.pool.OBMPoolActivator;
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.SyncCollection;
 
@@ -22,12 +23,14 @@ public abstract class MonitoringThread implements Runnable {
 
 	protected Log logger = LogFactory.getLog(getClass());
 	private long freqMillisec;
+	protected ObmSyncBackend backend;
 
-	protected MonitoringThread(long freqMillisec,
+	protected MonitoringThread(ObmSyncBackend backend, long freqMillisec,
 			Set<ICollectionChangeListener> ccls) {
 		this.freqMillisec = freqMillisec;
 		this.stopped = false;
 		this.ccls = ccls;
+		this.backend = backend;
 	}
 
 	@Override
@@ -55,7 +58,7 @@ public abstract class MonitoringThread implements Runnable {
 				for (ICollectionChangeListener ccl : ccls) {
 					Set<SyncCollection> monitoredCollections = ccl
 							.getMonitoredCollections();
-					Set<SyncCollection> changes = getChangedCollections(cols,
+					Set<SyncCollection> changes = getChangedCollections(ccl.getSession(), cols,
 							monitoredCollections);
 					if (!changes.isEmpty()) {
 						toNotify.add(new PushNotification(changes, ccl));
@@ -68,10 +71,9 @@ public abstract class MonitoringThread implements Runnable {
 		}
 	}
 
-	private Set<SyncCollection> getChangedCollections(ChangedCollections cols,
+	private Set<SyncCollection> getChangedCollections(BackendSession session, ChangedCollections cols,
 			Set<SyncCollection> monitoredCollections) {
 		Set<SyncCollection> ret = new HashSet<SyncCollection>();
-		// TODO Auto-generated method stub
 
 		for (SyncCollection sc : cols.getChanged()) {
 			logger.info("processing sc: " + sc.getCollectionId());
@@ -88,6 +90,12 @@ public abstract class MonitoringThread implements Runnable {
 			}
 		}
 
+		for (SyncCollection toPush : ret) {
+			String colName = toPush.getCollectionId();
+			String serverId = backend.getServerIdFor(session.getDevId(), colName, null);
+			toPush.setCollectionId(serverId);
+		}
+		
 		return ret;
 	}
 
