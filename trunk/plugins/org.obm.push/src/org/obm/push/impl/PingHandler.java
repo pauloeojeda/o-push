@@ -110,9 +110,9 @@ public class PingHandler extends WbxmlRequestHandler {
 		} else {
 			DOMUtils.createElementAndText(element, "Status",
 					PingStatus.CHANGES_OCCURED.toString());
-			DOMUtils.createElement(element, "Folders");
+			Element folders = DOMUtils.createElement(element, "Folders");
 			for (SyncCollection sc : changedFolders) {
-				DOMUtils.createElementAndText(element, "Folder", sc
+				DOMUtils.createElementAndText(folders, "Folder", sc
 						.getCollectionId());
 			}
 		}
