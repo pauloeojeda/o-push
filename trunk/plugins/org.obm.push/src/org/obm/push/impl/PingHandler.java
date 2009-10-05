@@ -83,9 +83,9 @@ public class PingHandler extends WbxmlRequestHandler {
 		logger.info("suspend for " + intervalSeconds + " seconds");
 		synchronized (bs) {
 			logger
-					.warn("for testing purpose, we will only suspend for 20sec (to monitor: "
+					.warn("for testing purpose, we will only suspend for 40sec (to monitor: "
 							+ bs.getLastMonitored() + ")");
-			continuation.suspend(20 * 1000);
+			continuation.suspend(40 * 1000);
 			// continuation.suspend(intervalSeconds * 1000);
 		}
 	}
