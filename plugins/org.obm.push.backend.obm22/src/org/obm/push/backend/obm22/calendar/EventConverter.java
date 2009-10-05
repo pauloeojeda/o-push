@@ -39,7 +39,7 @@ public class EventConverter {
 		MSEvent mse = new MSEvent();
 
 		mse.setDtStamp(e.getTimeUpdate());
-		
+
 		mse.setSubject(e.getTitle());
 		mse.setLocation(e.getLocation());
 		mse.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
@@ -90,6 +90,7 @@ public class EventConverter {
 			break;
 		case WEEKLY:
 			or.setKind(RecurrenceKind.weekly);
+			or.setDays(getDays(pr.getDayOfWeek()));
 			multiply = Calendar.WEEK_OF_YEAR;
 			break;
 		case YEARLY:
@@ -124,6 +125,48 @@ public class EventConverter {
 		or.setEnd(endDate);
 
 		return or;
+	}
+
+	private String getDays(Set<RecurrenceDayOfWeek> dayOfWeek) {
+		StringBuilder sb = new StringBuilder();
+
+		if (dayOfWeek.contains(RecurrenceDayOfWeek.SUNDAY)) {
+			sb.append(1);
+		} else {
+			sb.append(0);
+		}
+		if (dayOfWeek.contains(RecurrenceDayOfWeek.MONDAY)) {
+			sb.append(1);
+		} else {
+			sb.append(0);
+		}
+		if (dayOfWeek.contains(RecurrenceDayOfWeek.TUESDAY)) {
+			sb.append(1);
+		} else {
+			sb.append(0);
+		}
+		if (dayOfWeek.contains(RecurrenceDayOfWeek.WEDNESDAY)) {
+			sb.append(1);
+		} else {
+			sb.append(0);
+		}
+		if (dayOfWeek.contains(RecurrenceDayOfWeek.THURSDAY)) {
+			sb.append(1);
+		} else {
+			sb.append(0);
+		}
+		if (dayOfWeek.contains(RecurrenceDayOfWeek.FRIDAY)) {
+			sb.append(1);
+		} else {
+			sb.append(0);
+		}
+		if (dayOfWeek.contains(RecurrenceDayOfWeek.SATURDAY)) {
+			sb.append(1);
+		} else {
+			sb.append(0);
+		}
+
+		return sb.toString();
 	}
 
 	private Recurrence getRecurrence(EventRecurrence recurrence) {
@@ -162,7 +205,6 @@ public class EventConverter {
 		char[] days = string.toCharArray();
 		Set<RecurrenceDayOfWeek> daysList = new HashSet<RecurrenceDayOfWeek>();
 		int i = 0;
-
 		if (days[i++] == '1') {
 			daysList.add(RecurrenceDayOfWeek.SUNDAY);
 		}
