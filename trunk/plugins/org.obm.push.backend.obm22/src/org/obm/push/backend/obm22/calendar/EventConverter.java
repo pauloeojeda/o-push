@@ -78,6 +78,7 @@ public class EventConverter {
 		switch (pr.getType()) {
 		case DAILY:
 			or.setKind(RecurrenceKind.daily);
+			or.setDays(getDays(pr.getDayOfWeek()));
 			multiply = Calendar.DAY_OF_MONTH;
 			break;
 		case MONTHLY:
@@ -165,7 +166,6 @@ public class EventConverter {
 		} else {
 			sb.append(0);
 		}
-
 		return sb.toString();
 	}
 
