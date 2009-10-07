@@ -18,11 +18,15 @@ public class SyncCollection {
 	private boolean deletesAsMoves;
 	private String newSyncKey;
 	private Integer filterType;
+	private Integer windowSize;
+	private boolean moreAvailable;
 	
 	public SyncCollection() {
 		fetchIds = new LinkedList<String>();
 		conflict = 1;
 		truncation = SyncHandler.SYNC_TRUNCATION_ALL;
+		moreAvailable = false;
+		windowSize = 100;
 	}
 	
 	public SyncState getSyncState() {
@@ -95,6 +99,23 @@ public class SyncCollection {
 	public void setFilterType(Integer filterType) {
 		this.filterType = filterType;
 	}
+	
+	public Integer getWindowSize() {
+		return windowSize;
+	}
+
+	public void setWindowSize(Integer windowSize) {
+		this.windowSize = windowSize;
+	}
+	
+	public boolean isMoreAvailable() {
+		return moreAvailable;
+	}
+
+	public void setMoreAvailable(boolean moreAvailable) {
+		this.moreAvailable = moreAvailable;
+	}
+
 
 	@Override
 	public boolean equals(Object obj) {

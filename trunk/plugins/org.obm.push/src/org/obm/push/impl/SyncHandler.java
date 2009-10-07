@@ -1,5 +1,6 @@
 package org.obm.push.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -134,9 +135,13 @@ public class SyncHandler extends WbxmlRequestHandler {
 		String col = backend.getStore().getCollectionString(
 				Integer.parseInt(c.getCollectionId()));
 		DataDelta delta = cex.getChanged(bs, col);
-		List<ItemChange> changed = delta.getChanges();
-		logger.info("should send " + changed.size() + " change(s).");
+		List<ItemChange> changed = processWindowSize(c, delta, bs);
+
 		Element responses = DOMUtils.createElement(ce, "Responses");
+		if (c.isMoreAvailable()) {
+			// MoreAvailable has to be before Commands
+			DOMUtils.createElement(ce, "MoreAvailable");
+		}
 		Element commands = DOMUtils.createElement(ce, "Commands");
 
 		StringBuilder processedIds = new StringBuilder();
@@ -191,6 +196,30 @@ public class SyncHandler extends WbxmlRequestHandler {
 
 	}
 
+	private List<ItemChange> processWindowSize(SyncCollection c,
+			DataDelta delta, BackendSession bs) {
+		List<ItemChange> changed = new ArrayList<ItemChange>(delta.getChanges());
+		changed.addAll(bs.getUnSynchronizedItemChange());
+		bs.getUnSynchronizedItemChange().clear();
+		logger.info("should send " + changed.size() + " change(s)");
+		int changeItem = changed.size() - c.getWindowSize();
+		logger.info("WindowsSize value is " + c.getWindowSize() + ", "
+				+ (changeItem < 0 ? 0 : changeItem) + " changes will not send");
+
+		if (changed.size() <= c.getWindowSize()) {
+			return changed;
+		}
+		int changedSize = changed.size();
+		for (int i = c.getWindowSize(); i < changedSize; i++) {
+			ItemChange ic = changed.get(changed.size() - 1);
+			bs.addUnSynchronizedItemChange(ic);
+			changed.remove(ic);
+		}
+
+		c.setMoreAvailable(true);
+		return changed;
+	}
+
 	private void doFetch(BackendSession bs, SyncCollection c, Element ce,
 			IContentsExporter cex) {
 		List<ItemChange> changed;
@@ -227,10 +256,14 @@ public class SyncHandler extends WbxmlRequestHandler {
 		if (fid != null) {
 			collection.setCollectionId(fid.getTextContent());
 		}
+
+		Element wse = DOMUtils.getUniqueElement(col, "WindowSize");
+		if (wse != null) {
+			collection.setWindowSize(Integer.parseInt(wse.getTextContent()));
+		}
 		// TODO sync supported
 		// TODO sync <deletesasmoves/>
 		// TODO sync <getchanges/>
-		// TODO sync max items
 		// TODO sync options
 
 		if (collection.getCollectionId() == null) {

@@ -2,6 +2,8 @@ package org.obm.push.backend;
 
 import java.io.InputStream;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -22,6 +24,7 @@ public class BackendSession {
 	private PIMDataType dataType;
 	private Properties hints;
 	private Date updatedSyncDate;
+	private List<ItemChange> unSynchronizedItemChange;
 
 	private double protocolVersion;
 
@@ -38,6 +41,7 @@ public class BackendSession {
 		this.devId = devId;
 		this.devType = devType;
 		this.command = command;
+		this.unSynchronizedItemChange = new LinkedList<ItemChange>();
 		loadHints();
 	}
 
@@ -160,6 +164,14 @@ public class BackendSession {
 
 	public void setLastMonitored(Set<SyncCollection> lastMonitored) {
 		this.lastMonitored = lastMonitored;
+	}
+	
+	public List<ItemChange> getUnSynchronizedItemChange() {
+		return unSynchronizedItemChange;
+	}
+
+	public void addUnSynchronizedItemChange(ItemChange itemChange) {
+		this.unSynchronizedItemChange.add(itemChange);
 	}
 
 }
