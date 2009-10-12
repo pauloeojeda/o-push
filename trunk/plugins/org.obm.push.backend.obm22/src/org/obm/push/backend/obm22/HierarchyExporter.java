@@ -20,12 +20,14 @@ public class HierarchyExporter implements IHierarchyExporter {
 	private static final Log logger = LogFactory
 			.getLog(HierarchyExporter.class);
 
+	private FolderBackend folderExporter;
 	private MailBackend mailExporter;
 	private CalendarBackend calendarExporter;
 	private ContactsBackend contactsBackend;
 
-	public HierarchyExporter(MailBackend mailExporter,
+	public HierarchyExporter(FolderBackend folderExporter, MailBackend mailExporter,
 			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
+		this.folderExporter = folderExporter;
 		this.mailExporter = mailExporter;
 		this.calendarExporter = calendarExporter;
 		this.contactsBackend = contactsBackend;
@@ -51,6 +53,8 @@ public class HierarchyExporter implements IHierarchyExporter {
 
 	public void synchronize(BackendSession bs) {
 		logger.info("synchronize");
+		folderExporter.synchronize(bs);
+		
 		List<ItemChange> lic = getCalendarChanges(bs);
 		addChanges(lic);
 		lic = getCalendarDeletions(bs.getState().getLastSync());
@@ -141,6 +145,11 @@ public class HierarchyExporter implements IHierarchyExporter {
 	@Override
 	public List<ItemChange> getDeleted(BackendSession bs) {
 		return new LinkedList<ItemChange>();
+	}
+
+	@Override
+	public int getRootFolderId(BackendSession bs) {
+		return folderExporter.getServerIdFor(bs);
 	}
 
 }

@@ -85,18 +85,18 @@ public class CalendarMonitoringThread extends MonitoringThread {
 			String domain = rs.getString(2);
 			ret = new Date(rs.getTimestamp(3).getTime());
 
-			StringBuffer colId = new StringBuffer(255);
-			colId.append("obm:\\\\");
-			colId.append(login);
-			colId.append('@');
-			colId.append(domain);
-			colId.append("\\calendar\\");
-			colId.append(login);
-			colId.append('@');
-			colId.append(domain);
+			StringBuffer colName = new StringBuffer(255);
+			colName.append("obm:\\\\");
+			colName.append(login);
+			colName.append('@');
+			colName.append(domain);
+			colName.append("\\calendar\\");
+			colName.append(login);
+			colName.append('@');
+			colName.append(domain);
 
 			SyncCollection sc = new SyncCollection();
-			sc.setCollectionId(colId.toString());
+			sc.setCollectionName(colName.toString());
 			changed.add(sc);
 			i++;
 			logger.info("Detected cal change for " + login + "@" + domain);

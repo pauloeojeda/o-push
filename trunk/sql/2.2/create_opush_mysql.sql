@@ -20,13 +20,13 @@ CREATE TABLE opush_folder_mapping (
 
 -- store last sync dates
 CREATE TABLE opush_sync_state (
-       sync_key		VARCHAR(64) UNIQUE NOT NULL,
-       collection	VARCHAR(255) NOT NULL,
-       device_id	INTEGER NOT NULL REFERENCES opush_device(id) ON DELETE CASCADE,
-       last_sync	TIMESTAMP NOT NULL
+	sync_key	VARCHAR(64) UNIQUE NOT NULL,
+	collection_id   INTEGER NOT NULL REFERENCES opush_folder_mapping(id) ON DELETE CASCADE,
+	device_id	INTEGER NOT NULL REFERENCES opush_device(id) ON DELETE CASCADE,
+	last_sync	TIMESTAMP NOT NULL
 );
 ALTER TABLE opush_sync_state ADD CONSTRAINT 
-unique_opush_col_dev UNIQUE (collection, device_id);
+unique_opush_col_dev UNIQUE (collection_id, device_id);
 
 CREATE TABLE opush_sec_policy (
        id				SERIAL PRIMARY KEY,

@@ -15,7 +15,7 @@ public interface IBackend {
 
 	IHierarchyExporter getHierarchyExporter(BackendSession bs);
 
-	IContentsImporter getContentsImporter(String collectionId, BackendSession bs);
+	IContentsImporter getContentsImporter(Integer collectionId, BackendSession bs);
 
 	IContentsExporter getContentsExporter(BackendSession bs);
 

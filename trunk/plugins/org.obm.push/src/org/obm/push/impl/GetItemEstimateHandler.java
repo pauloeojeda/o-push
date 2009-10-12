@@ -47,7 +47,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 			SyncCollection sc = new SyncCollection();
 			sc.setDataClass(dataClass);
 			sc.setSyncKey(syncKey);
-			sc.setCollectionId(collectionId);
+			sc.setCollectionId(Integer.parseInt(collectionId));
 			sc.setFilterType(filterType);
 			cols.add(sc);
 		}
@@ -59,7 +59,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 				String collectionId = null;
 				int col = -1;
 				try {
-					col = Integer.parseInt(c.getCollectionId());
+					col = c.getCollectionId();
 					collectionId = backend.getStore().getCollectionString(col);
 				} catch (NumberFormatException nfe) {
 				}
@@ -70,7 +70,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 					DOMUtils
 							.createElementAndText(ce, "Class", c.getDataClass());
 					DOMUtils.createElementAndText(ce, "CollectionId", c
-							.getCollectionId());
+							.getCollectionId().toString());
 					Element estim = DOMUtils.createElement(ce, "Estimate");
 					StateMachine sm = new StateMachine(backend.getStore());
 					SyncState state = sm.getSyncState(c.getSyncKey());

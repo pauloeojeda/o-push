@@ -97,7 +97,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 				}
 				Element sk = DOMUtils.createElement(ce, "SyncKey");
 				DOMUtils.createElementAndText(ce, "CollectionId", c
-						.getCollectionId());
+						.getCollectionId().toString());
 				if (!st.isValid()) {
 					logger.info("invalid sync key: " + st);
 					DOMUtils.createElementAndText(ce, "Status",
@@ -105,7 +105,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 				} else {
 					DOMUtils.createElementAndText(ce, "Status", "1");
 					if (!oldSyncKey.equals("0")) {
-						int col = Integer.parseInt(c.getCollectionId());
+						int col = c.getCollectionId();
 						String colStr = backend.getStore().getCollectionString(
 								col);
 						IContentsExporter cex = backend.getContentsExporter(bs);
@@ -132,8 +132,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 
 	private void doUpdates(BackendSession bs, SyncCollection c, Element ce,
 			IContentsExporter cex, HashMap<String, String> processedClientIds) {
-		String col = backend.getStore().getCollectionString(
-				Integer.parseInt(c.getCollectionId()));
+		String col = backend.getStore().getCollectionString(c.getCollectionId());
 		DataDelta delta = cex.getChanged(bs, col);
 		List<ItemChange> changed = processWindowSize(c, delta, bs);
 
@@ -254,7 +253,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 		collection.setSyncKey(DOMUtils.getElementText(col, "SyncKey"));
 		Element fid = DOMUtils.getUniqueElement(col, "CollectionId");
 		if (fid != null) {
-			collection.setCollectionId(fid.getTextContent());
+			collection.setCollectionId(Integer.parseInt(fid.getTextContent()));
 		}
 
 		Element wse = DOMUtils.getUniqueElement(col, "WindowSize");
@@ -266,10 +265,10 @@ public class SyncHandler extends WbxmlRequestHandler {
 		// TODO sync <getchanges/>
 		// TODO sync options
 
-		if (collection.getCollectionId() == null) {
-			collection.setCollectionId(Utils.getFolderId(bs.getDevId(),
-					collection.getDataClass()));
-		}
+//		if (collection.getCollectionId() == null) {
+//			collection.setCollectionId(Utils.getFolderId(bs.getDevId(),
+//					collection.getDataClass()));
+//		}
 
 		collection.setSyncState(sm.getSyncState(collection.getSyncKey()));
 
@@ -304,7 +303,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 	private void processModification(BackendSession bs,
 			SyncCollection collection, IContentsImporter importer,
 			Element modification, HashMap<String, String> processedClientIds) {
-		int col = Integer.parseInt(collection.getCollectionId());
+		int col = collection.getCollectionId();
 		String collectionId = backend.getStore().getCollectionString(col);
 		String modType = modification.getNodeName();
 		logger.info("modType: " + modType);
