@@ -61,6 +61,10 @@ public class ObmSyncBackend {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
 	}
+	
+	public int getCollectionIdFor(String deviceId, String collection) {
+		return storage.getCollectionMapping(deviceId, collection);
+	}
 
 	public String getServerIdFor(String deviceId, String collection,
 			String clientId) {

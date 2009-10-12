@@ -91,9 +91,9 @@ public abstract class MonitoringThread implements Runnable {
 		}
 
 		for (SyncCollection toPush : ret) {
-			String colName = toPush.getCollectionId();
-			String serverId = backend.getServerIdFor(session.getDevId(), colName, null);
-			toPush.setCollectionId(serverId);
+			String colName = toPush.getCollectionName();
+			int collectionId = backend.getCollectionIdFor(session.getDevId(), colName);
+			toPush.setCollectionId(collectionId);
 		}
 		
 		return ret;

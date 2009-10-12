@@ -25,5 +25,7 @@ public interface IHierarchyExporter {
 	int getCount(BackendSession bs);
 
 	List<ItemChange> getDeleted(BackendSession bs);
+	
+	int getRootFolderId(BackendSession bs);
 
 }

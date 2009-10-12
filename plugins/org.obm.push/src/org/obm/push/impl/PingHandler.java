@@ -63,7 +63,7 @@ public class PingHandler extends WbxmlRequestHandler {
 				SyncCollection sc = new SyncCollection();
 				sc.setDataClass(DOMUtils.getElementText(f, "Class"));
 				int id = Integer.parseInt(DOMUtils.getElementText(f, "Id"));
-				sc.setCollectionId(backend.getStore().getCollectionString(id));
+				sc.setCollectionId(id);
 				toMonitor.add(sc);
 			}
 			// pda is allowed to only send the folder list on the first ping
@@ -113,7 +113,7 @@ public class PingHandler extends WbxmlRequestHandler {
 			Element folders = DOMUtils.createElement(element, "Folders");
 			for (SyncCollection sc : changedFolders) {
 				DOMUtils.createElementAndText(folders, "Folder", sc
-						.getCollectionId());
+						.getCollectionId().toString());
 			}
 		}
 	}

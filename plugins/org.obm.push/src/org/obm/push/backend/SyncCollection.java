@@ -12,7 +12,8 @@ public class SyncCollection {
 	private List<String> fetchIds;
 	private String dataClass;
 	private Integer conflict;
-	private String collectionId;
+	private Integer collectionId;
+	private String collectionName;
 	private String syncKey;
 	private Integer truncation;
 	private boolean deletesAsMoves;
@@ -24,6 +25,7 @@ public class SyncCollection {
 	public SyncCollection() {
 		fetchIds = new LinkedList<String>();
 		conflict = 1;
+		collectionId = 0;
 		truncation = SyncHandler.SYNC_TRUNCATION_ALL;
 		moreAvailable = false;
 		windowSize = 100;
@@ -47,10 +49,10 @@ public class SyncCollection {
 	public void setConflict(Integer conflict) {
 		this.conflict = conflict;
 	}
-	public String getCollectionId() {
+	public Integer getCollectionId() {
 		return collectionId;
 	}
-	public void setCollectionId(String collectionId) {
+	public void setCollectionId(Integer collectionId) {
 		this.collectionId = collectionId;
 	}
 	public String getSyncKey() {
@@ -115,7 +117,14 @@ public class SyncCollection {
 	public void setMoreAvailable(boolean moreAvailable) {
 		this.moreAvailable = moreAvailable;
 	}
+	
+	public String getCollectionName() {
+		return collectionName;
+	}
 
+	public void setCollectionName(String collectionName) {
+		this.collectionName = collectionName;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -126,5 +135,4 @@ public class SyncCollection {
 	public int hashCode() {
 		return collectionId.hashCode();
 	}
-
 }

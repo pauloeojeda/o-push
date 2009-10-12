@@ -107,8 +107,8 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 			} else {
 				DOMUtils.createElementAndText(changes, "Count", "0");
 			}
-
-			sk.setTextContent(sm.allocateNewSyncKey(bs, "FolderSync", state));
+			String newSyncKey = sm.allocateNewSyncKey(bs, exporter.getRootFolderId(bs), state);
+			sk.setTextContent(newSyncKey);
 			responder.sendResponse("FolderHierarchy", ret);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

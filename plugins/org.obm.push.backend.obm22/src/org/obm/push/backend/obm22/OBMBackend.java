@@ -42,13 +42,14 @@ public class OBMBackend implements IBackend {
 		registeredListeners = Collections
 				.synchronizedSet(new HashSet<ICollectionChangeListener>());
 
+		FolderBackend folderExporter = new FolderBackend(store);
 		MailBackend mailExporter = new MailBackend(store);
 		CalendarBackend calendarExporter = new CalendarBackend(store);
 		ContactsBackend contactsBackend = new ContactsBackend(store);
 		this.store = store;
 
 		hImporter = new HierarchyImporter();
-		exporter = new HierarchyExporter(mailExporter, calendarExporter,
+		exporter = new HierarchyExporter(folderExporter, mailExporter, calendarExporter,
 				contactsBackend);
 		cImporter = new ContentsImporter(mailExporter, calendarExporter,
 				contactsBackend);
@@ -78,7 +79,7 @@ public class OBMBackend implements IBackend {
 	}
 
 	@Override
-	public IContentsImporter getContentsImporter(String collectionId,
+	public IContentsImporter getContentsImporter(Integer collectionId,
 			BackendSession bs) {
 		return cImporter;
 	}

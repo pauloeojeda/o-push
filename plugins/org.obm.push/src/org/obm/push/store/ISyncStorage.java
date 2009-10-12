@@ -4,10 +4,10 @@ import org.obm.push.state.SyncState;
 
 public interface ISyncStorage {
 
-	void updateState(String devId, String collectionId, SyncState oldState,
+	void updateState(String devId, Integer collectionId, SyncState oldState,
 			SyncState state);
 
-	SyncState findStateForDevice(String devId, String collectionId);
+	SyncState findStateForDevice(String devId, Integer collectionId);
 
 	SyncState findStateForKey(String syncKey);
 
@@ -32,7 +32,7 @@ public interface ISyncStorage {
 	 */
 	Integer getCollectionMapping(String deviceId, String collectionId);
 	
-	String getCollectionString(int collectionId);
+	String getCollectionString(Integer collectionId);
 
 	String getDataClass(String collectionId);
 

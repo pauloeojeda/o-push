@@ -30,7 +30,7 @@ public class StateMachine {
 		return ret;
 	}
 
-	public String allocateNewSyncKey(BackendSession bs, String collectionId, SyncState oldState) {
+	public String allocateNewSyncKey(BackendSession bs, Integer collectionId, SyncState oldState) {
 		SyncState newState = new SyncState();
 		Date nd = bs.getUpdatedSyncDate();
 		if (nd != null) {

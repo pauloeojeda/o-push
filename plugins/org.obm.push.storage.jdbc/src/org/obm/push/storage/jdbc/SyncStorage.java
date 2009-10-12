@@ -33,9 +33,8 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public SyncState findStateForDevice(String devId, String collectionId) {
+	public SyncState findStateForDevice(String devId, Integer collectionId) {
 		int id = devIdCache.get(devId);
-
 		SyncState ret = null;
 		Connection con = null;
 		PreparedStatement ps = null;
@@ -44,9 +43,9 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
 			ps = con
-					.prepareStatement("SELECT sync_key, last_sync FROM opush_sync_state WHERE device_id=? AND collection=?");
+					.prepareStatement("SELECT sync_key, last_sync FROM opush_sync_state WHERE device_id=? AND collection_id=?");
 			ps.setInt(1, id);
-			ps.setString(2, collectionId);
+			ps.setInt(2, collectionId);
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				ret = new SyncState();
@@ -153,7 +152,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public void updateState(String devId, String collectionId,
+	public void updateState(String devId, Integer collectionId,
 			SyncState oldState, SyncState state) {
 		int id = devIdCache.get(devId);
 
@@ -162,20 +161,20 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			// con.setAutoCommit(false);
+//			 con.setAutoCommit(false);
 			ps = con
-					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection=?");
+					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
 			ps.setInt(1, id);
-			ps.setString(2, collectionId);
+			ps.setInt(2, collectionId);
 			ps.executeUpdate();
 
 			ps.close();
 			ps = con
-					.prepareStatement("INSERT INTO opush_sync_state (sync_key, device_id, last_sync, collection) VALUES (?, ?, ?, ?)");
+					.prepareStatement("INSERT INTO opush_sync_state (sync_key, device_id, last_sync, collection_id) VALUES (?, ?, ?, ?)");
 			ps.setString(1, state.getKey());
 			ps.setInt(2, id);
 			ps.setTimestamp(3, new Timestamp(state.getLastSync().getTime()));
-			ps.setString(4, collectionId);
+			ps.setInt(4, collectionId);
 			ps.executeUpdate();
 			// con.commit();
 		} catch (SQLException se) {
@@ -188,7 +187,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public Integer getCollectionMapping(String deviceId, String collectionId) {
+	public Integer getCollectionMapping(String deviceId, String collection) {
 		int id = devIdCache.get(deviceId);
 		Integer ret = null;
 
@@ -202,7 +201,7 @@ public class SyncStorage implements ISyncStorage {
 			ps = con
 					.prepareStatement("SELECT id FROM opush_folder_mapping WHERE device_id=? AND collection=?");
 			ps.setInt(1, id);
-			ps.setString(2, collectionId);
+			ps.setString(2, collection);
 			rs = ps.executeQuery();
 
 			if (rs.next()) {
@@ -215,7 +214,7 @@ public class SyncStorage implements ISyncStorage {
 				ps = con
 						.prepareStatement("INSERT INTO opush_folder_mapping (device_id, collection) VALUES (?, ?)");
 				ps.setInt(1, id);
-				ps.setString(2, collectionId);
+				ps.setString(2, collection);
 				ps.executeUpdate();
 				ret = OBMPoolActivator.getDefault().lastInsertId(con);
 			}
@@ -231,7 +230,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public String getCollectionString(int collectionId) {
+	public String getCollectionString(Integer collectionId) {
 		String ret = null;
 
 		Connection con = null;
@@ -261,8 +260,14 @@ public class SyncStorage implements ISyncStorage {
 		// TODO add mail & tasks
 		if (collectionId.contains("\\calendar\\")) {
 			return "Calendar";
-		} else {
+		} else if (collectionId.contains("\\contact\\")) {
 			return "Contacts";
+		} else if (collectionId.contains("\\mail\\")) {
+			return "Mail";
+		} else if(collectionId.contains("\\task\\")) {
+			return "Task";
+		} else {
+			return "Folder";
 		}
 	}
 
