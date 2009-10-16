@@ -3,11 +3,11 @@ package org.obm.push.backend.obm22.impl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.minig.obm.pool.OBMPoolActivator;
+import org.obm.locator.client.LocatorClient;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.store.ISyncStorage;
@@ -27,15 +27,9 @@ public class ObmSyncBackend {
 	}
 
 	protected void locateObmSync(BackendSession bs) {
-		Set<String> props = ObmDbHelper.findHost(bs, "sync", "obm_sync");
-		if (props.isEmpty()) {
-			obmSyncHost = "localhost";
-			logger
-					.warn("No host with obm_sync property found. Defauting to localhost");
-		} else {
-			obmSyncHost = props.iterator().next();
-			logger.info("Using " + obmSyncHost + " as obm_sync host.");
-		}
+		obmSyncHost = new LocatorClient().locateHost("sync/obm_sync", bs
+				.getLoginAtDomain());
+		logger.info("Using " + obmSyncHost + " as obm_sync host.");
 	}
 
 	protected ItemChange getDeletion(BackendSession bs, String collection,
@@ -61,7 +55,7 @@ public class ObmSyncBackend {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
 	}
-	
+
 	public int getCollectionIdFor(String deviceId, String collection) {
 		return storage.getCollectionMapping(deviceId, collection);
 	}
