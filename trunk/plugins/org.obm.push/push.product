@@ -49,6 +49,7 @@
       <plugin id="org.minig.obm.pool"/>
       <plugin id="org.mortbay.jetty.server"/>
       <plugin id="org.mortbay.jetty.util"/>
+      <plugin id="org.obm.locator.client"/>
       <plugin id="org.obm.push"/>
       <plugin id="org.obm.push.backend.obm22"/>
       <plugin id="org.obm.push.storage.jdbc"/>
