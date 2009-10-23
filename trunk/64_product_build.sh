@@ -108,6 +108,7 @@ pushd zip_update_dir >/dev/null 2>&1
 unzip ../${product_name}-svn-linux.gtk.x86_64.zip >/dev/null 2>&1
 pushd ${product_name} >/dev/null 2>&1
 rm -f opush about.html libcairo-swt.so
+find . -type f -name "*.so" | xargs rm -fr
 cp ../../scripts/equinox.lib .
 cp ../../scripts/opush .
 
