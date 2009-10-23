@@ -1,5 +1,7 @@
 package org.obm.push.store;
 
+import java.util.Set;
+
 import org.obm.push.state.SyncState;
 
 public interface ISyncStorage {
@@ -37,5 +39,9 @@ public interface ISyncStorage {
 	String getDataClass(String collectionId);
 
 	void resetForFullSync(String devId);
+	
+	Integer getDevId(String deviceId);
+
+	Set<Integer> getAllCollectionId(String devId);
 
 }

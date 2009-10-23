@@ -5,6 +5,7 @@ import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.MSContact;
 import org.obm.push.backend.MSEvent;
+import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
@@ -46,6 +47,7 @@ public class ContentsImporter implements IContentsImporter {
 				id = contactBackend.createOrUpdate(bs, collectionId, serverId, clientId, (MSContact) data);
 				break;
 			case EMAIL:
+				id = mailBackend.createOrUpdate(bs, collectionId, serverId, clientId, (MSEmail) data);
 				break;
 			case TASKS:
 				break;

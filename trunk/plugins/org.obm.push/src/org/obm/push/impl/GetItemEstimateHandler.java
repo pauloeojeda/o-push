@@ -81,7 +81,8 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 					estim.setTextContent(exporter.getCount(bs, collectionId)
 							+ "");
 				} else {
-					logger.warn("no mapping for collection with id " + c.getCollectionId());
+					logger.warn("no mapping for collection with id "
+							+ c.getCollectionId());
 					// one collection id was invalid
 					DOMUtils.createElementAndText(response, "Status", "2");
 					break;

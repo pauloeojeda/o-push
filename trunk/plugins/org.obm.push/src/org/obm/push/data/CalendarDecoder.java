@@ -24,7 +24,6 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		MSEvent calendar = new MSEvent();
 
 		// Main attributes
-
 		calendar.setOrganizerName(parseDOMString(DOMUtils.getUniqueElement(
 				syncData, "OrganizerName")));
 		calendar.setOrganizerEmail(parseDOMString(DOMUtils.getUniqueElement(
@@ -97,7 +96,6 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 			}
 			calendar.setAttendees(attendees);
 		}
-
 		// Exceptions
 
 		containerNode = DOMUtils.getUniqueElement(syncData, "Exceptions");

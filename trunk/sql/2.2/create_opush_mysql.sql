@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS opush_sync_mail;
 DROP TABLE IF EXISTS opush_sync_perms;
 DROP TABLE IF EXISTS opush_sec_policy;
 DROP TABLE IF EXISTS opush_sync_state;
@@ -40,4 +41,11 @@ CREATE TABLE opush_sync_perms (
        device_id	INTEGER NOT NULL REFERENCES opush_device(id) ON DELETE CASCADE,
        -- add not null later
        policy		INTEGER REFERENCES opush_sec_policy(id) ON DELETE SET NULL
+);
+
+
+CREATE TABLE opush_sync_mail (
+	collection_id   INTEGER NOT NULL REFERENCES opush_folder_mapping(id) ON DELETE CASCADE,
+	device_id	INTEGER NOT NULL REFERENCES opush_device(id) ON DELETE CASCADE,
+	mail_uid	INTEGER NOT NULL
 );

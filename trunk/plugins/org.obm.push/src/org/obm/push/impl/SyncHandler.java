@@ -22,6 +22,7 @@ import org.obm.push.data.ContactsDecoder;
 import org.obm.push.data.EncoderFactory;
 import org.obm.push.data.IDataDecoder;
 import org.obm.push.data.IDataEncoder;
+import org.obm.push.data.EmailDecoder;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
@@ -61,6 +62,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 		this.decoders = new HashMap<String, IDataDecoder>();
 		decoders.put("Contacts", new ContactsDecoder());
 		decoders.put("Calendar", new CalendarDecoder());
+		decoders.put("Email", new EmailDecoder());
 		this.encoders = new EncoderFactory();
 	}
 

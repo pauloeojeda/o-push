@@ -18,7 +18,7 @@ public class EncoderFactory {
 
 		case EMAIL:
 		default:
-			return new MailEncoder();
+			return new EmailEncoder();
 		}
 	}
 
