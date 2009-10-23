@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -161,7 +163,7 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-//			 con.setAutoCommit(false);
+			// con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
 			ps.setInt(1, id);
@@ -183,7 +185,6 @@ public class SyncStorage implements ISyncStorage {
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
 		}
-
 	}
 
 	@Override
@@ -262,9 +263,9 @@ public class SyncStorage implements ISyncStorage {
 			return "Calendar";
 		} else if (collectionId.contains("\\contact\\")) {
 			return "Contacts";
-		} else if (collectionId.contains("\\mail\\")) {
-			return "Mail";
-		} else if(collectionId.contains("\\task\\")) {
+		} else if (collectionId.contains("\\email\\")) {
+			return "Email";
+		} else if (collectionId.contains("\\task\\")) {
 			return "Task";
 		} else {
 			return "Folder";
@@ -286,6 +287,11 @@ public class SyncStorage implements ISyncStorage {
 			ps.setInt(1, id);
 			ps.executeUpdate();
 
+			ps = con
+					.prepareStatement("DELETE FROM opush_sync_mail WHERE device_id=?");
+			ps.setInt(1, id);
+			ps.executeUpdate();
+
 			// con.commit();
 			logger.warn("mappings & states cleared for full sync of device "
 					+ devId);
@@ -295,6 +301,35 @@ public class SyncStorage implements ISyncStorage {
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
 		}
+	}
+
+	@Override
+	public Integer getDevId(String devId) {
+		return devIdCache.get(devId);
+	}
+
+	@Override
+	public Set<Integer> getAllCollectionId(String devId) {
+		Set<Integer> ret = new HashSet<Integer>();
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		int id = devIdCache.get(devId);
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("SELECT id FROM opush_folder_mapping WHERE device_id=?");
+			ps.setInt(1, id);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				ret.add(rs.getInt("id"));
+			}
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+		return ret;
 	}
 
 }

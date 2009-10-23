@@ -36,4 +36,6 @@ public interface IBackend {
 	 */
 	IListenerRegistration addChangeListener(ICollectionChangeListener ccl);
 
+	void resetForFullSync(String devId);
+
 }

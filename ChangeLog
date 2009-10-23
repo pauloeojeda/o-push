@@ -1,3 +1,142 @@
+2009-10-23  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Mail sync implementation
+
+	* plugins/org.obm.push.backend.obm22/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter),
+	(ContentsExporter.ContentsExporter),
+	(ContentsExporter.getMailChanges), (ContentsExporter.getChanged),
+	(ContentsExporter.getCount), (ContentsExporter.fetch):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter.importMessageChange):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.resetForFullSync):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmSyncBackend.java: (ObmSyncBackend.getCollectionIdFor),
+	(ObmSyncBackend), (ObmSyncBackend.getCollectionNameFor),
+	(ObmSyncBackend.getDevId):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/AddressConverter.java: (AddressConverter),
+	(AddressConverter.AddressConverter),
+	(AddressConverter.convertAddress),
+	(AddressConverter.convertAddresses):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailCacheStorage.java: (EmailCacheStorage),
+	(EmailCacheStorage.EmailCacheStorage),
+	(EmailCacheStorage.computeChanges),
+	(EmailCacheStorage.loadMailFromDb),
+	(EmailCacheStorage.loadMailFromIMAP),
+	(EmailCacheStorage.updateDbCache), (EmailCacheStorage.getSync):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailManager.java: (EmailManager),
+	(EmailManager.EmailManager), (EmailManager.getInstance),
+	(EmailManager.locateImap), (EmailManager.getClient),
+	(EmailManager.cache), (EmailManager.getSync),
+	(EmailManager.fetchMails), (EmailManager.listAllFolder),
+	(EmailManager.updateReadFlag), (EmailManager.parseMailBoxName),
+	(EmailManager.resetForFullSync), (EmailManager.delete):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend),
+	(MailBackend.getHierarchyChanges), (MailBackend.getContentChanges),
+	(MailBackend.genServerId), (MailBackend.getChanges),
+	(MailBackend.getDeletions), (MailBackend.delete),
+	(MailBackend.createOrUpdate), (MailBackend.getEmailUidFor),
+	(MailBackend.getCollectionIdFor):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailChanges.java: (MailChanges), (MailChanges.MailChanges),
+	(MailChanges.getRemoved), (MailChanges.setRemoved),
+	(MailChanges.getUpdated), (MailChanges.setUpdated),
+	(MailChanges.getLastSync), (MailChanges.setLastSync):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailMessageLoader.java: (MailMessageLoader),
+	(MailMessageLoader..MailMessageLoader), (MailMessageLoader.),
+	(MailMessageLoader..fetch), (MailMessageLoader..fetchQuotedText),
+	(MailMessageLoader..fetchFlowed),
+	(MailMessageLoader..fetchForwardMessages),
+	(MailMessageLoader..fetchNested),
+	(MailMessageLoader..fetchOneMessage),
+	(MailMessageLoader..isSupportedCharset),
+	(MailMessageLoader..getMailBody), (MailMessageLoader..inEml),
+	(MailMessageLoader..findBodyTextPart),
+	(MailMessageLoader..extractPartData),
+	(MailMessageLoader..setPickupPlain),
+	(MailMessageLoader..parseRawHeaders),
+	(MailMessageLoader..getHeaderCharsetDecoder):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/QuotedPrintableDecoderInputStream.java:
+	(QuotedPrintableDecoderInputStream),
+	(QuotedPrintableDecoderInputStream.QuotedPrintableDecoderInputStrea
+	m), (QuotedPrintableDecoderInputStream.readNextOctet),
+	(QuotedPrintableDecoderInputStream.read):
+	* plugins/org.obm.push.storage.jdbc/src/org/obm/push/storage/jdbc/S
+	yncStorage.java: (SyncStorage.updateState),
+	(SyncStorage.getDataClass), (SyncStorage.resetForFullSync),
+	(SyncStorage), (SyncStorage.getDevId),
+	(SyncStorage.getAllCollectionId):
+	* plugins/org.obm.push/push.product:
+	* plugins/org.obm.push/src/org/obm/push/backend/FolderType.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/backend/Importance.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/MSAddress.java:
+	(MSAddress), (MSAddress.MSAddress), (MSAddress.getMail),
+	(MSAddress.getDisplayName):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSEmail.java:
+	(MSEmail), (MSEmail.getType), (MSEmail.isRead), (MSEmail.MSEmail),
+	(MSEmail.getSubject), (MSEmail.getBody), (MSEmail.getFrom),
+	(MSEmail.setFrom), (MSEmail.getHeaders), (MSEmail.getDate),
+	(MSEmail.setDate), (MSEmail.setSubject), (MSEmail.setBody),
+	(MSEmail.setHeaders), (MSEmail.setTo), (MSEmail.getTo),
+	(MSEmail.setCc), (MSEmail.getCc), (MSEmail.setForwardMessage),
+	(MSEmail.getForwardMessage), (MSEmail.addForwardMessage),
+	(MSEmail.getUid), (MSEmail.setUid), (MSEmail.getBcc),
+	(MSEmail.setBcc), (MSEmail.getInvitation), (MSEmail.setInvitation),
+	(MSEmail.getSmtpId), (MSEmail.setSmtpId), (MSEmail.setRead),
+	(MSEmail.isStarred), (MSEmail.setStarred), (MSEmail.isAnswered),
+	(MSEmail.setAnswered), (MSEmail.getMessageClass),
+	(MSEmail.setMessageClass), (MSEmail.getImportance),
+	(MSEmail.setImportance):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSEmailBody.java:
+	(MSEmailBody), (MSEmailBody.MSEmailBody),
+	(MSEmailBody.addConverted), (MSEmailBody.availableFormats),
+	(MSEmailBody.getValue), (MSEmailBody.addMailPart),
+	(MSEmailBody.getCharset), (MSEmailBody.setCharset),
+	(MSEmailBody.equals):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSEmailBodyType.jav
+	a:
+	* plugins/org.obm.push/src/org/obm/push/backend/MSMail.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/MessageClass.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/PIMDataType.java:
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder.encoreRecurrence):
+	* plugins/org.obm.push/src/org/obm/push/data/EmailDecoder.java:
+	(EmailDecoder), (EmailDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/data/EmailEncoder.java:
+	(EmailEncoder), (EmailEncoder.EmailEncoder), (EmailEncoder.encode),
+	(EmailEncoder.appendRecurence), (EmailEncoder.formatDate),
+	(EmailEncoder.buildStringAdresses):
+	* plugins/org.obm.push/src/org/obm/push/data/EncoderFactory.java:
+	(EncoderFactory.getEncoder):
+	* plugins/org.obm.push/src/org/obm/push/data/InternetCPIDMapping.ja
+	va: (InternetCPIDMapping), (InternetCPIDMapping..getInternetCPID),
+	(InternetCPIDMapping.):
+	* plugins/org.obm.push/src/org/obm/push/data/MailEncoder.java:
+	* plugins/org.obm.push/src/org/obm/push/data/calendarenum/CalendarS
+	ensitivity.java:
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.SyncHandler):
+	* plugins/org.obm.push/src/org/obm/push/store/ISyncStorage.java:
+	(ISyncStorage):
+	* sql/2.2/create_opush_mysql.sql:
+	* sql/2.2/create_opush_pgsql.sql:
+
 2009-10-02  Adrien POUPARD  <adrien.poupard@aliasource.fr>
 
 	refactoring of serverId and clientId management

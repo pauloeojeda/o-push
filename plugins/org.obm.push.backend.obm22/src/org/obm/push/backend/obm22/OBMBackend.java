@@ -20,6 +20,7 @@ import org.obm.push.backend.obm22.calendar.CalendarMonitoringThread;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.impl.ListenerRegistration;
 import org.obm.push.backend.obm22.mail.MailBackend;
+import org.obm.push.backend.obm22.mail.EmailManager;
 import org.obm.push.provisioning.MSEASProvisioingWBXML;
 import org.obm.push.provisioning.MSWAPProvisioningXML;
 import org.obm.push.provisioning.Policy;
@@ -134,4 +135,10 @@ public class OBMBackend implements IBackend {
 		return ret;
 	}
 
+	@Override
+	public void resetForFullSync(String devId) {
+		Set<Integer> colIds = getStore().getAllCollectionId(devId);
+		EmailManager.getInstance().resetForFullSync(colIds);
+		getStore().resetForFullSync(devId);
+	}
 }

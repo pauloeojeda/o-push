@@ -19,15 +19,15 @@ public class ContentsExporter implements IContentsExporter {
 
 	private static final Log logger = LogFactory.getLog(ContentsExporter.class);
 
-	private MailBackend mailExporter;
+	private MailBackend mailBackend;
 	private CalendarBackend calBackend;
 
 	private ContactsBackend contactsBackend;
 
-	public ContentsExporter(MailBackend mailExporter,
+	public ContentsExporter(MailBackend mailBackend,
 			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
 		super();
-		this.mailExporter = mailExporter;
+		this.mailBackend = mailBackend;
 		this.calBackend = calendarExporter;
 		this.contactsBackend = contactsBackend;
 	}
@@ -73,8 +73,8 @@ public class ContentsExporter implements IContentsExporter {
 		return calBackend.getContentChanges(bs, collectionId);
 	}
 
-	private DataDelta getMailChanges(BackendSession bs) {
-		return mailExporter.getContentChanges(bs);
+	private DataDelta getMailChanges(BackendSession bs,String collectionId) {
+		return mailBackend.getContentChanges(bs,collectionId);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class ContentsExporter implements IContentsExporter {
 			delta = getContactsChanges(bs, collectionId);
 			break;
 		case EMAIL:
-			delta = getMailChanges(bs);
+			delta = getMailChanges(bs,collectionId);
 			break;
 		case TASKS:
 			delta = getTasksChanges(bs);
@@ -100,7 +100,8 @@ public class ContentsExporter implements IContentsExporter {
 
 	@Override
 	public int getCount(BackendSession bs, String collectionId) {
-		return getChanged(bs, collectionId).getChanges().size();
+		DataDelta dd = getChanged(bs, collectionId);
+		return (dd.getChanges().size() + dd.getDeletions().size());
 	}
 
 	@Override
@@ -112,7 +113,7 @@ public class ContentsExporter implements IContentsExporter {
 		case CONTACTS:
 			break;
 		case EMAIL:
-			changes.addAll(mailExporter.fetchItems(fetchIds));
+//			changes.addAll(mailBackend.fetchItems(fetchIds));
 			break;
 		case TASKS:
 			break;

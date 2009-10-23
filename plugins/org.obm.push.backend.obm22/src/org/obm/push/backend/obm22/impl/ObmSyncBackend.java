@@ -56,10 +56,14 @@ public class ObmSyncBackend {
 		}
 	}
 
-	public int getCollectionIdFor(String deviceId, String collection) {
+	public Integer getCollectionIdFor(String deviceId, String collection) {
 		return storage.getCollectionMapping(deviceId, collection);
 	}
-
+	
+	public String getCollectionNameFor(Integer collectionId) {
+		return storage.getCollectionString(collectionId);
+	}
+	
 	public String getServerIdFor(String deviceId, String collection,
 			String clientId) {
 		int folderId = storage.getCollectionMapping(deviceId, collection);
@@ -72,4 +76,7 @@ public class ObmSyncBackend {
 		return sb.toString();
 	}
 
+	public int getDevId(String deviceId) {
+		return storage.getDevId(deviceId);
+	}
 }

@@ -9,4 +9,6 @@ Require-Bundle: org.obm.push,
  org.obm.sync.client;bundle-version="2.2.0",
  javax.servlet;bundle-version="2.5.0",
  org.minig.obm.pool;bundle-version="1.0.0",
+ org.minig.imap;bundle-version="1.0.0",
+ org.apache.commons.codec;bundle-version="1.3.0",
  org.obm.locator.client;bundle-version="2.3.0"

@@ -177,7 +177,6 @@ public class CalendarEncoder implements IDataEncoder {
 			break;
 		case YEARLY_NDAY:
 			break;
-
 		}
 	}
 
