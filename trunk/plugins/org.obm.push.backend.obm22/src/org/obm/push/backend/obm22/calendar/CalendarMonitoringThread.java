@@ -52,7 +52,9 @@ public class CalendarMonitoringThread extends MonitoringThread {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		cal.setTimeInMillis(lastSync.getTime());
 		Timestamp ts = new Timestamp(cal.getTimeInMillis());
-		logger.info("poll date is " + cal.getTime());
+		if (logger.isDebugEnabled()) {
+			logger.debug("poll date is " + cal.getTime());
+		}
 		int idx = 1;
 		try {
 			con = newCon();
@@ -70,8 +72,10 @@ public class CalendarMonitoringThread extends MonitoringThread {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
 
-		logger.info("changed collections: " + changed.size() + " dbDate: "
-				+ dbDate);
+		if (logger.isInfoEnabled() && changed.size() > 0) {
+			logger.info("changed collections: " + changed.size() + " dbDate: "
+					+ dbDate);
+		}
 
 		return new ChangedCollections(dbDate, changed);
 	}
@@ -99,9 +103,10 @@ public class CalendarMonitoringThread extends MonitoringThread {
 			sc.setCollectionName(colName.toString());
 			changed.add(sc);
 			i++;
-			logger.info("Detected cal change for " + login + "@" + domain);
+			if (logger.isInfoEnabled()) {
+				logger.info("Detected cal change for " + login + "@" + domain);
+			}
 		}
-		logger.info("POLL_QUERY returned " + i + " results");
 		return ret;
 	}
 
