@@ -261,7 +261,7 @@ public class SyncStorage implements ISyncStorage {
 		// TODO add mail & tasks
 		if (collectionId.contains("\\calendar\\")) {
 			return "Calendar";
-		} else if (collectionId.contains("\\contact\\")) {
+		} else if (collectionId.contains("\\contacts")) {
 			return "Contacts";
 		} else if (collectionId.contains("\\email\\")) {
 			return "Email";
