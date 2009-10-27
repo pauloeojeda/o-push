@@ -19,8 +19,8 @@ import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.calendar.CalendarMonitoringThread;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.impl.ListenerRegistration;
-import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.backend.obm22.mail.EmailManager;
+import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.provisioning.MSEASProvisioingWBXML;
 import org.obm.push.provisioning.MSWAPProvisioningXML;
 import org.obm.push.provisioning.Policy;
@@ -50,22 +50,23 @@ public class OBMBackend implements IBackend {
 		this.store = store;
 
 		hImporter = new HierarchyImporter();
-		exporter = new HierarchyExporter(folderExporter, mailExporter, calendarExporter,
-				contactsBackend);
+		exporter = new HierarchyExporter(folderExporter, mailExporter,
+				calendarExporter, contactsBackend);
 		cImporter = new ContentsImporter(mailExporter, calendarExporter,
 				contactsBackend);
 		contentsExporter = new ContentsExporter(mailExporter, calendarExporter,
 				contactsBackend);
-		
+
 		startOBMMonitoringThreads(calendarExporter);
 	}
 
 	private void startOBMMonitoringThreads(CalendarBackend cb) {
-		calendarPushMonitor = new CalendarMonitoringThread(cb, 5000, registeredListeners);
+		calendarPushMonitor = new CalendarMonitoringThread(cb, 5000,
+				registeredListeners);
 		Thread calThread = new Thread(calendarPushMonitor);
 		calThread.setDaemon(true);
 		calThread.start();
-		
+
 		// TODO an contact & mail monitoring thread
 	}
 
@@ -137,8 +138,13 @@ public class OBMBackend implements IBackend {
 
 	@Override
 	public void resetForFullSync(String devId) {
-		Set<Integer> colIds = getStore().getAllCollectionId(devId);
-		EmailManager.getInstance().resetForFullSync(colIds);
-		getStore().resetForFullSync(devId);
+		try {
+			Set<Integer> colIds = getStore().getAllCollectionId(devId);
+			EmailManager.getInstance().resetForFullSync(colIds);
+			getStore().resetForFullSync(devId);
+		} catch (RuntimeException re) {
+			logger.error(re.getMessage(), re);
+			throw re;
+		}
 	}
 }
