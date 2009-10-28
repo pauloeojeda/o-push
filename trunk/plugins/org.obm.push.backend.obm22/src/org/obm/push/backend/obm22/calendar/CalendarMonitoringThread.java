@@ -72,10 +72,10 @@ public class CalendarMonitoringThread extends MonitoringThread {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
 
-		if (logger.isInfoEnabled() && changed.size() > 0) {
-			logger.info("changed collections: " + changed.size() + " dbDate: "
-					+ dbDate);
-		}
+		// if (logger.isInfoEnabled() && changed.size() > 0) {
+		logger.info("changed collections: " + changed.size() + " dbDate: "
+				+ dbDate);
+		// }
 
 		return new ChangedCollections(dbDate, changed);
 	}
@@ -100,11 +100,12 @@ public class CalendarMonitoringThread extends MonitoringThread {
 			colName.append(domain);
 
 			SyncCollection sc = new SyncCollection();
-			sc.setCollectionName(colName.toString());
+			String s = colName.toString();
+			sc.setCollectionName(s);
 			changed.add(sc);
 			i++;
 			if (logger.isInfoEnabled()) {
-				logger.info("Detected cal change for " + login + "@" + domain);
+				logger.info("Detected cal change for " + s);
 			}
 		}
 		return ret;

@@ -58,8 +58,8 @@ public abstract class MonitoringThread implements Runnable {
 				for (ICollectionChangeListener ccl : ccls) {
 					Set<SyncCollection> monitoredCollections = ccl
 							.getMonitoredCollections();
-					Set<SyncCollection> changes = getChangedCollections(ccl.getSession(), cols,
-							monitoredCollections);
+					Set<SyncCollection> changes = getChangedCollections(ccl
+							.getSession(), cols, monitoredCollections);
 					if (!changes.isEmpty()) {
 						toNotify.add(new PushNotification(changes, ccl));
 					}
@@ -71,15 +71,16 @@ public abstract class MonitoringThread implements Runnable {
 		}
 	}
 
-	private Set<SyncCollection> getChangedCollections(BackendSession session, ChangedCollections cols,
-			Set<SyncCollection> monitoredCollections) {
+	private Set<SyncCollection> getChangedCollections(BackendSession session,
+			ChangedCollections cols, Set<SyncCollection> monitoredCollections) {
 		Set<SyncCollection> ret = new HashSet<SyncCollection>();
 
 		for (SyncCollection sc : cols.getChanged()) {
-			logger.info("processing sc: " + sc.getCollectionId());
+			logger.info("processing sc: id: " + sc.getCollectionId()
+					+ " name: " + sc.getCollectionName());
 			if (monitoredCollections.contains(sc)) {
-				logger.info("******** PUSH " + sc.getCollectionId()
-						+ " ********");
+				logger.info("******** PUSH " + sc.getCollectionId() + " name: "
+						+ sc.getCollectionName() + " ********");
 				ret.add(sc);
 			} else {
 				logger.info("** " + sc.getCollectionId()
@@ -92,10 +93,11 @@ public abstract class MonitoringThread implements Runnable {
 
 		for (SyncCollection toPush : ret) {
 			String colName = toPush.getCollectionName();
-			int collectionId = backend.getCollectionIdFor(session.getDevId(), colName);
+			int collectionId = backend.getCollectionIdFor(session.getDevId(),
+					colName);
 			toPush.setCollectionId(collectionId);
 		}
-		
+
 		return ret;
 	}
 

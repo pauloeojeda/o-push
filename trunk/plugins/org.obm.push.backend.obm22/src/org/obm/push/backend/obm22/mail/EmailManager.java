@@ -129,7 +129,8 @@ public class EmailManager {
 		return ret;
 	}
 
-	public void updateReadFlag(BackendSession bs, String collectionName, Long uid, boolean read) {
+	public void updateReadFlag(BackendSession bs, String collectionName,
+			Long uid, boolean read) {
 		StoreClient store = getClient(bs);
 		try {
 			store.login();
@@ -137,10 +138,10 @@ public class EmailManager {
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.SEEN);
-			long[] uids = {uid};
+			long[] uids = { uid };
 			store.uidStore(uids, fl, read);
-			logger.info("flag  change: " + (read ? "+" : "-") +" SEEN"+ " on mail "
-					+ uid + " in " + mailBoxName);
+			logger.info("flag  change: " + (read ? "+" : "-") + " SEEN"
+					+ " on mail " + uid + " in " + mailBoxName);
 		} catch (IMAPException e) {
 			logger.error(e.getMessage(), e);
 		} finally {
@@ -158,9 +159,10 @@ public class EmailManager {
 	}
 
 	public void resetForFullSync(Set<Integer> listCollectionId) {
-		for(Integer colId : listCollectionId){
+		for (Integer colId : listCollectionId) {
 			uidCache.remove(colId);
 		}
+		logger.info("resetForFullSync");
 	}
 
 	public void delete(BackendSession bs, String collectionName, Long uid) {
@@ -171,8 +173,8 @@ public class EmailManager {
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.DELETED);
-			logger.info("delete conv id : "+uid);
-			long[] uids = {uid};
+			logger.info("delete conv id : " + uid);
+			long[] uids = { uid };
 			store.uidStore(uids, fl, true);
 			store.expunge();
 		} catch (IMAPException e) {

@@ -39,7 +39,6 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 				"SyncKey");
 
 		if ("0".equals(syncKey)) {
-//			backend.getStore().resetForFullSync(bs.getDevId());
 			backend.resetForFullSync(bs.getDevId());
 		}
 

@@ -138,6 +138,7 @@ public class OBMBackend implements IBackend {
 
 	@Override
 	public void resetForFullSync(String devId) {
+		logger.info("resetForFullSync devId: " + devId);
 		try {
 			Set<Integer> colIds = getStore().getAllCollectionId(devId);
 			EmailManager.getInstance().resetForFullSync(colIds);
