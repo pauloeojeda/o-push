@@ -46,7 +46,6 @@ public class PingHandler extends WbxmlRequestHandler {
 			if (bs.getLastMonitored() == null
 					|| bs.getLastMonitored().isEmpty() || intervalSeconds < 5) {
 				logger.error("Don't know what to monitor, "
-						+ "db table for storing ping params missing..."
 						+ "interval: " + intervalSeconds + " toMonitor: "
 						+ bs.getLastMonitored(), new RuntimeException());
 			}
