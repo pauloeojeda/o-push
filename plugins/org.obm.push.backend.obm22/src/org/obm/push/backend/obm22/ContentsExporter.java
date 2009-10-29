@@ -41,7 +41,7 @@ public class ContentsExporter implements IContentsExporter {
 			logger.warn("null collection, skipping");
 			return;
 		}
-		
+
 		bs.setState(state);
 		if (dataClass != null) {
 			bs.setDataType(PIMDataType.valueOf(dataClass.toUpperCase()));
@@ -73,12 +73,13 @@ public class ContentsExporter implements IContentsExporter {
 		return calBackend.getContentChanges(bs, collectionId);
 	}
 
-	private DataDelta getMailChanges(BackendSession bs,String collectionId) {
-		return mailBackend.getContentChanges(bs,collectionId);
+	private DataDelta getMailChanges(BackendSession bs, String collectionId) {
+		return mailBackend.getContentChanges(bs, collectionId);
 	}
 
 	@Override
 	public DataDelta getChanged(BackendSession bs, String collectionId) {
+		logger.info("getChanged: " + bs + " collectionId: " + collectionId);
 		DataDelta delta = null;
 		switch (bs.getDataType()) {
 		case CALENDAR:
@@ -88,7 +89,7 @@ public class ContentsExporter implements IContentsExporter {
 			delta = getContactsChanges(bs, collectionId);
 			break;
 		case EMAIL:
-			delta = getMailChanges(bs,collectionId);
+			delta = getMailChanges(bs, collectionId);
 			break;
 		case TASKS:
 			delta = getTasksChanges(bs);
@@ -113,7 +114,7 @@ public class ContentsExporter implements IContentsExporter {
 		case CONTACTS:
 			break;
 		case EMAIL:
-//			changes.addAll(mailBackend.fetchItems(fetchIds));
+			// changes.addAll(mailBackend.fetchItems(fetchIds));
 			break;
 		case TASKS:
 			break;

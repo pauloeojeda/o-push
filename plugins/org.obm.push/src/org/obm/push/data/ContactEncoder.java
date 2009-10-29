@@ -9,11 +9,20 @@ import org.w3c.dom.Element;
 public class ContactEncoder implements IDataEncoder {
 
 	@Override
-	public void encode(BackendSession bs, Element parent, IApplicationData data, boolean isResponse) {
+	public void encode(BackendSession bs, Element parent,
+			IApplicationData data, boolean isResponse) {
 		// TODO Auto-generated method stub
 		MSContact c = (MSContact) data;
 
-		DOMUtils.createElement(parent, "Contacts:CompressedRTF");
+		// DOMUtils.createElement(parent, "Contacts:CompressedRTF");
+
+		if (bs.getProtocolVersion() > 12) {
+			Element body = DOMUtils.createElement(parent, "AirSyncBase:Body");
+			e(body, "AirSyncBase:Type", "3");
+			e(body, "AirSyncBase:EstimatedDataSize", "5500"); // FIXME random
+																// value....
+			e(body, "AirSyncBase:Truncated", "1");
+		}
 
 		DOMUtils.createElementAndText(parent, "Contacts:FileAs", getFileAs(c));
 
@@ -65,18 +74,16 @@ public class ContactEncoder implements IDataEncoder {
 		e(parent, "Contacts:Email3Address", c.getEmail3Address());
 
 		if (bs.getProtocolVersion() > 12) {
-			Element d = DOMUtils.createElement(parent, "AirSyncBase:Data");
-			e(d, "AirSyncBase:Type", "1");
-			DOMUtils.createElement(d, "AirSyncBase:EstimatedDataSize");
+			e(parent, "AirSyncBase:NativeBodyType", "3");
 		}
 
-		
 		// DOMUtils.createElement(parent, "Contacts:Picture");
 		// DOMUtils.createElement(parent, "Contacts:Body");
 	}
 
 	private String getFileAs(MSContact c) {
-		if (c.getFirstName() != null && c.getLastName() != null && c.getFirstName().length() > 0) {
+		if (c.getFirstName() != null && c.getLastName() != null
+				&& c.getFirstName().length() > 0) {
 			return c.getLastName() + ", " + c.getFirstName();
 		} else if (c.getFirstName() != null && c.getFirstName().length() > 0) {
 			return c.getFirstName();
