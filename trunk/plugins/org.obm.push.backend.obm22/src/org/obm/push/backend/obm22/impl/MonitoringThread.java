@@ -76,6 +76,9 @@ public abstract class MonitoringThread implements Runnable {
 		Set<SyncCollection> ret = new HashSet<SyncCollection>();
 
 		for (SyncCollection sc : cols.getChanged()) {
+			int id = backend.getCollectionIdFor(session.getDevId(), sc
+					.getCollectionName());
+			sc.setCollectionId(id);
 			logger.info("processing sc: id: " + sc.getCollectionId()
 					+ " name: " + sc.getCollectionName());
 			if (monitoredCollections.contains(sc)) {
