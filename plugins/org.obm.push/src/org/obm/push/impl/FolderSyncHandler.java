@@ -40,6 +40,7 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 
 		if ("0".equals(syncKey)) {
 			backend.resetForFullSync(bs.getDevId());
+			bs.setState(new SyncState());
 		}
 
 		StateMachine sm = new StateMachine(backend.getStore());
@@ -107,7 +108,8 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 			} else {
 				DOMUtils.createElementAndText(changes, "Count", "0");
 			}
-			String newSyncKey = sm.allocateNewSyncKey(bs, exporter.getRootFolderId(bs), state);
+			String newSyncKey = sm.allocateNewSyncKey(bs, exporter
+					.getRootFolderId(bs), state);
 			sk.setTextContent(newSyncKey);
 			responder.sendResponse("FolderHierarchy", ret);
 		} catch (Exception e) {
