@@ -18,6 +18,7 @@ import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.calendar.CalendarMonitoringThread;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
+import org.obm.push.backend.obm22.contacts.ContactsMonitoringThread;
 import org.obm.push.backend.obm22.impl.ListenerRegistration;
 import org.obm.push.backend.obm22.mail.EmailManager;
 import org.obm.push.backend.obm22.mail.MailBackend;
@@ -36,6 +37,7 @@ public class OBMBackend implements IBackend {
 
 	private Set<ICollectionChangeListener> registeredListeners;
 	private CalendarMonitoringThread calendarPushMonitor;
+	private ContactsMonitoringThread contactsPushMonitor;
 
 	private static final Log logger = LogFactory.getLog(OBMBackend.class);
 
@@ -67,7 +69,13 @@ public class OBMBackend implements IBackend {
 		calThread.setDaemon(true);
 		calThread.start();
 
-		// TODO an contact & mail monitoring thread
+		contactsPushMonitor = new ContactsMonitoringThread(
+				cb, 5000, registeredListeners);
+		Thread contactThread = new Thread(contactsPushMonitor);
+		contactThread.setDaemon(true);
+		contactThread.start();
+
+		// TODO add mail monitoring thread
 	}
 
 	@Override

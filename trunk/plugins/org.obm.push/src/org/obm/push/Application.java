@@ -18,7 +18,7 @@ public class Application implements IApplication {
 	
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
-		logger.info("Push server started...");
+		logger.info("Push server starting...");
 		Hashtable<String, Object> settings = new Hashtable<String, Object>();
 		settings.put(JettyConstants.HTTP_PORT, 8082);
 		settings.put(JettyConstants.CONTEXT_PATH, "");
@@ -30,6 +30,7 @@ public class Application implements IApplication {
 
 		loadBundle("org.eclipse.equinox.http.registry");
 
+		logger.info("Push server started.");
 		return EXIT_OK;
 	}
 
