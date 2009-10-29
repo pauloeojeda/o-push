@@ -60,10 +60,14 @@ public class CalendarBackend extends ObmSyncBackend {
 		try {
 			CalendarInfo[] cals = cc.listCalendars(token);
 			int i = 0;
+
+			int idx = bs.getLoginAtDomain().indexOf("@");
+			String domain = bs.getLoginAtDomain().substring(idx);
+
 			for (CalendarInfo ci : cals) {
 				ItemChange ic = new ItemChange();
 				String col = "obm:\\\\" + bs.getLoginAtDomain()
-						+ "\\calendar\\" + ci.getUid() + "@domain";
+						+ "\\calendar\\" + ci.getUid() + domain;
 				ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
 				ic.setParentId("0");
 				ic.setDisplayName(ci.getMail());
