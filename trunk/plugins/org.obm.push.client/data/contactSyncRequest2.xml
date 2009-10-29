@@ -2,10 +2,8 @@
 <Sync>
 <Collections>
 <Collection>
-<Class>Contacts</Class>
 <SyncKey>FILL_ME</SyncKey>
 <CollectionId>2</CollectionId>
-<DeletesAsMoves/>
 <GetChanges/>
 <WindowSize>50</WindowSize>
 </Collection>
