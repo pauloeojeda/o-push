@@ -87,11 +87,20 @@ public class SyncHandler extends WbxmlRequestHandler {
 		try {
 			reply = DOMUtils.createDoc(null, "Sync");
 			Element root = reply.getDocumentElement();
+
+			boolean invalid = false;
+
 			Element cols = DOMUtils.createElement(root, "Collections");
 
 			for (SyncCollection c : collections) {
 				String oldSyncKey = c.getSyncKey();
 				SyncState st = sm.getSyncState(oldSyncKey);
+
+				if (!st.isValid()) {
+					invalid = true;
+					break;
+				}
+
 				Element ce = DOMUtils.createElement(cols, "Collection");
 				if (c.getDataClass() != null) {
 					DOMUtils
@@ -100,33 +109,29 @@ public class SyncHandler extends WbxmlRequestHandler {
 				Element sk = DOMUtils.createElement(ce, "SyncKey");
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId().toString());
-				if (!st.isValid()) {
-					logger.info("invalid sync key: " + st);
-					ce.removeChild(sk);
-					DOMUtils.createElementAndText(ce, "Status",
-							SyncStatus.HIERARCHY_CHANGED.asXmlValue());
-				} else {
-					DOMUtils.createElementAndText(ce, "Status", "1");
-					if (!oldSyncKey.equals("0")) {
-						int col = c.getCollectionId();
-						String colStr = backend.getStore().getCollectionString(
-								col);
-						IContentsExporter cex = backend.getContentsExporter(bs);
-						cex.configure(bs, c.getDataClass(), c.getFilterType(),
-								st, colStr);
+				DOMUtils.createElementAndText(ce, "Status", "1");
+				if (!oldSyncKey.equals("0")) {
+					int col = c.getCollectionId();
+					String colStr = backend.getStore().getCollectionString(col);
+					IContentsExporter cex = backend.getContentsExporter(bs);
+					cex.configure(bs, c.getDataClass(), c.getFilterType(), st,
+							colStr);
 
-						if (c.getFetchIds().size() == 0) {
-							doUpdates(bs, c, ce, cex, processedClientIds);
-						} else {
-							// fetch
-							doFetch(bs, c, ce, cex);
-						}
+					if (c.getFetchIds().size() == 0) {
+						doUpdates(bs, c, ce, cex, processedClientIds);
+					} else {
+						// fetch
+						doFetch(bs, c, ce, cex);
 					}
-					sk.setTextContent(sm.allocateNewSyncKey(bs, c
-							.getCollectionId(), st));
 				}
+				sk.setTextContent(sm.allocateNewSyncKey(bs,
+						c.getCollectionId(), st));
 			}
-
+			if (invalid) {
+				root.removeChild(cols);
+				DOMUtils.createElementAndText(root, "Status",
+						SyncStatus.HIERARCHY_CHANGED.asXmlValue());
+			}
 			responder.sendResponse("AirSync", reply);
 		} catch (Exception e) {
 			logger.error("Error creating Sync response", e);
