@@ -45,8 +45,8 @@ public class PingHandler extends WbxmlRequestHandler {
 			// 5sec, why not ? a mobile device asking for <5sec is just stupid
 			if (bs.getLastMonitored() == null
 					|| bs.getLastMonitored().isEmpty() || intervalSeconds < 5) {
-				logger.error("Don't know what to monitor, "
-						+ "interval: " + intervalSeconds + " toMonitor: "
+				logger.error("Don't know what to monitor, " + "interval: "
+						+ intervalSeconds + " toMonitor: "
 						+ bs.getLastMonitored(), new RuntimeException());
 			}
 		} else {
@@ -74,26 +74,32 @@ public class PingHandler extends WbxmlRequestHandler {
 			bs.setLastHeartbeat(intervalSeconds);
 		}
 
-		CollectionChangeListener l = new CollectionChangeListener(bs,
-				continuation, bs.getLastMonitored());
-		IListenerRegistration reg = backend.addChangeListener(l);
-		continuation.storeData(ICollectionChangeListener.REG_NAME, reg);
-		continuation.storeData(ICollectionChangeListener.LISTENER, l);
-		logger.info("suspend for " + intervalSeconds + " seconds");
-		synchronized (bs) {
-			logger
-					.warn("for testing purpose, we will only suspend for 40sec (to monitor: "
-							+ bs.getLastMonitored() + ")");
-			continuation.suspend(40 * 1000);
-			// continuation.suspend(intervalSeconds * 1000);
+		if (intervalSeconds > 0 && bs.getLastMonitored() != null) {
+			CollectionChangeListener l = new CollectionChangeListener(bs,
+					continuation, bs.getLastMonitored());
+			IListenerRegistration reg = backend.addChangeListener(l);
+			continuation.storeData(ICollectionChangeListener.REG_NAME, reg);
+			continuation.storeData(ICollectionChangeListener.LISTENER, l);
+			logger.info("suspend for " + intervalSeconds + " seconds");
+			synchronized (bs) {
+				logger
+						.warn("for testing purpose, we will only suspend for 40sec (to monitor: "
+								+ bs.getLastMonitored() + ")");
+				continuation.suspend(40 * 1000);
+				// continuation.suspend(intervalSeconds * 1000);
+			}
+		} else {
+			logger.warn("forcing hierarchy change");
+			sendResponse(bs, responder, null, true);
 		}
 	}
 
 	public void sendResponse(BackendSession bs, Responder responder,
-			Set<SyncCollection> changedFolders) {
+			Set<SyncCollection> changedFolders, boolean sendHierarchyChange) {
 		Document ret = DOMUtils.createDoc(null, "Ping");
 
-		fillResponse(ret.getDocumentElement(), changedFolders);
+		fillResponse(ret.getDocumentElement(), changedFolders,
+				sendHierarchyChange);
 		try {
 			responder.sendResponse("Ping", ret);
 		} catch (Exception e) {
@@ -102,8 +108,11 @@ public class PingHandler extends WbxmlRequestHandler {
 	}
 
 	private void fillResponse(Element element,
-			Set<SyncCollection> changedFolders) {
-		if (changedFolders == null || changedFolders.isEmpty()) {
+			Set<SyncCollection> changedFolders, boolean sendHierarchyChange) {
+		if (sendHierarchyChange) {
+			DOMUtils.createElementAndText(element, "Status",
+					PingStatus.FOLDER_SYNC_REQUIRED.toString());
+		} else if (changedFolders == null || changedFolders.isEmpty()) {
 			DOMUtils.createElementAndText(element, "Status",
 					PingStatus.NO_CHANGES.toString());
 		} else {

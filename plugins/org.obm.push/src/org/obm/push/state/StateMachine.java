@@ -26,11 +26,15 @@ public class StateMachine {
 		if (ret == null) {
 			ret = new SyncState();
 			ret.setKey(syncKey);
+			if (!"0".equals(syncKey)) {
+				ret.setLastSync(null);
+			}
 		}
 		return ret;
 	}
 
-	public String allocateNewSyncKey(BackendSession bs, Integer collectionId, SyncState oldState) {
+	public String allocateNewSyncKey(BackendSession bs, Integer collectionId,
+			SyncState oldState) {
 		SyncState newState = new SyncState();
 		Date nd = bs.getUpdatedSyncDate();
 		if (nd != null) {

@@ -102,8 +102,9 @@ public class SyncHandler extends WbxmlRequestHandler {
 						.getCollectionId().toString());
 				if (!st.isValid()) {
 					logger.info("invalid sync key: " + st);
+					ce.removeChild(sk);
 					DOMUtils.createElementAndText(ce, "Status",
-							SyncStatus.INVALID_SYNC_KEY.asXmlValue());
+							SyncStatus.HIERARCHY_CHANGED.asXmlValue());
 				} else {
 					DOMUtils.createElementAndText(ce, "Status", "1");
 					if (!oldSyncKey.equals("0")) {
@@ -134,7 +135,8 @@ public class SyncHandler extends WbxmlRequestHandler {
 
 	private void doUpdates(BackendSession bs, SyncCollection c, Element ce,
 			IContentsExporter cex, HashMap<String, String> processedClientIds) {
-		String col = backend.getStore().getCollectionString(c.getCollectionId());
+		String col = backend.getStore()
+				.getCollectionString(c.getCollectionId());
 		DataDelta delta = cex.getChanged(bs, col);
 		List<ItemChange> changed = processWindowSize(c, delta, bs);
 
@@ -267,27 +269,23 @@ public class SyncHandler extends WbxmlRequestHandler {
 		// TODO sync <getchanges/>
 		// TODO sync options
 
-//		if (collection.getCollectionId() == null) {
-//			collection.setCollectionId(Utils.getFolderId(bs.getDevId(),
-//					collection.getDataClass()));
-//		}
+		SyncState oldColState = sm.getSyncState(collection.getSyncKey());
+		collection.setSyncState(oldColState);
+		if (oldColState.isValid()) {
+			Element perform = DOMUtils.getUniqueElement(col, "Commands");
 
-		collection.setSyncState(sm.getSyncState(collection.getSyncKey()));
-
-		// Element perform = DOMUtils.getUniqueElement(col, "Perform");
-		Element perform = DOMUtils.getUniqueElement(col, "Commands");
-
-		if (perform != null) {
-			// get our sync state for this collection
-			IContentsImporter importer = backend.getContentsImporter(collection
-					.getCollectionId(), bs);
-			importer.configure(bs, collection.getSyncState(), collection
-					.getConflict());
-			NodeList mod = perform.getChildNodes();
-			for (int j = 0; j < mod.getLength(); j++) {
-				Element modification = (Element) mod.item(j);
-				processModification(bs, collection, importer, modification,
-						processedClientIds);
+			if (perform != null) {
+				// get our sync state for this collection
+				IContentsImporter importer = backend.getContentsImporter(
+						collection.getCollectionId(), bs);
+				importer.configure(bs, collection.getSyncState(), collection
+						.getConflict());
+				NodeList mod = perform.getChildNodes();
+				for (int j = 0; j < mod.getLength(); j++) {
+					Element modification = (Element) mod.item(j);
+					processModification(bs, collection, importer, modification,
+							processedClientIds);
+				}
 			}
 		}
 		return collection;

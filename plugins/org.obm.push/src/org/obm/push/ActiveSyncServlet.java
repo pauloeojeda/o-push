@@ -93,7 +93,7 @@ public class ActiveSyncServlet extends HttpServlet {
 				logger.warn("no listener", new Throwable());
 			} else {
 				ph.sendResponse((BackendSession) c.getObject(), new Responder(
-						response), ccl.getDirtyCollections());
+						response), ccl.getDirtyCollections(), false);
 			}
 
 			return;
