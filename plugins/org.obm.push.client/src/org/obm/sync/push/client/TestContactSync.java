@@ -44,4 +44,19 @@ public class TestContactSync extends AbstractPushTest {
 
 	}
 
+	public void testBorkenFolderSync() throws Exception {
+		InputStream in = loadDataFile("FolderSyncRequest.xml");
+		Document doc = DOMUtils.parse(in);
+		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
+		assertNotNull(ret);
+
+		in = loadDataFile("brokenSyncRequest.xml");
+		doc = DOMUtils.parse(in);
+		Element synckeyElem = DOMUtils.getUniqueElement(doc
+				.getDocumentElement(), "SyncKey");
+		synckeyElem.setTextContent("0");
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
+	}
 }
