@@ -1,0 +1,6 @@
+#summary OPush bugtracker
+#labels Phase-QA
+
+= Bugzilla =
+
+OPush uses [https://obm.org/bugzilla/ OBM bugzilla] for all its issue tracking.
