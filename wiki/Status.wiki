@@ -15,12 +15,11 @@
 
 = Calendar sync status =
 
-  * Mostly ok for iPhone, wm, nokia. 
-  * Recurrence exceptions are not implemented.
+  * Ok for iPhone, wm, nokia. 
 
 = Email sync status =
 
-  * Just sends some dummy data to the device. 
+  * Email downloading works on Windows Mobile.
   * SendMessage, SmartForward, SmartReply, ResolveRecipients are not implemented.
 
 = Task sync status =
