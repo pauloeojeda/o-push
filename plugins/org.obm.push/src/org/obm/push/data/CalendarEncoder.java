@@ -57,7 +57,7 @@ public class CalendarEncoder implements IDataEncoder {
 
 		if (hexa.matcher(ev.getUID()).matches()) {
 			e(p, "Calendar:UID", ev.getUID());
-		} else {
+		} else if (ev.getUID().hashCode() != 0){
 			e(p, "Calendar:UID", Integer.toHexString(ev.getUID().hashCode()));
 		}
 		if (ev.getOrganizerEmail() != null) {
