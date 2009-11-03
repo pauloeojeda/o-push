@@ -5,10 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +43,7 @@ public class SyncStorage implements ISyncStorage {
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
 			ps = con
@@ -52,7 +54,8 @@ public class SyncStorage implements ISyncStorage {
 			if (rs.next()) {
 				ret = new SyncState();
 				ret.setKey(rs.getString(1));
-				ret.setLastSync(rs.getDate(2));
+				cal.setTimeInMillis(rs.getTimestamp(2).getTime());
+				ret.setLastSync(cal.getTime());
 			}
 		} catch (SQLException se) {
 			logger.error(se.getMessage(), se);
