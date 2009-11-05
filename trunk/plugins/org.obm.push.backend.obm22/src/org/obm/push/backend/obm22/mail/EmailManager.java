@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.minig.imap.Flag;
 import org.minig.imap.FlagsList;
 import org.minig.imap.IMAPException;
+import org.minig.imap.ListInfo;
 import org.minig.imap.ListResult;
 import org.minig.imap.StoreClient;
 import org.obm.locator.client.LocatorClient;
@@ -90,11 +91,11 @@ public class EmailManager {
 
 	public MailChanges getSync(BackendSession bs, Integer devId,
 			Integer collectionId, String collectionName)
-			throws InterruptedException, SQLException {
+			throws InterruptedException, SQLException, IMAPException {
 
 		EmailCacheStorage uc = cache(collectionId, false);
 		MailChanges sync = uc.getSync(getClient(bs), devId, bs, collectionId,
-				parseMailBoxName(collectionName));
+				parseMailBoxName(bs,collectionName));
 
 		return sync;
 	}
@@ -103,8 +104,8 @@ public class EmailManager {
 			Set<Long> uids) throws IOException, IMAPException {
 		List<MSEmail> mails = new LinkedList<MSEmail>();
 		StoreClient store = getClient(bs);
-		store.login();
-		store.select(parseMailBoxName(collectionName));
+		login(store);
+		store.select(parseMailBoxName(bs,collectionName));
 		for (Long uid : uids) {
 			mails.add(mailLoader.fetch(uid, store));
 		}
@@ -112,14 +113,12 @@ public class EmailManager {
 		return mails;
 	}
 
-	public ListResult listAllFolder(BackendSession bs) {
+	public ListResult listAllFolder(BackendSession bs) throws IMAPException {
 		StoreClient store = getClient(bs);
 		ListResult ret = new ListResult(0);
 		try {
-			store.login();
+			login(store);
 			ret = store.listAll("", "");
-		} catch (IMAPException e) {
-			logger.error(e.getMessage(), e);
 		} finally {
 			try {
 				store.logout();
@@ -130,11 +129,11 @@ public class EmailManager {
 	}
 
 	public void updateReadFlag(BackendSession bs, String collectionName,
-			Long uid, boolean read) {
+			Long uid, boolean read) throws IMAPException {
 		StoreClient store = getClient(bs);
 		try {
-			store.login();
-			String mailBoxName = parseMailBoxName(collectionName);
+			login(store);
+			String mailBoxName = parseMailBoxName(bs,collectionName);
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.SEEN);
@@ -142,8 +141,6 @@ public class EmailManager {
 			store.uidStore(uids, fl, read);
 			logger.info("flag  change: " + (read ? "+" : "-") + " SEEN"
 					+ " on mail " + uid + " in " + mailBoxName);
-		} catch (IMAPException e) {
-			logger.error(e.getMessage(), e);
 		} finally {
 			try {
 				store.logout();
@@ -152,10 +149,17 @@ public class EmailManager {
 		}
 	}
 
-	private String parseMailBoxName(String collectionName) {
+	private String parseMailBoxName(BackendSession bs, String collectionName) throws IMAPException {
 		// parse obm:\\adrien@test.tlse.lng\email\INBOX\Sent
 		int slash = collectionName.lastIndexOf("email\\");
-		return collectionName.substring(slash + 5);
+		String boxName = collectionName.substring(slash + "email\\".length());
+		ListResult lr = listAllFolder(bs);
+		for (ListInfo i : lr) {
+			if (i.getName().toLowerCase().contains(boxName.toLowerCase())) {
+				return i.getName();
+			}
+		}
+		throw new IMAPException("Cannot find IMAP folder for collection["+collectionName+"]");
 	}
 
 	public void resetForFullSync(Set<Integer> listCollectionId) {
@@ -165,11 +169,11 @@ public class EmailManager {
 		logger.info("resetForFullSync");
 	}
 
-	public void delete(BackendSession bs, String collectionName, Long uid) {
+	public void delete(BackendSession bs, String collectionName, Long uid) throws IMAPException {
 		StoreClient store = getClient(bs);
 		try {
-			store.login();
-			String mailBoxName = parseMailBoxName(collectionName);
+			login(store);
+			String mailBoxName = parseMailBoxName(bs,collectionName);
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.DELETED);
@@ -177,13 +181,17 @@ public class EmailManager {
 			long[] uids = { uid };
 			store.uidStore(uids, fl, true);
 			store.expunge();
-		} catch (IMAPException e) {
-			logger.error(e.getMessage(), e);
 		} finally {
 			try {
 				store.logout();
 			} catch (IMAPException e) {
 			}
+		}
+	}
+	
+	private void login(StoreClient store) throws IMAPException{
+		if(!store.login()){
+			throw new IMAPException("Cannot log into imap server");
 		}
 	}
 

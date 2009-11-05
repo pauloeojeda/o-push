@@ -125,18 +125,19 @@ public class EmailCacheStorage {
 			StoreClient imapStore, String mailBox) {
 		Set<Long> mails = new HashSet<Long>();
 		try {
-			imapStore.login();
-			imapStore.select(mailBox);
-			long[] uids = imapStore.uidSearch(new SearchQuery());
-			for (long uid : uids) {
-				mails.add(Long.valueOf(uid));
+			if (imapStore.login()) {
+				imapStore.select(mailBox);
+				long[] uids = imapStore.uidSearch(new SearchQuery());
+				for (long uid : uids) {
+					mails.add(Long.valueOf(uid));
+				}
 			}
 		} catch (IMAPException e) {
 			logger.error(e.getMessage(), e);
 		} finally {
 			try {
 				imapStore.logout();
-			} catch (IMAPException e) {
+			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
@@ -202,7 +203,7 @@ public class EmailCacheStorage {
 			BackendSession bs, Integer collectionId, String mailBox)
 			throws InterruptedException, SQLException {
 		long time = System.currentTimeMillis();
-		if(this.memoryCache == null ){
+		if (this.memoryCache == null) {
 			this.memoryCache = loadMailFromDb(bs, devId, collectionId);
 		}
 		long ct = System.currentTimeMillis();
