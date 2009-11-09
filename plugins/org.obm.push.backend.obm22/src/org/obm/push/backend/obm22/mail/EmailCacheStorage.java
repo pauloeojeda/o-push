@@ -121,7 +121,7 @@ public class EmailCacheStorage {
 		return uids;
 	}
 
-	protected Set<Long> loadMailFromIMAP(BackendSession bs,
+	private Set<Long> loadMailFromIMAP(BackendSession bs,
 			StoreClient imapStore, String mailBox) {
 		Set<Long> mails = new HashSet<Long>();
 		try {
@@ -144,7 +144,7 @@ public class EmailCacheStorage {
 		return mails;
 	}
 
-	protected void updateDbCache(BackendSession bs, Integer devId,
+	private void updateDbCache(BackendSession bs, Integer devId,
 			Integer collectionId, final Set<Long> data) throws SQLException {
 		Set<Long> toRemove = new HashSet<Long>();
 		Set<Long> oldUids = loadMailFromDb(bs, devId, collectionId);
@@ -237,5 +237,54 @@ public class EmailCacheStorage {
 		this.lastSyncDate = bs.getState().getLastSync();
 		return sync;
 	}
+	
+	public void deleteMessage(Integer devId, Integer collectionId, Long mailUid){
+		
+		this.memoryCache.remove(mailUid);
+		PreparedStatement del = null;
+		if (logger.isDebugEnabled()) {
+			logger.debug(debugName + " should run a batch with 1 deletions.");
+		}
+		Connection con = null;
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			del = con
+					.prepareStatement("DELETE FROM opush_sync_mail WHERE collection_id=? AND device_id=? AND mail_uid=?");
+				del.setInt(1, collectionId);
+				del.setInt(2, devId);
+				del.setInt(3, mailUid.intValue());
+				del.addBatch();
+
+			del.executeBatch();
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			JDBCUtils.cleanup(con, del, null);
+		}
+	}
+
+	public void addMessage(Integer devId, Integer collectionId, Long mailUid) {
+		if (logger.isDebugEnabled()) {
+			logger.debug(debugName + " should run a batch with 1 insertions.");
+		}
+		Connection con = null;
+		PreparedStatement insert = null;
+		
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+
+			insert = con
+					.prepareStatement("INSERT INTO opush_sync_mail (collection_id, device_id, mail_uid) VALUES (?, ?, ?)");
+				insert.setInt(1, collectionId);
+				insert.setInt(2, devId);
+				insert.setInt(3, mailUid.intValue());
+			insert.execute();
+		} catch (SQLException e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			JDBCUtils.cleanup(con, insert, null);
+		}
+	}
+	
 
 }
