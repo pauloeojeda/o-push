@@ -22,7 +22,11 @@ public interface IContentsImporter {
 
 	void importMessageDeletion(BackendSession bs, PIMDataType type, String collectionId,
 			String serverId);
+	
+	String importMoveItem(BackendSession bs, PIMDataType type, String srcFolder, String dstFolder, String messageId);
 
 	SyncState getState(BackendSession bs);
+
+	void sendEmail(BackendSession bs, byte[] mailContent);
 
 }

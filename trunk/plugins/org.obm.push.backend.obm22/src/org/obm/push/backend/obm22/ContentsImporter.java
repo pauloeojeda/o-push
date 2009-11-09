@@ -37,27 +37,31 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public String importMessageChange(BackendSession bs, String collectionId, String serverId, String clientId, IApplicationData data) {
+	public String importMessageChange(BackendSession bs, String collectionId,
+			String serverId, String clientId, IApplicationData data) {
 		String id = null;
 		switch (data.getType()) {
-			case CALENDAR:
-				id = calBackend.createOrUpdate(bs, collectionId, serverId, clientId, (MSEvent) data);
-				break;
-			case CONTACTS:
-				id = contactBackend.createOrUpdate(bs, collectionId, serverId, clientId, (MSContact) data);
-				break;
-			case EMAIL:
-				id = mailBackend.createOrUpdate(bs, collectionId, serverId, clientId, (MSEmail) data);
-				break;
-			case TASKS:
-				break;
+		case CALENDAR:
+			id = calBackend.createOrUpdate(bs, collectionId, serverId,
+					clientId, (MSEvent) data);
+			break;
+		case CONTACTS:
+			id = contactBackend.createOrUpdate(bs, collectionId, serverId,
+					clientId, (MSContact) data);
+			break;
+		case EMAIL:
+			id = mailBackend.createOrUpdate(bs, collectionId, serverId,
+					clientId, (MSEmail) data);
+			break;
+		case TASKS:
+			break;
 		}
 		return id;
 	}
 
 	@Override
-	public void importMessageDeletion(BackendSession bs, PIMDataType type, String collectionId, 
-			String serverId) {
+	public void importMessageDeletion(BackendSession bs, PIMDataType type,
+			String collectionId, String serverId) {
 		// TODO Auto-generated method stub
 		switch (type) {
 		case CALENDAR:
@@ -86,6 +90,25 @@ public class ContentsImporter implements IContentsImporter {
 			boolean read) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public String importMoveItem(BackendSession bs, PIMDataType type, String srcFolder, String dstFolder, String messageId) {
+		switch (type) {
+		case CALENDAR:
+			break;
+		case CONTACTS:
+			break;
+		case EMAIL:
+			return mailBackend.move(bs, srcFolder, dstFolder, messageId);
+		case TASKS:
+			break;
+		}
+		return null;
+	}
+	
+	@Override
+	public void sendEmail(BackendSession bs, byte[] mailContent) {
+		mailBackend.sendEmail(bs, mailContent);
 	}
 
 }

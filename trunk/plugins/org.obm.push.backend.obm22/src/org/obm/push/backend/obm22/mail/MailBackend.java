@@ -15,8 +15,11 @@ import org.obm.push.store.ISyncStorage;
 
 public class MailBackend extends ObmSyncBackend {
 
+	private EmailManager emailManager;
+	
 	public MailBackend(ISyncStorage storage) {
 		super(storage);
+		emailManager = EmailManager.getInstance();
 	}
 
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
@@ -51,7 +54,7 @@ public class MailBackend extends ObmSyncBackend {
 		int collectionId = getCollectionIdFor(bs.getDevId(), collection);
 		try {
 			int devId = getDevId(bs.getDevId());
-			MailChanges mc = EmailManager.getInstance().getSync(bs, devId,
+			MailChanges mc = emailManager.getSync(bs, devId,
 					collectionId, collection);
 			changes = getChanges(bs, collection, mc.getUpdated());
 			deletions.addAll(getDeletions(bs, collection, mc.getRemoved()));
@@ -77,7 +80,7 @@ public class MailBackend extends ObmSyncBackend {
 
 		List<ItemChange> itch = new LinkedList<ItemChange>();
 		try {
-			List<MSEmail> msMails = EmailManager.getInstance().fetchMails(bs,
+			List<MSEmail> msMails = emailManager.fetchMails(bs,
 					collection, uids);
 			for (MSEmail mail : msMails) {
 				ItemChange ic = new ItemChange();
@@ -120,8 +123,9 @@ public class MailBackend extends ObmSyncBackend {
 			Long uid = getEmailUidFor(serverId);
 			Integer collectionId = getCollectionIdFor(serverId);
 			String collectionName = getCollectionNameFor(collectionId);
+			Integer devId = getDevId(bs.getDevId());
 			try {
-				EmailManager.getInstance().delete(bs, collectionName, uid);
+				emailManager.delete(bs,devId, collectionName,collectionId, uid);
 			} catch (IMAPException e) {
 				logger.error(e.getMessage(),e);
 			}
@@ -135,7 +139,7 @@ public class MailBackend extends ObmSyncBackend {
 		if (serverId != null) {
 			Long mailUid = getEmailUidFor(serverId);
 			try {
-				EmailManager.getInstance().updateReadFlag(bs, collection,
+				emailManager.updateReadFlag(bs, collection,
 						mailUid, data.isRead());
 			} catch (IMAPException e) {
 				logger.error(e.getMessage(),e);
@@ -144,6 +148,25 @@ public class MailBackend extends ObmSyncBackend {
 
 		return null;
 	}
+	
+	public String move(BackendSession bs, String srcFolder, String dstFolder, String messageId) {
+		logger.info("move(" + bs.getLoginAtDomain() + ", messageId "
+				+ messageId + " from " + srcFolder + " to " + dstFolder + ")");
+		Integer srcFolderId = getCollectionIdFor(bs.getDevId(), srcFolder);
+		Integer dstFolderId = getCollectionIdFor(bs.getDevId(), dstFolder);
+		Integer devId = getDevId(bs.getDevId());
+		Long newUidMail = null;
+		try {
+			newUidMail = emailManager.moveItem(bs, devId, srcFolder, srcFolderId, dstFolder, dstFolderId, getEmailUidFor(messageId));
+		} catch (IMAPException e) {
+			logger.error(e.getMessage(),e);
+		}
+		if(newUidMail == null){
+			return null;
+		}
+		return dstFolderId+":"+newUidMail;
+	}
+
 
 	public Long getEmailUidFor(String serverId) {
 		int idx = serverId.lastIndexOf(":");
@@ -155,4 +178,7 @@ public class MailBackend extends ObmSyncBackend {
 		return Integer.parseInt(serverId.substring(0, idx));
 	}
 
+	public void sendEmail(BackendSession bs, byte[] mailContent) {
+		emailManager.sendEmail(bs, mailContent);
+	}
 }

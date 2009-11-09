@@ -128,11 +128,6 @@ public class OBMBackend implements IBackend {
 	}
 
 	@Override
-	public void sendMail(BackendSession bs, byte[] mailContent) {
-		logger.warn("not implemented: should send email");
-	}
-
-	@Override
 	public IListenerRegistration addChangeListener(ICollectionChangeListener ccl) {
 		ListenerRegistration ret = new ListenerRegistration(ccl,
 				registeredListeners);

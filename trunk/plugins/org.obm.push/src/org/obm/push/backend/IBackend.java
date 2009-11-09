@@ -25,7 +25,6 @@ public interface IBackend {
 
 	ISyncStorage getStore();
 
-	void sendMail(BackendSession bs, byte[] mailContent);
 	
 	
 	/**
