@@ -11,7 +11,6 @@ import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSAttendee;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.Recurrence;
-import org.obm.push.data.calendarenum.CalendarBusyStatus;
 import org.obm.push.data.calendarenum.CalendarMeetingStatus;
 import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.utils.DOMUtils;
@@ -104,7 +103,7 @@ public class CalendarEncoder implements IDataEncoder {
 		}
 
 		e(p, "Calendar:Sensitivity", "0");
-		e(p, "Calendar:BusyStatus", CalendarBusyStatus.BUSY.asIntString());
+		e(p, "Calendar:BusyStatus", ev.getBusyStatus().asIntString());
 
 		if (ev.getAllDayEvent()) {
 			e(p, "Calendar:AllDayEvent", (ev.getAllDayEvent() ? "1" : "0"));

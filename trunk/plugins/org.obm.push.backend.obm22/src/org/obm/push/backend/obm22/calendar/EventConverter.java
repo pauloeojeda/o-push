@@ -15,10 +15,12 @@ import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.Recurrence;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.data.calendarenum.AttendeeType;
+import org.obm.push.data.calendarenum.CalendarBusyStatus;
 import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.data.calendarenum.RecurrenceType;
 import org.obm.sync.calendar.Attendee;
 import org.obm.sync.calendar.Event;
+import org.obm.sync.calendar.EventOpacity;
 import org.obm.sync.calendar.EventRecurrence;
 import org.obm.sync.calendar.ParticipationRole;
 import org.obm.sync.calendar.ParticipationState;
@@ -65,7 +67,18 @@ public class EventConverter {
 			mse.setReminder(e.getAlert());
 		}
 		mse.setUID(e.getExtId());
+
+		mse.setBusyStatus(busyStatus(e.getOpacity()));
 		return mse;
+	}
+
+	private CalendarBusyStatus busyStatus(EventOpacity opacity) {
+		switch (opacity) {
+		case TRANSPARENT:
+			return CalendarBusyStatus.FREE;
+		default:
+			return CalendarBusyStatus.BUSY;
+		}
 	}
 
 	private EventRecurrence getRecurrence(MSEvent msev) {
@@ -197,7 +210,6 @@ public class EventConverter {
 
 		r.setInterval(recurrence.getFrequence());
 
-		// TODO Auto-generated method stub
 		return r;
 	}
 
@@ -313,8 +325,18 @@ public class EventConverter {
 				e.addAttendee(convertAttendee(at));
 			}
 		}
+		e.setOpacity(opacity(data.getBusyStatus()));
 
 		return e;
+	}
+
+	private EventOpacity opacity(CalendarBusyStatus busyStatus) {
+		switch (busyStatus) {
+		case FREE:
+			return EventOpacity.TRANSPARENT;
+		default:
+			return EventOpacity.OPAQUE;
+		}
 	}
 
 	private Attendee convertAttendee(MSAttendee at) {
