@@ -29,7 +29,7 @@ public class ContactsBackend extends ObmSyncBackend {
 		super(storage);
 	}
 
-	private BookClient getClient(BackendSession bs) {
+	private BookClient getBookClient(BackendSession bs) {
 		AddressBookLocator abl = new AddressBookLocator();
 		if (obmSyncHost == null) {
 			locateObmSync(bs);
@@ -56,7 +56,7 @@ public class ContactsBackend extends ObmSyncBackend {
 		List<ItemChange> addUpd = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 		logger.info("getContentChanges(" + bs.getState().getLastSync() + ")");
-		BookClient bc = getClient(bs);
+		BookClient bc = getBookClient(bs);
 		AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
 
@@ -94,7 +94,7 @@ public class ContactsBackend extends ObmSyncBackend {
 			String serverId, String clientId, MSContact data) {
 		logger.info("create in " + collectionId + " (contact: "
 				+ data.getFirstName() + " " + data.getLastName() + ")");
-		BookClient bc = getClient(bs);
+		BookClient bc = getBookClient(bs);
 		AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
 
@@ -126,7 +126,7 @@ public class ContactsBackend extends ObmSyncBackend {
 			int idx = serverId.indexOf(":");
 			if (idx > 0) {
 				String id = serverId.substring(idx + 1);
-				BookClient bc = getClient(bs);
+				BookClient bc = getBookClient(bs);
 				AccessToken token = bc.login(bs.getLoginAtDomain(), bs
 						.getPassword(), "o-push");
 				try {

@@ -32,6 +32,7 @@ public class MSEmail implements IApplicationData {
 	private Date date;
 	private Map<String, String> headers;
 	private Set<MSEmail> forwardMessage;
+	private Map<String, String> attachements;
 	private long uid;
 	private MSEvent invitation;
 	private MessageClass messageClass;
@@ -62,6 +63,7 @@ public class MSEmail implements IApplicationData {
 		this.date = d;
 		this.from = from;
 		this.headers = headers;
+		this.attachements = attachements;
 		this.forwardMessage = new HashSet<MSEmail>();
 		if (to != null) {
 			this.to = to;
@@ -185,6 +187,9 @@ public class MSEmail implements IApplicationData {
 
 	public void setInvitation(MSEvent invitation) {
 		this.invitation = invitation;
+		if(this.invitation != null){
+			this.messageClass = MessageClass.ScheduleMeetingRequest;
+		}
 	}
 
 	public String getSmtpId() {
@@ -230,4 +235,13 @@ public class MSEmail implements IApplicationData {
 	public void setImportance(Importance importance) {
 		this.importance = importance;
 	}
+	
+	public Map<String, String> getAttachements() {
+		return attachements;
+	}
+
+	public void setAttachements(Map<String, String> attachements) {
+		this.attachements = attachements;
+	}
 }
+

@@ -39,8 +39,11 @@ public class EventConverter {
 
 	public MSEvent convertEvent(Event e) {
 		MSEvent mse = new MSEvent();
-
-		mse.setDtStamp(e.getTimeUpdate());
+		if(e.getTimeUpdate() != null){
+			mse.setDtStamp(e.getTimeUpdate());
+		} else {
+			mse.setDtStamp(new Date());
+		}
 
 		mse.setSubject(e.getTitle());
 		mse.setLocation(e.getLocation());
