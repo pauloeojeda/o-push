@@ -26,6 +26,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
@@ -38,9 +39,15 @@ import org.minig.imap.IMAPHeaders;
 import org.minig.imap.StoreClient;
 import org.minig.imap.mime.MimePart;
 import org.minig.imap.mime.MimeTree;
+import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.MSEmailBody;
 import org.obm.push.backend.MSEmailBodyType;
+import org.obm.push.backend.MSEvent;
+import org.obm.push.backend.obm22.calendar.EventConverter;
+import org.obm.sync.auth.AccessToken;
+import org.obm.sync.calendar.Event;
+import org.obm.sync.client.calendar.CalendarClient;
 
 import fr.aliasource.utils.DOMUtils;
 import fr.aliasource.utils.FileUtils;
@@ -57,9 +64,14 @@ public class MailMessageLoader {
 			"From", "Date", "To", "Cc", "Bcc", "X-Mailer", "User-Agent",
 			"Message-ID" };
 
+	private CalendarClient calendarClient;
+	private BackendSession bs;
+
 	private boolean pickupPlain;
 	private MimeTree tree;
-//	private InputStream invitation;
+//	private int nbAttachments;
+	private InputStream invitation;
+	private Map<String, String> attach;
 
 	private static final Log logger = LogFactory
 			.getLog(MailMessageLoader.class);
@@ -74,11 +86,15 @@ public class MailMessageLoader {
 	public MailMessageLoader() {
 		this.pickupPlain = true;
 		this.tree = null;
+//		nbAttachments = 0;
+		attach = new HashMap<String, String>();
 	}
 
-	public MSEmail fetch(long messageId, StoreClient store) throws IOException, IMAPException {
-		long[] set = new long[] {messageId};
-
+	public MSEmail fetch(long messageId, StoreClient store, BackendSession bs,
+			CalendarClient calendarClient) throws IOException, IMAPException {
+		long[] set = new long[] { messageId };
+		this.calendarClient = calendarClient;
+		this.bs = bs;
 		IMAPHeaders[] hs = store.uidFetchHeaders(set,
 				MailMessageLoader.HEADS_LOAD);
 		if (hs.length != 1 || hs[0] == null) {
@@ -93,8 +109,8 @@ public class MailMessageLoader {
 		// do load messages forwarded as attachments into the indexers, as it
 		// ignores them
 		fetchQuotedText(tree, mm, store);
-		fetchForwardMessages(tree, mm, store);
-		
+//		fetchForwardMessages(tree, mm, store);
+
 		FlagsList[] fl = store.uidFetchFlags(new long[] { messageId });
 		if (fl.length > 0) {
 			mm.setRead(fl[0].contains(Flag.SEEN));
@@ -105,8 +121,7 @@ public class MailMessageLoader {
 	}
 
 	private void fetchQuotedText(MimeTree tree, MSEmail mailMessage,
-			StoreClient protocol) throws IOException,
-			IMAPException {
+			StoreClient protocol) throws IOException, IMAPException {
 		Iterator<MimePart> it = tree.getChildren().iterator();
 		while (it.hasNext()) {
 			MimePart m = it.next();
@@ -125,9 +140,8 @@ public class MailMessageLoader {
 
 	}
 
-	private void fetchFlowed(MSEmail mailMessage,
-			StoreClient protocol, MimePart m)
-			throws IOException, IMAPException {
+	private void fetchFlowed(MSEmail mailMessage, StoreClient protocol,
+			MimePart m) throws IOException, IMAPException {
 		if ("flowed".equalsIgnoreCase(m.getBodyParams().get("format"))) {
 			MSEmail mm = fetchOneMessage(m, null, protocol);
 			if (!mailMessage.getBody().equals(mm.getBody())) {
@@ -139,41 +153,38 @@ public class MailMessageLoader {
 		}
 	}
 
-	private void fetchForwardMessages(MimePart t, MSEmail mailMessage,
-			StoreClient protocol) throws IOException,
-			IMAPException {
+//	private void fetchForwardMessages(MimePart t, MSEmail mailMessage,
+//			StoreClient protocol) throws IOException, IMAPException {
+//
+//		Iterator<MimePart> it = t.getChildren().iterator();
+//		while (it.hasNext()) {
+//			MimePart m = it.next();
+//			if (m.getMimeType() != null) {
+//				fetchNested(mailMessage, protocol, m);
+//			} else {
+//				Iterator<MimePart> mIt = m.getChildren().iterator();
+//				while (mIt.hasNext()) {
+//					MimePart mp = mIt.next();
+//					if (mp.getMimeType() != null) {
+//						fetchNested(mailMessage, protocol, mp);
+//					}
+//				}
+//			}
+//		}
+//	}
 
-		Iterator<MimePart> it = t.getChildren().iterator();
-		while (it.hasNext()) {
-			MimePart m = it.next();
-			if (m.getMimeType() != null) {
-				fetchNested(mailMessage, protocol, m);
-			} else {
-				Iterator<MimePart> mIt = m.getChildren().iterator();
-				while (mIt.hasNext()) {
-					MimePart mp = mIt.next();
-					if (mp.getMimeType() != null) {
-						fetchNested(mailMessage, protocol, mp);
-					}
-				}
-			}
-		}
-	}
-
-	private void fetchNested(MSEmail mailMessage,
-			StoreClient protocol,  MimePart m)
-			throws IOException, IMAPException {
-		if (m.getFullMimeType().equalsIgnoreCase("message/rfc822")) {
-			MSEmail mm = fetchOneMessage(m, null, protocol);
-			mailMessage.addForwardMessage(mm);
-			fetchForwardMessages(m, mm, protocol);
-		}
-	}
+//	private void fetchNested(MSEmail mailMessage, StoreClient protocol,
+//			MimePart m) throws IOException, IMAPException {
+//		if (m.getFullMimeType().equalsIgnoreCase("message/rfc822")) {
+//			MSEmail mm = fetchOneMessage(m, null, protocol);
+//			mailMessage.addForwardMessage(mm);
+//			fetchForwardMessages(m, mm, protocol);
+//		}
+//	}
 
 	private MSEmail fetchOneMessage(MimePart mimePart, IMAPHeaders h,
-			StoreClient protocol)
-			throws IOException, IMAPException {
-//		attach = new HashMap<String, String>();
+			StoreClient protocol) throws IOException, IMAPException {
+		// attach = new HashMap<String, String>();
 		MimePart chosenPart = mimePart;
 		if (chosenPart.getMimeType() == null
 				|| chosenPart.getFullMimeType().equals("message/rfc822")) {
@@ -192,9 +203,9 @@ public class MailMessageLoader {
 
 		MSEmailBody body = getMailBody(chosenPart, protocol);
 //		if (chosenPart == null) {
-//			extractAttachments(mimePart, protocol, bodyOnly);
+//			extractAttachments(mimePart, protocol, true);
 //		} else {
-//			extractAttachments(chosenPart, protocol, bodyOnly, false);
+//			extractAttachments(chosenPart, protocol, true, false);
 //		}
 		MSEmail mm = new MSEmail();
 		mm.setBody(body);
@@ -206,7 +217,30 @@ public class MailMessageLoader {
 		mm.setTo(AddressConverter.convertAddresses(h.getTo()));
 		mm.setBcc(AddressConverter.convertAddresses(h.getBcc()));
 		mm.setUid(tree.getUid());
-//		mm.setInvitation(invitation);
+		if (this.calendarClient != null && invitation != null) {
+			String ics = FileUtils.streamString(invitation, true);
+			if (ics != null && !"".equals(ics)) {
+				AccessToken at = calendarClient.login(bs.getLoginAtDomain(), bs
+						.getPassword(), "o-push");
+				logger.info(ics);
+				try {
+					List<Event> obmEvents = calendarClient.parseICS(at, ics);
+					if (obmEvents.size() > 0) {
+						Event e = obmEvents.get(0);
+						EventConverter ec = new EventConverter();
+						MSEvent oEvent = ec.convertEvent(e);
+						mm.setInvitation(oEvent);
+					}
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+				} finally {
+					calendarClient.logout(at);
+				}
+			}
+
+		}
+
+		mm.setAttachements(attach);
 		mm.setSmtpId(h.getRawHeader("Message-ID"));
 		return mm;
 	}
@@ -230,8 +264,7 @@ public class MailMessageLoader {
 			mb.addConverted(MSEmailBodyType.PlainText, "");
 			mb.setCharset("utf-8");
 		} else {
-			
-			
+
 			InputStream bodyText = protocol.uidFetchPart(tree.getUid(),
 					chosenPart.getAddress());
 			String charsetName = chosenPart.getBodyParams().get("charset");
@@ -242,7 +275,8 @@ public class MailMessageLoader {
 			byte[] rawData = extractPartData(chosenPart, bodyText);
 			String partText = new String(rawData, charsetName);
 
-			mb.addConverted(MSEmailBodyType.getValueOf(chosenPart.getFullMimeType()), partText);
+			mb.addConverted(MSEmailBodyType.getValueOf(chosenPart
+					.getFullMimeType()), partText);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Added part " + chosenPart.getFullMimeType()
 						+ "\n" + partText + "\n------");
@@ -314,9 +348,9 @@ public class MailMessageLoader {
 		return rawData;
 	}
 
-//	private void extractAttachments(MimePart mimePart,
-//			StoreClient protocol, boolean bodyOnly, boolean isInvit)
-//			throws IOException, IMAPException {
+//	private void extractAttachments(MimePart mimePart, StoreClient protocol,
+//			boolean bodyOnly, boolean isInvit) throws IOException,
+//			IMAPException {
 //		if (mimePart != null) {
 //			MimePart parent = mimePart.getParent();
 //			if (parent != null) {
@@ -335,9 +369,8 @@ public class MailMessageLoader {
 //
 //	}
 
-//	private void extractAttachments(MimePart mimePart,
-//			StoreClient protocol, boolean bodyOnly) throws IOException,
-//			IMAPException {
+//	private void extractAttachments(MimePart mimePart, StoreClient protocol,
+//			boolean bodyOnly) throws IOException, IMAPException {
 //		if (mimePart != null) {
 //			for (MimePart mp : mimePart.getChildren()) {
 //				extractAttachmentData(mp, bodyOnly, protocol, mp.isInvitation());
@@ -346,32 +379,31 @@ public class MailMessageLoader {
 //	}
 
 //	private void extractAttachmentData(MimePart mp, boolean bodyOnly,
-//			IStoreConnection protocol, boolean isInvitation)
-//			throws IOException, StoreException {
+//			StoreClient protocol, boolean isInvitation) throws IOException {
 //
 //		long uid = tree.getUid();
 //
 //		String id = "at_" + uid + "_" + (nbAttachments++);
-//		File out = null;
+//		byte[] data = null;
 //		if (!bodyOnly) {
-//			out = atMgr.open(id);
-//			if (!out.exists()) {
+//			// out = atMgr.open(id);
+//			if (data != null) {
 //				InputStream part = protocol.uidFetchPart(uid, mp.getAddress());
-//				byte[] data = extractPartData(mp, part);
-//				FileUtils.transfer(new ByteArrayInputStream(data),
-//						new FileOutputStream(out), true);
+//				data = extractPartData(mp, part);
+//				// FileUtils.transfer(new ByteArrayInputStream(data),
+//				// new FileOutputStream(out), true);
 //			}
 //		}
 //		try {
 //			Map<String, String> bp = mp.getBodyParams();
 //			if (bp != null) {
 //				if (!bodyOnly) {
-//					atMgr.storeMetadata(id, mp, out.length());
+//					// atMgr.storeMetadata(id, mp, out.length());
 //				}
 //				if (bp.containsKey("name") && bp.get("name") != null) {
 //					if (isInvitation && bp.get("name").contains(".ics")
-//							&& !bodyOnly) {
-//						invitation = new FileInputStream(atMgr.open(id));
+//							&& !bodyOnly && data != null) {
+//						invitation = new ByteArrayInputStream(data);
 //					}
 //					attach.put(id, bp.get("name"));
 //				} else if (mp.getContentId() != null
@@ -382,9 +414,9 @@ public class MailMessageLoader {
 //							.getAddress());
 //				}
 //			} else {
-//				if (!bodyOnly) {
-//					out.delete();
-//				}
+//				// if (!bodyOnly) {
+//				// out.delete();
+//				// }
 //			}
 //		} catch (Exception e) {
 //			logger.error("Error storing metadata for " + id, e);

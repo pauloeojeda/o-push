@@ -11,6 +11,8 @@ import org.obm.locator.client.LocatorClient;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.store.ISyncStorage;
+import org.obm.sync.client.calendar.CalendarClient;
+import org.obm.sync.locators.CalendarLocator;
 
 import fr.aliasource.utils.JDBCUtils;
 
@@ -30,6 +32,17 @@ public class ObmSyncBackend {
 		obmSyncHost = new LocatorClient().locateHost("sync/obm_sync", bs
 				.getLoginAtDomain());
 		logger.info("Using " + obmSyncHost + " as obm_sync host.");
+	}
+	
+	protected CalendarClient getCalendarClient(BackendSession bs) {
+
+		CalendarLocator cl = new CalendarLocator();
+		if (obmSyncHost == null) {
+			locateObmSync(bs);
+		}
+		CalendarClient calCli = cl.locate("http://" + obmSyncHost
+				+ ":8080/obm-sync/services");
+		return calCli;
 	}
 
 	protected ItemChange getDeletion(BackendSession bs, String collection,

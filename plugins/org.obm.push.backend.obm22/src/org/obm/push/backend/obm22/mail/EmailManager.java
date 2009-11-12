@@ -16,7 +16,10 @@
 
 package org.obm.push.backend.obm22.mail;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -27,6 +30,8 @@ import java.util.Set; //import java.util.concurrent.Semaphore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.columba.ristretto.message.Address;
+import org.columba.ristretto.smtp.SMTPProtocol;
 import org.minig.imap.Flag;
 import org.minig.imap.FlagsList;
 import org.minig.imap.IMAPException;
@@ -36,6 +41,7 @@ import org.minig.imap.StoreClient;
 import org.obm.locator.client.LocatorClient;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.MSEmail;
+import org.obm.sync.client.calendar.CalendarClient;
 
 /**
  * 
@@ -65,12 +71,12 @@ public class EmailManager {
 		}
 		return instance;
 	}
-	
-//	private void locateSmtp(BackendSession bs) {
-//		smtpHost = new LocatorClient().locateHost("mail/smtp", bs
-//				.getLoginAtDomain());
-//		logger.info("Using " + smtpHost + " as smtp host.");
-//	}
+
+	private void locateSmtp(BackendSession bs) {
+		smtpHost = new LocatorClient().locateHost("mail/smtp_in", bs
+				.getLoginAtDomain());
+		logger.info("Using " + smtpHost + " as smtp host.");
+	}
 
 	private void locateImap(BackendSession bs) {
 		imapHost = new LocatorClient().locateHost("mail/imap", bs
@@ -86,14 +92,14 @@ public class EmailManager {
 				.getLoginAtDomain(), bs.getPassword());
 		return imapCli;
 	}
-	
-//	private SMTPProtocol getSmtpClient(BackendSession bs) {
-//		if (smtpHost == null) {
-//			locateSmtp(bs);
-//		}
-//		SMTPProtocol proto = new SMTPProtocol(smtpHost);
-//		return proto;
-//	}
+
+	private SMTPProtocol getSmtpClient(BackendSession bs) {
+		if (smtpHost == null) {
+			locateSmtp(bs);
+		}
+		SMTPProtocol proto = new SMTPProtocol(smtpHost);
+		return proto;
+	}
 
 	private EmailCacheStorage cache(Integer collectionId, Boolean reset) {
 		EmailCacheStorage ret = uidCache.get(collectionId);
@@ -109,20 +115,21 @@ public class EmailManager {
 			throws InterruptedException, SQLException, IMAPException {
 
 		EmailCacheStorage uc = cache(collectionId, false);
-		MailChanges sync = uc.getSync(getImapClient(bs), devId, bs, collectionId,
-				parseMailBoxName(bs,collectionName));
+		MailChanges sync = uc.getSync(getImapClient(bs), devId, bs,
+				collectionId, parseMailBoxName(bs, collectionName));
 
 		return sync;
 	}
 
-	public List<MSEmail> fetchMails(BackendSession bs, String collectionName,
-			Set<Long> uids) throws IOException, IMAPException {
+	public List<MSEmail> fetchMails(BackendSession bs,
+			CalendarClient calendarClient, String collectionName, Set<Long> uids)
+			throws IOException, IMAPException {
 		List<MSEmail> mails = new LinkedList<MSEmail>();
 		StoreClient store = getImapClient(bs);
 		login(store);
-		store.select(parseMailBoxName(bs,collectionName));
+		store.select(parseMailBoxName(bs, collectionName));
 		for (Long uid : uids) {
-			mails.add(mailLoader.fetch(uid, store));
+			mails.add(mailLoader.fetch(uid, store, bs, calendarClient));
 		}
 		store.logout();
 		return mails;
@@ -148,7 +155,7 @@ public class EmailManager {
 		StoreClient store = getImapClient(bs);
 		try {
 			login(store);
-			String mailBoxName = parseMailBoxName(bs,collectionName);
+			String mailBoxName = parseMailBoxName(bs, collectionName);
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.SEEN);
@@ -164,7 +171,8 @@ public class EmailManager {
 		}
 	}
 
-	private String parseMailBoxName(BackendSession bs, String collectionName) throws IMAPException {
+	private String parseMailBoxName(BackendSession bs, String collectionName)
+			throws IMAPException {
 		// parse obm:\\adrien@test.tlse.lng\email\INBOX\Sent
 		int slash = collectionName.lastIndexOf("email\\");
 		String boxName = collectionName.substring(slash + "email\\".length());
@@ -174,7 +182,8 @@ public class EmailManager {
 				return i.getName();
 			}
 		}
-		throw new IMAPException("Cannot find IMAP folder for collection["+collectionName+"]");
+		throw new IMAPException("Cannot find IMAP folder for collection["
+				+ collectionName + "]");
 	}
 
 	public void resetForFullSync(Set<Integer> listCollectionId) {
@@ -184,11 +193,12 @@ public class EmailManager {
 		logger.info("resetForFullSync");
 	}
 
-	public void delete(BackendSession bs, Integer devId, String collectionName, Integer collectionId, Long uid) throws IMAPException {
+	public void delete(BackendSession bs, Integer devId, String collectionName,
+			Integer collectionId, Long uid) throws IMAPException {
 		StoreClient store = getImapClient(bs);
 		try {
 			login(store);
-			String mailBoxName = parseMailBoxName(bs,collectionName);
+			String mailBoxName = parseMailBoxName(bs, collectionName);
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.DELETED);
@@ -204,16 +214,18 @@ public class EmailManager {
 			}
 		}
 	}
-	
-	public Long moveItem(BackendSession bs,Integer devId, String srcFolder, Integer srcFolderId, String dstFolder,Integer dstFolderId, Long uid) throws IMAPException{
+
+	public Long moveItem(BackendSession bs, Integer devId, String srcFolder,
+			Integer srcFolderId, String dstFolder, Integer dstFolderId, Long uid)
+			throws IMAPException {
 		StoreClient store = getImapClient(bs);
 		long[] newUid = null;
 		try {
 			login(store);
-			String srcMailBox= parseMailBoxName(bs,srcFolder);
-			String dstMailBox= parseMailBoxName(bs,dstFolder);
+			String srcMailBox = parseMailBoxName(bs, srcFolder);
+			String dstMailBox = parseMailBoxName(bs, dstFolder);
 			store.select(srcMailBox);
-			long[] uids = {uid};
+			long[] uids = { uid };
 			newUid = store.uidCopy(uids, dstMailBox);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.DELETED);
@@ -228,52 +240,46 @@ public class EmailManager {
 			} catch (IMAPException e) {
 			}
 		}
-		if(newUid == null || newUid.length==0){
+		if (newUid == null || newUid.length == 0) {
 			return null;
-		} 
+		}
 		return newUid[0];
 	}
-	
-	private void login(StoreClient store) throws IMAPException{
-		if(!store.login()){
+
+	private void login(StoreClient store) throws IMAPException {
+		if (!store.login()) {
 			throw new IMAPException("Cannot log into imap server");
 		}
 	}
 
-	public void sendEmail(BackendSession bs, byte[] mailContent) {
-//		try {
-//			
-//			SMTPProtocol smtp = getSmtpClient(bs);
-//
-//			smtp.openPort();
-//			smtp.ehlo(InetAddress.getLocalHost());
-//			
-//			
-////			smtp.mail(mm.getRistrettoSender());
-////
-////			for (Address to : recipients) {
-////				logger.info("to.display: " + to.getDisplayName() + " mail: "
-////						+ to.getMailAddress());
-////				Address cleaned = new Address(to.getMailAddress());
-////				smtp.rcpt(cleaned);
-////			}
-//			InputStream data = new ByteArrayInputStream(mailContent);
-//			smtp.data(data);
-//			smtp.quit();
-//
-//		} catch (SMTPException se) {
-//			logger.error(se.getMessage());
-//		} catch (Exception e) {
-//			logger.error(e.getMessage(), e);
-//		}
+	public void sendEmail(BackendSession bs, String from, Set<Address> setTo, String mimeMail) {
+		try {
+			SMTPProtocol smtp = getSmtpClient(bs);
+			smtp.openPort();
+			smtp.ehlo(InetAddress.getLocalHost());
+			Address addrFrom = new Address(from);
+			smtp.mail(addrFrom);
+
+			for (Address to : setTo) {
+				smtp.rcpt(to);
+			}
+			InputStream data = new ByteArrayInputStream(mimeMail.getBytes());
+			smtp.data(data);
+			smtp.quit();
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
-	
-	private void deleteMessageInCache(Integer devId, Integer collectionId, Long mailUid){
+
+	private void deleteMessageInCache(Integer devId, Integer collectionId,
+			Long mailUid) {
 		EmailCacheStorage uc = cache(collectionId, false);
 		uc.deleteMessage(devId, collectionId, mailUid);
 	}
-	
-	private void addMessageInCache(Integer devId, Integer collectionId, Long mailUid){
+
+	private void addMessageInCache(Integer devId, Integer collectionId,
+			Long mailUid) {
 		EmailCacheStorage uc = cache(collectionId, false);
 		uc.addMessage(devId, collectionId, mailUid);
 	}

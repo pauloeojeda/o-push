@@ -20,23 +20,11 @@ import org.obm.sync.calendar.CalendarInfo;
 import org.obm.sync.calendar.Event;
 import org.obm.sync.client.calendar.CalendarClient;
 import org.obm.sync.items.EventChanges;
-import org.obm.sync.locators.CalendarLocator;
 
 public class CalendarBackend extends ObmSyncBackend {
 
 	public CalendarBackend(ISyncStorage storage) {
 		super(storage);
-	}
-
-	private CalendarClient getClient(BackendSession bs) {
-
-		CalendarLocator cl = new CalendarLocator();
-		if (obmSyncHost == null) {
-			locateObmSync(bs);
-		}
-		CalendarClient calCli = cl.locate("http://" + obmSyncHost
-				+ ":8080/obm-sync/services");
-		return calCli;
 	}
 
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
@@ -54,7 +42,7 @@ public class CalendarBackend extends ObmSyncBackend {
 			return ret;
 		}
 
-		CalendarClient cc = getClient(bs);
+		CalendarClient cc = getCalendarClient(bs);
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
 		try {
@@ -91,7 +79,7 @@ public class CalendarBackend extends ObmSyncBackend {
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 
 		Date ls = bs.getState().getLastSync();
-		CalendarClient cc = getClient(bs);
+		CalendarClient cc = getCalendarClient(bs);
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
 		String calendar = parseCalendarId(collectionId);
@@ -140,7 +128,7 @@ public class CalendarBackend extends ObmSyncBackend {
 		logger.info("createOrUpdate(" + bs.getLoginAtDomain() + ", "
 				+ collectionId + ", " + serverId + ", " + clientId + ", "
 				+ data.getSubject() + ")");
-		CalendarClient cc = getClient(bs);
+		CalendarClient cc = getCalendarClient(bs);
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
 		String id = null;
@@ -194,7 +182,7 @@ public class CalendarBackend extends ObmSyncBackend {
 			int idx = serverId.indexOf(":");
 			if (idx > 0) {
 				String id = serverId.substring(idx + 1);
-				CalendarClient bc = getClient(bs);
+				CalendarClient bc = getCalendarClient(bs);
 				AccessToken token = bc.login(bs.getLoginAtDomain(), bs
 						.getPassword(), "o-push");
 				try {

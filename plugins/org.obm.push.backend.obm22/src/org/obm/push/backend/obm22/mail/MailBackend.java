@@ -1,9 +1,11 @@
 package org.obm.push.backend.obm22.mail;
 
+import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.james.mime4j.parser.MimeStreamParser;
 import org.minig.imap.IMAPException;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.DataDelta;
@@ -12,6 +14,8 @@ import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.store.ISyncStorage;
+import org.obm.sync.auth.AccessToken;
+import org.obm.sync.client.calendar.CalendarClient;
 
 public class MailBackend extends ObmSyncBackend {
 
@@ -80,7 +84,8 @@ public class MailBackend extends ObmSyncBackend {
 
 		List<ItemChange> itch = new LinkedList<ItemChange>();
 		try {
-			List<MSEmail> msMails = emailManager.fetchMails(bs,
+			
+			List<MSEmail> msMails = emailManager.fetchMails(bs,getCalendarClient(bs),
 					collection, uids);
 			for (MSEmail mail : msMails) {
 				ItemChange ic = new ItemChange();
@@ -179,6 +184,22 @@ public class MailBackend extends ObmSyncBackend {
 	}
 
 	public void sendEmail(BackendSession bs, byte[] mailContent) {
-		emailManager.sendEmail(bs, mailContent);
+		
+		try {
+			CalendarClient cal = getCalendarClient(bs);
+			AccessToken at = cal.login(bs.getLoginAtDomain(), bs.getPassword(), "opush");
+			String from = cal.getUserEmail(at);
+			
+			OPushEmailHandler handler = new OPushEmailHandler(from);
+			MimeStreamParser parser = new MimeStreamParser();
+			parser.setContentHandler(handler);
+			
+			parser.parse(new ByteArrayInputStream(mailContent));
+			handler.getFrom();
+			logger.info(handler.getMessage());
+			emailManager.sendEmail(bs,from,handler.getTo(), handler.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 }

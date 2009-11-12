@@ -3,7 +3,6 @@
 
 <product name="push" id="org.obm.push.pushid" application="org.obm.push.push" version="1.0.0" useFeatures="false" includeLaunchers="true">
 
-
    <configIni use="default">
    </configIni>
 
@@ -14,14 +13,12 @@
 
    <windowImages/>
 
-
    <launcher name="o-push">
       <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
    </vm>
@@ -31,6 +28,7 @@
       <plugin id="fr.aliasource.obm.jta"/>
       <plugin id="fr.aliasource.utils"/>
       <plugin id="fr.aliasource.webmail.log4j" fragment="true"/>
+      <plugin id="fr.aliasource.webmail.ristretto"/>
       <plugin id="javax.servlet"/>
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.logging"/>
