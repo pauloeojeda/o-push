@@ -215,7 +215,8 @@ public class EmailCacheStorage {
 		long writeTime = System.currentTimeMillis();
 		if (!current.equals(this.memoryCache)) {
 			updateDbCache(bs, devId, collectionId, current);
-		} else if (!bs.getState().getLastSync().after(this.lastSyncDate)
+		} else if (bs.getState().getLastSync() != null
+				&& !bs.getState().getLastSync().after(this.lastSyncDate)
 				&& bs.getState().getKey().equals(this.lastSyncKey)) {
 			return this.mailChangesCache;
 		}
@@ -237,9 +238,9 @@ public class EmailCacheStorage {
 		this.lastSyncDate = bs.getState().getLastSync();
 		return sync;
 	}
-	
-	public void deleteMessage(Integer devId, Integer collectionId, Long mailUid){
-		
+
+	public void deleteMessage(Integer devId, Integer collectionId, Long mailUid) {
+
 		this.memoryCache.remove(mailUid);
 		PreparedStatement del = null;
 		if (logger.isDebugEnabled()) {
@@ -250,10 +251,10 @@ public class EmailCacheStorage {
 			con = OBMPoolActivator.getDefault().getConnection();
 			del = con
 					.prepareStatement("DELETE FROM opush_sync_mail WHERE collection_id=? AND device_id=? AND mail_uid=?");
-				del.setInt(1, collectionId);
-				del.setInt(2, devId);
-				del.setInt(3, mailUid.intValue());
-				del.addBatch();
+			del.setInt(1, collectionId);
+			del.setInt(2, devId);
+			del.setInt(3, mailUid.intValue());
+			del.addBatch();
 
 			del.executeBatch();
 		} catch (SQLException e) {
@@ -269,15 +270,15 @@ public class EmailCacheStorage {
 		}
 		Connection con = null;
 		PreparedStatement insert = null;
-		
+
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
 
 			insert = con
 					.prepareStatement("INSERT INTO opush_sync_mail (collection_id, device_id, mail_uid) VALUES (?, ?, ?)");
-				insert.setInt(1, collectionId);
-				insert.setInt(2, devId);
-				insert.setInt(3, mailUid.intValue());
+			insert.setInt(1, collectionId);
+			insert.setInt(2, devId);
+			insert.setInt(3, mailUid.intValue());
 			insert.execute();
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
@@ -285,6 +286,5 @@ public class EmailCacheStorage {
 			JDBCUtils.cleanup(con, insert, null);
 		}
 	}
-	
 
 }
