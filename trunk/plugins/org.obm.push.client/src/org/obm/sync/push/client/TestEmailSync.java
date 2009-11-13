@@ -23,7 +23,7 @@ public class TestEmailSync extends AbstractPushTest {
 		DOMUtils.logDom(doc);
 		ret = postXml("AirSync", doc, "Sync");
 		assertNotNull(ret);
-
+		
 		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
 				"SyncKey").getTextContent();
 		in = loadDataFile("EmailSyncRequest2.xml");
