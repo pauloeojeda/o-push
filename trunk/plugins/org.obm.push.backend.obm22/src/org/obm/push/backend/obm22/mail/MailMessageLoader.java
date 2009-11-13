@@ -69,7 +69,7 @@ public class MailMessageLoader {
 
 	private boolean pickupPlain;
 	private MimeTree tree;
-//	private int nbAttachments;
+	private int nbAttachments;
 	private InputStream invitation;
 	private Map<String, String> attach;
 
@@ -86,7 +86,7 @@ public class MailMessageLoader {
 	public MailMessageLoader() {
 		this.pickupPlain = true;
 		this.tree = null;
-//		nbAttachments = 0;
+		nbAttachments = 0;
 		attach = new HashMap<String, String>();
 	}
 
@@ -109,7 +109,7 @@ public class MailMessageLoader {
 		// do load messages forwarded as attachments into the indexers, as it
 		// ignores them
 		fetchQuotedText(tree, mm, store);
-//		fetchForwardMessages(tree, mm, store);
+		fetchForwardMessages(tree, mm, store);
 
 		FlagsList[] fl = store.uidFetchFlags(new long[] { messageId });
 		if (fl.length > 0) {
@@ -153,34 +153,34 @@ public class MailMessageLoader {
 		}
 	}
 
-//	private void fetchForwardMessages(MimePart t, MSEmail mailMessage,
-//			StoreClient protocol) throws IOException, IMAPException {
-//
-//		Iterator<MimePart> it = t.getChildren().iterator();
-//		while (it.hasNext()) {
-//			MimePart m = it.next();
-//			if (m.getMimeType() != null) {
-//				fetchNested(mailMessage, protocol, m);
-//			} else {
-//				Iterator<MimePart> mIt = m.getChildren().iterator();
-//				while (mIt.hasNext()) {
-//					MimePart mp = mIt.next();
-//					if (mp.getMimeType() != null) {
-//						fetchNested(mailMessage, protocol, mp);
-//					}
-//				}
-//			}
-//		}
-//	}
+	private void fetchForwardMessages(MimePart t, MSEmail mailMessage,
+			StoreClient protocol) throws IOException, IMAPException {
 
-//	private void fetchNested(MSEmail mailMessage, StoreClient protocol,
-//			MimePart m) throws IOException, IMAPException {
-//		if (m.getFullMimeType().equalsIgnoreCase("message/rfc822")) {
-//			MSEmail mm = fetchOneMessage(m, null, protocol);
-//			mailMessage.addForwardMessage(mm);
-//			fetchForwardMessages(m, mm, protocol);
-//		}
-//	}
+		Iterator<MimePart> it = t.getChildren().iterator();
+		while (it.hasNext()) {
+			MimePart m = it.next();
+			if (m.getMimeType() != null) {
+				fetchNested(mailMessage, protocol, m);
+			} else {
+				Iterator<MimePart> mIt = m.getChildren().iterator();
+				while (mIt.hasNext()) {
+					MimePart mp = mIt.next();
+					if (mp.getMimeType() != null) {
+						fetchNested(mailMessage, protocol, mp);
+					}
+				}
+			}
+		}
+	}
+
+	private void fetchNested(MSEmail mailMessage, StoreClient protocol,
+			MimePart m) throws IOException, IMAPException {
+		if (m.getFullMimeType().equalsIgnoreCase("message/rfc822")) {
+			MSEmail mm = fetchOneMessage(m, null, protocol);
+			mailMessage.addForwardMessage(mm);
+			fetchForwardMessages(m, mm, protocol);
+		}
+	}
 
 	private MSEmail fetchOneMessage(MimePart mimePart, IMAPHeaders h,
 			StoreClient protocol) throws IOException, IMAPException {
@@ -202,11 +202,11 @@ public class MailMessageLoader {
 		}
 
 		MSEmailBody body = getMailBody(chosenPart, protocol);
-//		if (chosenPart == null) {
-//			extractAttachments(mimePart, protocol, true);
-//		} else {
-//			extractAttachments(chosenPart, protocol, true, false);
-//		}
+		if (chosenPart == null) {
+			extractAttachments(mimePart, protocol, true);
+		} else {
+			extractAttachments(chosenPart, protocol, true, false);
+		}
 		MSEmail mm = new MSEmail();
 		mm.setBody(body);
 		mm.setFrom(AddressConverter.convertAddress(h.getFrom()));
@@ -222,7 +222,6 @@ public class MailMessageLoader {
 			if (ics != null && !"".equals(ics)) {
 				AccessToken at = calendarClient.login(bs.getLoginAtDomain(), bs
 						.getPassword(), "o-push");
-				logger.info(ics);
 				try {
 					List<Event> obmEvents = calendarClient.parseICS(at, ics);
 					if (obmEvents.size() > 0) {
@@ -348,80 +347,80 @@ public class MailMessageLoader {
 		return rawData;
 	}
 
-//	private void extractAttachments(MimePart mimePart, StoreClient protocol,
-//			boolean bodyOnly, boolean isInvit) throws IOException,
-//			IMAPException {
-//		if (mimePart != null) {
-//			MimePart parent = mimePart.getParent();
-//			if (parent != null) {
-//				boolean inv = false;
-//				for (MimePart mp : parent.getChildren()) {
-//					inv = mp.isInvitation();
-//					extractAttachmentData(mp, bodyOnly, protocol, isInvit
-//							|| inv);
-//				}
-//				if (parent.getMimeType() == null
-//						&& parent.getMimeSubtype() == null) {
-//					extractAttachments(parent, protocol, bodyOnly, inv);
-//				}
-//			}
-//		}
-//
-//	}
+	private void extractAttachments(MimePart mimePart, StoreClient protocol,
+			boolean bodyOnly, boolean isInvit) throws IOException,
+			IMAPException {
+		if (mimePart != null) {
+			MimePart parent = mimePart.getParent();
+			if (parent != null) {
+				boolean inv = false;
+				for (MimePart mp : parent.getChildren()) {
+					inv = mp.isInvitation();
+					extractAttachmentData(mp, bodyOnly, protocol, isInvit
+							|| inv);
+				}
+				if (parent.getMimeType() == null
+						&& parent.getMimeSubtype() == null) {
+					extractAttachments(parent, protocol, bodyOnly, inv);
+				}
+			}
+		}
 
-//	private void extractAttachments(MimePart mimePart, StoreClient protocol,
-//			boolean bodyOnly) throws IOException, IMAPException {
-//		if (mimePart != null) {
-//			for (MimePart mp : mimePart.getChildren()) {
-//				extractAttachmentData(mp, bodyOnly, protocol, mp.isInvitation());
-//			}
-//		}
-//	}
+	}
 
-//	private void extractAttachmentData(MimePart mp, boolean bodyOnly,
-//			StoreClient protocol, boolean isInvitation) throws IOException {
-//
-//		long uid = tree.getUid();
-//
-//		String id = "at_" + uid + "_" + (nbAttachments++);
-//		byte[] data = null;
-//		if (!bodyOnly) {
-//			// out = atMgr.open(id);
-//			if (data != null) {
-//				InputStream part = protocol.uidFetchPart(uid, mp.getAddress());
-//				data = extractPartData(mp, part);
-//				// FileUtils.transfer(new ByteArrayInputStream(data),
-//				// new FileOutputStream(out), true);
-//			}
-//		}
-//		try {
-//			Map<String, String> bp = mp.getBodyParams();
-//			if (bp != null) {
-//				if (!bodyOnly) {
-//					// atMgr.storeMetadata(id, mp, out.length());
-//				}
-//				if (bp.containsKey("name") && bp.get("name") != null) {
-//					if (isInvitation && bp.get("name").contains(".ics")
-//							&& !bodyOnly && data != null) {
-//						invitation = new ByteArrayInputStream(data);
-//					}
-//					attach.put(id, bp.get("name"));
-//				} else if (mp.getContentId() != null
-//						&& !mp.getContentId().equalsIgnoreCase("nil")) {
-//					attach.put(id, mp.getContentId());
-//				} else if (isInvitation) {
-//					invitation = protocol.uidFetchPart(tree.getUid(), mp
-//							.getAddress());
-//				}
-//			} else {
-//				// if (!bodyOnly) {
-//				// out.delete();
-//				// }
-//			}
-//		} catch (Exception e) {
-//			logger.error("Error storing metadata for " + id, e);
-//		}
-//	}
+	private void extractAttachments(MimePart mimePart, StoreClient protocol,
+			boolean bodyOnly) throws IOException, IMAPException {
+		if (mimePart != null) {
+			for (MimePart mp : mimePart.getChildren()) {
+				extractAttachmentData(mp, bodyOnly, protocol, mp.isInvitation());
+			}
+		}
+	}
+
+	private void extractAttachmentData(MimePart mp, boolean bodyOnly,
+			StoreClient protocol, boolean isInvitation) throws IOException {
+
+		long uid = tree.getUid();
+
+		String id = "at_" + uid + "_" + (nbAttachments++);
+		byte[] data = null;
+		if (!bodyOnly) {
+			// out = atMgr.open(id);
+			if (data != null) {
+				InputStream part = protocol.uidFetchPart(uid, mp.getAddress());
+				data = extractPartData(mp, part);
+				// FileUtils.transfer(new ByteArrayInputStream(data),
+				// new FileOutputStream(out), true);
+			}
+		}
+		try {
+			Map<String, String> bp = mp.getBodyParams();
+			if (bp != null) {
+				if (!bodyOnly) {
+					// atMgr.storeMetadata(id, mp, out.length());
+				}
+				if (bp.containsKey("name") && bp.get("name") != null) {
+					if (isInvitation && bp.get("name").contains(".ics")
+							&& !bodyOnly && data != null) {
+						invitation = new ByteArrayInputStream(data);
+					}
+					attach.put(id, bp.get("name"));
+				} else if (mp.getContentId() != null
+						&& !mp.getContentId().equalsIgnoreCase("nil")) {
+					attach.put(id, mp.getContentId());
+				} else if (isInvitation) {
+					invitation = protocol.uidFetchPart(tree.getUid(), mp
+							.getAddress());
+				}
+			} else {
+				// if (!bodyOnly) {
+				// out.delete();
+				// }
+			}
+		} catch (Exception e) {
+			logger.error("Error storing metadata for " + id, e);
+		}
+	}
 
 	public void setPickupPlain(boolean pickupPlain) {
 		this.pickupPlain = pickupPlain;

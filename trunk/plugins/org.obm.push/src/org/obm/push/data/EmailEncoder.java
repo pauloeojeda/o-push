@@ -16,6 +16,7 @@ import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.Recurrence;
 import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
+import org.obm.push.utils.Base64;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
 
@@ -30,7 +31,7 @@ public class EmailEncoder implements IDataEncoder {
 	private SimpleDateFormat sdf;
 
 	public EmailEncoder() {
-		sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss.SSS'Z'");
+		sdf = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
@@ -81,7 +82,7 @@ public class EmailEncoder implements IDataEncoder {
 		DOMUtils.createElementAndText(parent, "Email:Read", mail.isRead() ? "1"
 				: "0");
 		DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "0");
-
+//
 		DOMUtils.createElementAndText(parent, "Email:Body", mail.getBody()
 				.getValue(mail.getBody().availableFormats().iterator().next()));
 
@@ -100,17 +101,29 @@ public class EmailEncoder implements IDataEncoder {
 		// DOMUtils.createElementAndText(elemBody, "AirSyncBase:Data",
 		// bodyData);
 
-		DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "0");
-
 		mail.getBody().getValue(
 				mail.getBody().availableFormats().iterator().next());
 		DOMUtils.createElementAndText(parent, "Email:MessageClass", mail
 				.getMessageClass().toString());
 
+		
+
+		appendMeetintRequest(parent, mail);
+		
 		DOMUtils.createElementAndText(parent, "Email:InternetCPID",
 				InternetCPIDMapping.getInternetCPID(mail.getBody().getCharset()
 						.toLowerCase()));
-
+		
+//		DOMUtils.createElement(parent, "Email:Flag");
+		
+//		DOMUtils.createElementAndText(parent, "AirSyncBase:NativeBodyType",mail.getBody().availableFormats().iterator().next().asIntString());
+		
+//		if(mail.getInvitation() != null){
+//			DOMUtils.createElementAndText(parent, "Email:ContentClass", "urn:content-classes:calendarmessage");
+//		}
+	}
+	
+	private void appendMeetintRequest(Element parent, MSEmail mail) {
 		if (mail.getInvitation() != null) {
 			Element mr = DOMUtils.createElement(parent, "Email:MeetingRequest");
 
@@ -141,20 +154,26 @@ public class EmailEncoder implements IDataEncoder {
 				DOMUtils.createElementAndText(mr, "Email:Reminder", invi
 						.getReminder().toString());
 			}
+			
+			DOMUtils.createElementAndText(mr, "Email:ResponseRequested", "1");
+			
 			if (invi.getSensitivity() != null) {
-				DOMUtils.createElementAndText(mr, "Email:Senstitivity", invi
+				DOMUtils.createElementAndText(mr, "Email:Sensitivity", invi
 						.getSensitivity().asIntString());
 			}
+			
 			if (invi.getBusyStatus() != null) {
 				DOMUtils.createElementAndText(mr, "Email:IntDBusyStatus", invi
 						.getBusyStatus().asIntString());
 			}
+			
 
 			Element tz = DOMUtils.createElement(mr, "Email:TimeZone");
 			// taken from exchange 2k7 : eastern greenland, gmt+0, no dst
 			tz
-					.setTextContent("xP///1IAbwBtAGEAbgBjAGUAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAbwBtAGEAbgBjAGUAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
-			DOMUtils.createElementAndText(mr, "Email:GlobalObjId", "0");
+			.setTextContent("xP///1IAbwBtAGEAbgBjAGUAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAbwBtAGEAbgBjAGUAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
+			DOMUtils.createElementAndText(mr, "Email:GlobalObjId", new String( Base64.encode(invi.getUID().getBytes())));
+			
 			appendRecurence(mr, invi);
 		}
 	}
