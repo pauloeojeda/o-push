@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sync>
+<Collections>
+<Collection>
+<Class>Email</Class>
+<SyncKey>FILL_ME</SyncKey>
+<CollectionId>1</CollectionId>
+<Options>
+<MIMESupport>2</MIMESupport>
+</Options>
+<Commands>
+<Fetch>
+<ServerId>1:2</ServerId>
+</Fetch>
+</Commands>
+</Collection>
+</Collections>
+</Sync>
