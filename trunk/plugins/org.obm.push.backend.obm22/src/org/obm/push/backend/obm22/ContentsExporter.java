@@ -9,6 +9,7 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
+import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
@@ -114,13 +115,21 @@ public class ContentsExporter implements IContentsExporter {
 		case CONTACTS:
 			break;
 		case EMAIL:
-			// changes.addAll(mailBackend.fetchItems(fetchIds));
+//			 changes.addAll(mailBackend.fetchItems(fetchIds));
 			break;
 		case TASKS:
 			break;
 
 		}
 		return changes;
+	}
+	
+	public MSEmail fetchEmailMeetingRequest(BackendSession bs, Integer collectionId, String serverId){
+		return mailBackend.getEmail(bs, collectionId, serverId);
+	}
+	
+	public Integer getDefaultCalendarId(BackendSession bs){
+		return calBackend.getDefaultCalendarId(bs);
 	}
 
 }

@@ -27,6 +27,7 @@ import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.GetItemEstimateHandler;
 import org.obm.push.impl.HintsLoader;
 import org.obm.push.impl.IRequestHandler;
+import org.obm.push.impl.MeetingResponseHandler;
 import org.obm.push.impl.MoveItemsHandler;
 import org.obm.push.impl.PingHandler;
 import org.obm.push.impl.ProvisionHandler;
@@ -359,6 +360,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			handlers.put("SendMail", new SendMailHandler(backend));
 			handlers.put("MoveItems", new MoveItemsHandler(backend));
 			handlers.put("SmartReply", new SmartReplyHandler(backend));
+			handlers.put("MeetingResponse", new MeetingResponseHandler(backend));
 		}
 
 		logger.info("ActiveSync servlet initialised.");

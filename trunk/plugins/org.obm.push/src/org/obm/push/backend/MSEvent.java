@@ -31,6 +31,7 @@ public class MSEvent implements IApplicationData {
 	private TimeZone timeZone;
 	private Date exceptionStartTime;
 	private boolean deletedException;
+	private String obmUID;
 
 	public TimeZone getTimeZone() {
 		return timeZone;
@@ -200,5 +201,13 @@ public class MSEvent implements IApplicationData {
 
 	public void setExceptionStartTime(Date exceptionStartTime) {
 		this.exceptionStartTime = exceptionStartTime;
+	}
+	
+	public String getObmUID() {
+		return obmUID;
+	}
+
+	public void setObmUID(String obmUID) {
+		this.obmUID = obmUID;
 	}
 }

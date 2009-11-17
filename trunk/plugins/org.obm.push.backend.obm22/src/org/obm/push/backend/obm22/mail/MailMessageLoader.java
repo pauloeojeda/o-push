@@ -218,25 +218,8 @@ public class MailMessageLoader {
 		mm.setBcc(AddressConverter.convertAddresses(h.getBcc()));
 		mm.setUid(tree.getUid());
 		if (this.calendarClient != null && invitation != null) {
-			String ics = FileUtils.streamString(invitation, true);
-			if (ics != null && !"".equals(ics)) {
-				AccessToken at = calendarClient.login(bs.getLoginAtDomain(), bs
-						.getPassword(), "o-push");
-				try {
-					List<Event> obmEvents = calendarClient.parseICS(at, ics);
-					if (obmEvents.size() > 0) {
-						Event e = obmEvents.get(0);
-						EventConverter ec = new EventConverter();
-						MSEvent oEvent = ec.convertEvent(e);
-						mm.setInvitation(oEvent);
-					}
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-				} finally {
-					calendarClient.logout(at);
-				}
-			}
-
+			MSEvent event = getInvitation();
+			mm.setInvitation(event);
 		}
 
 		mm.setAttachements(attach);
@@ -244,6 +227,40 @@ public class MailMessageLoader {
 		return mm;
 	}
 
+	private MSEvent getInvitation() throws IOException{
+		String ics = FileUtils.streamString(invitation, true);
+		if (ics != null && !"".equals(ics)) {
+			AccessToken at = calendarClient.login(bs.getLoginAtDomain(), bs
+					.getPassword(), "o-push");
+			try {
+				List<Event> obmEvents = calendarClient.parseICS(at, ics);
+				if (obmEvents.size() > 0) {
+					Event icsEvent = obmEvents.get(0);
+					
+					int ar = bs.getLoginAtDomain().lastIndexOf("@");
+					String calendar = bs.getLoginAtDomain().substring(0, ar);
+					
+					Event event = calendarClient.getEventFromExtId(at, calendar, icsEvent.getExtId());
+					if (event == null) {
+						String uid = calendarClient.createEvent(at,calendar,icsEvent);
+						icsEvent.setUid(uid);
+						event = icsEvent;
+					}
+
+					calendarClient.logout(at);
+					
+					EventConverter ec = new EventConverter();
+					return ec.convertEvent(event);
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			} finally {
+				calendarClient.logout(at);
+			}
+		}
+		return null;
+	}
+	
 	private boolean isSupportedCharset(String charset) {
 		if (charset == null || charset.length() == 0) {
 			return false;

@@ -177,12 +177,12 @@ public class MailBackend extends ObmSyncBackend {
 		return dstFolderId + ":" + newUidMail;
 	}
 
-	public Long getEmailUidFor(String serverId) {
+	private Long getEmailUidFor(String serverId) {
 		int idx = serverId.lastIndexOf(":");
 		return Long.parseLong(serverId.substring(idx + 1));
 	}
 
-	public Integer getCollectionIdFor(String serverId) {
+	private Integer getCollectionIdFor(String serverId) {
 		int idx = serverId.lastIndexOf(":");
 		return Integer.parseInt(serverId.substring(0, idx));
 	}
@@ -245,5 +245,22 @@ public class MailBackend extends ObmSyncBackend {
 		parser.parse(new ByteArrayInputStream(mailContent));
 		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), handler
 				.getMessage(), saveInSent);
+	}
+	
+	public MSEmail getEmail(BackendSession bs, Integer collectionId, String serverId) {
+		String collectionName = getCollectionNameFor(collectionId);
+		Long uid = getEmailUidFor(serverId);
+		Set<Long> uids = new HashSet<Long>();
+		uids.add(uid);
+		List<MSEmail> emails;
+		try {
+			emails = emailManager.fetchMails(bs, getCalendarClient(bs), collectionName, uids);
+			if(emails.size()>0){
+				return emails.get(0);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return null;
 	}
 }

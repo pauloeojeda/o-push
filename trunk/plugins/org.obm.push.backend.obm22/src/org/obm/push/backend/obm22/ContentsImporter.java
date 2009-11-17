@@ -10,6 +10,7 @@ import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
+import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.state.SyncState;
 
 public class ContentsImporter implements IContentsImporter {
@@ -62,7 +63,6 @@ public class ContentsImporter implements IContentsImporter {
 	@Override
 	public void importMessageDeletion(BackendSession bs, PIMDataType type,
 			String collectionId, String serverId) {
-		// TODO Auto-generated method stub
 		switch (type) {
 		case CALENDAR:
 			calBackend.delete(bs, collectionId, serverId);
@@ -118,6 +118,12 @@ public class ContentsImporter implements IContentsImporter {
 			Boolean saveInSent, String collectionId, String serverId) {
 		mailBackend.replyEmail(bs, mailContent, saveInSent, collectionId,
 				serverId);
+	}
+
+	@Override
+	public void importCalendarUserStatus(BackendSession bs, MSEvent event,
+			AttendeeStatus userResponse) {
+		calBackend.updateUserStatus(bs,event,userResponse);
 	}
 
 }
