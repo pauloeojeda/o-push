@@ -70,7 +70,7 @@ public class EventConverter {
 			mse.setReminder(e.getAlert());
 		}
 		mse.setUID(e.getExtId());
-
+		mse.setObmUID(e.getUid());
 		mse.setBusyStatus(busyStatus(e.getOpacity()));
 		return mse;
 	}
@@ -329,7 +329,7 @@ public class EventConverter {
 			}
 		}
 		e.setOpacity(opacity(data.getBusyStatus()));
-
+		e.setUid(data.getObmUID());
 		return e;
 	}
 

@@ -1,5 +1,6 @@
 package org.obm.push.backend;
 
+import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.state.SyncState;
 
 /**
@@ -31,5 +32,8 @@ public interface IContentsImporter {
 
 	void replyEmail(BackendSession bs, byte[] mailContent, Boolean saveInSent,
 			String collectionId, String serverId);
+
+	void importCalendarUserStatus(BackendSession bs, MSEvent invi,
+			AttendeeStatus userResponse);
 
 }

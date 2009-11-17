@@ -195,4 +195,37 @@ public class CalendarBackend extends ObmSyncBackend {
 		}
 	}
 
+	public void updateUserStatus(BackendSession bs, MSEvent data,
+			AttendeeStatus status) {
+		CalendarClient calCli = getCalendarClient(bs);
+		AccessToken at = calCli.login(bs.getLoginAtDomain(), bs.getPassword(),
+				"o-push");
+		try {
+			for (MSAttendee att : data.getAttendees()) {
+				if (bs.getLoginAtDomain().equalsIgnoreCase(att.getEmail())) {
+					att.setAttendeeStatus(status);
+				}
+			}
+
+			int ar = bs.getLoginAtDomain().lastIndexOf("@");
+			String calendar = bs.getLoginAtDomain().substring(0, ar);
+			logger.info("update user status[" + status.toString()
+					+ "] in calendar " + calendar);
+
+			Event event = new EventConverter().convertEvent(data);
+			calCli.modifyEvent(at, calendar, event, true);
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			calCli.logout(at);
+		}
+	}
+
+	public Integer getDefaultCalendarId(BackendSession bs) {
+		String col = "obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
+				+ bs.getLoginAtDomain();
+		return getCollectionIdFor(bs.getDevId(), col); 
+	}
+
 }
