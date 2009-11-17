@@ -27,6 +27,9 @@ public interface IContentsImporter {
 
 	SyncState getState(BackendSession bs);
 
-	void sendEmail(BackendSession bs, byte[] mailContent);
+	void sendEmail(BackendSession bs, byte[] mailContent, Boolean saveInSent);
+
+	void replyEmail(BackendSession bs, byte[] mailContent, Boolean saveInSent,
+			String collectionId, String serverId);
 
 }

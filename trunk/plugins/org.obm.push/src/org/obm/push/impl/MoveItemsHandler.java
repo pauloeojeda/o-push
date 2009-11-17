@@ -68,7 +68,8 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 				String dstCollection = null;
 				Integer srcCollectionId = null;
 				Integer dstCollectionId = null;
-				String retDstId = item.getDestinationFolderId()+":"+item.getSourceMessageId();
+				String retDstId = item.getDestinationFolderId() + ":"
+						+ item.getSourceMessageId();
 				try {
 					srcCollectionId = Integer
 							.parseInt(item.getSourceFolderId());
@@ -104,7 +105,8 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 						retDstId = newDstId;
 
 					}
-					DOMUtils.createElementAndText(response, "DstMsgId", retDstId);
+					DOMUtils.createElementAndText(response, "DstMsgId",
+							retDstId);
 					DOMUtils.createElementAndText(response, "SrcMsgId", item
 							.getSourceMessageId());
 				}

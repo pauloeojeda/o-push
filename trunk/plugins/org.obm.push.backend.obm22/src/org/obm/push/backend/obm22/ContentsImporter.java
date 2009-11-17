@@ -92,7 +92,8 @@ public class ContentsImporter implements IContentsImporter {
 
 	}
 
-	public String importMoveItem(BackendSession bs, PIMDataType type, String srcFolder, String dstFolder, String messageId) {
+	public String importMoveItem(BackendSession bs, PIMDataType type,
+			String srcFolder, String dstFolder, String messageId) {
 		switch (type) {
 		case CALENDAR:
 			break;
@@ -105,10 +106,18 @@ public class ContentsImporter implements IContentsImporter {
 		}
 		return null;
 	}
-	
+
 	@Override
-	public void sendEmail(BackendSession bs, byte[] mailContent) {
-		mailBackend.sendEmail(bs, mailContent);
+	public void sendEmail(BackendSession bs, byte[] mailContent,
+			Boolean saveInSent) {
+		mailBackend.sendEmail(bs, mailContent, saveInSent);
+	}
+
+	@Override
+	public void replyEmail(BackendSession bs, byte[] mailContent,
+			Boolean saveInSent, String collectionId, String serverId) {
+		mailBackend.replyEmail(bs, mailContent, saveInSent, collectionId,
+				serverId);
 	}
 
 }

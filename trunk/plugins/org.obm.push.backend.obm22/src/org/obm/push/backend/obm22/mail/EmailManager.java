@@ -251,9 +251,28 @@ public class EmailManager {
 			throw new IMAPException("Cannot log into imap server");
 		}
 	}
-
-	public void sendEmail(BackendSession bs, String from, Set<Address> setTo, String mimeMail) {
+	
+	public void setAnsweredFlag(BackendSession bs, String collectionName, Long uid) throws IMAPException{
+		StoreClient store = getImapClient(bs);
 		try {
+			login(store);
+			String mailBoxName = parseMailBoxName(bs, collectionName);
+			store.select(mailBoxName);
+			FlagsList fl = new FlagsList();
+			fl.add(Flag.ANSWERED);
+			long[] uids = { uid };
+			store.uidStore(uids, fl, true);
+			logger.info("flag  change: " + ( "+ ANSWERED"
+					+ " on mail " + uid + " in " + mailBoxName));
+		} finally {
+			store.logout();
+		}
+	}
+
+	public void sendEmail(BackendSession bs, String from, Set<Address> setTo,
+			String mimeMail, Boolean saveInSent) {
+		try {
+			logger.info("Send mail to "+from+":\n"+mimeMail);
 			SMTPProtocol smtp = getSmtpClient(bs);
 			smtp.openPort();
 			smtp.ehlo(InetAddress.getLocalHost());
@@ -263,12 +282,43 @@ public class EmailManager {
 			for (Address to : setTo) {
 				smtp.rcpt(to);
 			}
+			
 			InputStream data = new ByteArrayInputStream(mimeMail.getBytes());
 			smtp.data(data);
 			smtp.quit();
-
+			
+			if(saveInSent){
+				storeInSent(bs, mimeMail.getBytes());
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private void storeInSent(BackendSession bs, byte[] mailContent) throws IMAPException {
+		String sentFolderName = null;
+		ListResult lr = listAllFolder(bs);
+		for (ListInfo i : lr) {
+			if (i.getName().toLowerCase().endsWith("sent")) {
+				sentFolderName = i.getName();
+			}
+		}
+
+		if (sentFolderName != null) {
+			StoreClient store = getImapClient(bs);
+			try {
+				login(store);
+				InputStream in = new ByteArrayInputStream(mailContent);
+				FlagsList fl = new FlagsList();
+				fl.add(Flag.SEEN);
+				store.append(sentFolderName, in, fl);
+				store.expunge();
+			} finally {
+				try {
+					store.logout();
+				} catch (IMAPException e) {
+				}
+			}
 		}
 	}
 
@@ -283,5 +333,4 @@ public class EmailManager {
 		EmailCacheStorage uc = cache(collectionId, false);
 		uc.addMessage(devId, collectionId, mailUid);
 	}
-
 }
