@@ -1,10 +1,13 @@
 package org.obm.push.backend.obm22.mail;
 
 import java.io.ByteArrayInputStream;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.james.mime4j.parser.MimeStreamParser;
 import org.minig.imap.IMAPException;
@@ -111,17 +114,44 @@ public class MailBackend extends ObmSyncBackend {
 		return deletions;
 	}
 
-	// public List<ItemChange> fetchItems(List<String> fetchIds) {
-	// // TODO Fake data
-	// LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-	//
-	// ItemChange ic = new ItemChange();
-	// ic.setServerId("358");
-	// ic.setData(new MSMail());
-	// ret.add(ic);
-	//
-	// return ret;
-	// }
+	public List<ItemChange> fetchItems(BackendSession bs, List<String> fetchIds) {
+		// TODO Fake data
+		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
+
+		Map<String, Set<Long>> uidByCollecionName = new HashMap<String, Set<Long>>();
+		for (String serverId : fetchIds) {
+			Integer collectionId = getCollectionIdFor(serverId);
+			String collectionName = getCollectionNameFor(collectionId);
+			Set<Long> uids = uidByCollecionName.get(collectionName);
+			if (uids == null) {
+				uids = new HashSet<Long>();
+				uidByCollecionName.put(collectionName, uids);
+			}
+			uids.add(getEmailUidFor(serverId));
+		}
+
+		for (Entry<String, Set<Long>> entry : uidByCollecionName.entrySet()) {
+			String collectionName = entry.getKey();
+
+			try {
+				List<MSEmail> emails = emailManager
+						.fetchMails(bs, getCalendarClient(bs), collectionName,
+								entry.getValue());
+				
+				for (MSEmail email : emails) {
+					ItemChange ic = new ItemChange();
+					ic.setServerId(getServerIdFor(bs.getDevId(),
+							collectionName, "" + email.getUid()));
+					ic.setData(email);
+					ret.add(ic);
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+
+		return ret;
+	}
 
 	public void delete(BackendSession bs, String serverId) {
 		logger.info("delete serverId " + serverId);
@@ -246,16 +276,18 @@ public class MailBackend extends ObmSyncBackend {
 		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), handler
 				.getMessage(), saveInSent);
 	}
-	
-	public MSEmail getEmail(BackendSession bs, Integer collectionId, String serverId) {
+
+	public MSEmail getEmail(BackendSession bs, Integer collectionId,
+			String serverId) {
 		String collectionName = getCollectionNameFor(collectionId);
 		Long uid = getEmailUidFor(serverId);
 		Set<Long> uids = new HashSet<Long>();
 		uids.add(uid);
 		List<MSEmail> emails;
 		try {
-			emails = emailManager.fetchMails(bs, getCalendarClient(bs), collectionName, uids);
-			if(emails.size()>0){
+			emails = emailManager.fetchMails(bs, getCalendarClient(bs),
+					collectionName, uids);
+			if (emails.size() > 0) {
 				return emails.get(0);
 			}
 		} catch (Exception e) {

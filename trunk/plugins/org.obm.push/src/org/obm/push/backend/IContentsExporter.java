@@ -23,7 +23,5 @@ public interface IContentsExporter {
 
 	List<ItemChange> fetch(BackendSession bs, List<String> fetchIds);
 	
-	MSEmail fetchEmailMeetingRequest(BackendSession bs, Integer collectionId,String serverId);
-	
 	Integer getDefaultCalendarId(BackendSession bs);
 }
