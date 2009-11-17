@@ -9,14 +9,14 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContinuation;
 
 /**
- * Handles the SendMail cmd
+ * Handles the SmartReply cmd
  * 
  * @author adrien
  * 
  */
-public class SendMailHandler extends MailRequestHandler {
+public class SmartReplyHandler extends MailRequestHandler {
 
-	public SendMailHandler(IBackend backend) {
+	public SmartReplyHandler(IBackend backend) {
 		super(backend);
 	}
 
@@ -27,7 +27,10 @@ public class SendMailHandler extends MailRequestHandler {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 
-		backend.getContentsImporter(null, bs).sendEmail(bs, mailContent, saveInSent);
-	}
+		String collectionId = request.getParameter("CollectionId");
+		String serverId = request.getParameter("ItemId");
 
+		backend.getContentsImporter(null, bs).replyEmail(bs, mailContent,
+				saveInSent, collectionId, serverId);
+	}
 }

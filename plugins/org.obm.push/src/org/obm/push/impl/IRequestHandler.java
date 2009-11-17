@@ -1,7 +1,7 @@
 package org.obm.push.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
+import javax.servlet.http.HttpServletRequest;
 
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IContinuation;
@@ -15,6 +15,6 @@ import org.obm.push.backend.IContinuation;
 public interface IRequestHandler {
 
 	public void process(IContinuation continuation, BackendSession bs,
-			InputStream in, Responder responder) throws IOException;
+			HttpServletRequest request, Responder responder) throws IOException;
 
 }

@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.descriptor.BodyDescriptor;
 import org.apache.james.mime4j.field.Fields;
@@ -16,9 +18,11 @@ import org.columba.ristretto.parser.ParserException;
 
 import fr.aliasource.utils.FileUtils;
 
-public class OPushEmailHandler implements
+public class SendEmailHandler implements
 		org.apache.james.mime4j.parser.ContentHandler {
 
+	protected Log logger = LogFactory.getLog(getClass());
+	
 	private StringBuilder message;
 	private Boolean inHeader;
 	private Boolean inMultipart;
@@ -26,7 +30,7 @@ public class OPushEmailHandler implements
 	private Set<Address> to;
 	private String from;
 
-	public OPushEmailHandler(String defaultFrom) {
+	public SendEmailHandler(String defaultFrom) {
 		inHeader = false;
 		inMultipart = false;
 		this.to = new HashSet<Address>();
@@ -51,6 +55,7 @@ public class OPushEmailHandler implements
 		if (!inMultipart) {
 			inHeader = false;
 		}
+		this.message.append("\r\n");
 	}
 
 	@Override
@@ -105,12 +110,10 @@ public class OPushEmailHandler implements
 
 	@Override
 	public void endBodyPart() throws MimeException {
-
 	}
 
 	@Override
 	public void endMessage() throws MimeException {
-
 	}
 
 	@Override
@@ -130,16 +133,14 @@ public class OPushEmailHandler implements
 
 	@Override
 	public void startBodyPart() throws MimeException {
-
 	}
 
 	@Override
 	public void startMessage() throws MimeException {
-
 	}
 
-	private void appendToMessage(String ligne) {
+	protected void appendToMessage(String ligne) {
 		this.message.append(ligne);
-		this.message.append("\n");
+		this.message.append("\r\n");
 	}
 }

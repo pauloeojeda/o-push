@@ -1,6 +1,7 @@
 package org.obm.push.backend.obm22.mail;
 
 import java.io.ByteArrayInputStream;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -20,7 +21,7 @@ import org.obm.sync.client.calendar.CalendarClient;
 public class MailBackend extends ObmSyncBackend {
 
 	private EmailManager emailManager;
-	
+
 	public MailBackend(ISyncStorage storage) {
 		super(storage);
 		emailManager = EmailManager.getInstance();
@@ -58,13 +59,13 @@ public class MailBackend extends ObmSyncBackend {
 		int collectionId = getCollectionIdFor(bs.getDevId(), collection);
 		try {
 			int devId = getDevId(bs.getDevId());
-			MailChanges mc = emailManager.getSync(bs, devId,
-					collectionId, collection);
+			MailChanges mc = emailManager.getSync(bs, devId, collectionId,
+					collection);
 			changes = getChanges(bs, collection, mc.getUpdated());
 			deletions.addAll(getDeletions(bs, collection, mc.getRemoved()));
 			bs.setUpdatedSyncDate(mc.getLastSync());
 		} catch (Exception e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
 		return new DataDelta(changes, deletions);
 	}
@@ -84,9 +85,9 @@ public class MailBackend extends ObmSyncBackend {
 
 		List<ItemChange> itch = new LinkedList<ItemChange>();
 		try {
-			
-			List<MSEmail> msMails = emailManager.fetchMails(bs,getCalendarClient(bs),
-					collection, uids);
+
+			List<MSEmail> msMails = emailManager.fetchMails(bs,
+					getCalendarClient(bs), collection, uids);
 			for (MSEmail mail : msMails) {
 				ItemChange ic = new ItemChange();
 				ic.setServerId(getServerIdFor(bs.getDevId(), collection, ""
@@ -130,9 +131,10 @@ public class MailBackend extends ObmSyncBackend {
 			String collectionName = getCollectionNameFor(collectionId);
 			Integer devId = getDevId(bs.getDevId());
 			try {
-				emailManager.delete(bs,devId, collectionName,collectionId, uid);
+				emailManager.delete(bs, devId, collectionName, collectionId,
+						uid);
 			} catch (IMAPException e) {
-				logger.error(e.getMessage(),e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}
@@ -144,17 +146,18 @@ public class MailBackend extends ObmSyncBackend {
 		if (serverId != null) {
 			Long mailUid = getEmailUidFor(serverId);
 			try {
-				emailManager.updateReadFlag(bs, collection,
-						mailUid, data.isRead());
+				emailManager.updateReadFlag(bs, collection, mailUid, data
+						.isRead());
 			} catch (IMAPException e) {
-				logger.error(e.getMessage(),e);
+				logger.error(e.getMessage(), e);
 			}
 		}
 
 		return null;
 	}
-	
-	public String move(BackendSession bs, String srcFolder, String dstFolder, String messageId) {
+
+	public String move(BackendSession bs, String srcFolder, String dstFolder,
+			String messageId) {
 		logger.info("move(" + bs.getLoginAtDomain() + ", messageId "
 				+ messageId + " from " + srcFolder + " to " + dstFolder + ")");
 		Integer srcFolderId = getCollectionIdFor(bs.getDevId(), srcFolder);
@@ -162,16 +165,17 @@ public class MailBackend extends ObmSyncBackend {
 		Integer devId = getDevId(bs.getDevId());
 		Long newUidMail = null;
 		try {
-			newUidMail = emailManager.moveItem(bs, devId, srcFolder, srcFolderId, dstFolder, dstFolderId, getEmailUidFor(messageId));
+			newUidMail = emailManager.moveItem(bs, devId, srcFolder,
+					srcFolderId, dstFolder, dstFolderId,
+					getEmailUidFor(messageId));
 		} catch (IMAPException e) {
-			logger.error(e.getMessage(),e);
+			logger.error(e.getMessage(), e);
 		}
-		if(newUidMail == null){
+		if (newUidMail == null) {
 			return null;
 		}
-		return dstFolderId+":"+newUidMail;
+		return dstFolderId + ":" + newUidMail;
 	}
-
 
 	public Long getEmailUidFor(String serverId) {
 		int idx = serverId.lastIndexOf(":");
@@ -183,23 +187,63 @@ public class MailBackend extends ObmSyncBackend {
 		return Integer.parseInt(serverId.substring(0, idx));
 	}
 
-	public void sendEmail(BackendSession bs, byte[] mailContent) {
-		
+	public void sendEmail(BackendSession bs, byte[] mailContent,
+			Boolean saveInSent) {
 		try {
-			CalendarClient cal = getCalendarClient(bs);
-			AccessToken at = cal.login(bs.getLoginAtDomain(), bs.getPassword(), "opush");
-			String from = cal.getUserEmail(at);
-			
-			OPushEmailHandler handler = new OPushEmailHandler(from);
-			MimeStreamParser parser = new MimeStreamParser();
-			parser.setContentHandler(handler);
-			
-			parser.parse(new ByteArrayInputStream(mailContent));
-			handler.getFrom();
-			logger.info(handler.getMessage());
-			emailManager.sendEmail(bs,from,handler.getTo(), handler.getMessage());
+			SendEmailHandler handler = new SendEmailHandler(getUserEmail(bs));
+			send(bs, mailContent, handler, saveInSent);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
+	}
+
+	public void replyEmail(BackendSession bs, byte[] mailContent,
+			Boolean saveInSent, String collectionId, String serverId) {
+		try {
+
+			String collectionName = getCollectionNameFor(Integer
+					.parseInt(collectionId));
+			Long uid = getEmailUidFor(serverId);
+			Set<Long> uids = new HashSet<Long>();
+			uids.add(uid);
+			List<MSEmail> mail = emailManager.fetchMails(bs,
+					getCalendarClient(bs), collectionName, uids);
+
+			if (mail.size() > 0) {
+				ReplyEmailHandler reh = new ReplyEmailHandler(getUserEmail(bs),
+						mail.get(0));
+				send(bs, mailContent, reh, saveInSent);
+				emailManager.setAnsweredFlag(bs, collectionName, uid);
+			} else {
+				SendEmailHandler handler = new SendEmailHandler(
+						getUserEmail(bs));
+				send(bs, mailContent, handler, saveInSent);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private String getUserEmail(BackendSession bs) throws Exception {
+		CalendarClient cal = getCalendarClient(bs);
+		AccessToken at = cal.login(bs.getLoginAtDomain(), bs.getPassword(),
+				"opush");
+		String from = "";
+		try {
+			from = cal.getUserEmail(at);
+		} finally {
+			cal.logout(at);
+		}
+		return from;
+	}
+
+	private void send(BackendSession bs, byte[] mailContent,
+			SendEmailHandler handler, Boolean saveInSent) throws Exception {
+		MimeStreamParser parser = new MimeStreamParser();
+		parser.setContentHandler(handler);
+
+		parser.parse(new ByteArrayInputStream(mailContent));
+		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), handler
+				.getMessage(), saveInSent);
 	}
 }

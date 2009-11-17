@@ -1,7 +1,6 @@
 package org.obm.push;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -36,6 +35,7 @@ import org.obm.push.impl.Responder;
 import org.obm.push.impl.SearchHandler;
 import org.obm.push.impl.SendMailHandler;
 import org.obm.push.impl.SettingsHandler;
+import org.obm.push.impl.SmartReplyHandler;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.store.IStorageFactory;
 import org.obm.push.store.ISyncStorage;
@@ -233,9 +233,8 @@ public class ActiveSyncServlet extends HttpServlet {
 			return;
 		}
 
-		InputStream in = request.getInputStream();
 		sendASHeaders(response);
-		rh.process(new PushContinuation(continuation, request), bs, in,
+		rh.process(new PushContinuation(continuation, request), bs, request,
 				new Responder(response));
 	}
 
@@ -359,6 +358,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			handlers.put("Search", new SearchHandler(backend));
 			handlers.put("SendMail", new SendMailHandler(backend));
 			handlers.put("MoveItems", new MoveItemsHandler(backend));
+			handlers.put("SmartReply", new SmartReplyHandler(backend));
 		}
 
 		logger.info("ActiveSync servlet initialised.");
