@@ -9,7 +9,6 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
-import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
@@ -107,7 +106,7 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	@Override
-	public List<ItemChange> fetch(BackendSession bs, List<String> fetchIds) {
+	public List<ItemChange> fetch(BackendSession bs, List<String> fetchServerIds) {
 		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
 		switch (bs.getDataType()) {
 		case CALENDAR:
@@ -115,7 +114,7 @@ public class ContentsExporter implements IContentsExporter {
 		case CONTACTS:
 			break;
 		case EMAIL:
-//			 changes.addAll(mailBackend.fetchItems(fetchIds));
+			 changes.addAll(mailBackend.fetchItems(bs,fetchServerIds));
 			break;
 		case TASKS:
 			break;
@@ -124,12 +123,8 @@ public class ContentsExporter implements IContentsExporter {
 		return changes;
 	}
 	
-	public MSEmail fetchEmailMeetingRequest(BackendSession bs, Integer collectionId, String serverId){
-		return mailBackend.getEmail(bs, collectionId, serverId);
-	}
-	
+	@Override
 	public Integer getDefaultCalendarId(BackendSession bs){
 		return calBackend.getDefaultCalendarId(bs);
 	}
-
 }

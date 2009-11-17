@@ -1,6 +1,8 @@
 package org.obm.push.impl;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -10,6 +12,7 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.IContinuation;
+import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.data.MeetingResponse;
@@ -85,27 +88,41 @@ public class MeetingResponseHandler extends WbxmlRequestHandler {
 			Document reply = DOMUtils.createDoc(null, "MeetingResponse");
 			Element root = reply.getDocumentElement();
 			for (MeetingResponse item : items) {
-				
-				IContentsExporter exporter = backend.getContentsExporter(bs);
-				MSEmail email = exporter.fetchEmailMeetingRequest(bs,item.getCollectionId(), item.getReqId());
-				
-				Element response = DOMUtils.createElement(root, "Result");
-				if(email == null ){
-					DOMUtils.createElementAndText(response, "Status", "3");	
-				} else if (email.getInvitation() == null){
-					DOMUtils.createElementAndText(response, "Status", "2");
-				} else {
-					IContentsImporter importer = backend.getContentsImporter(item.getCollectionId(), bs);
-					MSEvent invi = email.getInvitation();
-					importer.importCalendarUserStatus(bs,invi,item.getUserResponse());
-					DOMUtils.createElementAndText(response, "Status", "1");
 
-					if(!AttendeeStatus.DECLINE.equals(item.getUserResponse())){
-						DOMUtils.createElementAndText(response, "CalId", exporter.getDefaultCalendarId(bs).toString());
+				IContentsExporter exporter = backend.getContentsExporter(bs);
+				List<ItemChange> lit = exporter.fetch(bs, Arrays.asList(item
+						.getReqId()));
+				ItemChange ic = null;
+				if (lit.size() > 0) {
+					ic = lit.get(0);
+				}
+
+				Element response = DOMUtils.createElement(root, "Result");
+				if (ic == null || ic.getData() == null) {
+					DOMUtils.createElementAndText(response, "Status", "3");
+				} else {
+					MSEvent invitation = ((MSEmail) ic.getData())
+							.getInvitation();
+					if (invitation == null) {
+						DOMUtils.createElementAndText(response, "Status", "2");
+					} else {
+						IContentsImporter importer = backend
+								.getContentsImporter(item.getCollectionId(), bs);
+						importer.importCalendarUserStatus(bs, invitation, item
+								.getUserResponse());
+						DOMUtils.createElementAndText(response, "Status", "1");
+
+						if (!AttendeeStatus.DECLINE.equals(item
+								.getUserResponse())) {
+							DOMUtils.createElementAndText(response, "CalId",
+									exporter.getDefaultCalendarId(bs)
+											.toString());
+						}
 					}
 				}
-				DOMUtils.createElementAndText(response, "ReqId", item.getReqId());
-				
+				DOMUtils.createElementAndText(response, "ReqId", item
+						.getReqId());
+
 				responder.sendResponse("MeetingResponse", reply);
 			}
 		} catch (Exception e) {
