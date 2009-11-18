@@ -39,7 +39,7 @@ public class CalendarEncoder implements IDataEncoder {
 
 	@Override
 	public void encode(BackendSession bs, Element p, IApplicationData data,
-			boolean isReponse) {
+			boolean truncation, boolean isReponse) {
 
 		MSEvent ev = (MSEvent) data;
 
@@ -56,7 +56,7 @@ public class CalendarEncoder implements IDataEncoder {
 
 		if (hexa.matcher(ev.getUID()).matches()) {
 			e(p, "Calendar:UID", ev.getUID());
-		} else if (ev.getUID().hashCode() != 0){
+		} else if (ev.getUID().hashCode() != 0) {
 			e(p, "Calendar:UID", Integer.toHexString(ev.getUID().hashCode()));
 		}
 		if (ev.getOrganizerEmail() != null) {

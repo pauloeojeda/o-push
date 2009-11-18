@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.FilterType;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContinuation;
@@ -34,8 +35,8 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 		for (int i = 0; i < collections.getLength(); i++) {
 			Element ce = (Element) collections.item(i);
 			String dataClass = DOMUtils.getElementText(ce, "Class");
-			Integer filterType = Integer.parseInt(DOMUtils.getElementText(ce,
-					"FilterType"));
+			String filterType = DOMUtils.getElementText(ce,
+					"FilterType");
 			String syncKey = DOMUtils.getElementText(ce, "SyncKey");
 			Element fid = DOMUtils.getUniqueElement(ce, "CollectionId");
 			String collectionId = null;
@@ -48,7 +49,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 			sc.setDataClass(dataClass);
 			sc.setSyncKey(syncKey);
 			sc.setCollectionId(Integer.parseInt(collectionId));
-			sc.setFilterType(filterType);
+			sc.setFilterType(FilterType.getFilterType(filterType));
 			cols.add(sc);
 		}
 

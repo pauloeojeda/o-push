@@ -50,7 +50,7 @@ public class EmailEncoder implements IDataEncoder {
 
 	@Override
 	public void encode(BackendSession bs, Element parent,
-			IApplicationData data, boolean isResponse) {
+			IApplicationData data, boolean truncation,boolean isResponse) {
 		MSEmail mail = (MSEmail) data;
 
 		DOMUtils.createElementAndText(parent, "Email:To",
@@ -81,11 +81,14 @@ public class EmailEncoder implements IDataEncoder {
 				.getImportance().asIntString());
 		DOMUtils.createElementAndText(parent, "Email:Read", mail.isRead() ? "1"
 				: "0");
-		DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "0");
-//
-		DOMUtils.createElementAndText(parent, "Email:Body", mail.getBody()
-				.getValue(mail.getBody().availableFormats().iterator().next()));
+		if(truncation){
+			DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "1");
+		} else {
+			DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "0");
 
+			DOMUtils.createElementAndText(parent, "Email:Body", mail.getBody()
+				.getValue(mail.getBody().availableFormats().iterator().next()));
+		}
 		// Element elemBody = DOMUtils.createElement(parent,
 		// "AirSyncBase:Body");
 		//

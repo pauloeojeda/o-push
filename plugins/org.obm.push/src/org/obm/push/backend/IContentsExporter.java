@@ -13,7 +13,7 @@ import org.obm.push.state.SyncState;
  */
 public interface IContentsExporter {
 
-	void configure(BackendSession bs, String dataClass, Integer filterType, SyncState state, String collectionId);
+	void configure(BackendSession bs, String dataClass, FilterType filterType, SyncState state, String collectionId);
 
 	SyncState getState(BackendSession bs);
 
