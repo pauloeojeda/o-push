@@ -10,7 +10,7 @@ public class ContactEncoder implements IDataEncoder {
 
 	@Override
 	public void encode(BackendSession bs, Element parent,
-			IApplicationData data, boolean isResponse) {
+			IApplicationData data, boolean truncation, boolean isResponse) {
 		// TODO Auto-generated method stub
 		MSContact c = (MSContact) data;
 

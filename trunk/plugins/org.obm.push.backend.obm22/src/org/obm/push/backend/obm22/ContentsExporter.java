@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.DataDelta;
+import org.obm.push.backend.FilterType;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.PIMDataType;
@@ -34,7 +35,7 @@ public class ContentsExporter implements IContentsExporter {
 
 	@Override
 	public void configure(BackendSession bs, String dataClass,
-			Integer filterType, SyncState state, String collectionId) {
+			FilterType filterType, SyncState state, String collectionId) {
 		logger.info("configure(" + dataClass + ", " + filterType + ", " + state
 				+ ", " + collectionId + ")");
 		if (collectionId == null) {

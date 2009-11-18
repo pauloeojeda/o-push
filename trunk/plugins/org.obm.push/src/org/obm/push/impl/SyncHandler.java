@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.DataDelta;
+import org.obm.push.backend.FilterType;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
@@ -186,7 +187,8 @@ public class SyncHandler extends WbxmlRequestHandler {
 				Element add = DOMUtils.createElement(commands, "Add");
 				DOMUtils
 						.createElementAndText(add, "ServerId", ic.getServerId());
-				serializeChange(bs, add, c, ic);
+				Boolean truncation = (c.getTruncation() != null && c.getTruncation().equals("1")); 
+				serializeChange(bs, add, truncation, ic);
 			}
 		}
 
@@ -237,7 +239,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 			Element add = DOMUtils.createElement(commands, "Fetch");
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
 			DOMUtils.createElementAndText(add, "Status", "1");
-			serializeChange(bs, add, c, ic);
+			serializeChange(bs, add, false, ic);
 		}
 	}
 
@@ -247,11 +249,11 @@ public class SyncHandler extends WbxmlRequestHandler {
 	}
 
 	private void serializeChange(BackendSession bs, Element col,
-			SyncCollection c, ItemChange ic) {
+			boolean truncation, ItemChange ic) {
 		IApplicationData data = ic.getData();
 		IDataEncoder encoder = encoders.getEncoder(data);
 		Element apData = DOMUtils.createElement(col, "ApplicationData");
-		encoder.encode(bs, apData, data, true);
+		encoder.encode(bs, apData, data, truncation, true);
 	}
 
 	private SyncCollection processCollection(BackendSession bs,
@@ -269,6 +271,22 @@ public class SyncHandler extends WbxmlRequestHandler {
 		if (wse != null) {
 			collection.setWindowSize(Integer.parseInt(wse.getTextContent()));
 		}
+
+		Element option = DOMUtils.getUniqueElement(col, "Option");
+		if (option != null) {
+			String filterType = DOMUtils.getElementText(option, "FilterType");
+			String truncation = DOMUtils.getElementText(option, "Truncation");
+			String mimeSupport = DOMUtils.getElementText(option, "MIMESupport");
+			String mimeTruncation = DOMUtils.getElementText(option,
+					"MIMETruncation");
+			String conflict = DOMUtils.getElementText(option, "Conflict");
+
+			collection.setConflict(Integer.getInteger(conflict));
+			collection.setFilterType(FilterType.getFilterType(filterType));
+			collection.setMimeSupport(Integer.getInteger(mimeSupport));
+			collection.setMimeTruncation(Integer.getInteger(mimeTruncation));
+			collection.setTruncation(Integer.getInteger(truncation));
+		}
 		// TODO sync supported
 		// TODO sync <deletesasmoves/>
 		// TODO sync <getchanges/>
@@ -278,8 +296,15 @@ public class SyncHandler extends WbxmlRequestHandler {
 		collection.setSyncState(oldColState);
 		if (oldColState.isValid()) {
 			Element perform = DOMUtils.getUniqueElement(col, "Commands");
-
+			
 			if (perform != null) {
+				NodeList fetchs = perform.getElementsByTagName("Fetch");
+				List<String> fetchIds = new LinkedList<String>();
+				for (int i = 0; i < fetchs.getLength(); i++) {
+					Element fetch = (Element) fetchs.item(i);
+					fetchIds.add(DOMUtils.getElementText(fetch, "ServerId"));
+				}
+				collection.setFetchIds(fetchIds);
 				// get our sync state for this collection
 				IContentsImporter importer = backend.getContentsImporter(
 						collection.getCollectionId(), bs);

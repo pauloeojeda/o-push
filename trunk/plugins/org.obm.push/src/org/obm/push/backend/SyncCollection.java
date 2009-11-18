@@ -18,9 +18,12 @@ public class SyncCollection {
 	private Integer truncation;
 	private boolean deletesAsMoves;
 	private String newSyncKey;
-	private Integer filterType;
+	private FilterType filterType;
 	private Integer windowSize;
 	private boolean moreAvailable;
+	private Integer mimeSupport;
+	private Integer mimeTruncation;
+	
 	
 	public SyncCollection() {
 		fetchIds = new LinkedList<String>();
@@ -94,11 +97,11 @@ public class SyncCollection {
 		this.newSyncKey = newSyncKey;
 	}
 
-	public Integer getFilterType() {
+	public FilterType getFilterType() {
 		return filterType;
 	}
 
-	public void setFilterType(Integer filterType) {
+	public void setFilterType(FilterType filterType) {
 		this.filterType = filterType;
 	}
 	
@@ -135,4 +138,22 @@ public class SyncCollection {
 	public int hashCode() {
 		return collectionId.hashCode();
 	}
+
+	public Integer getMimeSupport() {
+		return mimeSupport;
+	}
+
+	public void setMimeSupport(Integer mimeSupport) {
+		this.mimeSupport = mimeSupport;
+	}
+
+	public Integer getMimeTruncation() {
+		return mimeTruncation;
+	}
+
+	public void setMimeTruncation(Integer mimeTruncation) {
+		this.mimeTruncation = mimeTruncation;
+	}
+	
+	
 }
