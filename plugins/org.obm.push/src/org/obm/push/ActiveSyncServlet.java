@@ -36,6 +36,7 @@ import org.obm.push.impl.Responder;
 import org.obm.push.impl.SearchHandler;
 import org.obm.push.impl.SendMailHandler;
 import org.obm.push.impl.SettingsHandler;
+import org.obm.push.impl.SmartForwardHandler;
 import org.obm.push.impl.SmartReplyHandler;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.store.IStorageFactory;
@@ -360,6 +361,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			handlers.put("SendMail", new SendMailHandler(backend));
 			handlers.put("MoveItems", new MoveItemsHandler(backend));
 			handlers.put("SmartReply", new SmartReplyHandler(backend));
+			handlers.put("SmartForward", new SmartForwardHandler(backend));
 			handlers.put("MeetingResponse", new MeetingResponseHandler(backend));
 		}
 

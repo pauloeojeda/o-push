@@ -126,4 +126,11 @@ public class ContentsImporter implements IContentsImporter {
 		calBackend.updateUserStatus(bs,event,userResponse);
 	}
 
+	@Override
+	public void forwardEmail(BackendSession bs, byte[] mailContent,
+			Boolean saveInSent, String collectionId, String serverId) {
+		mailBackend.forwardEmail(bs, mailContent, saveInSent, collectionId,
+				serverId);
+	}
+
 }
