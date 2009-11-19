@@ -36,4 +36,7 @@ public interface IContentsImporter {
 	void importCalendarUserStatus(BackendSession bs, MSEvent invi,
 			AttendeeStatus userResponse);
 
+	void forwardEmail(BackendSession bs, byte[] mailContent,
+			Boolean saveInSent, String collectionId, String serverId);
+
 }

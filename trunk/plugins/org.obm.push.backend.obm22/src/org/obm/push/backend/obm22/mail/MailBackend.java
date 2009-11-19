@@ -1,6 +1,7 @@
 package org.obm.push.backend.obm22.mail;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -230,7 +231,6 @@ public class MailBackend extends ObmSyncBackend {
 	public void replyEmail(BackendSession bs, byte[] mailContent,
 			Boolean saveInSent, String collectionId, String serverId) {
 		try {
-
 			String collectionName = getCollectionNameFor(Integer
 					.parseInt(collectionId));
 			Long uid = getEmailUidFor(serverId);
@@ -241,6 +241,32 @@ public class MailBackend extends ObmSyncBackend {
 
 			if (mail.size() > 0) {
 				ReplyEmailHandler reh = new ReplyEmailHandler(getUserEmail(bs),
+						mail.get(0));
+				send(bs, mailContent, reh, saveInSent);
+				emailManager.setAnsweredFlag(bs, collectionName, uid);
+			} else {
+				SendEmailHandler handler = new SendEmailHandler(
+						getUserEmail(bs));
+				send(bs, mailContent, handler, saveInSent);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+	
+	public void forwardEmail(BackendSession bs, byte[] mailContent,
+			Boolean saveInSent, String collectionId, String serverId) {
+		try {
+			String collectionName = getCollectionNameFor(Integer
+					.parseInt(collectionId));
+			Long uid = getEmailUidFor(serverId);
+			Set<Long> uids = new HashSet<Long>();
+			uids.add(uid);
+			List<InputStream> mail = emailManager.fetchMIMEMails(bs,
+					getCalendarClient(bs), collectionName, uids);
+
+			if (mail.size() > 0) {
+				ForwardEmailHandler reh = new ForwardEmailHandler(getUserEmail(bs),
 						mail.get(0));
 				send(bs, mailContent, reh, saveInSent);
 				emailManager.setAnsweredFlag(bs, collectionName, uid);

@@ -1,5 +1,6 @@
 package org.obm.push.backend.obm22.mail;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -12,7 +13,13 @@ import org.apache.james.mime4j.descriptor.BodyDescriptor;
 import org.apache.james.mime4j.field.Fields;
 import org.apache.james.mime4j.field.address.Mailbox;
 import org.apache.james.mime4j.parser.Field;
+import org.columba.ristretto.composer.MimeTreeRenderer;
+import org.columba.ristretto.io.CharSequenceSource;
 import org.columba.ristretto.message.Address;
+import org.columba.ristretto.message.BasicHeader;
+import org.columba.ristretto.message.Header;
+import org.columba.ristretto.message.LocalMimePart;
+import org.columba.ristretto.message.MimeHeader;
 import org.columba.ristretto.parser.AddressParser;
 import org.columba.ristretto.parser.ParserException;
 
@@ -22,20 +29,15 @@ public class SendEmailHandler implements
 		org.apache.james.mime4j.parser.ContentHandler {
 
 	protected Log logger = LogFactory.getLog(getClass());
-	
-	private StringBuilder message;
-	private Boolean inHeader;
-	private Boolean inMultipart;
-
+	protected Header header;
+	private BasicHeader basicHeader;
+	protected LocalMimePart root;
 	private Set<Address> to;
 	private String from;
 
 	public SendEmailHandler(String defaultFrom) {
-		inHeader = false;
-		inMultipart = false;
 		this.to = new HashSet<Address>();
 		this.from = defaultFrom;
-		this.message = new StringBuilder();
 	}
 
 	public Set<Address> getTo() {
@@ -47,65 +49,68 @@ public class SendEmailHandler implements
 	}
 
 	public String getMessage() {
-		return message.toString();
-	}
-
-	@Override
-	public void endHeader() throws MimeException {
-		if (!inMultipart) {
-			inHeader = false;
+		InputStream in = null;
+		try {
+			in = MimeTreeRenderer.getInstance().renderMimePart(root);
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			FileUtils.transfer(in, out, true);
+			byte[] data = out.toByteArray();
+			return new String(data);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
-		this.message.append("\r\n");
-	}
-
-	@Override
-	public void endMultipart() throws MimeException {
-		this.inMultipart = false;
-
-	}
-
-	@Override
-	public void field(Field arg0) throws MimeException {
-		if (inHeader) {
-			if ("to".equalsIgnoreCase(arg0.getName())) {
-				try {
-					Address[] adds = AddressParser.parseMailboxList(arg0.getBody());
-					for(Address add : adds){
-						this.to.add(add);
-					}
-				} catch (ParserException e) {
-					throw new MimeException(e.getMessage());
-				}
-			} else if ("from".equalsIgnoreCase(arg0.getName())) {
-				if (arg0.getBody() == null || !"".equals(arg0.getBody())) {
-					if (this.from != null && from.contains("@")) {
-						String[] tab = from.split("@");
-						Mailbox mb = new Mailbox(tab[0], tab[1]);
-						arg0 = Fields.from(mb);
-					}
-				}
-				this.from = arg0.getBody();
-			}
-		}
-		appendToMessage(arg0.getRaw().toString());
+		return "";
 	}
 
 	@Override
 	public void startHeader() throws MimeException {
-		if (!inMultipart) {
-			inHeader = true;
+		header = new Header();
+		basicHeader = new BasicHeader(header);
+	}
+
+	@Override
+	public void endHeader() throws MimeException {
+	}
+
+	@Override
+	public void endMultipart() throws MimeException {
+	}
+
+	@Override
+	public void field(Field arg0) throws MimeException {
+		if ("to".equalsIgnoreCase(arg0.getName())) {
+			try {
+				Address[] adds = AddressParser.parseMailboxList(arg0.getBody());
+				for (Address add : adds) {
+					this.to.add(add);
+				}
+			} catch (ParserException e) {
+				throw new MimeException(e.getMessage());
+			}
+		} else if ("from".equalsIgnoreCase(arg0.getName())) {
+			if (arg0.getBody() == null || !"".equals(arg0.getBody())) {
+				if (this.from != null && from.contains("@")) {
+					String[] tab = from.split("@");
+					Mailbox mb = new Mailbox(tab[0], tab[1]);
+					arg0 = Fields.from(mb);
+				}
+			}
+			this.from = arg0.getBody();
 		}
+		basicHeader.set(arg0.getName(), arg0.getBody());
 	}
 
 	@Override
 	public void startMultipart(BodyDescriptor arg0) throws MimeException {
-		this.inMultipart = true;
 	}
 
 	@Override
 	public void body(BodyDescriptor arg0, InputStream arg1)
 			throws MimeException, IOException {
-		appendToMessage(FileUtils.streamString(arg1, false));
+		MimeHeader mimeHeader = new MimeHeader(header);
+		root = new LocalMimePart(mimeHeader);
+		CharSequenceSource css = new CharSequenceSource(FileUtils.streamString(arg1, false));
+		root.setBody(css);
 	}
 
 	@Override
@@ -118,17 +123,14 @@ public class SendEmailHandler implements
 
 	@Override
 	public void epilogue(InputStream arg0) throws MimeException, IOException {
-		appendToMessage(FileUtils.streamString(arg0, false));
 	}
 
 	@Override
 	public void preamble(InputStream arg0) throws MimeException, IOException {
-		appendToMessage(FileUtils.streamString(arg0, false));
 	}
 
 	@Override
 	public void raw(InputStream arg0) throws MimeException, IOException {
-		appendToMessage(FileUtils.streamString(arg0, false));
 	}
 
 	@Override
@@ -137,10 +139,5 @@ public class SendEmailHandler implements
 
 	@Override
 	public void startMessage() throws MimeException {
-	}
-
-	protected void appendToMessage(String ligne) {
-		this.message.append(ligne);
-		this.message.append("\r\n");
 	}
 }

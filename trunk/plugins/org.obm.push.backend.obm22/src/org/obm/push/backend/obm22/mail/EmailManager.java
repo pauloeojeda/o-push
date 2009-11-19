@@ -113,11 +113,9 @@ public class EmailManager {
 	public MailChanges getSync(BackendSession bs, Integer devId,
 			Integer collectionId, String collectionName)
 			throws InterruptedException, SQLException, IMAPException {
-
 		EmailCacheStorage uc = cache(collectionId, false);
 		MailChanges sync = uc.getSync(getImapClient(bs), devId, bs,
 				collectionId, parseMailBoxName(bs, collectionName));
-
 		return sync;
 	}
 
@@ -130,6 +128,20 @@ public class EmailManager {
 		store.select(parseMailBoxName(bs, collectionName));
 		for (Long uid : uids) {
 			mails.add(mailLoader.fetch(uid, store, bs, calendarClient));
+		}
+		store.logout();
+		return mails;
+	}
+	
+	public List<InputStream> fetchMIMEMails(BackendSession bs,
+			CalendarClient calendarClient, String collectionName, Set<Long> uids)
+			throws IOException, IMAPException {
+		List<InputStream> mails = new LinkedList<InputStream>();
+		StoreClient store = getImapClient(bs);
+		login(store);
+		store.select(parseMailBoxName(bs, collectionName));
+		for (Long uid : uids) {
+			mails.add(store.uidFetchMessage(uid));
 		}
 		store.logout();
 		return mails;
@@ -251,8 +263,9 @@ public class EmailManager {
 			throw new IMAPException("Cannot log into imap server");
 		}
 	}
-	
-	public void setAnsweredFlag(BackendSession bs, String collectionName, Long uid) throws IMAPException{
+
+	public void setAnsweredFlag(BackendSession bs, String collectionName,
+			Long uid) throws IMAPException {
 		StoreClient store = getImapClient(bs);
 		try {
 			login(store);
@@ -262,8 +275,9 @@ public class EmailManager {
 			fl.add(Flag.ANSWERED);
 			long[] uids = { uid };
 			store.uidStore(uids, fl, true);
-			logger.info("flag  change: " + ( "+ ANSWERED"
-					+ " on mail " + uid + " in " + mailBoxName));
+			logger
+					.info("flag  change: "
+							+ ("+ ANSWERED" + " on mail " + uid + " in " + mailBoxName));
 		} finally {
 			store.logout();
 		}
@@ -272,7 +286,7 @@ public class EmailManager {
 	public void sendEmail(BackendSession bs, String from, Set<Address> setTo,
 			String mimeMail, Boolean saveInSent) {
 		try {
-			logger.info("Send mail to "+from+":\n"+mimeMail);
+			logger.info("Send mail to " + from + ":\n" + mimeMail);
 			SMTPProtocol smtp = getSmtpClient(bs);
 			smtp.openPort();
 			smtp.ehlo(InetAddress.getLocalHost());
@@ -282,12 +296,12 @@ public class EmailManager {
 			for (Address to : setTo) {
 				smtp.rcpt(to);
 			}
-			
+
 			InputStream data = new ByteArrayInputStream(mimeMail.getBytes());
 			smtp.data(data);
 			smtp.quit();
-			
-			if(saveInSent){
+
+			if (saveInSent) {
 				storeInSent(bs, mimeMail.getBytes());
 			}
 		} catch (Exception e) {
@@ -295,7 +309,12 @@ public class EmailManager {
 		}
 	}
 
-	private void storeInSent(BackendSession bs, byte[] mailContent) throws IMAPException {
+	public Map<Integer, EmailCacheStorage> getUidCache() {
+		return uidCache;
+	}
+
+	private void storeInSent(BackendSession bs, byte[] mailContent)
+			throws IMAPException {
 		String sentFolderName = null;
 		ListResult lr = listAllFolder(bs);
 		for (ListInfo i : lr) {
