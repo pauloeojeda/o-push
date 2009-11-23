@@ -130,6 +130,8 @@ public class SyncHandler extends WbxmlRequestHandler {
 			}
 			if (invalid) {
 				root.removeChild(cols);
+//				DOMUtils.createElementAndText(root, "Status",
+//						SyncStatus.HIERARCHY_CHANGED.asXmlValue());
 				DOMUtils.createElementAndText(root, "Status",
 						SyncStatus.HIERARCHY_CHANGED.asXmlValue());
 			}

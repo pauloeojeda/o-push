@@ -183,7 +183,7 @@ public class EmailManager {
 		}
 	}
 
-	private String parseMailBoxName(BackendSession bs, String collectionName)
+	public String parseMailBoxName(BackendSession bs, String collectionName)
 			throws IMAPException {
 		// parse obm:\\adrien@test.tlse.lng\email\INBOX\Sent
 		int slash = collectionName.lastIndexOf("email\\");

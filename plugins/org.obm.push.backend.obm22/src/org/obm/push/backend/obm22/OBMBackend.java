@@ -1,7 +1,9 @@
 package org.obm.push.backend.obm22;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -21,6 +23,7 @@ import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.contacts.ContactsMonitoringThread;
 import org.obm.push.backend.obm22.impl.ListenerRegistration;
 import org.obm.push.backend.obm22.mail.EmailManager;
+import org.obm.push.backend.obm22.mail.EmailMonitoringThread;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.provisioning.MSEASProvisioingWBXML;
 import org.obm.push.provisioning.MSWAPProvisioningXML;
@@ -38,28 +41,29 @@ public class OBMBackend implements IBackend {
 	private Set<ICollectionChangeListener> registeredListeners;
 	private CalendarMonitoringThread calendarPushMonitor;
 	private ContactsMonitoringThread contactsPushMonitor;
+	private Map<Integer, EmailMonitoringThread> emailPushMonitors; 
 
 	private static final Log logger = LogFactory.getLog(OBMBackend.class);
 
 	public OBMBackend(ISyncStorage store) {
 		registeredListeners = Collections
 				.synchronizedSet(new HashSet<ICollectionChangeListener>());
-
+		emailPushMonitors = Collections.synchronizedMap(new HashMap<Integer, EmailMonitoringThread>());
 		FolderBackend folderExporter = new FolderBackend(store);
-		MailBackend mailExporter = new MailBackend(store);
-		CalendarBackend calendarExporter = new CalendarBackend(store);
+		MailBackend mailBackend = new MailBackend(store);
+		CalendarBackend calendarBackend = new CalendarBackend(store);
 		ContactsBackend contactsBackend = new ContactsBackend(store);
 		this.store = store;
 
 		hImporter = new HierarchyImporter();
-		exporter = new HierarchyExporter(folderExporter, mailExporter,
-				calendarExporter, contactsBackend);
-		cImporter = new ContentsImporter(mailExporter, calendarExporter,
+		exporter = new HierarchyExporter(folderExporter, mailBackend,
+				calendarBackend, contactsBackend);
+		cImporter = new ContentsImporter(mailBackend, calendarBackend,
 				contactsBackend);
-		contentsExporter = new ContentsExporter(mailExporter, calendarExporter,
+		contentsExporter = new ContentsExporter(mailBackend, calendarBackend,
 				contactsBackend);
 
-		startOBMMonitoringThreads(calendarExporter);
+		startOBMMonitoringThreads(calendarBackend);
 	}
 
 	private void startOBMMonitoringThreads(CalendarBackend cb) {
@@ -74,8 +78,13 @@ public class OBMBackend implements IBackend {
 		Thread contactThread = new Thread(contactsPushMonitor);
 		contactThread.setDaemon(true);
 		contactThread.start();
-
 		// TODO add mail monitoring thread
+	}
+	
+	public void startEmailMonitoring(BackendSession bs, Integer collectionId){
+		MailBackend mailBackend = new MailBackend(store);
+		EmailMonitoringThread emt = new EmailMonitoringThread(mailBackend, registeredListeners,bs,collectionId);
+		emailPushMonitors.put(collectionId, emt);
 	}
 
 	@Override

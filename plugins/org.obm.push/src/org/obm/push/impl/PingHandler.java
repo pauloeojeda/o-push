@@ -64,6 +64,9 @@ public class PingHandler extends WbxmlRequestHandler {
 				int id = Integer.parseInt(DOMUtils.getElementText(f, "Id"));
 				sc.setCollectionId(id);
 				toMonitor.add(sc);
+				if("Email".equals(sc.getDataClass())){
+					backend.startEmailMonitoring(bs, id);
+				}
 			}
 			// pda is allowed to only send the folder list on the first ping
 			if (folders.getLength() > 0) {
