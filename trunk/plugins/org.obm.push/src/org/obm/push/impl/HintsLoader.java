@@ -10,7 +10,7 @@ public class HintsLoader {
 		String ua = r.getHeader("User-Agent");
 		
 		// NokiaE71
-		if (ua.contains("Nokia") && ua.contains("MailforExchange")) {
+		if (ua != null && ua.contains("Nokia") && ua.contains("MailforExchange")) {
 			bs.setHint("hint.multipleCalendars", false);
 			bs.setHint("hint.loadAttendees", false);
 			bs.setDevType(ua);

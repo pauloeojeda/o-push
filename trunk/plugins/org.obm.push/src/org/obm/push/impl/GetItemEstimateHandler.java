@@ -35,8 +35,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 		for (int i = 0; i < collections.getLength(); i++) {
 			Element ce = (Element) collections.item(i);
 			String dataClass = DOMUtils.getElementText(ce, "Class");
-			String filterType = DOMUtils.getElementText(ce,
-					"FilterType");
+			String filterType = DOMUtils.getElementText(ce, "FilterType");
 			String syncKey = DOMUtils.getElementText(ce, "SyncKey");
 			Element fid = DOMUtils.getUniqueElement(ce, "CollectionId");
 			String collectionId = null;
@@ -46,6 +45,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 				collectionId = fid.getTextContent();
 			}
 			SyncCollection sc = new SyncCollection();
+
 			sc.setDataClass(dataClass);
 			sc.setSyncKey(syncKey);
 			sc.setCollectionId(Integer.parseInt(collectionId));
@@ -68,8 +68,10 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 				if (collectionId != null) {
 					DOMUtils.createElementAndText(response, "Status", "1");
 					Element ce = DOMUtils.createElement(response, "Collection");
-					DOMUtils
-							.createElementAndText(ce, "Class", c.getDataClass());
+					if (c.getDataClass() != null) {
+						DOMUtils.createElementAndText(ce, "Class", c
+								.getDataClass());
+					}
 					DOMUtils.createElementAndText(ce, "CollectionId", c
 							.getCollectionId().toString());
 					Element estim = DOMUtils.createElement(ce, "Estimate");

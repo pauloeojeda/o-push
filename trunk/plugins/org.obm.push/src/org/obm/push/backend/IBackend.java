@@ -25,8 +25,6 @@ public interface IBackend {
 
 	ISyncStorage getStore();
 
-	
-	
 	/**
 	 * Push support
 	 * 
@@ -36,5 +34,7 @@ public interface IBackend {
 	IListenerRegistration addChangeListener(ICollectionChangeListener ccl);
 
 	void resetForFullSync(String devId);
+	
+	void startEmailMonitoring(BackendSession bs, Integer collectionId);
 
 }

@@ -1,3 +1,33 @@
+2009-11-23  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Add push support for email
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.OBMBackend),
+	(OBMBackend.startOBMMonitoringThreads),
+	(OBMBackend.startEmailMonitoring):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailManager.java: (EmailManager),
+	(EmailManager.parseMailBoxName):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailMonitoringThread.java: (EmailMonitoringThread),
+	(EmailMonitoringThread.EmailMonitoringThread),
+	(EmailMonitoringThread.startIdle),
+	(EmailMonitoringThread.getChangedCollections),
+	(EmailMonitoringThread.stopIdle), (EmailMonitoringThread.receive),
+	(EmailMonitoringThread.getIdleClient),
+	(EmailMonitoringThread.locateImap):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/HintsLoader.java:
+	(HintsLoader.addHints):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process):
+
 2009-10-23  Adrien POUPARD  <adrien.poupard@aliasource.fr>
 
 	Mail sync implementation
