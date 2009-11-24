@@ -500,6 +500,7 @@ public class TagsTables {
 	public static final String[] CP_15 = {
 	// Search
 			"Search", // 0x05 <2>
+			"UNUSED", // 0x06
 			"Store", // 0x07 <2>
 			"Name", // 0x08 <2>
 			"Query", // 0x09 <2>
@@ -515,6 +516,7 @@ public class TagsTables {
 			"And", // 0x13 <3>
 			"Or", // 0x14 <3>
 			"FreeText", // 0x15 <3>
+			"UNUSED", // 0x16
 			"DeepTraversal", // 0x17 <3>
 			"LongId", // 0x18 <3>
 			"RebuildResults", // 0x19 <3>
