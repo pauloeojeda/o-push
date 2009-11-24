@@ -93,7 +93,7 @@ class EncoderHandler extends DefaultHandler {
 
 	public void characters(char[] chars, int start, int len)
 			throws SAXException {
-
+		//logger.info()
 		if (!stackedStarts.isEmpty()) {
 			flushNormal();
 		}
