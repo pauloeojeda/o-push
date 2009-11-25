@@ -12,9 +12,11 @@ import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSAddress;
+import org.obm.push.backend.MSEmailBodyType;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.Recurrence;
+import org.obm.push.backend.SyncCollection;
 import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.utils.Base64;
 import org.obm.push.utils.DOMUtils;
@@ -50,7 +52,7 @@ public class EmailEncoder implements IDataEncoder {
 
 	@Override
 	public void encode(BackendSession bs, Element parent,
-			IApplicationData data, boolean truncation,boolean isResponse) {
+			IApplicationData data, SyncCollection c, boolean isResponse) {
 		MSEmail mail = (MSEmail) data;
 
 		DOMUtils.createElementAndText(parent, "Email:To",
@@ -59,9 +61,9 @@ public class EmailEncoder implements IDataEncoder {
 			DOMUtils.createElementAndText(parent, "Email:CC",
 					buildStringAdresses(mail.getCc()));
 		}
-		if(mail.getFrom() != null){
-		DOMUtils.createElementAndText(parent, "Email:From", mail.getFrom()
-				.getMail());
+		if (mail.getFrom() != null) {
+			DOMUtils.createElementAndText(parent, "Email:From", mail.getFrom()
+					.getMail());
 		} else {
 			DOMUtils.createElementAndText(parent, "Email:From", "");
 		}
@@ -81,51 +83,97 @@ public class EmailEncoder implements IDataEncoder {
 				.getImportance().asIntString());
 		DOMUtils.createElementAndText(parent, "Email:Read", mail.isRead() ? "1"
 				: "0");
-		if(truncation){
+
+		if (bs.getProtocolVersion() == 2.5) {
+			appendBody25(parent, mail, c);
+		} else {
+			appendBody(parent, mail, c);
+		}
+
+		DOMUtils.createElementAndText(parent, "Email:MessageClass", mail
+				.getMessageClass().toString());
+
+		appendMeetintRequest(parent, mail);
+
+		DOMUtils.createElementAndText(parent, "Email:InternetCPID",
+				InternetCPIDMapping.getInternetCPID(mail.getBody().getCharset()
+						.toLowerCase()));
+	}
+
+	private void appendBody25(Element parent, MSEmail mail, SyncCollection c) {
+		MSEmailBodyType availableFormat = mail.getBody().availableFormats()
+		.iterator().next();
+		if (c.getTruncation() != null && c.getTruncation().equals(1)) {
 			DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "1");
 		} else {
 			DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "0");
 
-			DOMUtils.createElementAndText(parent, "Email:Body", mail.getBody()
-				.getValue(mail.getBody().availableFormats().iterator().next()));
+			DOMUtils.createElementAndText(parent, "Email:Body",
+					mail.getBody()
+							.getValue(availableFormat));
 		}
-		// Element elemBody = DOMUtils.createElement(parent,
-		// "AirSyncBase:Body");
-		//
-		// MSMailBodyType availableFormat = mail.getBody().availableFormats()
-		// .iterator().next();
-		// String bodyData = mail.getBody().getValue(availableFormat);
-		//
-		// DOMUtils.createElementAndText(elemBody, "AirSyncBase:Type",
-		// availableFormat.asIntString());
-		// DOMUtils.createElementAndText(elemBody,
-		// "AirSyncBase:EstimatedDataSize", ""
-		// + bodyData.getBytes().length);
-		// DOMUtils.createElementAndText(elemBody, "AirSyncBase:Data",
-		// bodyData);
 
-		mail.getBody().getValue(
-				mail.getBody().availableFormats().iterator().next());
-		DOMUtils.createElementAndText(parent, "Email:MessageClass", mail
-				.getMessageClass().toString());
-
-		
-
-		appendMeetintRequest(parent, mail);
-		
-		DOMUtils.createElementAndText(parent, "Email:InternetCPID",
-				InternetCPIDMapping.getInternetCPID(mail.getBody().getCharset()
-						.toLowerCase()));
-		
-//		DOMUtils.createElement(parent, "Email:Flag");
-		
-//		DOMUtils.createElementAndText(parent, "AirSyncBase:NativeBodyType",mail.getBody().availableFormats().iterator().next().asIntString());
-		
-//		if(mail.getInvitation() != null){
-//			DOMUtils.createElementAndText(parent, "Email:ContentClass", "urn:content-classes:calendarmessage");
-//		}
 	}
-	
+
+	protected void appendBody(Element parent, MSEmail mail, SyncCollection c) {
+		Element elemBody = DOMUtils.createElement(parent, "AirSyncBase:Body");
+		String data = "";
+		MSEmailBodyType availableFormat = mail.getBody().availableFormats()
+				.iterator().next();
+		if (c.getMimeSupport() != null && c.getMimeSupport().equals(2)) {
+			data = mail.getMimeData();
+			if (c.getBodyPreference() != null
+					&& c.getBodyPreference().getTruncationSize() != null) {
+				availableFormat = MSEmailBodyType.MIME;
+//				Integer troncateSize = troncationSize(c);
+//				if (troncateSize != null && troncateSize < data.length()) {
+//					data = data.substring(0, troncateSize);
+//				}
+			}
+		} else {
+			if (c.getBodyPreference() != null
+					&& c.getBodyPreference().getType() != null) {
+				availableFormat = c.getBodyPreference().getType();
+			}
+
+			data = mail.getBody().getValue(availableFormat);
+			if (data == null) {
+				availableFormat = mail.getBody().availableFormats().iterator()
+						.next();
+				data = mail.getBody().getValue(availableFormat);
+			}
+		}
+
+		DOMUtils.createElementAndText(elemBody, "AirSyncBase:Type",
+				availableFormat.asIntString());
+		DOMUtils.createElementAndText(elemBody,
+				"AirSyncBase:EstimatedDataSize", "" + data.getBytes().length);
+
+		if (c.getBodyPreference() != null
+				&& c.getBodyPreference().getTruncationSize() != null) {
+			if (c.getBodyPreference().getTruncationSize() < data.length()) {
+				data = data.substring(0, c.getBodyPreference()
+						.getTruncationSize());
+				DOMUtils.createElementAndText(elemBody,
+						"AirSyncBase:Truncated", "1");
+			}
+		}
+
+		DOMUtils.createElementAndText(elemBody, "AirSyncBase:Data", data);
+
+		if (mail.getInvitation() != null) {
+			DOMUtils.createElementAndText(parent, "Email:ContentClass",
+					"urn:content-classes:calendarmessage");
+		} else {
+			DOMUtils.createElementAndText(parent, "Email:ContentClass",
+					"urn:content-classes:message");
+		}
+
+		DOMUtils.createElementAndText(parent, "AirSyncBase:NativeBodyType",
+				mail.getBody().availableFormats().iterator().next()
+						.asIntString());
+	}
+
 	private void appendMeetintRequest(Element parent, MSEmail mail) {
 		if (mail.getInvitation() != null) {
 			Element mr = DOMUtils.createElement(parent, "Email:MeetingRequest");
@@ -139,17 +187,19 @@ public class EmailEncoder implements IDataEncoder {
 					.getDtStamp()));
 			DOMUtils.createElementAndText(mr, "Email:EndTime", formatDate(invi
 					.getEndTime()));
-			
+
 			DOMUtils.createElementAndText(mr, "Email:InstanceType", "0");
-			
+
 			if (invi.getLocation() != null && !"".equals(invi.getLocation())) {
 				DOMUtils.createElementAndText(mr, "Email:Location", invi
 						.getLocation());
 			}
-			if (invi.getOrganizerEmail() != null && !"".equals(invi.getOrganizerEmail())) {
+			if (invi.getOrganizerEmail() != null
+					&& !"".equals(invi.getOrganizerEmail())) {
 				DOMUtils.createElementAndText(mr, "Email:Organizer", invi
 						.getOrganizerEmail());
-			} else if (invi.getOrganizerName() != null && !"".equals(invi.getOrganizerName())) {
+			} else if (invi.getOrganizerName() != null
+					&& !"".equals(invi.getOrganizerName())) {
 				DOMUtils.createElementAndText(mr, "Email:Organizer", invi
 						.getOrganizerName());
 			}
@@ -157,26 +207,26 @@ public class EmailEncoder implements IDataEncoder {
 				DOMUtils.createElementAndText(mr, "Email:Reminder", invi
 						.getReminder().toString());
 			}
-			
+
 			DOMUtils.createElementAndText(mr, "Email:ResponseRequested", "1");
-			
+
 			if (invi.getSensitivity() != null) {
 				DOMUtils.createElementAndText(mr, "Email:Sensitivity", invi
 						.getSensitivity().asIntString());
 			}
-			
+
 			if (invi.getBusyStatus() != null) {
 				DOMUtils.createElementAndText(mr, "Email:IntDBusyStatus", invi
 						.getBusyStatus().asIntString());
 			}
-			
 
 			Element tz = DOMUtils.createElement(mr, "Email:TimeZone");
 			// taken from exchange 2k7 : eastern greenland, gmt+0, no dst
 			tz
-			.setTextContent("xP///1IAbwBtAGEAbgBjAGUAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAbwBtAGEAbgBjAGUAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
-			DOMUtils.createElementAndText(mr, "Email:GlobalObjId", new String( Base64.encode(invi.getUID().getBytes())));
-			
+					.setTextContent("xP///1IAbwBtAGEAbgBjAGUAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAbwBtAGEAbgBjAGUAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
+			DOMUtils.createElementAndText(mr, "Email:GlobalObjId", new String(
+					Base64.encode(invi.getUID().getBytes())));
+
 			appendRecurence(mr, invi);
 		}
 	}
@@ -187,45 +237,49 @@ public class EmailEncoder implements IDataEncoder {
 			Element ers = DOMUtils.createElement(parent, "Email:Recurrences");
 			Element r = DOMUtils.createElement(ers, "Email:Recurrence");
 			if (recur.getInterval() != null) {
-				DOMUtils.createElementAndText(r, "Email:Recurrence_Interval", recur
-						.getInterval().toString());
+				DOMUtils.createElementAndText(r, "Email:Recurrence_Interval",
+						recur.getInterval().toString());
 			}
 			if (recur.getUntil() != null) {
 				DOMUtils.createElementAndText(r, "Email:Recurrence_Until",
 						formatDate(recur.getUntil()));
 			}
 			if (recur.getOccurrences() != null) {
-				DOMUtils.createElementAndText(r, "Email:Recurrence_Occurrences", recur
-						.getOccurrences().toString());
+				DOMUtils.createElementAndText(r,
+						"Email:Recurrence_Occurrences", recur.getOccurrences()
+								.toString());
 			}
 
-			DOMUtils.createElementAndText(r, "Email:Recurrence_Type", recur.getType()
-					.asIntString());
+			DOMUtils.createElementAndText(r, "Email:Recurrence_Type", recur
+					.getType().asIntString());
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 			cal.setTimeInMillis(invi.getStartTime().getTime());
 			switch (recur.getType()) {
 			case DAILY:
 				break;
 			case MONTHLY:
-				DOMUtils.createElementAndText(r, "Email:Recurrence_DayOfMonth", ""
-						+ cal.get(Calendar.DAY_OF_MONTH));
+				DOMUtils.createElementAndText(r, "Email:Recurrence_DayOfMonth",
+						"" + cal.get(Calendar.DAY_OF_MONTH));
 				break;
 			case MONTHLY_NDAY:
-				DOMUtils.createElementAndText(r, "Email:Recurrence_WeekOfMonth", ""
-						+ cal.get(Calendar.WEEK_OF_MONTH));
-				DOMUtils.createElementAndText(r, "Email:Recurrence_DayOfWeek", ""
-						+ RecurrenceDayOfWeek.dayOfWeekToInt(cal
-								.get(Calendar.DAY_OF_WEEK)));
+				DOMUtils.createElementAndText(r,
+						"Email:Recurrence_WeekOfMonth", ""
+								+ cal.get(Calendar.WEEK_OF_MONTH));
+				DOMUtils.createElementAndText(r, "Email:Recurrence_DayOfWeek",
+						""
+								+ RecurrenceDayOfWeek.dayOfWeekToInt(cal
+										.get(Calendar.DAY_OF_WEEK)));
 				break;
 			case WEEKLY:
-				DOMUtils.createElementAndText(r, "Email:Recurrence_DayOfWeek", ""
-						+ RecurrenceDayOfWeek.asInt(recur.getDayOfWeek()));
+				DOMUtils.createElementAndText(r, "Email:Recurrence_DayOfWeek",
+						"" + RecurrenceDayOfWeek.asInt(recur.getDayOfWeek()));
 				break;
 			case YEARLY:
-				DOMUtils.createElementAndText(r, "Email:Recurrence_DayOfMonth", ""
-						+ cal.get(Calendar.DAY_OF_MONTH));
-				DOMUtils.createElementAndText(r, "Email:Recurrence_MonthOfYear", ""
-						+ (cal.get(Calendar.MONTH) + 1));
+				DOMUtils.createElementAndText(r, "Email:Recurrence_DayOfMonth",
+						"" + cal.get(Calendar.DAY_OF_MONTH));
+				DOMUtils.createElementAndText(r,
+						"Email:Recurrence_MonthOfYear", ""
+								+ (cal.get(Calendar.MONTH) + 1));
 				break;
 			case YEARLY_NDAY:
 				break;

@@ -41,6 +41,7 @@ public class MSEmail implements IApplicationData {
 	private List<MSAddress> to;
 	private List<MSAddress> cc;
 	private List<MSAddress> bcc;
+	private String mimeData;
 
 	private String smtpId;
 	
@@ -242,6 +243,14 @@ public class MSEmail implements IApplicationData {
 
 	public void setAttachements(Map<String, String> attachements) {
 		this.attachements = attachements;
+	}
+	
+	public String getMimeData() {
+		return mimeData;
+	}
+
+	public void setMimeData(String mimeData) {
+		this.mimeData = mimeData;
 	}
 }
 

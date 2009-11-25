@@ -117,6 +117,8 @@ public class MailMessageLoader {
 			mm.setStarred(fl[0].contains(Flag.FLAGGED));
 			mm.setAnswered(fl[0].contains(Flag.ANSWERED));
 		}
+		InputStream mimeData = store.uidFetchMessage(messageId);
+		mm.setMimeData(FileUtils.streamString(mimeData, true));
 		return mm;
 	}
 

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.BodyPreference;
 import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FilterType;
 import org.obm.push.backend.IApplicationData;
@@ -16,6 +17,7 @@ import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.ItemChange;
+import org.obm.push.backend.MSEmailBodyType;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.data.CalendarDecoder;
@@ -133,7 +135,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 //				DOMUtils.createElementAndText(root, "Status",
 //						SyncStatus.HIERARCHY_CHANGED.asXmlValue());
 				DOMUtils.createElementAndText(root, "Status",
-						SyncStatus.HIERARCHY_CHANGED.asXmlValue());
+						SyncStatus.INVALID_SYNC_KEY.asXmlValue());
 			}
 			responder.sendResponse("AirSync", reply);
 		} catch (Exception e) {
@@ -189,8 +191,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 				Element add = DOMUtils.createElement(commands, "Add");
 				DOMUtils
 						.createElementAndText(add, "ServerId", ic.getServerId());
-				Boolean truncation = (c.getTruncation() != null && c.getTruncation().equals("1")); 
-				serializeChange(bs, add, truncation, ic);
+				serializeChange(bs, add, c, ic);
 			}
 		}
 
@@ -241,7 +242,8 @@ public class SyncHandler extends WbxmlRequestHandler {
 			Element add = DOMUtils.createElement(commands, "Fetch");
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
 			DOMUtils.createElementAndText(add, "Status", "1");
-			serializeChange(bs, add, false, ic);
+			c.setTruncation(0);
+			serializeChange(bs, add, c, ic);
 		}
 	}
 
@@ -251,11 +253,11 @@ public class SyncHandler extends WbxmlRequestHandler {
 	}
 
 	private void serializeChange(BackendSession bs, Element col,
-			boolean truncation, ItemChange ic) {
+			SyncCollection c, ItemChange ic) {
 		IApplicationData data = ic.getData();
-		IDataEncoder encoder = encoders.getEncoder(data);
+		IDataEncoder encoder = encoders.getEncoder(data,bs.getProtocolVersion());
 		Element apData = DOMUtils.createElement(col, "ApplicationData");
-		encoder.encode(bs, apData, data, truncation, true);
+		encoder.encode(bs, apData, data, c, true);
 	}
 
 	private SyncCollection processCollection(BackendSession bs,
@@ -274,20 +276,42 @@ public class SyncHandler extends WbxmlRequestHandler {
 			collection.setWindowSize(Integer.parseInt(wse.getTextContent()));
 		}
 
-		Element option = DOMUtils.getUniqueElement(col, "Option");
+		Element option = DOMUtils.getUniqueElement(col, "Options");
 		if (option != null) {
 			String filterType = DOMUtils.getElementText(option, "FilterType");
 			String truncation = DOMUtils.getElementText(option, "Truncation");
+			
 			String mimeSupport = DOMUtils.getElementText(option, "MIMESupport");
 			String mimeTruncation = DOMUtils.getElementText(option,
 					"MIMETruncation");
 			String conflict = DOMUtils.getElementText(option, "Conflict");
+			Element bodyPreference = DOMUtils.getUniqueElement(col, "BodyPreference");
 
-			collection.setConflict(Integer.getInteger(conflict));
-			collection.setFilterType(FilterType.getFilterType(filterType));
-			collection.setMimeSupport(Integer.getInteger(mimeSupport));
-			collection.setMimeTruncation(Integer.getInteger(mimeTruncation));
-			collection.setTruncation(Integer.getInteger(truncation));
+			if(conflict != null){
+				collection.setConflict(Integer.parseInt(conflict));
+			}
+			if(filterType != null){
+				collection.setFilterType(FilterType.getFilterType(filterType));
+			}
+			if(mimeSupport != null){
+				collection.setMimeSupport(Integer.parseInt(mimeSupport));
+			}
+			if(mimeTruncation != null){
+				collection.setMimeTruncation(Integer.parseInt(mimeTruncation));
+			}
+			if(truncation != null){
+				collection.setTruncation(Integer.parseInt(truncation));
+			}
+			
+			if(bodyPreference != null){
+				String truncationSize = DOMUtils.getElementText(bodyPreference, "TruncationSize");
+				String type = DOMUtils.getElementText(bodyPreference, "Type");
+				BodyPreference bp = new BodyPreference();
+				bp.setTruncationSize(Integer.parseInt(truncationSize));
+				bp.setType(MSEmailBodyType.getValueOf(Integer.parseInt(type)));
+				collection.setBodyPreference(bp);
+			}
+			
 		}
 		// TODO sync supported
 		// TODO sync <deletesasmoves/>

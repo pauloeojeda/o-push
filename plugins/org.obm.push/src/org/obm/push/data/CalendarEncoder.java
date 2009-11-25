@@ -11,6 +11,7 @@ import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSAttendee;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.Recurrence;
+import org.obm.push.backend.SyncCollection;
 import org.obm.push.data.calendarenum.CalendarMeetingStatus;
 import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.utils.DOMUtils;
@@ -39,7 +40,7 @@ public class CalendarEncoder implements IDataEncoder {
 
 	@Override
 	public void encode(BackendSession bs, Element p, IApplicationData data,
-			boolean truncation, boolean isReponse) {
+			SyncCollection c, boolean isReponse) {
 
 		MSEvent ev = (MSEvent) data;
 
