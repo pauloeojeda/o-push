@@ -23,6 +23,7 @@ public class SyncCollection {
 	private boolean moreAvailable;
 	private Integer mimeSupport;
 	private Integer mimeTruncation;
+	private BodyPreference bodyPreference;
 	
 	
 	public SyncCollection() {
@@ -155,5 +156,12 @@ public class SyncCollection {
 		this.mimeTruncation = mimeTruncation;
 	}
 	
+	public BodyPreference getBodyPreference() {
+		return bodyPreference;
+	}
+
+	public void setBodyPreference(BodyPreference bodyPreference) {
+		this.bodyPreference = bodyPreference;
+	}
 	
 }

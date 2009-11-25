@@ -4,7 +4,7 @@ import org.obm.push.backend.IApplicationData;
 
 public class EncoderFactory {
 
-	public IDataEncoder getEncoder(IApplicationData data) {
+	public IDataEncoder getEncoder(IApplicationData data, double protocolVersion) {
 		switch (data.getType()) {
 
 		case CALENDAR:

@@ -7,7 +7,7 @@ package org.obm.push.backend;
  */
 public enum MSEmailBodyType {
 	
-	PlainText, HTML, RTF;
+	PlainText, HTML, RTF, MIME;
 
 	public String asIntString() {
 		switch (this) {
@@ -17,6 +17,8 @@ public enum MSEmailBodyType {
 			return "2";
 		case RTF:
 			return "3";
+		case MIME:
+			return "4";
 		default:
 			return "0";
 		}
@@ -29,6 +31,24 @@ public enum MSEmailBodyType {
 			return HTML;
 		} else {
 			return PlainText;
+		}
+	}
+	
+	public static final MSEmailBodyType getValueOf(Integer s) {
+		if(s==null){
+			return null;
+		}
+		
+		if (s.equals(1)) {
+			return PlainText;
+		} else if (s.equals(2)) {
+			return HTML;
+		} else if (s.equals(3)) {
+			return RTF;
+		} else if (s.equals(4)) {
+			return MIME;
+		} else {
+			return null;
 		}
 	}
 }
