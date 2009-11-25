@@ -125,6 +125,9 @@ class EncoderHandler extends DefaultHandler {
 	private void appendCharacter(String characters){
 		
 		if(this.currentCharacter == null){
+			if (characters.trim().length() == 0) {
+				return;
+			}
 			this.currentCharacter = new StringBuffer();
 		}
 		currentCharacter.append(characters);
