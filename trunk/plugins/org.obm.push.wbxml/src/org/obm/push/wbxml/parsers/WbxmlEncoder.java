@@ -88,8 +88,9 @@ public class WbxmlEncoder {
 	}
 
 	void writeStrI(OutputStream out, String s) throws IOException {
+		out.write(Wbxml.STR_I);
 		out.write(s.getBytes());
-		out.write(0);
+		out.write(Wbxml.SWITCH_PAGE);
 	}
 
 	@SuppressWarnings("unused")
