@@ -5,17 +5,20 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.obm.push.wbxml.TagsTables;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 class EncoderHandler extends DefaultHandler {
-
+	protected Log logger = LogFactory.getLog(getClass());
 	private WbxmlEncoder we;
 	private ByteArrayOutputStream buf;
 	private String defaultNamespace;
 	private String currentXmlns;
+	private StringBuffer currentCharacter;
 
 	private Stack<String> stackedStarts;
 
@@ -38,7 +41,7 @@ class EncoderHandler extends DefaultHandler {
 		if (!stackedStarts.isEmpty()) {
 			flushNormal();
 		}
-
+		flushCharacter();
 		try {
 			String newNs = null;
 			if (!qName.contains(":")) {
@@ -90,25 +93,23 @@ class EncoderHandler extends DefaultHandler {
 		we.setStringTable(table);
 		we.switchPage(TagsTables.NAMESPACES_IDS.get(newNs));
 	}
-
 	public void characters(char[] chars, int start, int len)
 			throws SAXException {
-		//logger.info()
 		if (!stackedStarts.isEmpty()) {
 			flushNormal();
 		}
-
 		String s = new String(chars, start, len);
-		s = s.trim();
-		if (s.length() == 0) {
-			return;
-		}
-		try {
-			buf.write(Wbxml.STR_I);
-			we.writeStrI(buf, new String(chars, start, len));
-		} catch (IOException e) {
-			throw new SAXException(e);
-		}
+		appendCharacter(s);
+//		s = s.trim();
+//		if (s.length() == 0) {
+//			return;
+//		}
+//		try {
+//			buf.write(Wbxml.STR_I);
+//			we.writeStrI(buf, new String(chars, start, len));
+//		} catch (IOException e) {
+//			throw new SAXException(e);
+//		}
 	}
 
 	public void endElement(String uri, String localName, String qName)
@@ -116,7 +117,27 @@ class EncoderHandler extends DefaultHandler {
 		if (!stackedStarts.isEmpty()) {
 			flushEmptyElem();
 		} else {
+			flushCharacter();
 			buf.write(Wbxml.END);
+		}
+	}
+	
+	private void appendCharacter(String characters){
+		
+		if(this.currentCharacter == null){
+			this.currentCharacter = new StringBuffer();
+		}
+		currentCharacter.append(characters);
+	}
+	
+	private void flushCharacter(){
+		if(this.currentCharacter != null){
+			try {
+				we.writeStrI(buf, currentCharacter.toString());
+				currentCharacter = null;
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 
