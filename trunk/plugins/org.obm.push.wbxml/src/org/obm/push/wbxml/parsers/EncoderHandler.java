@@ -18,7 +18,7 @@ class EncoderHandler extends DefaultHandler {
 	private ByteArrayOutputStream buf;
 	private String defaultNamespace;
 	private String currentXmlns;
-	private StringBuffer currentCharacter;
+	private StringBuilder currentCharacter;
 
 	private Stack<String> stackedStarts;
 
@@ -128,7 +128,7 @@ class EncoderHandler extends DefaultHandler {
 			if (characters.trim().length() == 0) {
 				return;
 			}
-			this.currentCharacter = new StringBuffer();
+			this.currentCharacter = new StringBuilder();
 		}
 		currentCharacter.append(characters);
 	}
