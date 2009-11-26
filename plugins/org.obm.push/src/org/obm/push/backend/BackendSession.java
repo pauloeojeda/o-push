@@ -2,8 +2,9 @@ package org.obm.push.backend;
 
 import java.io.InputStream;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -24,7 +25,8 @@ public class BackendSession {
 	private PIMDataType dataType;
 	private Properties hints;
 	private Date updatedSyncDate;
-	private List<ItemChange> unSynchronizedItemChange;
+	private Map<Integer, Set<ItemChange>> unSynchronizedItemChangeByCollection;
+	private Map<Integer, String> lastClientSyncKey;
 
 	private double protocolVersion;
 
@@ -41,7 +43,8 @@ public class BackendSession {
 		this.devId = devId;
 		this.devType = devType;
 		this.command = command;
-		this.unSynchronizedItemChange = new LinkedList<ItemChange>();
+		this.unSynchronizedItemChangeByCollection = new HashMap<Integer, Set<ItemChange>>();
+		this.lastClientSyncKey = new HashMap<Integer, String>();
 		loadHints();
 	}
 
@@ -165,13 +168,29 @@ public class BackendSession {
 	public void setLastMonitored(Set<SyncCollection> lastMonitored) {
 		this.lastMonitored = lastMonitored;
 	}
+
+	public Set<ItemChange> getUnSynchronizedItemChange(Integer collectionId) {
+		Set<ItemChange> ret = unSynchronizedItemChangeByCollection.get(collectionId);
+		if(ret == null){
+			ret = new HashSet<ItemChange>();
+		}
+		return ret;
+	}
+
+	public void addUnSynchronizedItemChange(Integer collectionId, ItemChange change ) {
+		Set<ItemChange> changes = unSynchronizedItemChangeByCollection.get(collectionId);
+		if(changes == null){
+			changes = new HashSet<ItemChange>();
+			unSynchronizedItemChangeByCollection.put(collectionId, changes);
+		}
+		changes.add(change);
+	}
 	
-	public List<ItemChange> getUnSynchronizedItemChange() {
-		return unSynchronizedItemChange;
+	public String getLastClientSyncKey(Integer collectionId) {
+		return lastClientSyncKey.get(collectionId);
 	}
 
-	public void addUnSynchronizedItemChange(ItemChange itemChange) {
-		this.unSynchronizedItemChange.add(itemChange);
+	public void addLastClientSyncKey(Integer collectionId, String change) {
+		lastClientSyncKey.put(collectionId, change);
 	}
-
 }

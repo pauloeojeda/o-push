@@ -81,8 +81,10 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 							.getContentsExporter(bs);
 					exporter.configure(bs, c.getDataClass(), c.getFilterType(),
 							state, collectionId);
-					estim.setTextContent(exporter.getCount(bs, collectionId)
-							+ "");
+					int count = exporter.getCount(bs, collectionId)
+							+ bs.getUnSynchronizedItemChange(
+									c.getCollectionId()).size();
+					estim.setTextContent(count+"");
 				} else {
 					logger.warn("no mapping for collection with id "
 							+ c.getCollectionId());

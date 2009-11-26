@@ -100,7 +100,9 @@ public class SyncHandler extends WbxmlRequestHandler {
 				String oldSyncKey = c.getSyncKey();
 				SyncState st = sm.getSyncState(oldSyncKey);
 
-				if (!st.isValid()) {
+				String oldClientSyncKey = bs.getLastClientSyncKey(c.getCollectionId());
+				
+				if (!st.isValid() && oldClientSyncKey != null && !oldClientSyncKey.equals(oldSyncKey)) {
 					invalid = true;
 					break;
 				}
@@ -213,8 +215,8 @@ public class SyncHandler extends WbxmlRequestHandler {
 	private List<ItemChange> processWindowSize(SyncCollection c,
 			DataDelta delta, BackendSession bs) {
 		List<ItemChange> changed = new ArrayList<ItemChange>(delta.getChanges());
-		changed.addAll(bs.getUnSynchronizedItemChange());
-		bs.getUnSynchronizedItemChange().clear();
+		changed.addAll(bs.getUnSynchronizedItemChange(c.getCollectionId()));
+		bs.getUnSynchronizedItemChange(c.getCollectionId()).clear();
 		logger.info("should send " + changed.size() + " change(s)");
 		int changeItem = changed.size() - c.getWindowSize();
 		logger.info("WindowsSize value is " + c.getWindowSize() + ", "
@@ -226,7 +228,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 		int changedSize = changed.size();
 		for (int i = c.getWindowSize(); i < changedSize; i++) {
 			ItemChange ic = changed.get(changed.size() - 1);
-			bs.addUnSynchronizedItemChange(ic);
+			bs.addUnSynchronizedItemChange(c.getCollectionId(),ic);
 			changed.remove(ic);
 		}
 
