@@ -182,4 +182,53 @@ public class AbstractPushTest extends TestCase {
 			return xml;
 		}
 	}
+
+	protected byte[] postGetAttachment(String attachmentName)
+			throws Exception {
+		return postGetAttachment(attachmentName, "12.1");
+	}
+
+	protected byte[] postGetAttachment(String attachmentName, String protocolVersion)
+			throws Exception {
+		PostMethod pm = new PostMethod(url + "?User=" + login + "&DeviceId="
+				+ devId + "&DeviceType=" + devType + "&Cmd=GetAttachment&AttachmentName=" +attachmentName);
+		pm.setRequestHeader("Authorization", authValue());
+		pm.setRequestHeader("User-Agent", userAgent);
+		pm.setRequestHeader("Ms-Asprotocolversion", protocolVersion);
+		pm.setRequestHeader("Accept", "*/*");
+		pm.setRequestHeader("Accept-Language", "fr-fr");
+		pm.setRequestHeader("Connection", "keep-alive");
+		
+		synchronized (hc) {
+			try {
+				int ret = hc.executeMethod(pm);
+				Header[] hs = pm.getResponseHeaders();
+				for (Header h : hs) {
+					System.err.println("head[" + h.getName() + "] => "
+							+ h.getValue());
+				}
+				if (ret != HttpStatus.SC_OK) {
+					System.err.println("method failed:\n" + pm.getStatusLine()
+							+ "\n" + pm.getResponseBodyAsString());
+				} else {
+					for(Header h : pm.getResponseHeaders()){
+						System.out.println(h.getName() +": "+h.getValue());
+					}
+					InputStream is = pm.getResponseBodyAsStream();
+					File localCopy = File.createTempFile("pushresp_", ".bin");
+					FileUtils.transfer(is, new FileOutputStream(localCopy),
+							true);
+					System.out.println("binary response stored in "
+							+ localCopy.getAbsolutePath());
+
+					FileInputStream in = new FileInputStream(localCopy);
+					return FileUtils.streamBytes(in, true);
+				}
+			} finally {
+				pm.releaseConnection();
+			}
+		}
+		return null;
+		
+	}
 }
