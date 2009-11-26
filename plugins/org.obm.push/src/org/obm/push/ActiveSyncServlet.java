@@ -24,6 +24,7 @@ import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.impl.Credentials;
 import org.obm.push.impl.FolderSyncHandler;
+import org.obm.push.impl.GetAttachmentHandler;
 import org.obm.push.impl.GetItemEstimateHandler;
 import org.obm.push.impl.HintsLoader;
 import org.obm.push.impl.IRequestHandler;
@@ -363,6 +364,8 @@ public class ActiveSyncServlet extends HttpServlet {
 			handlers.put("SmartReply", new SmartReplyHandler(backend));
 			handlers.put("SmartForward", new SmartForwardHandler(backend));
 			handlers.put("MeetingResponse", new MeetingResponseHandler(backend));
+			handlers.put("GetAttachment", new GetAttachmentHandler(backend));
+						  
 		}
 
 		logger.info("ActiveSync servlet initialised.");

@@ -24,4 +24,6 @@ public interface IContentsExporter {
 	List<ItemChange> fetch(BackendSession bs, List<String> fetchIds);
 	
 	Integer getDefaultCalendarId(BackendSession bs);
+	
+	MSAttachementData getEmailAttachement(BackendSession bs, String attachmentName);
 }

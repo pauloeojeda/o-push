@@ -1,7 +1,6 @@
 package org.obm.push.backend;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +31,7 @@ public class MSEmail implements IApplicationData {
 	private Date date;
 	private Map<String, String> headers;
 	private Set<MSEmail> forwardMessage;
-	private Map<String, String> attachements;
+	private Set<MSAttachement> attachements;
 	private long uid;
 	private MSEvent invitation;
 	private MessageClass messageClass;
@@ -51,12 +50,12 @@ public class MSEmail implements IApplicationData {
 
 	public MSEmail() {
 		this("subject", new MSEmailBody(MSEmailBodyType.PlainText, "body"),
-				new HashMap<String, String>(), new Date(), null, null, null,
+				new HashSet<MSAttachement>(), new Date(), null, null, null,
 				null, null);
 	}
 
 	public MSEmail(String subject, MSEmailBody body,
-			Map<String, String> attachements, Date d, MSAddress from,
+			Set<MSAttachement> attachements, Date d, MSAddress from,
 			List<MSAddress>  to, List<MSAddress>  cc, List<MSAddress>  bcc,
 			Map<String, String> headers) {
 		this.subject = subject;
@@ -237,11 +236,11 @@ public class MSEmail implements IApplicationData {
 		this.importance = importance;
 	}
 	
-	public Map<String, String> getAttachements() {
+	public Set<MSAttachement> getAttachements() {
 		return attachements;
 	}
 
-	public void setAttachements(Map<String, String> attachements) {
+	public void setAttachements(Set<MSAttachement> attachements) {
 		this.attachements = attachements;
 	}
 	

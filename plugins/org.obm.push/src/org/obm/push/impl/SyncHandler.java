@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.BodyPreference;
 import org.obm.push.backend.DataDelta;
@@ -242,7 +243,10 @@ public class SyncHandler extends WbxmlRequestHandler {
 			Element add = DOMUtils.createElement(commands, "Fetch");
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
 			DOMUtils.createElementAndText(add, "Status", "1");
-			c.setTruncation(0);
+			c.setTruncation(null);
+			if(c.getBodyPreference() != null){
+				c.getBodyPreference().setTruncationSize(null);
+			}
 			serializeChange(bs, add, c, ic);
 		}
 	}

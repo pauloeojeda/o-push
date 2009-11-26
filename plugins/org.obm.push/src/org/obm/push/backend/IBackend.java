@@ -36,5 +36,4 @@ public interface IBackend {
 	void resetForFullSync(String devId);
 	
 	void startEmailMonitoring(BackendSession bs, Integer collectionId);
-
 }
