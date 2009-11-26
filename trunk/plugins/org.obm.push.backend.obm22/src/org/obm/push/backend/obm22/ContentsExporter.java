@@ -10,6 +10,7 @@ import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FilterType;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
+import org.obm.push.backend.MSAttachementData;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
@@ -66,7 +67,6 @@ public class ContentsExporter implements IContentsExporter {
 
 	private DataDelta getTasksChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
 		return new DataDelta(ret, ret);
 	}
 
@@ -127,5 +127,11 @@ public class ContentsExporter implements IContentsExporter {
 	@Override
 	public Integer getDefaultCalendarId(BackendSession bs){
 		return calBackend.getDefaultCalendarId(bs);
+	}
+	
+	@Override
+	public MSAttachementData getEmailAttachement(BackendSession bs,
+			String attachmentId) {
+		return mailBackend.getAttachment(bs, attachmentId);
 	}
 }

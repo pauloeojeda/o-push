@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
@@ -12,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSAddress;
+import org.obm.push.backend.MSAttachement;
 import org.obm.push.backend.MSEmailBodyType;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.MSEmail;
@@ -89,6 +91,8 @@ public class EmailEncoder implements IDataEncoder {
 		} else {
 			appendBody(parent, mail, c);
 		}
+		
+		appendAttachments(parent, mail);
 
 		DOMUtils.createElementAndText(parent, "Email:MessageClass", mail
 				.getMessageClass().toString());
@@ -102,15 +106,14 @@ public class EmailEncoder implements IDataEncoder {
 
 	private void appendBody25(Element parent, MSEmail mail, SyncCollection c) {
 		MSEmailBodyType availableFormat = mail.getBody().availableFormats()
-		.iterator().next();
+				.iterator().next();
 		if (c.getTruncation() != null && c.getTruncation().equals(1)) {
 			DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "1");
 		} else {
 			DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "0");
 
-			DOMUtils.createElementAndText(parent, "Email:Body",
-					mail.getBody()
-							.getValue(availableFormat));
+			DOMUtils.createElementAndText(parent, "Email:Body", mail.getBody()
+					.getValue(availableFormat));
 		}
 
 	}
@@ -122,13 +125,13 @@ public class EmailEncoder implements IDataEncoder {
 				.iterator().next();
 		if (c.getMimeSupport() != null && c.getMimeSupport().equals(2)) {
 			data = mail.getMimeData();
+			availableFormat = MSEmailBodyType.MIME;
 			if (c.getBodyPreference() != null
 					&& c.getBodyPreference().getTruncationSize() != null) {
-				availableFormat = MSEmailBodyType.MIME;
-//				Integer troncateSize = troncationSize(c);
-//				if (troncateSize != null && troncateSize < data.length()) {
-//					data = data.substring(0, troncateSize);
-//				}
+				// Integer troncateSize = troncationSize(c);
+				// if (troncateSize != null && troncateSize < data.length()) {
+				// data = data.substring(0, troncateSize);
+				// }
 			}
 		} else {
 			if (c.getBodyPreference() != null
@@ -285,6 +288,28 @@ public class EmailEncoder implements IDataEncoder {
 				break;
 
 			}
+		}
+	}
+
+	// <Attachments>
+	// <Attachment>
+	// <DisplayName>Formulaire entretien annuel_guide
+	// preparatoire.pdf</DisplayName>
+	// <FileReference>6%3a4%3a0</FileReference>
+	// <Method>1</Method>
+	// <EstimatedDataSize>86081</EstimatedDataSize>
+	// </Attachment>
+	// </Attachments>
+	private void appendAttachments(Element parent, MSEmail email) {
+		Element atts = DOMUtils.createElement(parent, "AirSyncBase:Attachments");
+		
+		Set<MSAttachement> mailAtts = email.getAttachements();
+		for(MSAttachement msAtt : mailAtts){
+			Element att = DOMUtils.createElement(atts, "AirSyncBase:Attachment");
+			DOMUtils.createElementAndText(att, "AirSyncBase:DisplayName", msAtt.getDisplayName());
+			DOMUtils.createElementAndText(att, "AirSyncBase:FileReference", msAtt.getFileReference());
+			DOMUtils.createElementAndText(att, "AirSyncBase:Method", msAtt.getMethod().asIntString());
+			DOMUtils.createElementAndText(att, "AirSyncBase:EstimatedDataSize", msAtt.getEstimatedDataSize().toString());
 		}
 	}
 

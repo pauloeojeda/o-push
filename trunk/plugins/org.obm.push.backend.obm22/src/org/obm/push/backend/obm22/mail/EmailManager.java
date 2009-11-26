@@ -50,7 +50,6 @@ import org.obm.sync.client.calendar.CalendarClient;
  */
 public class EmailManager {
 
-	private MailMessageLoader mailLoader;
 	protected String imapHost;
 	protected String smtpHost;
 
@@ -61,7 +60,6 @@ public class EmailManager {
 
 	private EmailManager() {
 		this.logger = LogFactory.getLog(getClass());
-		mailLoader = new MailMessageLoader();
 		this.uidCache = new HashMap<Integer, EmailCacheStorage>();
 	}
 
@@ -120,14 +118,15 @@ public class EmailManager {
 	}
 
 	public List<MSEmail> fetchMails(BackendSession bs,
-			CalendarClient calendarClient, String collectionName, Set<Long> uids)
+			CalendarClient calendarClient, Integer collectionId, String collectionName, Set<Long> uids)
 			throws IOException, IMAPException {
 		List<MSEmail> mails = new LinkedList<MSEmail>();
 		StoreClient store = getImapClient(bs);
 		login(store);
 		store.select(parseMailBoxName(bs, collectionName));
 		for (Long uid : uids) {
-			mails.add(mailLoader.fetch(uid, store, bs, calendarClient));
+			MailMessageLoader mailLoader =  new MailMessageLoader();
+			mails.add(mailLoader.fetch(collectionId, uid, store, bs, calendarClient));
 		}
 		store.logout();
 		return mails;
@@ -308,9 +307,18 @@ public class EmailManager {
 			logger.error(e.getMessage(), e);
 		}
 	}
-
-	public Map<Integer, EmailCacheStorage> getUidCache() {
-		return uidCache;
+	
+	public InputStream findAttachment(BackendSession bs, String collectionName, Long mailUid,  String mimePartAddress) throws IMAPException{
+		
+		StoreClient store = getImapClient(bs);
+		try {
+			login(store);
+			String mailBoxName = parseMailBoxName(bs, collectionName);
+			store.select(mailBoxName);
+			return store.uidFetchPart(mailUid, mimePartAddress);
+		} finally {
+			store.logout();
+		}
 	}
 
 	private void storeInSent(BackendSession bs, byte[] mailContent)

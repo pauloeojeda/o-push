@@ -25,9 +25,11 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -40,10 +42,12 @@ import org.minig.imap.StoreClient;
 import org.minig.imap.mime.MimePart;
 import org.minig.imap.mime.MimeTree;
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.MSAttachement;
 import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.MSEmailBody;
 import org.obm.push.backend.MSEmailBodyType;
 import org.obm.push.backend.MSEvent;
+import org.obm.push.backend.MethodAttachment;
 import org.obm.push.backend.obm22.calendar.EventConverter;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.calendar.Event;
@@ -66,12 +70,12 @@ public class MailMessageLoader {
 
 	private CalendarClient calendarClient;
 	private BackendSession bs;
+	private Integer collectionId;
+	private long messageId;
 
 	private boolean pickupPlain;
 	private MimeTree tree;
-	private int nbAttachments;
 	private InputStream invitation;
-	private Map<String, String> attach;
 
 	private static final Log logger = LogFactory
 			.getLog(MailMessageLoader.class);
@@ -86,15 +90,17 @@ public class MailMessageLoader {
 	public MailMessageLoader() {
 		this.pickupPlain = true;
 		this.tree = null;
-		nbAttachments = 0;
-		attach = new HashMap<String, String>();
 	}
 
-	public MSEmail fetch(long messageId, StoreClient store, BackendSession bs,
-			CalendarClient calendarClient) throws IOException, IMAPException {
+	public MSEmail fetch(Integer collectionId, long messageId,
+			StoreClient store, BackendSession bs, CalendarClient calendarClient)
+			throws IOException, IMAPException {
 		long[] set = new long[] { messageId };
 		this.calendarClient = calendarClient;
 		this.bs = bs;
+		this.collectionId = collectionId;
+		this.messageId = messageId;
+
 		IMAPHeaders[] hs = store.uidFetchHeaders(set,
 				MailMessageLoader.HEADS_LOAD);
 		if (hs.length != 1 || hs[0] == null) {
@@ -204,10 +210,11 @@ public class MailMessageLoader {
 		}
 
 		MSEmailBody body = getMailBody(chosenPart, protocol);
+		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 		if (chosenPart == null) {
-			extractAttachments(mimePart, protocol, true);
+			attach = extractAttachments(mimePart, protocol, false);
 		} else {
-			extractAttachments(chosenPart, protocol, true, false);
+			attach = extractAttachments(chosenPart, protocol, false, false);
 		}
 		MSEmail mm = new MSEmail();
 		mm.setBody(body);
@@ -229,7 +236,7 @@ public class MailMessageLoader {
 		return mm;
 	}
 
-	private MSEvent getInvitation() throws IOException{
+	private MSEvent getInvitation() throws IOException {
 		String ics = FileUtils.streamString(invitation, true);
 		if (ics != null && !"".equals(ics)) {
 			AccessToken at = calendarClient.login(bs.getLoginAtDomain(), bs
@@ -238,19 +245,21 @@ public class MailMessageLoader {
 				List<Event> obmEvents = calendarClient.parseICS(at, ics);
 				if (obmEvents.size() > 0) {
 					Event icsEvent = obmEvents.get(0);
-					
+
 					int ar = bs.getLoginAtDomain().lastIndexOf("@");
 					String calendar = bs.getLoginAtDomain().substring(0, ar);
-					
-					Event event = calendarClient.getEventFromExtId(at, calendar, icsEvent.getExtId());
+
+					Event event = calendarClient.getEventFromExtId(at,
+							calendar, icsEvent.getExtId());
 					if (event == null) {
-						String uid = calendarClient.createEvent(at,calendar,icsEvent);
+						String uid = calendarClient.createEvent(at, calendar,
+								icsEvent);
 						icsEvent.setUid(uid);
 						event = icsEvent;
 					}
 
 					calendarClient.logout(at);
-					
+
 					EventConverter ec = new EventConverter();
 					return ec.convertEvent(event);
 				}
@@ -262,7 +271,7 @@ public class MailMessageLoader {
 		}
 		return null;
 	}
-	
+
 	private boolean isSupportedCharset(String charset) {
 		if (charset == null || charset.length() == 0) {
 			return false;
@@ -366,17 +375,21 @@ public class MailMessageLoader {
 		return rawData;
 	}
 
-	private void extractAttachments(MimePart mimePart, StoreClient protocol,
-			boolean bodyOnly, boolean isInvit) throws IOException,
-			IMAPException {
+	private Set<MSAttachement> extractAttachments(MimePart mimePart,
+			StoreClient protocol, boolean bodyOnly, boolean isInvit)
+			throws IOException, IMAPException {
+		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 		if (mimePart != null) {
 			MimePart parent = mimePart.getParent();
 			if (parent != null) {
 				boolean inv = false;
 				for (MimePart mp : parent.getChildren()) {
 					inv = mp.isInvitation();
-					extractAttachmentData(mp, bodyOnly, protocol, isInvit
-							|| inv);
+					MSAttachement att = extractAttachmentData(mp, bodyOnly,
+							protocol, isInvit || inv);
+					if (att != null) {
+						attach.add(att);
+					}
 				}
 				if (parent.getMimeType() == null
 						&& parent.getMimeSubtype() == null) {
@@ -384,61 +397,67 @@ public class MailMessageLoader {
 				}
 			}
 		}
-
+		return attach;
 	}
 
-	private void extractAttachments(MimePart mimePart, StoreClient protocol,
-			boolean bodyOnly) throws IOException, IMAPException {
+	private Set<MSAttachement> extractAttachments(MimePart mimePart,
+			StoreClient protocol, boolean bodyOnly) throws IOException,
+			IMAPException {
+		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 		if (mimePart != null) {
 			for (MimePart mp : mimePart.getChildren()) {
-				extractAttachmentData(mp, bodyOnly, protocol, mp.isInvitation());
+				MSAttachement msAtt = extractAttachmentData(mp, bodyOnly,
+						protocol, mp.isInvitation());
+				if (msAtt != null) {
+					attach.add(msAtt);
+				}
 			}
 		}
+		return attach;
 	}
 
-	private void extractAttachmentData(MimePart mp, boolean bodyOnly,
+	private MSAttachement extractAttachmentData(MimePart mp, boolean bodyOnly,
 			StoreClient protocol, boolean isInvitation) throws IOException {
 
 		long uid = tree.getUid();
-
-		String id = "at_" + uid + "_" + (nbAttachments++);
+		String id = AttachmentHelper.getAttachmentId(collectionId.toString(),
+				"" + messageId, mp.getAddress(), mp.getFullMimeType(), mp.getContentTransfertEncoding());
 		byte[] data = null;
 		if (!bodyOnly) {
-			// out = atMgr.open(id);
-			if (data != null) {
-				InputStream part = protocol.uidFetchPart(uid, mp.getAddress());
-				data = extractPartData(mp, part);
-				// FileUtils.transfer(new ByteArrayInputStream(data),
-				// new FileOutputStream(out), true);
-			}
+			InputStream part = protocol.uidFetchPart(uid, mp.getAddress());
+			data = extractPartData(mp, part);
 		}
 		try {
 			Map<String, String> bp = mp.getBodyParams();
 			if (bp != null) {
-				if (!bodyOnly) {
-					// atMgr.storeMetadata(id, mp, out.length());
-				}
 				if (bp.containsKey("name") && bp.get("name") != null) {
 					if (isInvitation && bp.get("name").contains(".ics")
 							&& !bodyOnly && data != null) {
 						invitation = new ByteArrayInputStream(data);
 					}
-					attach.put(id, bp.get("name"));
+					MSAttachement att = new MSAttachement();
+					att.setDisplayName(bp.get("name"));
+					att.setFileReference(id);
+					att.setMethod(MethodAttachment.NormalAttachment);
+					att.setEstimatedDataSize(data.length);
+					return att;
 				} else if (mp.getContentId() != null
 						&& !mp.getContentId().equalsIgnoreCase("nil")) {
-					attach.put(id, mp.getContentId());
+					MSAttachement att = new MSAttachement();
+					att.setDisplayName(mp.getContentId());
+					att.setFileReference(id);
+					att.setMethod(MethodAttachment.NormalAttachment);
+					att.setEstimatedDataSize(data.length);
+					return att;
 				} else if (isInvitation) {
 					invitation = protocol.uidFetchPart(tree.getUid(), mp
 							.getAddress());
 				}
-			} else {
-				// if (!bodyOnly) {
-				// out.delete();
-				// }
 			}
 		} catch (Exception e) {
 			logger.error("Error storing metadata for " + id, e);
 		}
+		return null;
 	}
 
 	public void setPickupPlain(boolean pickupPlain) {

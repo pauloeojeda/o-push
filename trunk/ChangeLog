@@ -1,3 +1,70 @@
+2009-11-26  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Add email attachment support
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter.getTasksChanges),
+	(ContentsExporter), (ContentsExporter.getEmailAttachement):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java:
+	(ContentsImporter.importCalendarUserStatus):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/AttachmentHelper.java: (AttachmentHelper),
+	(AttachmentHelper.getAttachmentId),
+	(AttachmentHelper.parseAttachmentId):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailManager.java: (EmailManager),
+	(EmailManager.EmailManager), (EmailManager.fetchMails),
+	(EmailManager.findAttachment):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend.getContentChanges),
+	(MailBackend), (MailBackend.getChanges), (MailBackend.fetchItems),
+	(MailBackend.replyEmail), (MailBackend.forwardEmail),
+	(MailBackend.getEmail), (MailBackend.getAttachment):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailMessageLoader.java:
+	(MailMessageLoader..MailMessageLoader), (MailMessageLoader.),
+	(MailMessageLoader..fetch), (MailMessageLoader..fetchOneMessage),
+	(MailMessageLoader..getInvitation),
+	(MailMessageLoader..extractAttachments),
+	(MailMessageLoader..extractAttachmentData):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.init):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSAttachement.java:
+	(MSAttachement), (MSAttachement.MSAttachement),
+	(MSAttachement.getDisplayName), (MSAttachement.setDisplayName),
+	(MSAttachement.getFileReference), (MSAttachement.setFileReference),
+	(MSAttachement.getMethod), (MSAttachement.setMethod),
+	(MSAttachement.getEstimatedDataSize),
+	(MSAttachement.setEstimatedDataSize), (MSAttachement.getContentId),
+	(MSAttachement.setContentId), (MSAttachement.getContentLocation),
+	(MSAttachement.setContentLocation), (MSAttachement.getIsInline),
+	(MSAttachement.setIsInline):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSAttachementData.j
+	ava: (MSAttachementData), (MSAttachementData.MSAttachementData),
+	(MSAttachementData.getFile), (MSAttachementData.getContentType):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSEmail.java:
+	(MSEmail), (MSEmail.MSEmail), (MSEmail.getAttachements),
+	(MSEmail.setAttachements):
+	* plugins/org.obm.push/src/org/obm/push/backend/MethodAttachment.ja
+	va:
+	* plugins/org.obm.push/src/org/obm/push/data/EmailEncoder.java:
+	(EmailEncoder.encode), (EmailEncoder.appendBody25),
+	(EmailEncoder.appendBody), (EmailEncoder),
+	(EmailEncoder.appendAttachments):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetAttachmentHandler.j
+	ava: (GetAttachmentHandler),
+	(GetAttachmentHandler.GetAttachmentHandler),
+	(GetAttachmentHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/Responder.java:
+	(Responder), (Responder.sendResponseFile), (Responder.sendError):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.doFetch):
+
 2009-11-23  Adrien POUPARD  <adrien.poupard@aliasource.fr>
 
 	Add push support for email
