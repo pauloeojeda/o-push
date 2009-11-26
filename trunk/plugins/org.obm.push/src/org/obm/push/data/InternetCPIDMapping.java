@@ -157,7 +157,7 @@ public class InternetCPIDMapping {
 	}
 
 	public static String getInternetCPID(String charset) {
-		return mapping.get(charset);
+		return mapping.get(charset.toLowerCase());
 	}
 
 }

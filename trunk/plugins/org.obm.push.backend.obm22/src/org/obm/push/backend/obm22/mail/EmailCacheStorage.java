@@ -215,7 +215,7 @@ public class EmailCacheStorage {
 		long writeTime = System.currentTimeMillis();
 		if (!current.equals(this.memoryCache)) {
 			updateDbCache(bs, devId, collectionId, current);
-		} else if (bs.getState().getLastSync() != null
+		} else if (bs.getState().getLastSync() != null && this.lastSyncDate != null
 				&& !bs.getState().getLastSync().after(this.lastSyncDate)
 				&& bs.getState().getKey().equals(this.lastSyncKey)) {
 			return this.mailChangesCache;
