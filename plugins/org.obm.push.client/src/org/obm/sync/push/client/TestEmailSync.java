@@ -51,6 +51,12 @@ public class TestEmailSync extends AbstractPushTest {
 		DOMUtils.logDom(doc);
 		ret = postXml("AirSync", doc, "Sync");
 		assertNotNull(ret);
+		
+		byte[] file = postGetAttachment("6%3a4%3a0");
+		assertNotNull(file);
+		
 	}
+	
+	
 
 }
