@@ -160,4 +160,18 @@ public class OBMBackend implements IBackend {
 			throw re;
 		}
 	}
+
+	@Override
+	public void resetCollection(String devId, Integer collectionId) {
+		logger.info("resetForFullSync devId: " + devId);
+		try {
+			Set<Integer> colIds = new HashSet<Integer>();
+			colIds.add(collectionId);
+			EmailManager.getInstance().resetForFullSync(colIds);
+			getStore().resetCollection(devId,collectionId);
+		} catch (RuntimeException re) {
+			logger.error(re.getMessage(), re);
+			throw re;
+		}
+	}
 }

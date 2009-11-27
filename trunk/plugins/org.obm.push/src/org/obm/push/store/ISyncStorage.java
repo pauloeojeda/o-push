@@ -43,5 +43,7 @@ public interface ISyncStorage {
 	Integer getDevId(String deviceId);
 
 	Set<Integer> getAllCollectionId(String devId);
+	
+	void resetCollection(String devId, Integer collectionId);
 
 }
