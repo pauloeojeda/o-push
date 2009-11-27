@@ -20,6 +20,7 @@ import org.columba.ristretto.message.BasicHeader;
 import org.columba.ristretto.message.Header;
 import org.columba.ristretto.message.LocalMimePart;
 import org.columba.ristretto.message.MimeHeader;
+import org.columba.ristretto.message.MimeType;
 import org.columba.ristretto.parser.AddressParser;
 import org.columba.ristretto.parser.ParserException;
 
@@ -32,12 +33,30 @@ public class SendEmailHandler implements
 	protected Header header;
 	private BasicHeader basicHeader;
 	protected LocalMimePart root;
+	private MimeHeader rootMimeHeader;
+
+	protected LocalMimePart current;
+	
+	private Boolean isMultiPart;
+	private Boolean inBody;
+
+	private LocalMimePart localMimePart;
+	private MimeHeader localMimeHeader;
+
 	private Set<Address> to;
 	private String from;
 
 	public SendEmailHandler(String defaultFrom) {
 		this.to = new HashSet<Address>();
 		this.from = defaultFrom;
+		header = new Header();
+		basicHeader = new BasicHeader(header);
+		rootMimeHeader = new MimeHeader(header);
+		root = new LocalMimePart(rootMimeHeader);
+		current = root;
+
+		isMultiPart = false;
+		inBody = false;
 	}
 
 	public Set<Address> getTo() {
@@ -64,8 +83,6 @@ public class SendEmailHandler implements
 
 	@Override
 	public void startHeader() throws MimeException {
-		header = new Header();
-		basicHeader = new BasicHeader(header);
 	}
 
 	@Override
@@ -78,26 +95,74 @@ public class SendEmailHandler implements
 
 	@Override
 	public void field(Field arg0) throws MimeException {
-		if ("to".equalsIgnoreCase(arg0.getName())) {
-			try {
-				Address[] adds = AddressParser.parseMailboxList(arg0.getBody());
-				for (Address add : adds) {
-					this.to.add(add);
+		logger.info("field " + arg0.getName() + ":" + arg0.getBody());
+		if (!inBody) {
+			if ("to".equalsIgnoreCase(arg0.getName())) {
+				try {
+					Address[] adds = AddressParser.parseMailboxList(arg0
+							.getBody());
+					for (Address add : adds) {
+						this.to.add(add);
+					}
+				} catch (ParserException e) {
+					throw new MimeException(e.getMessage());
 				}
-			} catch (ParserException e) {
-				throw new MimeException(e.getMessage());
-			}
-		} else if ("from".equalsIgnoreCase(arg0.getName())) {
-			if (arg0.getBody() == null || !"".equals(arg0.getBody())) {
-				if (this.from != null && from.contains("@")) {
-					String[] tab = from.split("@");
-					Mailbox mb = new Mailbox(tab[0], tab[1]);
-					arg0 = Fields.from(mb);
+				basicHeader.set(arg0.getName(), arg0.getBody());
+			} else if ("from".equalsIgnoreCase(arg0.getName())) {
+				if (arg0.getBody() == null || !"".equals(arg0.getBody())) {
+					if (this.from != null && from.contains("@")) {
+						String[] tab = from.split("@");
+						Mailbox mb = new Mailbox(tab[0], tab[1]);
+						arg0 = Fields.from(mb);
+					}
 				}
+				this.from = arg0.getBody();
+				basicHeader.set(arg0.getName(), arg0.getBody());
+			} else if ("Content-Type".equalsIgnoreCase(arg0.getName())) {
+				if (arg0.getBody().toLowerCase().contains("multipart")) {
+					MimeType mt = parseMultiPart(arg0.getBody());
+					if(mt != null){
+						rootMimeHeader.setMimeType(mt);	
+					}
+//					this.current = root;
+					this.isMultiPart = true;
+				}
+			} else {
+				basicHeader.set(arg0.getName(), arg0.getBody());
 			}
-			this.from = arg0.getBody();
+		} else {
+			if ("Content-Type".equalsIgnoreCase(arg0.getName())) {
+				if (arg0.getBody().toLowerCase().contains("multipart")) {
+					MimeType mt = parseMultiPart(arg0.getBody());
+					if(mt != null){
+						localMimeHeader.setMimeType(mt);	
+					}
+					this.current = localMimePart;
+					this.isMultiPart = true;
+				} else {
+					localMimeHeader.set(arg0.getName(), arg0.getBody());
+				}
+			} else {
+				localMimeHeader.set(arg0.getName(), arg0.getBody());
+			}
+			
 		}
-		basicHeader.set(arg0.getName(), arg0.getBody());
+	}
+
+	private MimeType parseMultiPart(String body) {
+		String[] tab = body.split(";");
+		for (String part : tab) {
+			if (part.toLowerCase().contains("multipart")) {
+				int i = part.indexOf("/");
+				if (i > 0) {
+					String type = part.substring(0, i);
+					String subType = part.substring(i + 1);
+					logger.info(type + " " + subType);
+					return new MimeType(type, subType);
+				}
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -107,10 +172,24 @@ public class SendEmailHandler implements
 	@Override
 	public void body(BodyDescriptor arg0, InputStream arg1)
 			throws MimeException, IOException {
-		MimeHeader mimeHeader = new MimeHeader(header);
-		root = new LocalMimePart(mimeHeader);
-		CharSequenceSource css = new CharSequenceSource(FileUtils.streamString(arg1, false));
-		root.setBody(css);
+		CharSequenceSource css = new CharSequenceSource(FileUtils.streamString(
+				arg1, false));
+		if(localMimePart == null){
+			localMimePart = root;
+		}
+		localMimePart.setBody(css);
+	}
+
+	@Override
+	public void startBodyPart() throws MimeException {
+		this.inBody = true;
+		localMimeHeader = new MimeHeader();
+		if (!isMultiPart) {
+			localMimePart = current;
+		} else {
+			localMimePart = new LocalMimePart(localMimeHeader);
+			current.addChild(this.localMimePart);
+		}
 	}
 
 	@Override
@@ -123,18 +202,20 @@ public class SendEmailHandler implements
 
 	@Override
 	public void epilogue(InputStream arg0) throws MimeException, IOException {
+		String epi = FileUtils.streamString(arg0, false);
+		logger.info("epilogue " + epi);
 	}
 
 	@Override
 	public void preamble(InputStream arg0) throws MimeException, IOException {
+		String epi = FileUtils.streamString(arg0, false);
+		logger.info("preamble " + epi);
 	}
 
 	@Override
 	public void raw(InputStream arg0) throws MimeException, IOException {
-	}
-
-	@Override
-	public void startBodyPart() throws MimeException {
+		String epi = FileUtils.streamString(arg0, false);
+		logger.info("raw " + epi);
 	}
 
 	@Override
