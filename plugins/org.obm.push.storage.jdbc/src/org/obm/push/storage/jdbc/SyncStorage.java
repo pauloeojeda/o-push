@@ -305,6 +305,39 @@ public class SyncStorage implements ISyncStorage {
 			JDBCUtils.cleanup(con, ps, null);
 		}
 	}
+	
+	@Override
+	public void resetCollection(String devId, Integer collectionId) {
+		int id = devIdCache.get(devId);
+
+		Connection con = null;
+		PreparedStatement ps = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			// con.setAutoCommit(false);
+			ps = con
+					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
+			ps.setInt(1, id);
+			ps.setInt(1, collectionId);
+			ps.executeUpdate();
+
+			ps = con
+					.prepareStatement("DELETE FROM opush_sync_mail WHERE device_id=? AND collection_id=?");
+			ps.setInt(1, id);
+			ps.setInt(1, collectionId);
+			ps.executeUpdate();
+
+			// con.commit();
+			logger.warn("mappings & states cleared for full sync of device "
+					+ devId);
+		} catch (Exception e) {
+			// JDBCUtils.rollback(con);
+			logger.error(e.getMessage(), e);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+	}
 
 	@Override
 	public Integer getDevId(String devId) {

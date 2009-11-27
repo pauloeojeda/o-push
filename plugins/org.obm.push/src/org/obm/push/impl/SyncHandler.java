@@ -97,6 +97,11 @@ public class SyncHandler extends WbxmlRequestHandler {
 			Element cols = DOMUtils.createElement(root, "Collections");
 
 			for (SyncCollection c : collections) {
+				if ("0".equals( c.getSyncKey())) {
+					backend.resetCollection(bs.getDevId(),c.getCollectionId());
+					bs.setState(new SyncState());
+				}
+				
 				String oldSyncKey = c.getSyncKey();
 				SyncState st = sm.getSyncState(oldSyncKey);
 
