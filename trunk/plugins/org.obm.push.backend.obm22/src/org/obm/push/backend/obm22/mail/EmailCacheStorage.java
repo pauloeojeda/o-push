@@ -215,7 +215,8 @@ public class EmailCacheStorage {
 		long writeTime = System.currentTimeMillis();
 		if (!current.equals(this.memoryCache)) {
 			updateDbCache(bs, devId, collectionId, current);
-		} else if (bs.getState().getLastSync() != null && this.lastSyncDate != null
+		} else if (bs.getState().getLastSync() != null
+				&& this.lastSyncDate != null
 				&& !bs.getState().getLastSync().after(this.lastSyncDate)
 				&& bs.getState().getKey().equals(this.lastSyncKey)) {
 			return this.mailChangesCache;
@@ -240,8 +241,9 @@ public class EmailCacheStorage {
 	}
 
 	public void deleteMessage(Integer devId, Integer collectionId, Long mailUid) {
-
-		this.memoryCache.remove(mailUid);
+		if (memoryCache != null) {
+			memoryCache.remove(mailUid);
+		}
 		PreparedStatement del = null;
 		if (logger.isDebugEnabled()) {
 			logger.debug(debugName + " should run a batch with 1 deletions.");
