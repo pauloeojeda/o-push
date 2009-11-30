@@ -319,13 +319,13 @@ public class SyncStorage implements ISyncStorage {
 			ps = con
 					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
 			ps.setInt(1, id);
-			ps.setInt(1, collectionId);
+			ps.setInt(2, collectionId);
 			ps.executeUpdate();
 
 			ps = con
 					.prepareStatement("DELETE FROM opush_sync_mail WHERE device_id=? AND collection_id=?");
 			ps.setInt(1, id);
-			ps.setInt(1, collectionId);
+			ps.setInt(2, collectionId);
 			ps.executeUpdate();
 
 			// con.commit();
