@@ -78,7 +78,6 @@ public class OBMBackend implements IBackend {
 		Thread contactThread = new Thread(contactsPushMonitor);
 		contactThread.setDaemon(true);
 		contactThread.start();
-		// TODO add mail monitoring thread
 	}
 	
 	public void startEmailMonitoring(BackendSession bs, Integer collectionId){
@@ -173,5 +172,10 @@ public class OBMBackend implements IBackend {
 			logger.error(re.getMessage(), re);
 			throw re;
 		}
+	}
+
+	@Override
+	public boolean validatePassword(String userID, String password) {
+		return contentsExporter.validatePassword(userID, password);
 	}
 }

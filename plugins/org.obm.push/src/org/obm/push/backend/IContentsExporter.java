@@ -26,4 +26,6 @@ public interface IContentsExporter {
 	Integer getDefaultCalendarId(BackendSession bs);
 	
 	MSAttachementData getEmailAttachement(BackendSession bs, String attachmentName);
+	
+	boolean validatePassword(String userID, String password);
 }

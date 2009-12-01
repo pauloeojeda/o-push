@@ -32,7 +32,7 @@ public class ContactsBackend extends ObmSyncBackend {
 	private BookClient getBookClient(BackendSession bs) {
 		AddressBookLocator abl = new AddressBookLocator();
 		if (obmSyncHost == null) {
-			locateObmSync(bs);
+			locateObmSync(bs.getLoginAtDomain());
 		}
 		BookClient bookCli = abl.locate("http://" + obmSyncHost
 				+ ":8080/obm-sync/services");

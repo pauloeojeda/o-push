@@ -134,4 +134,9 @@ public class ContentsExporter implements IContentsExporter {
 			String attachmentId) {
 		return mailBackend.getAttachment(bs, attachmentId);
 	}
+
+	@Override
+	public boolean validatePassword(String loginAtDomain, String password) {
+		return calBackend.validatePassword(loginAtDomain, password);
+	}
 }
