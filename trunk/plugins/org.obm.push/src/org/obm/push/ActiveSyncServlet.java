@@ -66,6 +66,7 @@ public class ActiveSyncServlet extends HttpServlet {
 	private Map<String, BackendSession> sessions;
 
 	private ISyncStorage storage;
+	private IBackend backend;
 
 	@Override
 	protected void service(HttpServletRequest request,
@@ -159,12 +160,12 @@ public class ActiveSyncServlet extends HttpServlet {
 						String userId = userPass.substring(0, p);
 						String password = userPass.substring(p + 1);
 						String loginAtDomain = getLoginAtDomain(userId);
-						valid = validatePassword(loginAtDomain, password);
-						valid = valid
-								&& storage
-										.initDevice(loginAtDomain, p(request,
-												"DeviceId"),
-												extractDeviceType(request));
+						String deviceId = p(request, "DeviceId");
+						valid = storage.initDevice(loginAtDomain, deviceId,
+								extractDeviceType(request))
+								&& validatePassword(loginAtDomain, password)
+								&& storage.syncAuthorized(loginAtDomain,
+										deviceId);
 						if (valid) {
 							creds = new Credentials(loginAtDomain, password);
 						}
@@ -332,9 +333,8 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 	}
 
-	private boolean validatePassword(String userID, String password) {
-		// TODO Auto-generated method stub
-		return true;
+	private boolean validatePassword(String loginAtDomain, String password) {
+		return backend.validatePassword(loginAtDomain,password);
 	}
 
 	@Override
@@ -343,7 +343,7 @@ public class ActiveSyncServlet extends HttpServlet {
 
 		PushConfiguration pc = new PushConfiguration();
 
-		IBackend backend = loadBackend(pc);
+		backend = loadBackend(pc);
 
 		sessions = Collections
 				.synchronizedMap(new HashMap<String, BackendSession>());
@@ -363,9 +363,10 @@ public class ActiveSyncServlet extends HttpServlet {
 			handlers.put("MoveItems", new MoveItemsHandler(backend));
 			handlers.put("SmartReply", new SmartReplyHandler(backend));
 			handlers.put("SmartForward", new SmartForwardHandler(backend));
-			handlers.put("MeetingResponse", new MeetingResponseHandler(backend));
+			handlers
+					.put("MeetingResponse", new MeetingResponseHandler(backend));
 			handlers.put("GetAttachment", new GetAttachmentHandler(backend));
-						  
+
 		}
 
 		logger.info("ActiveSync servlet initialised.");

@@ -11,6 +11,7 @@ import org.obm.locator.client.LocatorClient;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.store.ISyncStorage;
+import org.obm.sync.auth.AccessToken;
 import org.obm.sync.client.calendar.CalendarClient;
 import org.obm.sync.locators.CalendarLocator;
 
@@ -28,17 +29,15 @@ public class ObmSyncBackend {
 		this.storage = storage;
 	}
 
-	protected void locateObmSync(BackendSession bs) {
-		obmSyncHost = new LocatorClient().locateHost("sync/obm_sync", bs
-				.getLoginAtDomain());
+	protected void locateObmSync(String loginAtDomain) {
+		obmSyncHost = new LocatorClient().locateHost("sync/obm_sync", loginAtDomain);
 		logger.info("Using " + obmSyncHost + " as obm_sync host.");
 	}
 	
 	protected CalendarClient getCalendarClient(BackendSession bs) {
-
 		CalendarLocator cl = new CalendarLocator();
 		if (obmSyncHost == null) {
-			locateObmSync(bs);
+			locateObmSync(bs.getLoginAtDomain());
 		}
 		CalendarClient calCli = cl.locate("http://" + obmSyncHost
 				+ ":8080/obm-sync/services");
@@ -51,6 +50,23 @@ public class ObmSyncBackend {
 		ic.setServerId(getServerIdFor(bs.getDevId(), collection, del));
 		return ic;
 	}
+	
+	public boolean validatePassword(String loginAtDomain, String password) {
+		CalendarLocator cl = new CalendarLocator();
+		if (obmSyncHost == null) {
+			locateObmSync(loginAtDomain);
+		}
+		CalendarClient cc = cl.locate("http://" + obmSyncHost
+				+ ":8080/obm-sync/services");
+		AccessToken token = cc.login(loginAtDomain, password,
+				"o-push");
+		if(token == null || token.getSessionId() == null){
+			logger.info(loginAtDomain+" can't log on obm-sync. The username or password isn't valid" );
+			return false;
+		}
+		return true;
+	}
+
 
 	private void validateOBMConnection() {
 		Connection con = OBMPoolActivator.getDefault().getConnection();

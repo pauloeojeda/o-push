@@ -33,17 +33,27 @@ public interface ISyncStorage {
 	 * @return
 	 */
 	Integer getCollectionMapping(String deviceId, String collectionId);
-	
+
 	String getCollectionString(Integer collectionId);
 
 	String getDataClass(String collectionId);
 
 	void resetForFullSync(String devId);
-	
+
 	Integer getDevId(String deviceId);
 
 	Set<Integer> getAllCollectionId(String devId);
-	
+
 	void resetCollection(String devId, Integer collectionId);
+
+	/**
+	 * Returns <code>true</code> if the device is authorized to synchronize.
+	 * 
+	 * @param login
+	 * @param domain
+	 * @param deviceId
+	 * @return
+	 */
+	boolean syncAuthorized(String loginAtDomain, String deviceId);
 
 }

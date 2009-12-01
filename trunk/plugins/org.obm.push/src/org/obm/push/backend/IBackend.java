@@ -38,4 +38,6 @@ public interface IBackend {
 	void startEmailMonitoring(BackendSession bs, Integer collectionId);
 
 	void resetCollection(String devId, Integer collectionId);
+
+	boolean validatePassword(String userID, String password);
 }
