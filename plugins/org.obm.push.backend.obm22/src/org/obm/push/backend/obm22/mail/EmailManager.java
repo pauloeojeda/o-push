@@ -71,7 +71,7 @@ public class EmailManager {
 	}
 
 	private void locateSmtp(BackendSession bs) {
-		smtpHost = new LocatorClient().locateHost("mail/smtp_in", bs
+		smtpHost = new LocatorClient().locateHost("mail/smtp_out", bs
 				.getLoginAtDomain());
 		logger.info("Using " + smtpHost + " as smtp host.");
 	}
