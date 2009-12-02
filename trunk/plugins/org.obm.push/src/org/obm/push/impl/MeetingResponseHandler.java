@@ -15,6 +15,7 @@ import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.MSEvent;
+import org.obm.push.backend.PIMDataType;
 import org.obm.push.data.MeetingResponse;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.utils.DOMUtils;
@@ -85,6 +86,7 @@ public class MeetingResponseHandler extends WbxmlRequestHandler {
 		}
 
 		try {
+			bs.setDataType(PIMDataType.EMAIL);
 			Document reply = DOMUtils.createDoc(null, "MeetingResponse");
 			Element root = reply.getDocumentElement();
 			for (MeetingResponse item : items) {
@@ -108,15 +110,14 @@ public class MeetingResponseHandler extends WbxmlRequestHandler {
 					} else {
 						IContentsImporter importer = backend
 								.getContentsImporter(item.getCollectionId(), bs);
-						importer.importCalendarUserStatus(bs, invitation, item
-								.getUserResponse());
+						String calId = importer.importCalendarUserStatus(bs,
+								invitation, item.getUserResponse());
 						DOMUtils.createElementAndText(response, "Status", "1");
 
 						if (!AttendeeStatus.DECLINE.equals(item
 								.getUserResponse())) {
 							DOMUtils.createElementAndText(response, "CalId",
-									exporter.getDefaultCalendarId(bs)
-											.toString());
+									calId);
 						}
 					}
 				}

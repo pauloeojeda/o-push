@@ -27,13 +27,17 @@ public class CalendarBackend extends ObmSyncBackend {
 		super(storage);
 	}
 
+	private String getDefaultCalendarName(BackendSession bs) {
+		return "obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
+				+ bs.getLoginAtDomain();
+	}
+
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		List<ItemChange> ret = new LinkedList<ItemChange>();
 
 		if (!bs.checkHint("hint.multipleCalendars", true)) {
 			ItemChange ic = new ItemChange();
-			String col = "obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
-					+ bs.getLoginAtDomain();
+			String col = getDefaultCalendarName(bs);
 			ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
 			ic.setParentId("0");
 			ic.setDisplayName(bs.getLoginAtDomain());
@@ -195,7 +199,7 @@ public class CalendarBackend extends ObmSyncBackend {
 		}
 	}
 
-	public void updateUserStatus(BackendSession bs, MSEvent data,
+	public String updateUserStatus(BackendSession bs, MSEvent data,
 			AttendeeStatus status) {
 		CalendarClient calCli = getCalendarClient(bs);
 		AccessToken at = calCli.login(bs.getLoginAtDomain(), bs.getPassword(),
@@ -213,19 +217,15 @@ public class CalendarBackend extends ObmSyncBackend {
 					+ "] in calendar " + calendar);
 
 			Event event = new EventConverter().convertEvent(data);
-			calCli.modifyEvent(at, calendar, event, true);
+			event = calCli.modifyEvent(at, calendar, event, true);
+			return getServerIdFor(bs.getDevId(), getDefaultCalendarName(bs) + "",
+					event.getUid());
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		} finally {
 			calCli.logout(at);
 		}
+		return null;
 	}
-
-	public Integer getDefaultCalendarId(BackendSession bs) {
-		String col = "obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
-				+ bs.getLoginAtDomain();
-		return getCollectionIdFor(bs.getDevId(), col); 
-	}
-
 }

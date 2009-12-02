@@ -95,7 +95,6 @@ public class SendEmailHandler implements
 
 	@Override
 	public void field(Field arg0) throws MimeException {
-		logger.info("field " + arg0.getName() + ":" + arg0.getBody());
 		if (!inBody) {
 			if ("to".equalsIgnoreCase(arg0.getName())) {
 				try {
@@ -157,7 +156,6 @@ public class SendEmailHandler implements
 				if (i > 0) {
 					String type = part.substring(0, i);
 					String subType = part.substring(i + 1);
-					logger.info(type + " " + subType);
 					return new MimeType(type, subType);
 				}
 			}
@@ -202,20 +200,14 @@ public class SendEmailHandler implements
 
 	@Override
 	public void epilogue(InputStream arg0) throws MimeException, IOException {
-		String epi = FileUtils.streamString(arg0, false);
-		logger.info("epilogue " + epi);
 	}
 
 	@Override
 	public void preamble(InputStream arg0) throws MimeException, IOException {
-		String epi = FileUtils.streamString(arg0, false);
-		logger.info("preamble " + epi);
 	}
 
 	@Override
 	public void raw(InputStream arg0) throws MimeException, IOException {
-		String epi = FileUtils.streamString(arg0, false);
-		logger.info("raw " + epi);
 	}
 
 	@Override
