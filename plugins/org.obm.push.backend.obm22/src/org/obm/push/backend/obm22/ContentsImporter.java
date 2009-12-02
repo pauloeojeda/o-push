@@ -121,9 +121,9 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public void importCalendarUserStatus(BackendSession bs, MSEvent event,
+	public String importCalendarUserStatus(BackendSession bs, MSEvent event,
 			AttendeeStatus userResponse) {
-		calBackend.updateUserStatus(bs, event, userResponse);
+		return calBackend.updateUserStatus(bs, event, userResponse);
 	}
 
 	@Override

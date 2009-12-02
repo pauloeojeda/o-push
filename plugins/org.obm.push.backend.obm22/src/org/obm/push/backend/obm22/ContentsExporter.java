@@ -26,6 +26,7 @@ public class ContentsExporter implements IContentsExporter {
 
 	private ContactsBackend contactsBackend;
 
+	
 	public ContentsExporter(MailBackend mailBackend,
 			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
 		super();
@@ -122,11 +123,6 @@ public class ContentsExporter implements IContentsExporter {
 
 		}
 		return changes;
-	}
-	
-	@Override
-	public Integer getDefaultCalendarId(BackendSession bs){
-		return calBackend.getDefaultCalendarId(bs);
 	}
 	
 	@Override

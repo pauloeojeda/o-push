@@ -435,12 +435,12 @@ public class MailMessageLoader {
 							&& !bodyOnly && data != null) {
 						invitation = new ByteArrayInputStream(data);
 					}
-					MSAttachement att = new MSAttachement();
-					att.setDisplayName(bp.get("name"));
-					att.setFileReference(id);
-					att.setMethod(MethodAttachment.NormalAttachment);
-					att.setEstimatedDataSize(data.length);
-					return att;
+//					MSAttachement att = new MSAttachement();
+//					att.setDisplayName(bp.get("name"));
+//					att.setFileReference(id);
+//					att.setMethod(MethodAttachment.NormalAttachment);
+//					att.setEstimatedDataSize(data.length);
+//					return att;
 				} else if (mp.getContentId() != null
 						&& !mp.getContentId().equalsIgnoreCase("nil")) {
 					MSAttachement att = new MSAttachement();
