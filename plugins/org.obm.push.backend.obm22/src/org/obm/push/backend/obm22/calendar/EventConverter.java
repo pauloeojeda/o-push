@@ -146,7 +146,9 @@ public class EventConverter {
 
 	private String getDays(Set<RecurrenceDayOfWeek> dayOfWeek) {
 		StringBuilder sb = new StringBuilder();
-
+		if(dayOfWeek == null){
+			return "0000000";
+		}
 		if (dayOfWeek.contains(RecurrenceDayOfWeek.SUNDAY)) {
 			sb.append(1);
 		} else {
