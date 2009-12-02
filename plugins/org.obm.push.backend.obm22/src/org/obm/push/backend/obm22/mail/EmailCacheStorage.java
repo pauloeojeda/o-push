@@ -52,7 +52,6 @@ public class EmailCacheStorage {
 	protected Log logger;
 	private String debugName;
 
-	private Set<Long> memoryCache;
 	private MailChanges mailChangesCache;
 	private Date lastSyncDate;
 	private String lastSyncKey;
@@ -63,7 +62,7 @@ public class EmailCacheStorage {
 		this.lastSyncKey = "";
 	}
 
-	public MailChanges computeChanges(Set<Long> oldUids, Set<Long> fetched) {
+	public MailChanges computeChanges(Set<Long> oldUids, Set<Long> fetched, Set<Long> lastUpdate) {
 		Set<Long> removed = new HashSet<Long>();
 		Set<Long> old = new HashSet<Long>();
 		if (oldUids != null) {
@@ -73,7 +72,7 @@ public class EmailCacheStorage {
 		removed.removeAll(fetched);
 
 		Set<Long> updated = new HashSet<Long>();
-		updated.addAll(fetched);
+		updated.addAll(lastUpdate);
 		updated.removeAll(old);
 
 		MailChanges mc = new MailChanges();
@@ -122,12 +121,12 @@ public class EmailCacheStorage {
 	}
 
 	private Set<Long> loadMailFromIMAP(BackendSession bs,
-			StoreClient imapStore, String mailBox) {
+			StoreClient imapStore, String mailBox, Date lastUpdate) {
 		Set<Long> mails = new HashSet<Long>();
 		try {
 			if (imapStore.login()) {
 				imapStore.select(mailBox);
-				long[] uids = imapStore.uidSearch(new SearchQuery());
+				long[] uids = imapStore.uidSearch(new SearchQuery(lastUpdate));
 				for (long uid : uids) {
 					mails.add(Long.valueOf(uid));
 				}
@@ -203,17 +202,15 @@ public class EmailCacheStorage {
 			BackendSession bs, Integer collectionId, String mailBox)
 			throws InterruptedException, SQLException {
 		long time = System.currentTimeMillis();
-		if (this.memoryCache == null) {
-			this.memoryCache = loadMailFromDb(bs, devId, collectionId);
-		}
+		Set<Long> memoryCache = loadMailFromDb(bs, devId, collectionId);
 		long ct = System.currentTimeMillis();
 		ct = System.currentTimeMillis() - ct;
 		long upd = System.currentTimeMillis();
-		Set<Long> current = loadMailFromIMAP(bs, imapStore, mailBox);
+		Set<Long> current = loadMailFromIMAP(bs, imapStore, mailBox, null);
 		upd = System.currentTimeMillis() - upd;
 
 		long writeTime = System.currentTimeMillis();
-		if (!current.equals(this.memoryCache)) {
+		if (!current.equals(memoryCache)) {
 			updateDbCache(bs, devId, collectionId, current);
 		} else if (bs.getState().getLastSync() != null
 				&& this.lastSyncDate != null
@@ -224,7 +221,9 @@ public class EmailCacheStorage {
 
 		writeTime = System.currentTimeMillis() - writeTime;
 
-		MailChanges sync = computeChanges(this.memoryCache, current);
+		
+		Set<Long> lastUp = loadMailFromIMAP(bs, imapStore, mailBox, this.lastSyncDate);
+		MailChanges sync = computeChanges(memoryCache, current, lastUp);
 		this.mailChangesCache = sync;
 
 		time = System.currentTimeMillis() - time;
@@ -234,16 +233,13 @@ public class EmailCacheStorage {
 				+ " changes found. (" + time + "ms (loadCache: " + ct
 				+ "ms, updCache: " + upd + "ms))");
 
-		this.memoryCache = current;
+		memoryCache = current;
 		this.lastSyncKey = bs.getState().getKey();
 		this.lastSyncDate = bs.getState().getLastSync();
 		return sync;
 	}
 
 	public void deleteMessage(Integer devId, Integer collectionId, Long mailUid) {
-		if (memoryCache != null) {
-			memoryCache.remove(mailUid);
-		}
 		PreparedStatement del = null;
 		if (logger.isDebugEnabled()) {
 			logger.debug(debugName + " should run a batch with 1 deletions.");
