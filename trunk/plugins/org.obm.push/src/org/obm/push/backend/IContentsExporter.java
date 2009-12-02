@@ -17,9 +17,9 @@ public interface IContentsExporter {
 
 	SyncState getState(BackendSession bs);
 
-	DataDelta getChanged(BackendSession bs, String collectionId);
+	DataDelta getChanged(BackendSession bs, FilterType filterType, String collectionId);
 
-	int getCount(BackendSession bs, String collectionId);
+	int getCount(BackendSession bs, FilterType filterType, String collectionId);
 
 	List<ItemChange> fetch(BackendSession bs, List<String> fetchIds);
 	

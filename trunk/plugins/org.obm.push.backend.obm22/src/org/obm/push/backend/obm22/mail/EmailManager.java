@@ -117,20 +117,22 @@ public class EmailManager {
 	}
 
 	public List<MSEmail> fetchMails(BackendSession bs,
-			CalendarClient calendarClient, Integer collectionId, String collectionName, Set<Long> uids)
-			throws IOException, IMAPException {
+			CalendarClient calendarClient, Integer collectionId,
+			String collectionName, Set<Long> uids) throws IOException,
+			IMAPException {
 		List<MSEmail> mails = new LinkedList<MSEmail>();
 		StoreClient store = getImapClient(bs);
 		login(store);
 		store.select(parseMailBoxName(bs, collectionName));
 		for (Long uid : uids) {
-			MailMessageLoader mailLoader =  new MailMessageLoader();
-			mails.add(mailLoader.fetch(collectionId, uid, store, bs, calendarClient));
+			MailMessageLoader mailLoader = new MailMessageLoader();
+			mails.add(mailLoader.fetch(collectionId, uid, store, bs,
+					calendarClient));
 		}
 		store.logout();
 		return mails;
 	}
-	
+
 	public List<InputStream> fetchMIMEMails(BackendSession bs,
 			CalendarClient calendarClient, String collectionName, Set<Long> uids)
 			throws IOException, IMAPException {
@@ -243,7 +245,7 @@ public class EmailManager {
 			store.uidStore(uids, fl, true);
 			store.expunge();
 			deleteMessageInCache(devId, srcFolderId, uid);
-			addMessageInCache(devId, dstFolderId, uid);
+				addMessageInCache(devId, dstFolderId, uid);
 		} finally {
 			try {
 				store.logout();
@@ -306,9 +308,10 @@ public class EmailManager {
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
-	public InputStream findAttachment(BackendSession bs, String collectionName, Long mailUid,  String mimePartAddress) throws IMAPException{
-		
+
+	public InputStream findAttachment(BackendSession bs, String collectionName,
+			Long mailUid, String mimePartAddress) throws IMAPException {
+
 		StoreClient store = getImapClient(bs);
 		try {
 			login(store);

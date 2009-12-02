@@ -81,7 +81,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 							.getContentsExporter(bs);
 					exporter.configure(bs, c.getDataClass(), c.getFilterType(),
 							state, collectionId);
-					int count = exporter.getCount(bs, collectionId)
+					int count = exporter.getCount(bs,c.getFilterType(), collectionId)
 							+ bs.getUnSynchronizedItemChange(
 									c.getCollectionId()).size();
 					estim.setTextContent(count+"");

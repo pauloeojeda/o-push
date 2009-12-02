@@ -1,7 +1,9 @@
 package org.obm.push.backend.obm22;
 
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,7 +28,6 @@ public class ContentsExporter implements IContentsExporter {
 
 	private ContactsBackend contactsBackend;
 
-	
 	public ContentsExporter(MailBackend mailBackend,
 			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
 		super();
@@ -57,6 +58,48 @@ public class ContentsExporter implements IContentsExporter {
 		}
 	}
 
+	private void proccessFilterType(BackendSession bs, FilterType filterType) {
+		// FILTER_BY_NO_INCOMPLETE_TASKS;//8
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		cal.set(Calendar.HOUR, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		
+		switch (filterType) {
+		case ONE_DAY_BACK:
+			cal.set(Calendar.DAY_OF_YEAR, cal.get(Calendar.DAY_OF_YEAR) -1);
+			break;
+		case THREE_DAYS_BACK:
+			cal.set(Calendar.DAY_OF_YEAR, cal.get(Calendar.DAY_OF_YEAR) -3);
+			break;
+		case ONE_WEEK_BACK:
+			cal.set(Calendar.WEEK_OF_YEAR, cal.get(Calendar.WEEK_OF_YEAR) -1);
+			break;
+		case TWO_WEEKS_BACK:
+			cal.set(Calendar.WEEK_OF_YEAR, cal.get(Calendar.WEEK_OF_YEAR) -2);
+			break;
+		case ONE_MONTHS_BACK:
+			cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) -1);
+			break;
+		case THREE_MONTHS_BACK:
+			cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) -3);
+			break;
+		case SIX_MONTHS_BACK:
+			cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) -3);
+			break;
+		default:
+		case ALL_ITEMS:
+			cal.setTimeInMillis(0);
+			break;
+		}
+		
+		if(bs.getState().getLastSync() != null && cal.getTime().after(bs.getState().getLastSync())){
+			bs.getState().setLastSync(cal.getTime());
+		}
+		logger.info("getChanged: " + bs.getState().getLastSync() );
+	}
+
 	@Override
 	public SyncState getState(BackendSession bs) {
 		return bs.getState();
@@ -80,17 +123,21 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	@Override
-	public DataDelta getChanged(BackendSession bs, String collectionId) {
+	public DataDelta getChanged(BackendSession bs, FilterType filterType, String collectionId) {
 		logger.info("getChanged: " + bs + " collectionId: " + collectionId);
 		DataDelta delta = null;
 		switch (bs.getDataType()) {
 		case CALENDAR:
+			proccessFilterType(bs, filterType);
+			logger.info("getChanged: " + bs.getState().getLastSync());
 			delta = getCalendarChanges(bs, collectionId);
 			break;
 		case CONTACTS:
 			delta = getContactsChanges(bs, collectionId);
 			break;
 		case EMAIL:
+			proccessFilterType(bs, filterType);
+			logger.info("getChanged: " + bs.getState().getLastSync());
 			delta = getMailChanges(bs, collectionId);
 			break;
 		case TASKS:
@@ -102,8 +149,8 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	@Override
-	public int getCount(BackendSession bs, String collectionId) {
-		DataDelta dd = getChanged(bs, collectionId);
+	public int getCount(BackendSession bs, FilterType filterType, String collectionId) {
+		DataDelta dd = getChanged(bs, filterType,collectionId);
 		return (dd.getChanges().size() + dd.getDeletions().size());
 	}
 
@@ -116,7 +163,7 @@ public class ContentsExporter implements IContentsExporter {
 		case CONTACTS:
 			break;
 		case EMAIL:
-			 changes.addAll(mailBackend.fetchItems(bs,fetchServerIds));
+			changes.addAll(mailBackend.fetchItems(bs, fetchServerIds));
 			break;
 		case TASKS:
 			break;
@@ -124,7 +171,7 @@ public class ContentsExporter implements IContentsExporter {
 		}
 		return changes;
 	}
-	
+
 	@Override
 	public MSAttachementData getEmailAttachement(BackendSession bs,
 			String attachmentId) {

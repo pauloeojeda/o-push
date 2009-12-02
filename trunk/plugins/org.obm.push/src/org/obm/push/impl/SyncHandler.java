@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.BodyPreference;
 import org.obm.push.backend.DataDelta;
@@ -97,17 +96,19 @@ public class SyncHandler extends WbxmlRequestHandler {
 			Element cols = DOMUtils.createElement(root, "Collections");
 
 			for (SyncCollection c : collections) {
-				if ("0".equals( c.getSyncKey())) {
-					backend.resetCollection(bs.getDevId(),c.getCollectionId());
+				if ("0".equals(c.getSyncKey())) {
+					backend.resetCollection(bs.getDevId(), c.getCollectionId());
 					bs.setState(new SyncState());
 				}
-				
+
 				String oldSyncKey = c.getSyncKey();
 				SyncState st = sm.getSyncState(oldSyncKey);
 
-				String oldClientSyncKey = bs.getLastClientSyncKey(c.getCollectionId());
-				
-				if (!st.isValid() && oldClientSyncKey != null && !oldClientSyncKey.equals(oldSyncKey)) {
+				String oldClientSyncKey = bs.getLastClientSyncKey(c
+						.getCollectionId());
+
+				if (!st.isValid() && oldClientSyncKey != null
+						&& !oldClientSyncKey.equals(oldSyncKey)) {
 					invalid = true;
 					break;
 				}
@@ -140,8 +141,8 @@ public class SyncHandler extends WbxmlRequestHandler {
 			}
 			if (invalid) {
 				root.removeChild(cols);
-//				DOMUtils.createElementAndText(root, "Status",
-//						SyncStatus.HIERARCHY_CHANGED.asXmlValue());
+				// DOMUtils.createElementAndText(root, "Status",
+				// SyncStatus.HIERARCHY_CHANGED.asXmlValue());
 				DOMUtils.createElementAndText(root, "Status",
 						SyncStatus.INVALID_SYNC_KEY.asXmlValue());
 			}
@@ -155,7 +156,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 			IContentsExporter cex, HashMap<String, String> processedClientIds) {
 		String col = backend.getStore()
 				.getCollectionString(c.getCollectionId());
-		DataDelta delta = cex.getChanged(bs, col);
+		DataDelta delta = cex.getChanged(bs, c.getFilterType(), col);
 		List<ItemChange> changed = processWindowSize(c, delta, bs);
 
 		Element responses = DOMUtils.createElement(ce, "Responses");
@@ -233,7 +234,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 		int changedSize = changed.size();
 		for (int i = c.getWindowSize(); i < changedSize; i++) {
 			ItemChange ic = changed.get(changed.size() - 1);
-			bs.addUnSynchronizedItemChange(c.getCollectionId(),ic);
+			bs.addUnSynchronizedItemChange(c.getCollectionId(), ic);
 			changed.remove(ic);
 		}
 
@@ -251,7 +252,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
 			DOMUtils.createElementAndText(add, "Status", "1");
 			c.setTruncation(null);
-			if(c.getBodyPreference() != null){
+			if (c.getBodyPreference() != null) {
 				c.getBodyPreference().setTruncationSize(null);
 			}
 			serializeChange(bs, add, c, ic);
@@ -266,7 +267,8 @@ public class SyncHandler extends WbxmlRequestHandler {
 	private void serializeChange(BackendSession bs, Element col,
 			SyncCollection c, ItemChange ic) {
 		IApplicationData data = ic.getData();
-		IDataEncoder encoder = encoders.getEncoder(data,bs.getProtocolVersion());
+		IDataEncoder encoder = encoders.getEncoder(data, bs
+				.getProtocolVersion());
 		Element apData = DOMUtils.createElement(col, "ApplicationData");
 		encoder.encode(bs, apData, data, c, true);
 	}
@@ -291,38 +293,40 @@ public class SyncHandler extends WbxmlRequestHandler {
 		if (option != null) {
 			String filterType = DOMUtils.getElementText(option, "FilterType");
 			String truncation = DOMUtils.getElementText(option, "Truncation");
-			
+
 			String mimeSupport = DOMUtils.getElementText(option, "MIMESupport");
 			String mimeTruncation = DOMUtils.getElementText(option,
 					"MIMETruncation");
 			String conflict = DOMUtils.getElementText(option, "Conflict");
-			Element bodyPreference = DOMUtils.getUniqueElement(col, "BodyPreference");
+			Element bodyPreference = DOMUtils.getUniqueElement(col,
+					"BodyPreference");
 
-			if(conflict != null){
+			if (conflict != null) {
 				collection.setConflict(Integer.parseInt(conflict));
 			}
-			if(filterType != null){
+			if (filterType != null) {
 				collection.setFilterType(FilterType.getFilterType(filterType));
 			}
-			if(mimeSupport != null){
+			if (mimeSupport != null) {
 				collection.setMimeSupport(Integer.parseInt(mimeSupport));
 			}
-			if(mimeTruncation != null){
+			if (mimeTruncation != null) {
 				collection.setMimeTruncation(Integer.parseInt(mimeTruncation));
 			}
-			if(truncation != null){
+			if (truncation != null) {
 				collection.setTruncation(Integer.parseInt(truncation));
 			}
-			
-			if(bodyPreference != null){
-				String truncationSize = DOMUtils.getElementText(bodyPreference, "TruncationSize");
+
+			if (bodyPreference != null) {
+				String truncationSize = DOMUtils.getElementText(bodyPreference,
+						"TruncationSize");
 				String type = DOMUtils.getElementText(bodyPreference, "Type");
 				BodyPreference bp = new BodyPreference();
 				bp.setTruncationSize(Integer.parseInt(truncationSize));
 				bp.setType(MSEmailBodyType.getValueOf(Integer.parseInt(type)));
 				collection.setBodyPreference(bp);
 			}
-			
+
 		}
 		// TODO sync supported
 		// TODO sync <deletesasmoves/>
@@ -333,7 +337,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 		collection.setSyncState(oldColState);
 		if (oldColState.isValid()) {
 			Element perform = DOMUtils.getUniqueElement(col, "Commands");
-			
+
 			if (perform != null) {
 				NodeList fetchs = perform.getElementsByTagName("Fetch");
 				List<String> fetchIds = new LinkedList<String>();
