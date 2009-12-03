@@ -16,6 +16,7 @@ import org.obm.push.backend.Recurrence;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.data.calendarenum.AttendeeType;
 import org.obm.push.data.calendarenum.CalendarBusyStatus;
+import org.obm.push.data.calendarenum.CalendarSensitivity;
 import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.data.calendarenum.RecurrenceType;
 import org.obm.sync.calendar.Attendee;
@@ -39,7 +40,7 @@ public class EventConverter {
 
 	public MSEvent convertEvent(Event e) {
 		MSEvent mse = new MSEvent();
-		if(e.getTimeUpdate() != null){
+		if (e.getTimeUpdate() != null) {
 			mse.setDtStamp(e.getTimeUpdate());
 		} else {
 			mse.setDtStamp(new Date());
@@ -49,6 +50,7 @@ public class EventConverter {
 		mse.setLocation(e.getLocation());
 		mse.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
 		mse.setStartTime(e.getDate());
+		mse.setExceptionStartTime(e.getRecurrenceId());
 
 		Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		c.setTimeInMillis(e.getDate().getTime());
@@ -66,6 +68,8 @@ public class EventConverter {
 
 		mse.setRecurrence(getRecurrence(e.getRecurrence()));
 
+		mse.setExceptions(getException(e.getRecurrence()));
+
 		if (e.getAlert() != null && e.getAlert() > 0) {
 			mse.setReminder(e.getAlert());
 		}
@@ -73,6 +77,24 @@ public class EventConverter {
 		mse.setObmUID(e.getUid());
 		mse.setBusyStatus(busyStatus(e.getOpacity()));
 		return mse;
+	}
+
+	private List<MSEvent> getException(EventRecurrence recurrence) {
+		List<MSEvent> ret = new LinkedList<MSEvent>();
+		for (Date excp : recurrence.getExceptions()) {
+			MSEvent e = new MSEvent();
+			e.setDeleted(true);
+			e.setExceptionStartTime(excp);
+			e.setStartTime(excp);
+			e.setDtStamp(new Date());
+			ret.add(e);
+		}
+
+		for (Event excp : recurrence.getEventExceptions()) {
+			MSEvent e = convertEvent(excp);
+			ret.add(e);
+		}
+		return ret;
 	}
 
 	private CalendarBusyStatus busyStatus(EventOpacity opacity) {
@@ -146,7 +168,7 @@ public class EventConverter {
 
 	private String getDays(Set<RecurrenceDayOfWeek> dayOfWeek) {
 		StringBuilder sb = new StringBuilder();
-		if(dayOfWeek == null){
+		if (dayOfWeek == null) {
 			return "0000000";
 		}
 		if (dayOfWeek.contains(RecurrenceDayOfWeek.SUNDAY)) {
@@ -307,16 +329,24 @@ public class EventConverter {
 		return e;
 	}
 
+	// Exceptions.Exception.Body (section 2.2.3.9): This element is optional.
+	// Exceptions.Exception.Categories (section 2.2.3.8): This element is
+	// optional.
+
 	private Event convertEventOne(Event parentEvent, MSEvent data) {
 		Event e = new Event();
-		e.setTitle(data.getSubject());
+		if (data.getSubject() == null || data.getSubject().isEmpty()) {
+			e.setTitle(parentEvent.getTitle());
+		} else {
+			e.setTitle(data.getSubject());
+		}
 		e.setLocation(data.getLocation());
 		e.setDate(data.getStartTime());
 		int duration = (int) (data.getEndTime().getTime() - data.getStartTime()
 				.getTime()) / 1000;
 		e.setDuration(duration);
 		e.setAllday(data.getAllDayEvent());
-
+		e.setRecurrenceId(data.getExceptionStartTime());
 		if (data.getReminder() != null && data.getReminder() > 0) {
 			e.setAlert(data.getReminder());
 		}
@@ -330,9 +360,34 @@ public class EventConverter {
 				e.addAttendee(convertAttendee(at));
 			}
 		}
-		e.setOpacity(opacity(data.getBusyStatus()));
-		e.setUid(data.getObmUID());
+		
+		if (data.getBusyStatus() == null) {
+			e.setOpacity(parentEvent.getOpacity());
+		} else {
+			e.setOpacity(opacity(data.getBusyStatus()));
+		}
+		
+		
+		if (data.getSensitivity() == null) {
+			e.setPrivacy(parentEvent.getPrivacy());
+		} else {
+			e.setPrivacy(privacy(data.getSensitivity()));
+		}
+		
 		return e;
+	}
+
+	private int privacy(CalendarSensitivity sensitivity) {
+		switch (sensitivity) {
+		case CONFIDENTIAL:
+		case PERSONAL:
+		case PRIVATE:
+			return 1;
+		case NORMAL:
+		default:
+			return 0;
+		}
+
 	}
 
 	private EventOpacity opacity(CalendarBusyStatus busyStatus) {
