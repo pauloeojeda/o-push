@@ -59,45 +59,54 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	private void proccessFilterType(BackendSession bs, FilterType filterType) {
-		// FILTER_BY_NO_INCOMPLETE_TASKS;//8
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-		cal.set(Calendar.HOUR, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		
-		switch (filterType) {
-		case ONE_DAY_BACK:
-			cal.set(Calendar.DAY_OF_YEAR, cal.get(Calendar.DAY_OF_YEAR) -1);
-			break;
-		case THREE_DAYS_BACK:
-			cal.set(Calendar.DAY_OF_YEAR, cal.get(Calendar.DAY_OF_YEAR) -3);
-			break;
-		case ONE_WEEK_BACK:
-			cal.set(Calendar.WEEK_OF_YEAR, cal.get(Calendar.WEEK_OF_YEAR) -1);
-			break;
-		case TWO_WEEKS_BACK:
-			cal.set(Calendar.WEEK_OF_YEAR, cal.get(Calendar.WEEK_OF_YEAR) -2);
-			break;
-		case ONE_MONTHS_BACK:
-			cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) -1);
-			break;
-		case THREE_MONTHS_BACK:
-			cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) -3);
-			break;
-		case SIX_MONTHS_BACK:
-			cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) -3);
-			break;
-		default:
-		case ALL_ITEMS:
-			cal.setTimeInMillis(0);
-			break;
+		if (filterType != null) {
+			// FILTER_BY_NO_INCOMPLETE_TASKS;//8
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			cal.set(Calendar.HOUR, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+
+			switch (filterType) {
+			case ONE_DAY_BACK:
+				cal
+						.set(Calendar.DAY_OF_YEAR, cal
+								.get(Calendar.DAY_OF_YEAR) - 1);
+				break;
+			case THREE_DAYS_BACK:
+				cal
+						.set(Calendar.DAY_OF_YEAR, cal
+								.get(Calendar.DAY_OF_YEAR) - 3);
+				break;
+			case ONE_WEEK_BACK:
+				cal.set(Calendar.WEEK_OF_YEAR,
+						cal.get(Calendar.WEEK_OF_YEAR) - 1);
+				break;
+			case TWO_WEEKS_BACK:
+				cal.set(Calendar.WEEK_OF_YEAR,
+						cal.get(Calendar.WEEK_OF_YEAR) - 2);
+				break;
+			case ONE_MONTHS_BACK:
+				cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) - 1);
+				break;
+			case THREE_MONTHS_BACK:
+				cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) - 3);
+				break;
+			case SIX_MONTHS_BACK:
+				cal.set(Calendar.MONTH, cal.get(Calendar.MONTH) - 3);
+				break;
+			default:
+			case ALL_ITEMS:
+				cal.setTimeInMillis(0);
+				break;
+			}
+
+			if (bs.getState().getLastSync() != null
+					&& cal.getTime().after(bs.getState().getLastSync())) {
+				bs.getState().setLastSync(cal.getTime());
+			}
+			logger.info("getChanged: " + bs.getState().getLastSync());
 		}
-		
-		if(bs.getState().getLastSync() != null && cal.getTime().after(bs.getState().getLastSync())){
-			bs.getState().setLastSync(cal.getTime());
-		}
-		logger.info("getChanged: " + bs.getState().getLastSync() );
 	}
 
 	@Override
@@ -123,7 +132,8 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	@Override
-	public DataDelta getChanged(BackendSession bs, FilterType filterType, String collectionId) {
+	public DataDelta getChanged(BackendSession bs, FilterType filterType,
+			String collectionId) {
 		logger.info("getChanged: " + bs + " collectionId: " + collectionId);
 		DataDelta delta = null;
 		switch (bs.getDataType()) {
@@ -149,8 +159,9 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	@Override
-	public int getCount(BackendSession bs, FilterType filterType, String collectionId) {
-		DataDelta dd = getChanged(bs, filterType,collectionId);
+	public int getCount(BackendSession bs, FilterType filterType,
+			String collectionId) {
+		DataDelta dd = getChanged(bs, filterType, collectionId);
 		return (dd.getChanges().size() + dd.getDeletions().size());
 	}
 
