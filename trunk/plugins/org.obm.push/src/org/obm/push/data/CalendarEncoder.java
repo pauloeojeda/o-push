@@ -3,6 +3,7 @@ package org.obm.push.data;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -100,8 +101,10 @@ public class CalendarEncoder implements IDataEncoder {
 		}
 
 		if (ev.getRecurrence() != null) {
-			encoreRecurrence(p, ev);
+			encodeRecurrence(p, ev);
 		}
+
+		encodeExceptions(bs, p, ev.getExceptions());
 
 		e(p, "Calendar:Sensitivity", "0");
 		e(p, "Calendar:BusyStatus", ev.getBusyStatus().asIntString());
@@ -135,7 +138,68 @@ public class CalendarEncoder implements IDataEncoder {
 
 	}
 
-	private void encoreRecurrence(Element p, MSEvent ev) {
+	private void encodeExceptions(BackendSession bs, Element p,
+			List<MSEvent> excepts) {
+		// Exceptions.Exception
+		Element es = DOMUtils.createElement(p, "Calendar:Exceptions");
+		for (MSEvent ex : excepts) {
+			Element e = DOMUtils.createElement(es, "Calendar:Exception");
+			if (ex.isDeletedException()) {
+				DOMUtils.createElementAndText(e, "Calendar:ExceptionIsDeleted", "1");
+				DOMUtils
+						.createElementAndText(e, "Calendar:MeetingStatus",
+								CalendarMeetingStatus.MEETING_IS_CANCELED
+										.asIntString());
+			} else {
+
+				if (bs.checkHint("hint.loadAttendees", true)
+						&& ex.getAttendees().size() > 1) {
+					e(e, "Calendar:MeetingStatus",
+							CalendarMeetingStatus.IS_IN_MEETING.asIntString());
+				} else {
+					e(e, "Calendar:MeetingStatus",
+							CalendarMeetingStatus.IS_NOT_IN_MEETING
+									.asIntString());
+				}
+
+				if (bs.getProtocolVersion() > 12) {
+					Element d = DOMUtils.createElement(e, "AirSyncBase:Body");
+					e(d, "AirSyncBase:Type", AirSyncBaseType.PLAIN_TEXT
+							.toString());
+					DOMUtils.createElementAndText(d,
+							"AirSyncBase:EstimatedDataSize", "0");
+					DOMUtils.createElementAndText(d, "AirSyncBase:Truncated",
+							"1");
+				}
+
+				e(e, "Calendar:Location", ex.getLocation());
+				e(e, "Calendar:Sensitivity", "0");
+				e(e, "Calendar:BusyStatus", ex.getBusyStatus().asIntString());
+				e(e, "Calendar:AllDayEvent", (ex.getAllDayEvent() ? "1" : "0"));
+				if (ex.getReminder() != null) {
+					e(e, "Calendar:ReminderMinsBefore", ex.getReminder()
+							.toString());
+				}
+			}
+			DOMUtils.createElementAndText(e, "Calendar:ExceptionStartTime", sdf
+					.format(ex.getExceptionStartTime()));
+			
+			DOMUtils.createElementAndText(e, "Calendar:StartTime", sdf
+					.format(ex.getStartTime()));
+			if (ex.getEndTime() != null) {
+				DOMUtils.createElementAndText(e, "Calendar:EndTime", sdf
+						.format(ex.getEndTime()));
+			}
+			if (ex.getDtStamp() != null) {
+				DOMUtils.createElementAndText(e, "Calendar:DTStamp", sdf
+						.format(ex.getDtStamp()));
+			}
+		}
+		// Exceptions.Exception.Categories
+
+	}
+
+	private void encodeRecurrence(Element p, MSEvent ev) {
 		Element r = DOMUtils.createElement(p, "Calendar:Recurrence");
 		DOMUtils.createElementAndText(r, "Calendar:RecurrenceType", rec(ev)
 				.getType().asIntString());

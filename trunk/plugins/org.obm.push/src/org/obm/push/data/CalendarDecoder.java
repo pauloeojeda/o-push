@@ -112,6 +112,11 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 						.getUniqueElement(subnode, "ExceptionIsDeleted")));
 				exception.setExceptionStartTime(parseDOMDate(DOMUtils
 						.getUniqueElement(subnode, "ExceptionStartTime")));
+
+				exception.setMeetingStatus(getMeetingStatus(subnode));
+
+				exception.setSensitivity(getCalendarSensitivity(subnode));
+				exception.setBusyStatus(getCalendarBusyStatus(subnode));
 				exceptions.add(exception);
 			}
 			calendar.setExceptions(exceptions);
@@ -191,69 +196,66 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		calendar.setCategories(parseDOMStringCollection(DOMUtils
 				.getUniqueElement(domSource, "Categories"), "Category"));
 
-		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource,
-				"BusyStatus"))) {
-		case 0:
-			calendar.setBusyStatus(CalendarBusyStatus.FREE);
-			break;
-		case 1:
-			calendar.setBusyStatus(CalendarBusyStatus.TENTATIVE);
-			break;
-		case 2:
-			calendar.setBusyStatus(CalendarBusyStatus.BUSY);
-			break;
-		case 3:
-			calendar.setBusyStatus(CalendarBusyStatus.OUT_OF_OFFICE);
-			break;
-		}
-
+		calendar.setBusyStatus(getCalendarBusyStatus(domSource));
 		if (calendar.getBusyStatus() != null) {
 			logger.info("parse busyStatus: " + calendar.getBusyStatus());
 		}
 
-		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource,
-				"Sensitivity"))) {
-		case 0:
-			calendar.setSensitivity(CalendarSensitivity.NORMAL);
-			break;
-		case 1:
-			calendar.setSensitivity(CalendarSensitivity.PERSONAL);
-			break;
-		case 2:
-			calendar.setSensitivity(CalendarSensitivity.PRIVATE);
-			break;
-		case 3:
-			calendar.setSensitivity(CalendarSensitivity.CONFIDENTIAL);
-			break;
-		}
-
+		calendar.setSensitivity(getCalendarSensitivity(domSource));
 		if (calendar.getSensitivity() != null) {
 			logger.info("parse sensitivity: " + calendar.getSensitivity());
 		}
 
-		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource,
-				"MeetingStatus"))) {
-		case 0:
-			calendar.setMeetingStatus(CalendarMeetingStatus.IS_NOT_IN_MEETING);
-			break;
-		case 1:
-			calendar.setMeetingStatus(CalendarMeetingStatus.IS_IN_MEETING);
-			break;
-		case 3:
-			calendar.setMeetingStatus(CalendarMeetingStatus.MEETING_RECEIVED);
-			break;
-		case 5:
-			calendar
-					.setMeetingStatus(CalendarMeetingStatus.MEETING_IS_CANCELED);
-			break;
-		case 7:
-			calendar
-					.setMeetingStatus(CalendarMeetingStatus.MEETING_IS_CANCELED_AND_RECEIVED);
-			break;
-		}
-
+		calendar.setMeetingStatus(getMeetingStatus(domSource));
 		if (calendar.getMeetingStatus() != null) {
 			logger.info("parse meetingStatus: " + calendar.getMeetingStatus());
 		}
+	}
+
+	private CalendarBusyStatus getCalendarBusyStatus(Element domSource) {
+		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource,
+				"BusyStatus"))) {
+		case 0:
+			return CalendarBusyStatus.FREE;
+		case 1:
+			return CalendarBusyStatus.TENTATIVE;
+		case 2:
+			return CalendarBusyStatus.BUSY;
+		case 3:
+			return CalendarBusyStatus.OUT_OF_OFFICE;
+		}
+		return null;
+	}
+
+	private CalendarSensitivity getCalendarSensitivity(Element domSource) {
+		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource,
+				"Sensitivity"))) {
+		case 0:
+			return CalendarSensitivity.NORMAL;
+		case 1:
+			return CalendarSensitivity.PERSONAL;
+		case 2:
+			return CalendarSensitivity.PRIVATE;
+		case 3:
+			return CalendarSensitivity.CONFIDENTIAL;
+		}
+		return null;
+	}
+
+	private CalendarMeetingStatus getMeetingStatus(Element domSource) {
+		switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(domSource,
+				"MeetingStatus"))) {
+		case 0:
+			return CalendarMeetingStatus.IS_NOT_IN_MEETING;
+		case 1:
+			return CalendarMeetingStatus.IS_IN_MEETING;
+		case 3:
+			return CalendarMeetingStatus.MEETING_RECEIVED;
+		case 5:
+			return CalendarMeetingStatus.MEETING_IS_CANCELED;
+		case 7:
+			return CalendarMeetingStatus.MEETING_IS_CANCELED_AND_RECEIVED;
+		}
+		return null;
 	}
 }

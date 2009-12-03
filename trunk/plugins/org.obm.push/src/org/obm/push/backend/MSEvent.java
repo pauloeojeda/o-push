@@ -1,6 +1,5 @@
 package org.obm.push.backend;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -149,12 +148,12 @@ public class MSEvent implements IApplicationData {
 		return exceptions;
 	}
 
-	public void setExceptions(ArrayList<MSEvent> exceptions) {
+	public void setExceptions(List<MSEvent> exceptions) {
 		this.exceptions = exceptions;
 	}
 
-	public void setDeleted(boolean parseDOMInt2Boolean) {
-		this.deletedException = parseDOMInt2Boolean;
+	public void setDeleted(boolean deleted) {
+		this.deletedException = deleted;
 	}
 
 	public boolean isDeletedException() {

@@ -91,9 +91,11 @@ public class CalendarBackend extends ObmSyncBackend {
 			EventChanges changes = cc.getSync(token, calendar, ls);
 			Event[] evs = changes.getUpdated();
 			for (Event e : evs) {
-				ItemChange change = addCalendarChange(bs.getDevId(),
+				if(e.getRecurrenceId() == null){
+					ItemChange change = addCalendarChange(bs.getDevId(),
 						collectionId, e);
-				addUpd.add(change);
+					addUpd.add(change);
+				}
 			}
 			for (String del : changes.getRemoved()) {
 				deletions.add(getDeletion(bs, collectionId, del));
