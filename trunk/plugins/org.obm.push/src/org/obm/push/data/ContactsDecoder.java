@@ -36,7 +36,7 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setBusiness2PhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "Business2TelephoneNumber")));
 		contact.setBusinessAddressCity(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressCity")));
 		contact.setBusinessPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessTelephoneNumber")));
-		contact.setWebPage(parseDOMString(DOMUtils.getUniqueElement(syncData, "WebPage")));
+		contact.setWebPage(parseDOMString(DOMUtils.getUniqueElement(syncData, "Webpage")));
 		contact.setBusinessAddressCountry(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressCountry")));
 		contact.setDepartment(parseDOMString(DOMUtils.getUniqueElement(syncData, "Department")));
 		contact.setEmail1Address(parseDOMString(DOMUtils.getUniqueElement(syncData, "Email1Address")));
@@ -83,7 +83,6 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setCategories(parseDOMStringCollection(DOMUtils.getUniqueElement(syncData, "Categories"), "Category"));
 		contact.setChildren(parseDOMStringCollection(DOMUtils.getUniqueElement(syncData, "Children"), "Child"));
 		
-		
 		// Contacts2
 		
 		contact.setCustomerId(parseDOMString(DOMUtils.getUniqueElement(syncData, "CustomerId")));
@@ -96,6 +95,7 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setAccountName(parseDOMString(DOMUtils.getUniqueElement(syncData, "AccountName")));
 		contact.setNickName(parseDOMString(DOMUtils.getUniqueElement(syncData, "NickName")));
 		contact.setMMS(parseDOMString(DOMUtils.getUniqueElement(syncData, "MMS")));
+		
 		
 		return contact;
 	}
