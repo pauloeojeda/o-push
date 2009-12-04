@@ -37,6 +37,7 @@ public class ContactConverter {
 		msc.setMiddleName(c.getMiddlename());
 		msc.setJobTitle(c.getTitle());
 		msc.setDepartment(c.getService());
+		msc.setCompanyName(c.getCompany());
 
 		msc.setMobilePhoneNumber(obmPhone(c, "CELL;VOICE;X-OBM-Ref1"));
 		msc.setHomePhoneNumber(obmPhone(c, "HOME;VOICE;X-OBM-Ref1"));
@@ -139,6 +140,16 @@ public class ContactConverter {
 		return ret;
 	}
 
+//	Email de type "autre"
+//	IM
+//	Fonction
+//	Dates
+//	Responsable
+//	Categorie
+//	Commentaire
+//	Note
+//	Autre commentaire
+	
 	/**
 	 * PDA to OBM
 	 * 
@@ -153,7 +164,12 @@ public class ContactConverter {
 		oc.setMiddlename(c.getMiddleName());
 		oc.setTitle(c.getJobTitle());
 		oc.setService(c.getDepartment());
-
+		oc.setCompany(c.getCompanyName());
+		oc.setManager(c.getManagerName());
+		oc.setSpouse(c.getSpouse());
+		oc.setAssistant(c.getAssistantName());
+		
+		
 		addPhone(oc, "HOME;VOICE;X-OBM-Ref1", c.getHomePhoneNumber());
 		addPhone(oc, "OTHER;VOICE;X-OBM-Ref1", c.getHome2PhoneNumber());
 		addPhone(oc, "WORK;VOICE;X-OBM-Ref1", c.getBusinessPhoneNumber());
@@ -193,7 +209,7 @@ public class ContactConverter {
 	private void addIM(Contact oc, String imAddress) {
 		if (imAddress != null) {
 			oc
-					.addIMIdentifier("", new InstantMessagingId("X-GTALK",
+					.addIMIdentifier("", new InstantMessagingId("XMPP",
 							imAddress));
 		}
 	}
