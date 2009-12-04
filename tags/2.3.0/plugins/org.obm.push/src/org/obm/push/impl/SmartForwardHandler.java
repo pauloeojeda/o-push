@@ -1,0 +1,36 @@
+package org.obm.push.impl;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.IBackend;
+import org.obm.push.backend.IContinuation;
+
+/**
+ * Handles the SmartReply cmd
+ * 
+ * @author adrien
+ * 
+ */
+public class SmartForwardHandler extends MailRequestHandler {
+
+	public SmartForwardHandler(IBackend backend) {
+		super(backend);
+	}
+
+	@Override
+	public void process(IContinuation continuation, BackendSession bs,
+			byte[] mailContent, Boolean saveInSent, HttpServletRequest request,
+			Responder responder) throws IOException {
+		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
+				+ ")");
+
+		String collectionId = request.getParameter("CollectionId");
+		String serverId = request.getParameter("ItemId");
+
+		backend.getContentsImporter(null, bs).forwardEmail(bs, mailContent,
+				saveInSent, collectionId, serverId);
+	}
+}
