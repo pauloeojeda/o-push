@@ -320,8 +320,9 @@ public class EventConverter {
 					if (!excep.isDeletedException()) {
 						Event obmEvent = convertEventOne(e, excep);
 						r.addEventException(obmEvent);
+					} else {
+						r.addException(excep.getExceptionStartTime());
 					}
-					r.addException(excep.getExceptionStartTime());
 				}
 			}
 		}
