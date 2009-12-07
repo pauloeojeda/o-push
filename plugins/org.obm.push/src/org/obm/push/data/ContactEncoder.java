@@ -1,5 +1,8 @@
 package org.obm.push.data;
 
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSContact;
@@ -9,6 +12,13 @@ import org.w3c.dom.Element;
 
 public class ContactEncoder implements IDataEncoder {
 
+	private SimpleDateFormat sdf;
+
+	public ContactEncoder() {
+		sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+	}
+
 	@Override
 	public void encode(BackendSession bs, Element parent,
 			IApplicationData data, SyncCollection collectio, boolean isResponse) {
@@ -17,22 +27,51 @@ public class ContactEncoder implements IDataEncoder {
 
 		// DOMUtils.createElement(parent, "Contacts:CompressedRTF");
 
-		if (bs.getProtocolVersion() > 12) {
-			Element body = DOMUtils.createElement(parent, "AirSyncBase:Body");
-			e(body, "AirSyncBase:Type", "3");
-			e(body, "AirSyncBase:EstimatedDataSize", "5500"); // FIXME random
-																// value....
-			e(body, "AirSyncBase:Truncated", "1");
-		}
+//		if (bs.getProtocolVersion() > 12) {
+//			Element body = DOMUtils.createElement(parent, "AirSyncBase:Body");
+//			e(body, "AirSyncBase:Type", "3");
+//			e(body, "AirSyncBase:EstimatedDataSize", "5500"); // FIXME random
+//			// value....
+//			e(body, "AirSyncBase:Truncated", "1");
+//		}
 
 		DOMUtils.createElementAndText(parent, "Contacts:FileAs", getFileAs(c));
 
 		e(parent, "Contacts:FirstName", c.getFirstName());
 		e(parent, "Contacts:LastName", c.getLastName());
 		e(parent, "Contacts:MiddleName", c.getMiddleName());
+		e(parent, "Contacts:Suffix", c.getSuffix());
+		e(parent, "Contacts2:NickName", c.getNickName());
 
 		e(parent, "Contacts:JobTitle", c.getJobTitle());
+		e(parent, "Contacts:Title", c.getTitle());
 		e(parent, "Contacts:Department", c.getDepartment());
+		e(parent, "Contacts:CompanyName", c.getCompanyName());
+		
+		e(parent, "Contacts:Spouse", c.getSpouse());
+		e(parent, "Contacts:AssistantName", c.getAssistantName());
+		e(parent, "Contacts2:ManagerName", c.getManagerName());
+		if(c.getCategories() != null && c.getCategories().size()>0){
+			Element cats = DOMUtils.createElement(parent, "Contacts:Categories");
+			for(String cat : c.getCategories()){
+				e(cats, "Contacts:Category", cat);
+			}
+		}
+		if(c.getChildren() != null && c.getChildren().size()>0){
+			Element ec = DOMUtils.createElement(parent, "Contacts:Children");
+			for(String Child : c.getCategories()){
+				e(ec, "Contacts:Category", Child);
+			}
+		}
+		
+		if (c.getAnniversary() != null) {
+			e(parent, "Contacts:Anniversary", sdf.format(c.getAnniversary()));
+		}
+		if (c.getBirthday() != null) {
+			e(parent, "Contacts:Birthday", sdf.format(c.getBirthday()));
+		}
+
+		e(parent, "Contacts:Webpage", c.getWebPage());
 
 		e(parent, "Contacts:BusinessAddressStreet", c.getBusinessStreet());
 		e(parent, "Contacts:BusinessAddressPostalCode", c
@@ -66,14 +105,18 @@ public class ContactEncoder implements IDataEncoder {
 		e(parent, "Contacts:HomeFaxNumber", c.getHomeFaxNumber());
 		e(parent, "Contacts:BusinessFaxNumber", c.getBusinessFaxNumber());
 
-		// e(parent, "Contacts2:IMAddress", c.getIMAddress());
-		// e(parent, "Contacts2:IMAddress2", c.getIMAddress2());
-		// e(parent, "Contacts2:IMAddress3", c.getIMAddress3());
+		e(parent, "Contacts:PagerNumber", c.getPagerNumber());
+
+		e(parent, "Contacts2:IMAddress", c.getIMAddress());
+		e(parent, "Contacts2:IMAddress2", c.getIMAddress2());
+		e(parent, "Contacts2:IMAddress3", c.getIMAddress3());
 
 		e(parent, "Contacts:Email1Address", c.getEmail1Address());
 		e(parent, "Contacts:Email2Address", c.getEmail2Address());
 		e(parent, "Contacts:Email3Address", c.getEmail3Address());
 
+		e(parent, "Contacts:Data", c.getData());
+		
 		if (bs.getProtocolVersion() > 12) {
 			e(parent, "AirSyncBase:NativeBodyType", "3");
 		}

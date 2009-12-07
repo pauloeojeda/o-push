@@ -2,6 +2,7 @@ package org.obm.push.backend;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class MSContact implements IApplicationData {
@@ -53,12 +54,13 @@ public class MSContact implements IApplicationData {
 	private String officeLocation;
 	private String radioPhoneNumber;
 	private String picture;
+	private String data;
 
 	private Date anniversary;
 	private Date birthday;
 
-	private ArrayList<String> categories;
-	private ArrayList<String> children;
+	private List<String> categories;
+	private List<String> children;
 
 	// Contacts2
 
@@ -73,7 +75,7 @@ public class MSContact implements IApplicationData {
 	private String nickName;
 	private String mMS;
 
-	public ArrayList<String> getCategories() {
+	public List<String> getCategories() {
 		return categories;
 	}
 
@@ -81,7 +83,7 @@ public class MSContact implements IApplicationData {
 		this.categories = categories;
 	}
 
-	public ArrayList<String> getChildren() {
+	public List<String> getChildren() {
 		return children;
 	}
 
@@ -569,5 +571,13 @@ public class MSContact implements IApplicationData {
 
 	public void setBirthday(Date birthday) {
 		this.birthday = birthday;
+	}
+	
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
 	}
 }
