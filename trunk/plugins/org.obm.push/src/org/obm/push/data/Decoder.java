@@ -59,11 +59,10 @@ public class Decoder {
 
 	public Date parseDate(String str) {
 		SimpleDateFormat date;
-
 		// Doc : [MS-ASDTYPE] 2.6 Date/Time
 		try {
 			if (str.matches("^....-..-..T..:..:..\\....Z$")) {
-				date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000'Z'");
+				date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 				date.setTimeZone(TimeZone.getTimeZone("GMT"));
 				return date.parse(str);
 			} else if (str.matches("^........T......Z$")) {

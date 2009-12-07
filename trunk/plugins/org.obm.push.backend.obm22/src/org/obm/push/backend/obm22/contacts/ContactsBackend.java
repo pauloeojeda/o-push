@@ -61,11 +61,8 @@ public class ContactsBackend extends ObmSyncBackend {
 				"o-push");
 
 		try {
-			
-			logger.info("Get contact from obm-sync...");
 			ContactChanges changes = bc.getSync(token, BookType.contacts, bs
 					.getState().getLastSync());
-			logger.info("contacts from obm-sync updated["+changes.getUpdated()+"] removed["+changes.getRemoved()+"]");
 			
 			long time = System.currentTimeMillis();
 			for (Contact c : changes.getUpdated()) {
@@ -73,18 +70,13 @@ public class ContactsBackend extends ObmSyncBackend {
 				addUpd.add(change);
 			}
 			time = System.currentTimeMillis() - time;
-			logger.info(" load and convert " + addUpd.size() + " updated contacts in "
-					+ time + "ms.");
 
-			time = System.currentTimeMillis();
 			for (Integer del : changes.getRemoved()) {
 				ItemChange change = getDeletion(bs, collection, "" + del);
 				deletions.add(change);
 			}
 
 			time = System.currentTimeMillis() - time;
-			logger.info(" load and convert deleted " + addUpd.size()
-					+ " contacts in " + time + "ms.");
 
 			bs.setUpdatedSyncDate(changes.getLastSync());
 		} catch (Exception e) {
@@ -97,17 +89,11 @@ public class ContactsBackend extends ObmSyncBackend {
 
 	private ItemChange getContactChange(BackendSession bs, String collection,
 			Contact c) {
-		long time = System.currentTimeMillis();
 		ItemChange ic = new ItemChange();
 		ic.setServerId(getServerIdFor(bs.getDevId(), collection, ""
 				+ c.getUid()));
 		MSContact cal = new ContactConverter().convert(c);
 		ic.setData(cal);
-
-		// if (logger.isDebugEnabled()) {
-		time = System.currentTimeMillis() - time;
-		logger.info(" convert contact[" + c.getUid() + "] in " + time + "ms.");
-		// }
 		return ic;
 	}
 

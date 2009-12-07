@@ -34,10 +34,9 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setAssistantPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "AssistantTelephoneNumber")));
 		contact.setAssistnamePhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "AssistnameTelephoneNumber")));
 		contact.setBusiness2PhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "Business2TelephoneNumber")));
-		contact.setBusinessAddressCity(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressCity")));
 		contact.setBusinessPhoneNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessTelephoneNumber")));
 		contact.setWebPage(parseDOMString(DOMUtils.getUniqueElement(syncData, "Webpage")));
-		contact.setBusinessAddressCountry(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressCountry")));
+		
 		contact.setDepartment(parseDOMString(DOMUtils.getUniqueElement(syncData, "Department")));
 		contact.setEmail1Address(parseDOMString(DOMUtils.getUniqueElement(syncData, "Email1Address")));
 		contact.setEmail2Address(parseDOMString(DOMUtils.getUniqueElement(syncData, "Email2Address")));
@@ -65,11 +64,13 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setOtherAddressStreet(parseDOMString(DOMUtils.getUniqueElement(syncData, "OtherAddressStreet")));
 		contact.setPagerNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "PagerNumber")));
 		contact.setTitle(parseDOMString(DOMUtils.getUniqueElement(syncData, "Title")));
-		contact.setBusinessPostalCode(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessPostalCode")));
+		contact.setBusinessPostalCode(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressPostalCode")));
+		contact.setBusinessState(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressState")));
+		contact.setBusinessStreet(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressStreet")));
+		contact.setBusinessAddressCountry(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressCountry")));
+		contact.setBusinessAddressCity(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessAddressCity")));
 		contact.setLastName(parseDOMString(DOMUtils.getUniqueElement(syncData, "LastName")));
 		contact.setSpouse(parseDOMString(DOMUtils.getUniqueElement(syncData, "Spouse")));
-		contact.setBusinessState(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessState")));
-		contact.setBusinessStreet(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessStreet")));
 		contact.setJobTitle(parseDOMString(DOMUtils.getUniqueElement(syncData, "JobTitle")));
 		contact.setYomiFirstName(parseDOMString(DOMUtils.getUniqueElement(syncData, "YomiFirstName")));
 		contact.setYomiLastName(parseDOMString(DOMUtils.getUniqueElement(syncData, "YomiLastName")));
@@ -82,7 +83,6 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		
 		contact.setCategories(parseDOMStringCollection(DOMUtils.getUniqueElement(syncData, "Categories"), "Category"));
 		contact.setChildren(parseDOMStringCollection(DOMUtils.getUniqueElement(syncData, "Children"), "Child"));
-		
 		// Contacts2
 		
 		contact.setCustomerId(parseDOMString(DOMUtils.getUniqueElement(syncData, "CustomerId")));
@@ -91,10 +91,12 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setIMAddress2(parseDOMString(DOMUtils.getUniqueElement(syncData, "IMAddress2")));
 		contact.setIMAddress3(parseDOMString(DOMUtils.getUniqueElement(syncData, "IMAddress3")));
 		contact.setManagerName(parseDOMString(DOMUtils.getUniqueElement(syncData, "ManagerName")));
-		contact.setCompanyMainPhone(parseDOMString(DOMUtils.getUniqueElement(syncData, "CompanyMainTelephone")));
+		contact.setCompanyMainPhone(parseDOMString(DOMUtils.getUniqueElement(syncData, "CompanyMainPhone")));
 		contact.setAccountName(parseDOMString(DOMUtils.getUniqueElement(syncData, "AccountName")));
 		contact.setNickName(parseDOMString(DOMUtils.getUniqueElement(syncData, "NickName")));
 		contact.setMMS(parseDOMString(DOMUtils.getUniqueElement(syncData, "MMS")));
+		
+		contact.setData(parseDOMString(DOMUtils.getUniqueElement(syncData, "Data")));
 		
 		
 		return contact;

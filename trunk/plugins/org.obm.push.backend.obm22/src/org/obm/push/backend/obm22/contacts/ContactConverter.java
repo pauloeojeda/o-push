@@ -20,9 +20,9 @@ import org.obm.sync.book.Website;
  */
 public class ContactConverter {
 
-	@SuppressWarnings("unused")
+//	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(ContactConverter.class);
-	
+
 	/**
 	 * OBM to PDA
 	 * 
@@ -35,18 +35,35 @@ public class ContactConverter {
 		msc.setFirstName(c.getFirstname());
 		msc.setLastName(c.getLastname());
 		msc.setMiddleName(c.getMiddlename());
-		msc.setJobTitle(c.getTitle());
+		msc.setSuffix(c.getSuffix());
+		msc.setNickName(c.getAka());
+		msc.setTitle(c.getTitle());
 		msc.setDepartment(c.getService());
 		msc.setCompanyName(c.getCompany());
+		if(c.getWebsites().values().size()>0){
+			msc.setWebPage(c.getWebsites().values().iterator().next().getUrl());
+		}
+		msc.setBirthday(c.getBirthday());
+		msc.setAnniversary(c.getAnniversary());
+		
+		msc.setManagerName(c.getManager());
+		msc.setAssistantName(c.getAssistant());
+		msc.setSpouse(c.getSpouse());
+//		msc.setCategories()
+//		msc.setChildren(children)
+		
+		msc.setData(c.getComment());
 
 		msc.setMobilePhoneNumber(obmPhone(c, "CELL;VOICE;X-OBM-Ref1"));
 		msc.setHomePhoneNumber(obmPhone(c, "HOME;VOICE;X-OBM-Ref1"));
-		msc.setHome2PhoneNumber(obmPhone(c, "OTHER;VOICE;X-OBM-Ref1"));
+		msc.setHome2PhoneNumber(obmPhone(c, "HOME;VOICE;X-OBM-Ref2"));
 		msc.setBusinessPhoneNumber(obmPhone(c, "WORK;VOICE;X-OBM-Ref1"));
 		msc.setBusiness2PhoneNumber(obmPhone(c, "WORK;VOICE;X-OBM-Ref2"));
 
 		msc.setBusinessFaxNumber(obmPhone(c, "WORK;FAX;X-OBM-Ref1"));
 		msc.setHomeFaxNumber(obmPhone(c, "HOME;FAX;X-OBM-Ref1"));
+		
+		msc.setPagerNumber(obmPhone(c, "PAGER;X-OBM-Ref1"));
 
 		msc.setEmail1Address(obmMail(c, "INTERNET;X-OBM-Ref1"));
 		msc.setEmail2Address(obmMail(c, "INTERNET;X-OBM-Ref2"));
@@ -140,41 +157,63 @@ public class ContactConverter {
 		return ret;
 	}
 
-//	Email de type "autre"
-//	IM
-//	Fonction
-//	Dates
-//	Responsable
-//	Categorie
-//	Commentaire
-//	Note
-//	Autre commentaire
-	
 	/**
 	 * PDA to OBM
 	 * 
 	 * @param c
 	 * @return
 	 */
+	
 	public Contact contact(MSContact c) {
 		Contact oc = new Contact();
-
+		// JobTitle
+		// Anniversary
+		// Birthday
+		// Picture
+		// YomiLastName
+		// YomiFirstName
+		oc.setTitle(c.getTitle());
 		oc.setFirstname(c.getFirstName());
 		oc.setLastname(c.getLastName());
 		oc.setMiddlename(c.getMiddleName());
-		oc.setTitle(c.getJobTitle());
+		oc.setSuffix(c.getSuffix());
 		oc.setService(c.getDepartment());
 		oc.setCompany(c.getCompanyName());
 		oc.setManager(c.getManagerName());
 		oc.setSpouse(c.getSpouse());
 		oc.setAssistant(c.getAssistantName());
-		
-		
+		oc.setAka(c.getNickName());
+		oc.setComment(c.getData());
+
 		addPhone(oc, "HOME;VOICE;X-OBM-Ref1", c.getHomePhoneNumber());
-		addPhone(oc, "OTHER;VOICE;X-OBM-Ref1", c.getHome2PhoneNumber());
+		addPhone(oc, "HOME;VOICE;X-OBM-Ref2", c.getHome2PhoneNumber());
 		addPhone(oc, "WORK;VOICE;X-OBM-Ref1", c.getBusinessPhoneNumber());
 		addPhone(oc, "WORK;VOICE;X-OBM-Ref2", c.getBusiness2PhoneNumber());
+
 		addPhone(oc, "CELL;VOICE;X-OBM-Ref1", c.getMobilePhoneNumber());
+		addPhone(oc, "PAGER;X-OBM-Ref1", c.getPagerNumber());
+
+		int i = 0;
+		if (c.getRadioPhoneNumber() != null
+				&& !c.getRadioPhoneNumber().isEmpty()) {
+			i++;
+			addPhone(oc, "OTHER;X-OBM-Ref"+i, c.getRadioPhoneNumber());
+		}
+		if (c.getAssistantPhoneNumber() != null
+				&& !c.getAssistantPhoneNumber().isEmpty()) {
+			i++;
+			addPhone(oc, "OTHER;X-OBM-Ref"+i, c.getAssistantPhoneNumber());
+		}
+		if (c.getCarPhoneNumber() != null
+				&& !c.getCarPhoneNumber().isEmpty()) {
+			i++;
+			addPhone(oc, "OTHER;X-OBM-Ref"+i, c.getCarPhoneNumber());
+		}
+		if (c.getCompanyMainPhone() != null
+				&& !c.getCompanyMainPhone().isEmpty()) {
+			i++;
+			addPhone(oc, "OTHER;X-OBM-Ref"+i, c.getCompanyMainPhone());
+		}
 
 		addPhone(oc, "WORK;FAX;X-OBM-Ref1", c.getBusinessFaxNumber());
 		addPhone(oc, "HOME;FAX;X-OBM-Ref1", c.getHomeFaxNumber());
@@ -202,15 +241,20 @@ public class ContactConverter {
 		if (c.getWebPage() != null) {
 			oc.addWebsite("", new Website(c.getWebPage()));
 		}
+		
+		oc.setAnniversary(c.getAnniversary());
+		logger.info("setAnniversary:"+ c.getAnniversary());
+		
+		
+		oc.setBirthday(c.getBirthday());
+		logger.info("setAnniversary:"+ c.getBirthday());
 
 		return oc;
 	}
 
 	private void addIM(Contact oc, String imAddress) {
 		if (imAddress != null) {
-			oc
-					.addIMIdentifier("", new InstantMessagingId("XMPP",
-							imAddress));
+			oc.addIMIdentifier("", new InstantMessagingId("XMPP", imAddress));
 		}
 	}
 
