@@ -25,6 +25,7 @@ import org.obm.push.backend.obm22.impl.ListenerRegistration;
 import org.obm.push.backend.obm22.mail.EmailManager;
 import org.obm.push.backend.obm22.mail.EmailMonitoringThread;
 import org.obm.push.backend.obm22.mail.MailBackend;
+import org.obm.push.backend.obm22.tasks.TasksBackend;
 import org.obm.push.provisioning.MSEASProvisioingWBXML;
 import org.obm.push.provisioning.MSWAPProvisioningXML;
 import org.obm.push.provisioning.Policy;
@@ -53,11 +54,12 @@ public class OBMBackend implements IBackend {
 		MailBackend mailBackend = new MailBackend(store);
 		CalendarBackend calendarBackend = new CalendarBackend(store);
 		ContactsBackend contactsBackend = new ContactsBackend(store);
+		TasksBackend tasksBackend = new TasksBackend(store); 
 		this.store = store;
 
 		hImporter = new HierarchyImporter();
 		exporter = new HierarchyExporter(folderExporter, mailBackend,
-				calendarBackend, contactsBackend);
+				calendarBackend, contactsBackend, tasksBackend);
 		cImporter = new ContentsImporter(mailBackend, calendarBackend,
 				contactsBackend);
 		contentsExporter = new ContentsExporter(mailBackend, calendarBackend,
