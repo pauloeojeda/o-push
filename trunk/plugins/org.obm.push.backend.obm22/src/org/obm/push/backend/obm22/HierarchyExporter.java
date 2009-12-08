@@ -13,6 +13,7 @@ import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
+import org.obm.push.backend.obm22.tasks.TasksBackend;
 import org.obm.push.state.SyncState;
 
 public class HierarchyExporter implements IHierarchyExporter {
@@ -24,13 +25,15 @@ public class HierarchyExporter implements IHierarchyExporter {
 	private MailBackend mailExporter;
 	private CalendarBackend calendarExporter;
 	private ContactsBackend contactsBackend;
+	private TasksBackend tasksBackend;
 
 	public HierarchyExporter(FolderBackend folderExporter, MailBackend mailExporter,
-			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
+			CalendarBackend calendarExporter, ContactsBackend contactsBackend, TasksBackend tasksBackend) {
 		this.folderExporter = folderExporter;
 		this.mailExporter = mailExporter;
 		this.calendarExporter = calendarExporter;
 		this.contactsBackend = contactsBackend;
+		this.tasksBackend = tasksBackend;
 	}
 
 	@Override
@@ -65,7 +68,7 @@ public class HierarchyExporter implements IHierarchyExporter {
 		lic = getContactsDeletions(bs);
 		addDeletions(lic);
 
-		lic = getTasksChanges(bs.getState().getLastSync());
+		lic = getTasksChanges(bs);
 		addChanges(lic);
 		lic = getTasksDeletions(bs.getState().getLastSync());
 		addDeletions(lic);
@@ -96,10 +99,8 @@ public class HierarchyExporter implements IHierarchyExporter {
 		return ret;
 	}
 
-	private List<ItemChange> getTasksChanges(Date lastSync) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
+	private List<ItemChange> getTasksChanges(BackendSession bs) {
+		return tasksBackend.getHierarchyChanges(bs);
 	}
 
 	private List<ItemChange> getTasksDeletions(Date lastSync) {
@@ -134,6 +135,7 @@ public class HierarchyExporter implements IHierarchyExporter {
 		changes.addAll(getCalendarChanges(bs));
 		changes.addAll(getMailChanges(bs));
 		changes.addAll(getContactsChanges(bs));
+		changes.addAll(getTasksChanges(bs));
 		return changes;
 	}
 
