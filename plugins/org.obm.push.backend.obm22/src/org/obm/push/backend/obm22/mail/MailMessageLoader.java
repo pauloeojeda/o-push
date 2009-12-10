@@ -34,6 +34,8 @@ import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.james.mime4j.parser.MimeEntityConfig;
+import org.apache.james.mime4j.parser.MimeStreamParser;
 import org.minig.imap.Flag;
 import org.minig.imap.FlagsList;
 import org.minig.imap.IMAPException;
@@ -123,9 +125,31 @@ public class MailMessageLoader {
 			mm.setStarred(fl[0].contains(Flag.FLAGGED));
 			mm.setAnswered(fl[0].contains(Flag.ANSWERED));
 		}
-		InputStream mimeData = store.uidFetchMessage(messageId);
-		mm.setMimeData(FileUtils.streamString(mimeData, true));
+		
+		fetchMimeData(store, mm);
+		
 		return mm;
+	}
+	
+	private void fetchMimeData(StoreClient store, MSEmail mm){
+		try {
+			InputStream mimeData = store.uidFetchMessage(messageId);
+			
+			SendEmailHandler handler = new SendEmailHandler("");
+			MimeEntityConfig config = new MimeEntityConfig();
+			config.setMaxContentLen(Integer.MAX_VALUE);
+			config.setMaxLineLen(Integer.MAX_VALUE);
+			MimeStreamParser parser = new MimeStreamParser(config);
+			parser.setContentHandler(handler);
+			parser.parse(mimeData);
+			
+			mm.setMimeData(handler.getMessage());
+			
+//			byte[] data = FileUtils.streamBytes(mimeData, false);
+//			mm.setMimeData(new String(data,charset));
+		} catch (Exception e) {
+			logger.error(e.getMessage(),e);
+		} 
 	}
 
 	private void fetchQuotedText(MimeTree tree, MSEmail mailMessage,
@@ -198,11 +222,11 @@ public class MailMessageLoader {
 				|| chosenPart.getFullMimeType().equals("message/rfc822")) {
 			chosenPart = findBodyTextPart(mimePart, mimePart.getAddress());
 		}
-
 		if (h == null) {
 			InputStream is = protocol.uidFetchPart(tree.getUid(), mimePart
 					.getAddress()
 					+ ".HEADER");
+
 			Map<String, String> rawHeaders = new HashMap<String, String>();
 			parseRawHeaders(is, rawHeaders, getHeaderCharsetDecoder(mimePart));
 			h = new IMAPHeaders();
@@ -421,7 +445,8 @@ public class MailMessageLoader {
 
 		long uid = tree.getUid();
 		String id = AttachmentHelper.getAttachmentId(collectionId.toString(),
-				"" + messageId, mp.getAddress(), mp.getFullMimeType(), mp.getContentTransfertEncoding());
+				"" + messageId, mp.getAddress(), mp.getFullMimeType(), mp
+						.getContentTransfertEncoding());
 		byte[] data = null;
 		if (!bodyOnly) {
 			InputStream part = protocol.uidFetchPart(uid, mp.getAddress());
@@ -435,12 +460,12 @@ public class MailMessageLoader {
 							&& !bodyOnly && data != null) {
 						invitation = new ByteArrayInputStream(data);
 					}
-//					MSAttachement att = new MSAttachement();
-//					att.setDisplayName(bp.get("name"));
-//					att.setFileReference(id);
-//					att.setMethod(MethodAttachment.NormalAttachment);
-//					att.setEstimatedDataSize(data.length);
-//					return att;
+					// MSAttachement att = new MSAttachement();
+					// att.setDisplayName(bp.get("name"));
+					// att.setFileReference(id);
+					// att.setMethod(MethodAttachment.NormalAttachment);
+					// att.setEstimatedDataSize(data.length);
+					// return att;
 				} else if (mp.getContentId() != null
 						&& !mp.getContentId().equalsIgnoreCase("nil")) {
 					MSAttachement att = new MSAttachement();
