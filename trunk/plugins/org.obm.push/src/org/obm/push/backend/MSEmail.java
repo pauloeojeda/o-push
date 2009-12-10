@@ -251,5 +251,6 @@ public class MSEmail implements IApplicationData {
 	public void setMimeData(String mimeData) {
 		this.mimeData = mimeData;
 	}
+	
 }
 

@@ -97,7 +97,6 @@ public class EmailEncoder implements IDataEncoder {
 		} else {
 			appendAttachments(parent, mail);
 		}
-//		
 
 		DOMUtils.createElementAndText(parent, "Email:MessageClass", mail
 				.getMessageClass().toString());
@@ -107,7 +106,7 @@ public class EmailEncoder implements IDataEncoder {
 		DOMUtils.createElementAndText(parent, "Email:InternetCPID",
 				InternetCPIDMapping
 						.getInternetCPID(mail.getBody().getCharset()));
-
+		
 	}
 
 	private void appendBody25(Element parent, MSEmail mail, SyncCollection c) {
@@ -144,8 +143,10 @@ public class EmailEncoder implements IDataEncoder {
 
 		DOMUtils.createElementAndText(elemBody, "AirSyncBase:Type",
 				availableFormat.asIntString());
+		if(data != null){
 		DOMUtils.createElementAndText(elemBody,
 				"AirSyncBase:EstimatedDataSize", "" + data.getBytes().length);
+		}
 
 		if (c.getBodyPreference() != null
 				&& c.getBodyPreference().getTruncationSize() != null) {
