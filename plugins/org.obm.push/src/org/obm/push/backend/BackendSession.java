@@ -190,7 +190,7 @@ public class BackendSession {
 		return lastClientSyncKey.get(collectionId);
 	}
 
-	public void addLastClientSyncKey(Integer collectionId, String change) {
-		lastClientSyncKey.put(collectionId, change);
+	public void addLastClientSyncKey(Integer collectionId, String synckey) {
+		lastClientSyncKey.put(collectionId, synckey);
 	}
 }
