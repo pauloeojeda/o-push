@@ -1,10 +1,15 @@
 package org.obm.push.impl;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.Map.Entry;
 
 import org.obm.push.backend.BackendSession;
@@ -101,14 +106,19 @@ public class SyncHandler extends WbxmlRequestHandler {
 					bs.setState(new SyncState());
 				}
 
-				String oldSyncKey = c.getSyncKey();
-				SyncState st = sm.getSyncState(oldSyncKey);
+				String syncKey = c.getSyncKey();
+				SyncState st = sm.getSyncState(syncKey);
 
 				String oldClientSyncKey = bs.getLastClientSyncKey(c
 						.getCollectionId());
+				if (oldClientSyncKey != null
+						&& oldClientSyncKey.equals(syncKey)) {
+					Calendar cal = Calendar.getInstance(TimeZone
+							.getTimeZone("GMT"));
+					st.setLastSync(cal.getTime());
+				}
 
-				if (!st.isValid() && oldClientSyncKey != null
-						&& !oldClientSyncKey.equals(oldSyncKey)) {
+				if (!st.isValid()) {
 					invalid = true;
 					break;
 				}
@@ -122,7 +132,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId().toString());
 				DOMUtils.createElementAndText(ce, "Status", "1");
-				if (!oldSyncKey.equals("0")) {
+				if (!syncKey.equals("0")) {
 					int col = c.getCollectionId();
 					String colStr = backend.getStore().getCollectionString(col);
 					IContentsExporter cex = backend.getContentsExporter(bs);
@@ -136,6 +146,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 						doFetch(bs, c, ce, cex);
 					}
 				}
+				bs.addLastClientSyncKey(c.getCollectionId(), syncKey);
 				sk.setTextContent(sm.allocateNewSyncKey(bs,
 						c.getCollectionId(), st));
 			}
@@ -157,7 +168,8 @@ public class SyncHandler extends WbxmlRequestHandler {
 		String col = backend.getStore()
 				.getCollectionString(c.getCollectionId());
 		DataDelta delta = cex.getChanged(bs, c.getFilterType(), col);
-		List<ItemChange> changed = processWindowSize(c, delta, bs);
+		List<ItemChange> changed = processWindowSize(c, delta, bs,
+				processedClientIds);
 
 		Element responses = DOMUtils.createElement(ce, "Responses");
 		if (c.isMoreAvailable()) {
@@ -203,7 +215,6 @@ public class SyncHandler extends WbxmlRequestHandler {
 				serializeChange(bs, add, c, ic);
 			}
 		}
-
 		List<ItemChange> del = delta.getDeletions();
 		for (ItemChange ic : del) {
 			serializeDeletion(commands, ic);
@@ -219,9 +230,11 @@ public class SyncHandler extends WbxmlRequestHandler {
 	}
 
 	private List<ItemChange> processWindowSize(SyncCollection c,
-			DataDelta delta, BackendSession bs) {
+			DataDelta delta, BackendSession bs,
+			HashMap<String, String> processedClientIds) {
 		List<ItemChange> changed = new ArrayList<ItemChange>(delta.getChanges());
 		changed.addAll(bs.getUnSynchronizedItemChange(c.getCollectionId()));
+
 		bs.getUnSynchronizedItemChange(c.getCollectionId()).clear();
 		logger.info("should send " + changed.size() + " change(s)");
 		int changeItem = changed.size() - c.getWindowSize();
@@ -231,6 +244,22 @@ public class SyncHandler extends WbxmlRequestHandler {
 		if (changed.size() <= c.getWindowSize()) {
 			return changed;
 		}
+
+		int nbChangeByMobile = processedClientIds.size();
+		Set<ItemChange> changeByMobile = new HashSet<ItemChange>();
+		// Find changes ask by the device
+		for (Iterator<ItemChange> it = changed.iterator(); it.hasNext();) {
+			ItemChange ic = it.next();
+			if (processedClientIds.get(ic.getServerId()) != null
+					|| processedClientIds.keySet().contains(ic.getServerId())) {
+				changeByMobile.add(ic);
+				it.remove();
+			}
+			if (nbChangeByMobile == changeByMobile.size()) {
+				break;
+			}
+		}
+
 		int changedSize = changed.size();
 		for (int i = c.getWindowSize(); i < changedSize; i++) {
 			ItemChange ic = changed.get(changed.size() - 1);
@@ -238,6 +267,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 			changed.remove(ic);
 		}
 
+		changed.addAll(changeByMobile);
 		c.setMoreAvailable(true);
 		return changed;
 	}
