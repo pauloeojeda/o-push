@@ -75,7 +75,7 @@ public class MailMessageLoader {
 	private Integer collectionId;
 	private long messageId;
 
-	private boolean pickupPlain;
+	// private boolean pickupPlain;
 	private MimeTree tree;
 	private InputStream invitation;
 
@@ -90,7 +90,7 @@ public class MailMessageLoader {
 	 * @param f
 	 */
 	public MailMessageLoader() {
-		this.pickupPlain = true;
+		// this.pickupPlain = true;
 		this.tree = null;
 	}
 
@@ -125,16 +125,16 @@ public class MailMessageLoader {
 			mm.setStarred(fl[0].contains(Flag.FLAGGED));
 			mm.setAnswered(fl[0].contains(Flag.ANSWERED));
 		}
-		
+
 		fetchMimeData(store, mm);
-		
+
 		return mm;
 	}
-	
-	private void fetchMimeData(StoreClient store, MSEmail mm){
+
+	private void fetchMimeData(StoreClient store, MSEmail mm) {
 		try {
 			InputStream mimeData = store.uidFetchMessage(messageId);
-			
+
 			SendEmailHandler handler = new SendEmailHandler("");
 			MimeEntityConfig config = new MimeEntityConfig();
 			config.setMaxContentLen(Integer.MAX_VALUE);
@@ -142,14 +142,14 @@ public class MailMessageLoader {
 			MimeStreamParser parser = new MimeStreamParser(config);
 			parser.setContentHandler(handler);
 			parser.parse(mimeData);
-			
+
 			mm.setMimeData(handler.getMessage());
-			
-//			byte[] data = FileUtils.streamBytes(mimeData, false);
-//			mm.setMimeData(new String(data,charset));
+
+			// byte[] data = FileUtils.streamBytes(mimeData, false);
+			// mm.setMimeData(new String(data,charset));
 		} catch (Exception e) {
-			logger.error(e.getMessage(),e);
-		} 
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	private void fetchQuotedText(MimeTree tree, MSEmail mailMessage,
@@ -216,11 +216,10 @@ public class MailMessageLoader {
 
 	private MSEmail fetchOneMessage(MimePart mimePart, IMAPHeaders h,
 			StoreClient protocol) throws IOException, IMAPException {
-		// attach = new HashMap<String, String>();
-		MimePart chosenPart = mimePart;
-		if (chosenPart.getMimeType() == null
-				|| chosenPart.getFullMimeType().equals("message/rfc822")) {
-			chosenPart = findBodyTextPart(mimePart, mimePart.getAddress());
+		Set<MimePart> chosenParts = null;
+		if (mimePart.getMimeType() == null
+				|| mimePart.getFullMimeType().equals("message/rfc822")) {
+			chosenParts = findBodyTextPart(mimePart, mimePart.getAddress());
 		}
 		if (h == null) {
 			InputStream is = protocol.uidFetchPart(tree.getUid(), mimePart
@@ -233,12 +232,14 @@ public class MailMessageLoader {
 			h.setRawHeaders(rawHeaders);
 		}
 
-		MSEmailBody body = getMailBody(chosenPart, protocol);
+		MSEmailBody body = getMailBody(chosenParts, protocol);
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
-		if (chosenPart == null) {
-			attach = extractAttachments(mimePart, protocol, false);
+		if (chosenParts != null && chosenParts.size() > 0) {
+			for(MimePart mp : chosenParts){
+				attach.addAll(extractAttachments(mp, protocol, false));
+			}
 		} else {
-			attach = extractAttachments(chosenPart, protocol, false, false);
+			attach = extractAttachments(mimePart, protocol, false, false);
 		}
 		MSEmail mm = new MSEmail();
 		mm.setBody(body);
@@ -307,30 +308,32 @@ public class MailMessageLoader {
 		}
 	}
 
-	private MSEmailBody getMailBody(MimePart chosenPart, StoreClient protocol)
-			throws IOException, IMAPException {
+	private MSEmailBody getMailBody(Set<MimePart> chosenParts,
+			StoreClient protocol) throws IOException, IMAPException {
 
 		MSEmailBody mb = new MSEmailBody();
-		if (chosenPart == null) {
+		
+		if (chosenParts == null || chosenParts.size() == 0) {
 			mb.addConverted(MSEmailBodyType.PlainText, "");
 			mb.setCharset("utf-8");
 		} else {
+			for (MimePart mp : chosenParts) {
+				InputStream bodyText = protocol.uidFetchPart(tree.getUid(),
+						mp.getAddress());
+				String charsetName = mp.getBodyParams().get("charset");
+				if (!isSupportedCharset(charsetName)) {
+					charsetName = "utf-8";
+				}
+				mb.setCharset(charsetName);
+				byte[] rawData = extractPartData(mp, bodyText);
+				String partText = new String(rawData, charsetName);
 
-			InputStream bodyText = protocol.uidFetchPart(tree.getUid(),
-					chosenPart.getAddress());
-			String charsetName = chosenPart.getBodyParams().get("charset");
-			if (!isSupportedCharset(charsetName)) {
-				charsetName = "utf-8";
-			}
-			mb.setCharset(charsetName);
-			byte[] rawData = extractPartData(chosenPart, bodyText);
-			String partText = new String(rawData, charsetName);
-
-			mb.addConverted(MSEmailBodyType.getValueOf(chosenPart
-					.getFullMimeType()), partText);
-			if (logger.isDebugEnabled()) {
-				logger.debug("Added part " + chosenPart.getFullMimeType()
-						+ "\n" + partText + "\n------");
+				mb.addConverted(MSEmailBodyType.getValueOf(mp
+						.getFullMimeType()), partText);
+				if (logger.isDebugEnabled()) {
+					logger.debug("Added part " + mp.getFullMimeType()
+							+ "\n" + partText + "\n------");
+				}
 			}
 		}
 		return mb;
@@ -341,42 +344,32 @@ public class MailMessageLoader {
 				&& "rfc822".equalsIgnoreCase(mp.getParent().getMimeSubtype());
 	}
 
-	private MimePart findBodyTextPart(MimePart mimePart, String a) {
-		boolean fetchPlain = false;
+	private Set<MimePart> findBodyTextPart(MimePart mimePart, String a) {
+		Set<MimePart> ret = new HashSet<MimePart>();
 		if (a.equals(mimePart.getAddress())) {
-			MimePart chosenPart = null;
 			for (MimePart mp : mimePart) {
 				if (mp.getMimeType() != null) {
 					if (mp.getMimeType().equalsIgnoreCase("text")) {
 						if (mp.getMimeSubtype().equalsIgnoreCase("html")
-								&& !pickupPlain && (!inEml(mp))) {
-							chosenPart = mp;
+								&& (!inEml(mp))) {
+							ret.add(mp);
 							break;
 						} else if (mp.getMimeSubtype()
 								.equalsIgnoreCase("plain")) {
-							if (!fetchPlain) {
-								chosenPart = mp;
-								fetchPlain = true;
-							}
-							if (pickupPlain) {
-								break;
-							}
+								ret.add(mp);
 						}
 					}
 				} else {
 					MimePart mpChild = mp.getChildren().get(0);
-					if (mpChild.getMimeType() == null && chosenPart == null) {
-						chosenPart = findBodyTextPart(mp, mp.getAddress());
-					} else {
-						if (!mpChild.getFullMimeType().equalsIgnoreCase(
-								"message/rfc822")
-								|| chosenPart == null) {
-							chosenPart = findBodyTextPart(mp, mp.getAddress());
-						}
+					if (mpChild.getMimeType() == null) {
+						ret.addAll(findBodyTextPart(mp, mp.getAddress()));
+					} else if (!mpChild.getFullMimeType().equalsIgnoreCase(
+							"message/rfc822")) {
+						ret.addAll(findBodyTextPart(mp, mp.getAddress()));
 					}
 				}
 			}
-			return chosenPart;
+			return ret;
 		}
 		return null;
 	}
@@ -460,12 +453,12 @@ public class MailMessageLoader {
 							&& !bodyOnly && data != null) {
 						invitation = new ByteArrayInputStream(data);
 					}
-					// MSAttachement att = new MSAttachement();
-					// att.setDisplayName(bp.get("name"));
-					// att.setFileReference(id);
-					// att.setMethod(MethodAttachment.NormalAttachment);
-					// att.setEstimatedDataSize(data.length);
-					// return att;
+					MSAttachement att = new MSAttachement();
+					att.setDisplayName(bp.get("name"));
+					att.setFileReference(id);
+					att.setMethod(MethodAttachment.NormalAttachment);
+					att.setEstimatedDataSize(data.length);
+					return att;
 				} else if (mp.getContentId() != null
 						&& !mp.getContentId().equalsIgnoreCase("nil")) {
 					MSAttachement att = new MSAttachement();
@@ -485,9 +478,9 @@ public class MailMessageLoader {
 		return null;
 	}
 
-	public void setPickupPlain(boolean pickupPlain) {
-		this.pickupPlain = pickupPlain;
-	}
+	// public void setPickupPlain(boolean pickupPlain) {
+	// this.pickupPlain = pickupPlain;
+	// }
 
 	private void parseRawHeaders(InputStream inputStream,
 			Map<String, String> rawHeaders, Charset charset) throws IOException {
