@@ -15,6 +15,7 @@ import org.obm.push.backend.Recurrence;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.data.calendarenum.CalendarMeetingStatus;
 import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
+import org.obm.push.data.email.Type;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
 
@@ -94,7 +95,7 @@ public class CalendarEncoder implements IDataEncoder {
 
 		if (bs.getProtocolVersion() > 12) {
 			Element d = DOMUtils.createElement(p, "AirSyncBase:Body");
-			e(d, "AirSyncBase:Type", AirSyncBaseType.PLAIN_TEXT.toString());
+			e(d, "AirSyncBase:Type", Type.PLAIN_TEXT.toString());
 			DOMUtils.createElementAndText(d, "AirSyncBase:EstimatedDataSize",
 					"0");
 			DOMUtils.createElementAndText(d, "AirSyncBase:Truncated", "1");
@@ -125,7 +126,7 @@ public class CalendarEncoder implements IDataEncoder {
 		}
 
 		if (isReponse && bs.getProtocolVersion() > 12) {
-			e(p, "AirSyncBase:NativeBodyType", AirSyncBaseType.PLAIN_TEXT
+			e(p, "AirSyncBase:NativeBodyType", Type.PLAIN_TEXT
 					.toString());
 		}
 
@@ -164,7 +165,7 @@ public class CalendarEncoder implements IDataEncoder {
 
 				if (bs.getProtocolVersion() > 12) {
 					Element d = DOMUtils.createElement(e, "AirSyncBase:Body");
-					e(d, "AirSyncBase:Type", AirSyncBaseType.PLAIN_TEXT
+					e(d, "AirSyncBase:Type", Type.PLAIN_TEXT
 							.toString());
 					DOMUtils.createElementAndText(d,
 							"AirSyncBase:EstimatedDataSize", "0");

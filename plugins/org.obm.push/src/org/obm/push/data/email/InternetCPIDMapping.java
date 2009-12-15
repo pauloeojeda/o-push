@@ -1,4 +1,4 @@
-package org.obm.push.data;
+package org.obm.push.data.email;
 
 import java.util.HashMap;
 import java.util.Map;

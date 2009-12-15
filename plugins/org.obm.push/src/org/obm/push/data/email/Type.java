@@ -1,6 +1,6 @@
-package org.obm.push.data;
+package org.obm.push.data.email;
 
-public enum AirSyncBaseType {
+public enum Type {
 
 	PLAIN_TEXT, // 1
 	HTML, // 2

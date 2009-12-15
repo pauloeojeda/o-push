@@ -31,6 +31,7 @@
       <plugin id="fr.aliasource.webmail.ristretto"/>
       <plugin id="javax.servlet"/>
       <plugin id="org.apache.commons.codec"/>
+      <plugin id="org.apache.commons.lang"/>
       <plugin id="org.apache.commons.logging"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.jobs"/>
@@ -51,6 +52,7 @@
       <plugin id="org.minig.jdbc.driver.pgsql" fragment="true"/>
       <plugin id="org.minig.jdbc.mysql.provider"/>
       <plugin id="org.minig.jdbc.pgsql.provider"/>
+      <plugin id="org.minig.neko.libs"/>
       <plugin id="org.minig.obm.pool"/>
       <plugin id="org.mortbay.jetty.server"/>
       <plugin id="org.mortbay.jetty.util"/>
