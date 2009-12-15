@@ -20,7 +20,7 @@ import org.obm.sync.book.Website;
  */
 public class ContactConverter {
 
-//	@SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(ContactConverter.class);
 
 	/**
@@ -243,12 +243,7 @@ public class ContactConverter {
 		}
 		
 		oc.setAnniversary(c.getAnniversary());
-		logger.info("setAnniversary:"+ c.getAnniversary());
-		
-		
 		oc.setBirthday(c.getBirthday());
-		logger.info("setAnniversary:"+ c.getBirthday());
-
 		return oc;
 	}
 

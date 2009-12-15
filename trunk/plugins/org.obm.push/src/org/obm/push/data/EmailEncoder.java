@@ -20,6 +20,8 @@ import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.Recurrence;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
+import org.obm.push.data.formatter.HTMLBodyFormatter;
+import org.obm.push.data.formatter.PlainBodyFormatter;
 import org.obm.push.utils.Base64;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
@@ -33,24 +35,15 @@ public class EmailEncoder implements IDataEncoder {
 
 	protected Log logger = LogFactory.getLog(getClass());
 	private SimpleDateFormat sdf;
+	private HTMLBodyFormatter htmlFormatter;
+	private PlainBodyFormatter plainFormatter;
 
 	public EmailEncoder() {
 		sdf = new SimpleDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSS'Z'");
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		htmlFormatter = new HTMLBodyFormatter();
+		plainFormatter = new PlainBodyFormatter();
 	}
-
-	// <To>"Administrator" &lt;Administrator@buffy.kvm&gt;</To>
-	// <From>"Administrator" &lt;Administrator@buffy.kvm&gt;</From>
-	// <Subject>mail to me</Subject>
-	// <DateReceived>2009-03-17T17:59:00.000Z</DateReceived>
-	// <DisplayTo>Administrator</DisplayTo>
-	// <ThreadTopic>mail to me</ThreadTopic>
-	// <Importance>1</Importance>
-	// <Read>1</Read>
-	// <BodyTruncated>0</BodyTruncated>
-	// <Body>to me from otlk&#13;</Body>
-	// <MessageClass>IPM.Note</MessageClass>
-	// <InternetCPID>28591</InternetCPID>
 
 	@Override
 	public void encode(BackendSession bs, Element parent,
@@ -79,8 +72,8 @@ public class EmailEncoder implements IDataEncoder {
 			DOMUtils.createElementAndText(parent, "Email:DisplayTo", mail
 					.getTo().get(0).getDisplayName());
 		}
-//		DOMUtils.createElementAndText(parent, "Email:ThreadTopic", mail
-//				.getSubject());
+		// DOMUtils.createElementAndText(parent, "Email:ThreadTopic", mail
+		// .getSubject());
 		DOMUtils.createElementAndText(parent, "Email:Importance", mail
 				.getImportance().asIntString());
 		DOMUtils.createElementAndText(parent, "Email:Read", mail.isRead() ? "1"
@@ -103,49 +96,40 @@ public class EmailEncoder implements IDataEncoder {
 
 		appendMeetintRequest(parent, mail);
 
-		DOMUtils.createElementAndText(parent, "Email:InternetCPID",
-				InternetCPIDMapping
-						.getInternetCPID(mail.getBody().getCharset()));
-		
+		DOMUtils.createElementAndText(parent, "Email:InternetCPID", "65001");
+
 	}
 
 	private void appendBody25(Element parent, MSEmail mail, SyncCollection c) {
 		if (c.getTruncation() != null && c.getTruncation().equals(1)) {
 			DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "1");
 		} else {
-			DOMUtils.createElementAndText(parent, "Email:BodyTruncated", "0");
-			String mailBody = mail.getBody().getValue(MSEmailBodyType.PlainText);
-			DOMUtils.createElementAndText(parent, "Email:Body", mailBody);
+			MSEmailBodyType availableFormat = getAvailableFormat(c, mail);
+			String mailBody = getBodyData(c, mail, availableFormat);
+			if (MSEmailBodyType.MIME.equals(availableFormat)) {
+				DOMUtils.createElementAndText(parent, "Email:MIMETruncated",
+						"0");
+				DOMUtils.createElementAndText(parent, "Email:MIME", mailBody);
+			} else {
+				DOMUtils.createElementAndText(parent, "Email:BodyTruncated",
+						"0");
+				DOMUtils.createElementAndText(parent, "Email:Body", mailBody);
+			}
 		}
 	}
 
 	protected void appendBody(Element parent, MSEmail mail, SyncCollection c) {
 		Element elemBody = DOMUtils.createElement(parent, "AirSyncBase:Body");
-		String data = "";
-		MSEmailBodyType availableFormat = mail.getBody().availableFormats()
-				.iterator().next();
-		if (c.getMimeSupport() != null && c.getMimeSupport().equals(2)) {
-			data = mail.getMimeData();
-			availableFormat = MSEmailBodyType.MIME;
-		} else {
-			if (c.getBodyPreference() != null
-					&& c.getBodyPreference().getType() != null) {
-				availableFormat = c.getBodyPreference().getType();
-			}
 
-			data = mail.getBody().getValue(availableFormat);
-			if (data == null) {
-				availableFormat = mail.getBody().availableFormats().iterator()
-						.next();
-				data = mail.getBody().getValue(availableFormat);
-			}
-		}
+		MSEmailBodyType availableFormat = getAvailableFormat(c, mail);
+		String data = getBodyData(c, mail, availableFormat);
 
 		DOMUtils.createElementAndText(elemBody, "AirSyncBase:Type",
 				availableFormat.asIntString());
-		if(data != null){
-		DOMUtils.createElementAndText(elemBody,
-				"AirSyncBase:EstimatedDataSize", "" + data.getBytes().length);
+		if (data != null) {
+			DOMUtils.createElementAndText(elemBody,
+					"AirSyncBase:EstimatedDataSize", ""
+							+ data.getBytes().length);
 		}
 
 		if (c.getBodyPreference() != null
@@ -169,8 +153,51 @@ public class EmailEncoder implements IDataEncoder {
 		}
 
 		DOMUtils.createElementAndText(parent, "AirSyncBase:NativeBodyType",
-				mail.getBody().availableFormats().iterator().next()
-						.asIntString());
+				availableFormat.asIntString());
+	}
+
+	private MSEmailBodyType getAvailableFormat(SyncCollection c, MSEmail mail) {
+
+		if (c.getMimeSupport() != null && c.getMimeSupport().equals(2)) {
+			return MSEmailBodyType.MIME;
+		} else if (c.getBodyPreference() != null
+				&& c.getBodyPreference().getType() != null) {
+			return c.getBodyPreference().getType();
+		}
+		return MSEmailBodyType.PlainText;
+	}
+
+	private String getBodyData(SyncCollection c, MSEmail mail,
+			MSEmailBodyType type) {
+		switch (type) {
+		case PlainText:
+			String body = mail.getBody().getValue(MSEmailBodyType.PlainText);
+			if (body != null && body.length() != 0) {
+				return body;
+			} else {
+				body = mail.getBody().getValue(MSEmailBodyType.HTML);
+				if (body != null && body.length() != 0) {
+					return plainFormatter.convert(body);
+				}
+			}
+			break;
+		case HTML:
+			body = mail.getBody().getValue(MSEmailBodyType.HTML);
+			if (body != null && body.length() == 0) {
+				return body;
+			} else {
+				body = mail.getBody().getValue(MSEmailBodyType.PlainText);
+				if (body != null && body.length() != 0) {
+					return htmlFormatter.convert(body);
+				}
+			}
+			break;
+		case RTF:
+			return mail.getBody().getValue(MSEmailBodyType.RTF);
+		case MIME:
+			return mail.getMimeData();
+		}
+		return "";
 	}
 
 	private void appendMeetintRequest(Element parent, MSEmail mail) {
@@ -308,25 +335,22 @@ public class EmailEncoder implements IDataEncoder {
 			}
 		}
 	}
-	
+
 	private void appendAttachments25(Element parent, MSEmail email) {
 		if (email.getAttachements().size() > 0) {
-			Element atts = DOMUtils.createElement(parent,
-					"Email:Attachments");
+			Element atts = DOMUtils.createElement(parent, "Email:Attachments");
 
 			Set<MSAttachement> mailAtts = email.getAttachements();
 			for (MSAttachement msAtt : mailAtts) {
-				Element att = DOMUtils.createElement(atts,
-						"Email:Attachment");
-				DOMUtils.createElementAndText(att, "Email:DisplayName",
-						msAtt.getDisplayName());
-				DOMUtils.createElementAndText(att, "Email:AttName",
-						msAtt.getFileReference());
+				Element att = DOMUtils.createElement(atts, "Email:Attachment");
+				DOMUtils.createElementAndText(att, "Email:DisplayName", msAtt
+						.getDisplayName());
+				DOMUtils.createElementAndText(att, "Email:AttName", msAtt
+						.getFileReference());
 				DOMUtils.createElementAndText(att, "Email:AttMethod", msAtt
 						.getMethod().asIntString());
-				DOMUtils.createElementAndText(att,
-						"Email:AttSize", msAtt
-								.getEstimatedDataSize().toString());
+				DOMUtils.createElementAndText(att, "Email:AttSize", msAtt
+						.getEstimatedDataSize().toString());
 			}
 		}
 	}

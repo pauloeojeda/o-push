@@ -222,7 +222,7 @@ public class SendEmailHandler implements
 			}
 		} else {
 			if(charset == null){
-				charset = Charset.defaultCharset();
+				charset = Charset.forName("UTF-8");
 			}
 			byte[] value = FileUtils.streamBytes(arg1, false);
 			appendToBody(new String(value,charset));

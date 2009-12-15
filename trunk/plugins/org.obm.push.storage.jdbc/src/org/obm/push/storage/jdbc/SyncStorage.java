@@ -364,7 +364,7 @@ public class SyncStorage implements ISyncStorage {
 			ps.executeUpdate();
 
 			// con.commit();
-			logger.warn("mappings & states cleared for full sync of device "
+			logger.warn("mappings & states cleared for sync of collection "+collectionId+" of device "
 					+ devId);
 		} catch (Exception e) {
 			// JDBCUtils.rollback(con);
