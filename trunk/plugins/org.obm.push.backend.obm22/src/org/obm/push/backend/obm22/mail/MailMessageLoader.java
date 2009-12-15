@@ -75,7 +75,6 @@ public class MailMessageLoader {
 	private Integer collectionId;
 	private long messageId;
 
-	// private boolean pickupPlain;
 	private MimeTree tree;
 	private InputStream invitation;
 
@@ -90,7 +89,6 @@ public class MailMessageLoader {
 	 * @param f
 	 */
 	public MailMessageLoader() {
-		// this.pickupPlain = true;
 		this.tree = null;
 	}
 
@@ -145,8 +143,6 @@ public class MailMessageLoader {
 
 			mm.setMimeData(handler.getMessage());
 
-			// byte[] data = FileUtils.streamBytes(mimeData, false);
-			// mm.setMimeData(new String(data,charset));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -235,11 +231,12 @@ public class MailMessageLoader {
 		MSEmailBody body = getMailBody(chosenParts, protocol);
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 		if (chosenParts != null && chosenParts.size() > 0) {
-			for(MimePart mp : chosenParts){
-				attach.addAll(extractAttachments(mp, protocol, false));
+			for (MimePart mp : chosenParts) {
+				attach.addAll(extractAttachments(mp, protocol,  mp
+						.isInvitation()));
 			}
 		} else {
-			attach = extractAttachments(mimePart, protocol, false, false);
+			attach = extractAttachments(mimePart, protocol);
 		}
 		MSEmail mm = new MSEmail();
 		mm.setBody(body);
@@ -312,14 +309,14 @@ public class MailMessageLoader {
 			StoreClient protocol) throws IOException, IMAPException {
 
 		MSEmailBody mb = new MSEmailBody();
-		
+
 		if (chosenParts == null || chosenParts.size() == 0) {
 			mb.addConverted(MSEmailBodyType.PlainText, "");
 			mb.setCharset("utf-8");
 		} else {
 			for (MimePart mp : chosenParts) {
-				InputStream bodyText = protocol.uidFetchPart(tree.getUid(),
-						mp.getAddress());
+				InputStream bodyText = protocol.uidFetchPart(tree.getUid(), mp
+						.getAddress());
 				String charsetName = mp.getBodyParams().get("charset");
 				if (!isSupportedCharset(charsetName)) {
 					charsetName = "utf-8";
@@ -328,11 +325,11 @@ public class MailMessageLoader {
 				byte[] rawData = extractPartData(mp, bodyText);
 				String partText = new String(rawData, charsetName);
 
-				mb.addConverted(MSEmailBodyType.getValueOf(mp
-						.getFullMimeType()), partText);
+				mb.addConverted(MSEmailBodyType
+						.getValueOf(mp.getFullMimeType()), partText);
 				if (logger.isDebugEnabled()) {
-					logger.debug("Added part " + mp.getFullMimeType()
-							+ "\n" + partText + "\n------");
+					logger.debug("Added part " + mp.getFullMimeType() + "\n"
+							+ partText + "\n------");
 				}
 			}
 		}
@@ -356,7 +353,7 @@ public class MailMessageLoader {
 							break;
 						} else if (mp.getMimeSubtype()
 								.equalsIgnoreCase("plain")) {
-								ret.add(mp);
+							ret.add(mp);
 						}
 					}
 				} else {
@@ -393,8 +390,8 @@ public class MailMessageLoader {
 	}
 
 	private Set<MSAttachement> extractAttachments(MimePart mimePart,
-			StoreClient protocol, boolean bodyOnly, boolean isInvit)
-			throws IOException, IMAPException {
+			StoreClient protocol, boolean isInvit) throws IOException,
+			IMAPException {
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 		if (mimePart != null) {
 			MimePart parent = mimePart.getParent();
@@ -402,15 +399,15 @@ public class MailMessageLoader {
 				boolean inv = false;
 				for (MimePart mp : parent.getChildren()) {
 					inv = mp.isInvitation();
-					MSAttachement att = extractAttachmentData(mp, bodyOnly,
-							protocol, isInvit || inv);
+					MSAttachement att = extractAttachmentData(mp, protocol,
+							isInvit || inv);
 					if (att != null) {
 						attach.add(att);
 					}
 				}
 				if (parent.getMimeType() == null
 						&& parent.getMimeSubtype() == null) {
-					extractAttachments(parent, protocol, bodyOnly, inv);
+					extractAttachments(parent, protocol, inv);
 				}
 			}
 		}
@@ -418,12 +415,12 @@ public class MailMessageLoader {
 	}
 
 	private Set<MSAttachement> extractAttachments(MimePart mimePart,
-			StoreClient protocol, boolean bodyOnly) throws IOException,
+			StoreClient protocol) throws IOException,
 			IMAPException {
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 		if (mimePart != null) {
 			for (MimePart mp : mimePart.getChildren()) {
-				MSAttachement msAtt = extractAttachmentData(mp, bodyOnly,
+				MSAttachement msAtt = extractAttachmentData(mp,
 						protocol, mp.isInvitation());
 				if (msAtt != null) {
 					attach.add(msAtt);
@@ -433,7 +430,7 @@ public class MailMessageLoader {
 		return attach;
 	}
 
-	private MSAttachement extractAttachmentData(MimePart mp, boolean bodyOnly,
+	private MSAttachement extractAttachmentData(MimePart mp,
 			StoreClient protocol, boolean isInvitation) throws IOException {
 
 		long uid = tree.getUid();
@@ -441,16 +438,14 @@ public class MailMessageLoader {
 				"" + messageId, mp.getAddress(), mp.getFullMimeType(), mp
 						.getContentTransfertEncoding());
 		byte[] data = null;
-		if (!bodyOnly) {
-			InputStream part = protocol.uidFetchPart(uid, mp.getAddress());
-			data = extractPartData(mp, part);
-		}
+		InputStream part = protocol.uidFetchPart(uid, mp.getAddress());
+		data = extractPartData(mp, part);
 		try {
 			Map<String, String> bp = mp.getBodyParams();
 			if (bp != null) {
 				if (bp.containsKey("name") && bp.get("name") != null) {
 					if (isInvitation && bp.get("name").contains(".ics")
-							&& !bodyOnly && data != null) {
+							 && data != null) {
 						invitation = new ByteArrayInputStream(data);
 					}
 					MSAttachement att = new MSAttachement();
