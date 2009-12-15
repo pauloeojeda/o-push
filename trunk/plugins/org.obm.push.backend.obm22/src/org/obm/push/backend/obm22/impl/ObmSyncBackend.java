@@ -60,11 +60,13 @@ public class ObmSyncBackend {
 				+ ":8080/obm-sync/services");
 		AccessToken token = cc.login(loginAtDomain, password,
 				"o-push");
+		Boolean valid = true;
 		if(token == null || token.getSessionId() == null){
 			logger.info(loginAtDomain+" can't log on obm-sync. The username or password isn't valid" );
-			return false;
+			valid = false;
 		}
-		return true;
+		cc.logout(token);
+		return valid;
 	}
 
 

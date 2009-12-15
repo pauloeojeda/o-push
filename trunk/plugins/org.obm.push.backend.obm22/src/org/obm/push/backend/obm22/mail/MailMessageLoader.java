@@ -280,12 +280,10 @@ public class MailMessageLoader {
 						event = icsEvent;
 					}
 
-					calendarClient.logout(at);
-
 					EventConverter ec = new EventConverter();
 					return ec.convertEvent(event);
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			} finally {
 				calendarClient.logout(at);
