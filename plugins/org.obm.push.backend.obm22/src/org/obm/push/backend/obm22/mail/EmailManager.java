@@ -126,8 +126,11 @@ public class EmailManager {
 		store.select(parseMailBoxName(bs, collectionName));
 		for (Long uid : uids) {
 			MailMessageLoader mailLoader = new MailMessageLoader();
-			mails.add(mailLoader.fetch(collectionId, uid, store, bs,
-					calendarClient));
+			MSEmail email = mailLoader.fetch(collectionId, uid, store, bs,
+					calendarClient);
+			if(email != null){
+				mails.add(email);
+			}
 		}
 		store.logout();
 		return mails;
