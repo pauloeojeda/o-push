@@ -13,6 +13,10 @@ public interface ISyncStorage {
 
 	SyncState findStateForKey(String syncKey);
 
+	long findLastHearbeat(String devId);
+	
+	void updateLastHearbeat(String devId, long hearbeat);
+	
 	/**
 	 * Stores device informations for the given user. Returns <code>true</code>
 	 * if the device is allowed to synchronize.
