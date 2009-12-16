@@ -92,6 +92,61 @@ public class SyncStorage implements ISyncStorage {
 		}
 		return ret;
 	}
+	
+	@Override
+	public long findLastHearbeat(String devId) {
+		int id = devIdCache.get(devId);
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("SELECT last_heartbeat FROM opush_ping_heartbeat WHERE device_id=?");
+			ps.setInt(1, id);
+
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getLong("last_heartbeat");
+			}
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+		return 0L;
+	}
+	
+	@Override
+	public void updateLastHearbeat(String devId, long hearbeat) {
+		int id = devIdCache.get(devId);
+
+		Connection con = null;
+		PreparedStatement ps = null;
+
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			// con.setAutoCommit(false);
+			ps = con
+					.prepareStatement("DELETE FROM opush_ping_heartbeat WHERE device_id=? ");
+			ps.setInt(1, id);
+			ps.executeUpdate();
+
+			ps.close();
+			ps = con
+					.prepareStatement("INSERT INTO opush_ping_heartbeat (device_id, last_heartbeat) VALUES (?, ?)");
+			ps.setInt(1, id);
+			ps.setLong(2, hearbeat);
+			ps.executeUpdate();
+			// con.commit();
+		} catch (SQLException se) {
+			logger.error(se.getMessage(), se);
+			// JDBCUtils.rollback(con);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+	}
 
 	@Override
 	public boolean initDevice(String loginAtDomain, String deviceId,

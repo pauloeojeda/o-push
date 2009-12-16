@@ -36,12 +36,15 @@ public class PingHandler extends WbxmlRequestHandler {
 			Document doc, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
-
 		long intervalSeconds = 0;
 		if (doc == null) {
 			logger
 					.info("Empty Ping, reusing cached heartbeat & monitored folders");
-			intervalSeconds = bs.getLastHeartbeat();
+			if(bs.getLastHeartbeat() != 0L){
+				intervalSeconds = bs.getLastHeartbeat();
+			} else {
+				intervalSeconds = backend.getStore().findLastHearbeat(bs.getDevId());
+			}
 			// 5sec, why not ? a mobile device asking for <5sec is just stupid
 			if (bs.getLastMonitored() == null
 					|| bs.getLastMonitored().isEmpty() || intervalSeconds < 5) {
@@ -54,7 +57,7 @@ public class PingHandler extends WbxmlRequestHandler {
 
 			intervalSeconds = Long.parseLong(DOMUtils.getUniqueElement(pr,
 					"HeartbeatInterval").getTextContent());
-
+			backend.getStore().updateLastHearbeat(bs.getDevId(), intervalSeconds);
 			Set<SyncCollection> toMonitor = new HashSet<SyncCollection>();
 			NodeList folders = pr.getElementsByTagName("Folder");
 			for (int i = 0; i < folders.getLength(); i++) {
@@ -64,7 +67,7 @@ public class PingHandler extends WbxmlRequestHandler {
 				int id = Integer.parseInt(DOMUtils.getElementText(f, "Id"));
 				sc.setCollectionId(id);
 				toMonitor.add(sc);
-				if("Email".equals(sc.getDataClass())){
+				if("email".equalsIgnoreCase(sc.getDataClass())){
 					backend.startEmailMonitoring(bs, id);
 				}
 			}
