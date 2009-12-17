@@ -1,7 +1,6 @@
 package org.obm.push.impl;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.Map.Entry;
 
 import org.obm.push.backend.BackendSession;
@@ -109,13 +107,11 @@ public class SyncHandler extends WbxmlRequestHandler {
 				String syncKey = c.getSyncKey();
 				SyncState st = sm.getSyncState(syncKey);
 
-				String oldClientSyncKey = bs.getLastClientSyncKey(c
+				SyncState oldClientSyncKey = bs.getLastClientSyncState(c
 						.getCollectionId());
 				if (oldClientSyncKey != null
-						&& oldClientSyncKey.equals(syncKey)) {
-					Calendar cal = Calendar.getInstance(TimeZone
-							.getTimeZone("GMT"));
-					st.setLastSync(cal.getTime());
+						&& oldClientSyncKey.getKey().equals(syncKey)) {
+					st.setLastSync(oldClientSyncKey.getLastSync());
 				}
 
 				if (!st.isValid()) {
@@ -146,7 +142,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 						doFetch(bs, c, ce, cex);
 					}
 				}
-				bs.addLastClientSyncKey(c.getCollectionId(), syncKey);
+				bs.addLastClientSyncState(c.getCollectionId(), st);
 				sk.setTextContent(sm.allocateNewSyncKey(bs,
 						c.getCollectionId(), st));
 			}
@@ -167,7 +163,10 @@ public class SyncHandler extends WbxmlRequestHandler {
 			IContentsExporter cex, HashMap<String, String> processedClientIds) {
 		String col = backend.getStore()
 				.getCollectionString(c.getCollectionId());
-		DataDelta delta = cex.getChanged(bs, c.getFilterType(), col);
+		DataDelta delta = null;
+		if (bs.getUnSynchronizedItemChange(c.getCollectionId()).size() == 0) {
+			delta = cex.getChanged(bs, c.getFilterType(), col);
+		}
 		List<ItemChange> changed = processWindowSize(c, delta, bs,
 				processedClientIds);
 
@@ -215,11 +214,12 @@ public class SyncHandler extends WbxmlRequestHandler {
 				serializeChange(bs, add, c, ic);
 			}
 		}
-		List<ItemChange> del = delta.getDeletions();
-		for (ItemChange ic : del) {
-			serializeDeletion(commands, ic);
+		if (delta != null) {
+			List<ItemChange> del = delta.getDeletions();
+			for (ItemChange ic : del) {
+				serializeDeletion(commands, ic);
+			}
 		}
-
 		if (responses.getChildNodes().getLength() == 0) {
 			responses.getParentNode().removeChild(responses);
 		}
@@ -232,7 +232,10 @@ public class SyncHandler extends WbxmlRequestHandler {
 	private List<ItemChange> processWindowSize(SyncCollection c,
 			DataDelta delta, BackendSession bs,
 			HashMap<String, String> processedClientIds) {
-		List<ItemChange> changed = new ArrayList<ItemChange>(delta.getChanges());
+		List<ItemChange> changed = new ArrayList<ItemChange>();
+		if (delta != null) {
+			changed.addAll(delta.getChanges());
+		}
 		changed.addAll(bs.getUnSynchronizedItemChange(c.getCollectionId()));
 
 		bs.getUnSynchronizedItemChange(c.getCollectionId()).clear();
