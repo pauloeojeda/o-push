@@ -27,7 +27,6 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 			Document doc, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
-
 		List<SyncCollection> cols = new LinkedList<SyncCollection>();
 
 		NodeList collections = doc.getDocumentElement().getElementsByTagName(
@@ -54,6 +53,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 		}
 
 		try {
+			StateMachine sm = new StateMachine(backend.getStore());
 			Document rep = DOMUtils.createDoc(null, "GetItemEstimate");
 			Element root = rep.getDocumentElement();
 			for (SyncCollection c : cols) {
@@ -75,7 +75,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 					DOMUtils.createElementAndText(ce, "CollectionId", c
 							.getCollectionId().toString());
 					Element estim = DOMUtils.createElement(ce, "Estimate");
-					StateMachine sm = new StateMachine(backend.getStore());
+					
 					SyncState state = sm.getSyncState(c.getSyncKey());
 					IContentsExporter exporter = backend
 							.getContentsExporter(bs);
@@ -85,6 +85,8 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 							+ bs.getUnSynchronizedItemChange(
 									c.getCollectionId()).size();
 					estim.setTextContent(count+"");
+					
+					bs.addLastClientSyncState(c.getCollectionId(), state);
 				} else {
 					logger.warn("no mapping for collection with id "
 							+ c.getCollectionId());

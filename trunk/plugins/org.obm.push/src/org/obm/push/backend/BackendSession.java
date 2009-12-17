@@ -26,7 +26,7 @@ public class BackendSession {
 	private Properties hints;
 	private Date updatedSyncDate;
 	private Map<Integer, Set<ItemChange>> unSynchronizedItemChangeByCollection;
-	private Map<Integer, String> lastClientSyncKey;
+	private Map<Integer, SyncState> lastClientSyncState;
 
 	private double protocolVersion;
 
@@ -44,7 +44,7 @@ public class BackendSession {
 		this.devType = devType;
 		this.command = command;
 		this.unSynchronizedItemChangeByCollection = new HashMap<Integer, Set<ItemChange>>();
-		this.lastClientSyncKey = new HashMap<Integer, String>();
+		this.lastClientSyncState = new HashMap<Integer, SyncState>();
 		loadHints();
 	}
 
@@ -186,11 +186,11 @@ public class BackendSession {
 		changes.add(change);
 	}
 	
-	public String getLastClientSyncKey(Integer collectionId) {
-		return lastClientSyncKey.get(collectionId);
+	public SyncState getLastClientSyncState(Integer collectionId) {
+		return lastClientSyncState.get(collectionId);
 	}
 
-	public void addLastClientSyncKey(Integer collectionId, String synckey) {
-		lastClientSyncKey.put(collectionId, synckey);
+	public void addLastClientSyncState(Integer collectionId, SyncState synckey) {
+		lastClientSyncState.put(collectionId, synckey);
 	}
 }

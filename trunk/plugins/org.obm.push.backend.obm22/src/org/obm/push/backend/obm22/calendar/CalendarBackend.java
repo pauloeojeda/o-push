@@ -40,7 +40,7 @@ public class CalendarBackend extends ObmSyncBackend {
 			String col = getDefaultCalendarName(bs);
 			ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
 			ic.setParentId("0");
-			ic.setDisplayName(bs.getLoginAtDomain());
+			ic.setDisplayName(bs.getLoginAtDomain()+" calendar");
 			ic.setItemType(FolderType.DEFAULT_CALENDAR_FOLDER);
 			ret.add(ic);
 			return ret;

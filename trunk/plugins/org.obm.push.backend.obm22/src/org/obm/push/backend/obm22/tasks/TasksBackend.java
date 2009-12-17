@@ -16,7 +16,7 @@ public class TasksBackend extends ObmSyncBackend {
 	}
 
 	private String getDefaultCalendarName(BackendSession bs) {
-		return "obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
+		return "obm:\\\\" + bs.getLoginAtDomain() + "\\tasks\\"
 				+ bs.getLoginAtDomain();
 	}
 
@@ -27,7 +27,7 @@ public class TasksBackend extends ObmSyncBackend {
 		String col = getDefaultCalendarName(bs);
 		ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
 		ic.setParentId("0");
-		ic.setDisplayName(bs.getLoginAtDomain());
+		ic.setDisplayName(bs.getLoginAtDomain()+" tasks");
 		ic.setItemType(FolderType.DEFAULT_TASKS_FOLDER);
 		ret.add(ic);
 		return ret;

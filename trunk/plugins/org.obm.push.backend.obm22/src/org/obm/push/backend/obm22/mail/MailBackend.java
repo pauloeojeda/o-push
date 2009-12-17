@@ -39,21 +39,21 @@ public class MailBackend extends ObmSyncBackend {
 		ItemChange ic = new ItemChange();
 		ic.setServerId(genServerId(bs, "INBOX"));
 		ic.setParentId("0");
-		ic.setDisplayName("Inbox");
+		ic.setDisplayName(bs.getLoginAtDomain()+" inbox");
 		ic.setItemType(FolderType.DEFAULT_INBOX_FOLDER);
 		ret.add(ic);
 
 		ic = new ItemChange();
 		ic.setServerId(genServerId(bs, "Sent"));
 		ic.setParentId("0");
-		ic.setDisplayName("Sent");
+		ic.setDisplayName(bs.getLoginAtDomain()+" sent");
 		ic.setItemType(FolderType.DEFAULT_SENT_EMAIL_FOLDER);
 		ret.add(ic);
 
 		ic = new ItemChange();
 		ic.setServerId(genServerId(bs, "Trash"));
 		ic.setParentId("0");
-		ic.setDisplayName("Trash");
+		ic.setDisplayName(bs.getLoginAtDomain()+" trash");
 		ic.setItemType(FolderType.DEFAULT_DELETED_ITEMS_FOLDERS);
 		ret.add(ic);
 		return ret;

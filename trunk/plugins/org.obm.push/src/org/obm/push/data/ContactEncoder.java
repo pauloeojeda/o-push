@@ -114,15 +114,24 @@ public class ContactEncoder implements IDataEncoder {
 		e(parent, "Contacts:Email1Address", c.getEmail1Address());
 		e(parent, "Contacts:Email2Address", c.getEmail2Address());
 		e(parent, "Contacts:Email3Address", c.getEmail3Address());
-
-		e(parent, "Contacts:Data", c.getData());
+		
+		
 		
 		if (bs.getProtocolVersion() > 12) {
+			Element body = DOMUtils.createElement(parent, "AirSyncBase:Body");
+			e(body, "AirSyncBase:Type", "1");
+			e(body, "AirSyncBase:Data", c.getData());
 			e(parent, "AirSyncBase:NativeBodyType", "3");
+		} else {
+			if(c.getData() != null && c.getData().length()>0){
+				e(parent, "Contacts:BodySize", ""+c.getData().length());
+				e(parent, "Contacts:Body", c.getData());
+			}
 		}
 
+
+		
 		// DOMUtils.createElement(parent, "Contacts:Picture");
-		// DOMUtils.createElement(parent, "Contacts:Body");
 	}
 
 	private String getFileAs(MSContact c) {

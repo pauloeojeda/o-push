@@ -57,7 +57,7 @@ public class PingHandler extends WbxmlRequestHandler {
 
 			intervalSeconds = Long.parseLong(DOMUtils.getUniqueElement(pr,
 					"HeartbeatInterval").getTextContent());
-			backend.getStore().updateLastHearbeat(bs.getDevId(), intervalSeconds);
+			
 			Set<SyncCollection> toMonitor = new HashSet<SyncCollection>();
 			NodeList folders = pr.getElementsByTagName("Folder");
 			for (int i = 0; i < folders.getLength(); i++) {
@@ -77,6 +77,7 @@ public class PingHandler extends WbxmlRequestHandler {
 						+ toMonitor.size());
 				bs.setLastMonitored(toMonitor);
 			}
+			backend.getStore().updateLastHearbeat(bs.getDevId(), intervalSeconds);
 			bs.setLastHeartbeat(intervalSeconds);
 		}
 
