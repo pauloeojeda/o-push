@@ -239,7 +239,7 @@ public class ContactConverter {
 		addIM(oc, c.getIMAddress3());
 
 		if (c.getWebPage() != null) {
-			oc.addWebsite("", new Website(c.getWebPage()));
+			oc.addWebsite("URL;X-OBM-Ref1", new Website(c.getWebPage()));
 		}
 		
 		oc.setAnniversary(c.getAnniversary());
