@@ -98,7 +98,6 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		
 		contact.setData(parseDOMString(DOMUtils.getUniqueElement(syncData, "Data")));
 		
-		
 		return contact;
 	}
 }

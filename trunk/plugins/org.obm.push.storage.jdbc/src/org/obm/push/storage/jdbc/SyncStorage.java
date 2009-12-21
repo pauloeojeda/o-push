@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import javax.transaction.UserTransaction;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.minig.obm.pool.OBMPoolActivator;
@@ -34,6 +36,10 @@ public class SyncStorage implements ISyncStorage {
 
 	public SyncStorage() {
 		this.devIdCache = new HashMap<String, Integer>();
+	}
+
+	public UserTransaction getUserTransaction() {
+		return OBMPoolActivator.getDefault().getUserTransaction();
 	}
 
 	@Override
@@ -92,7 +98,7 @@ public class SyncStorage implements ISyncStorage {
 		}
 		return ret;
 	}
-	
+
 	@Override
 	public long findLastHearbeat(String devId) {
 		int id = devIdCache.get(devId);
@@ -117,17 +123,17 @@ public class SyncStorage implements ISyncStorage {
 		}
 		return 0L;
 	}
-	
+
 	@Override
 	public void updateLastHearbeat(String devId, long hearbeat) {
 		int id = devIdCache.get(devId);
 
 		Connection con = null;
 		PreparedStatement ps = null;
-
+		UserTransaction ut = getUserTransaction();
 		try {
+			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			// con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("DELETE FROM opush_ping_heartbeat WHERE device_id=? ");
 			ps.setInt(1, id);
@@ -139,10 +145,10 @@ public class SyncStorage implements ISyncStorage {
 			ps.setInt(1, id);
 			ps.setLong(2, hearbeat);
 			ps.executeUpdate();
-			// con.commit();
-		} catch (SQLException se) {
+			ut.commit();
+		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
-			// JDBCUtils.rollback(con);
+			JDBCUtils.rollback(ut);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
 		}
@@ -159,7 +165,9 @@ public class SyncStorage implements ISyncStorage {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		int id = 0;
+		UserTransaction ut = getUserTransaction();
 		try {
+			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
 			ps = con
 					.prepareStatement("SELECT id FROM opush_device "
@@ -201,13 +209,14 @@ public class SyncStorage implements ISyncStorage {
 				id = rs.getInt(1);
 			}
 			devIdCache.put(deviceId, id);
-		} catch (SQLException se) {
+			ut.commit();
+		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
+			JDBCUtils.rollback(ut);
 			return false;
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
-
 		return true;
 	}
 
@@ -240,8 +249,9 @@ public class SyncStorage implements ISyncStorage {
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
 		}
-		if(!hasSyncPerm){
-			logger.info(loginAtDomain+" isn't authorized to synchronize in OBM-UI");
+		if (!hasSyncPerm) {
+			logger.info(loginAtDomain
+					+ " isn't authorized to synchronize in OBM-UI");
 		}
 		return hasSyncPerm;
 	}
@@ -250,13 +260,12 @@ public class SyncStorage implements ISyncStorage {
 	public void updateState(String devId, Integer collectionId,
 			SyncState oldState, SyncState state) {
 		int id = devIdCache.get(devId);
-
 		Connection con = null;
 		PreparedStatement ps = null;
-
+		UserTransaction ut = getUserTransaction();
 		try {
+			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			// con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
 			ps.setInt(1, id);
@@ -271,10 +280,10 @@ public class SyncStorage implements ISyncStorage {
 			ps.setTimestamp(3, new Timestamp(state.getLastSync().getTime()));
 			ps.setInt(4, collectionId);
 			ps.executeUpdate();
-			// con.commit();
-		} catch (SQLException se) {
+			ut.commit();
+		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
-			// JDBCUtils.rollback(con);
+			JDBCUtils.rollback(ut);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
 		}
@@ -288,10 +297,10 @@ public class SyncStorage implements ISyncStorage {
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-
+		UserTransaction ut = getUserTransaction();
 		try {
+			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			// con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("SELECT id FROM opush_folder_mapping WHERE device_id=? AND collection=?");
 			ps.setInt(1, id);
@@ -312,11 +321,10 @@ public class SyncStorage implements ISyncStorage {
 				ps.executeUpdate();
 				ret = OBMPoolActivator.getDefault().lastInsertId(con);
 			}
-
-			// con.commit();
-		} catch (SQLException se) {
+			ut.commit();
+		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
-			// JDBCUtils.rollback(con);
+			JDBCUtils.rollback(ut);
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
@@ -374,7 +382,6 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			// con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=?");
 			ps.setInt(1, id);
@@ -385,11 +392,9 @@ public class SyncStorage implements ISyncStorage {
 			ps.setInt(1, id);
 			ps.executeUpdate();
 
-			// con.commit();
 			logger.warn("mappings & states cleared for full sync of device "
 					+ devId);
 		} catch (Exception e) {
-			// JDBCUtils.rollback(con);
 			logger.error(e.getMessage(), e);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
@@ -402,10 +407,10 @@ public class SyncStorage implements ISyncStorage {
 
 		Connection con = null;
 		PreparedStatement ps = null;
-
+		UserTransaction ut = getUserTransaction();
 		try {
+			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			// con.setAutoCommit(false);
 			ps = con
 					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
 			ps.setInt(1, id);
@@ -418,11 +423,11 @@ public class SyncStorage implements ISyncStorage {
 			ps.setInt(2, collectionId);
 			ps.executeUpdate();
 
-			// con.commit();
-			logger.warn("mappings & states cleared for sync of collection "+collectionId+" of device "
-					+ devId);
-		} catch (Exception e) {
-			// JDBCUtils.rollback(con);
+			ut.commit();
+			logger.warn("mappings & states cleared for sync of collection "
+					+ collectionId + " of device " + devId);
+		} catch (Throwable e) {
+			JDBCUtils.rollback(ut);
 			logger.error(e.getMessage(), e);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);

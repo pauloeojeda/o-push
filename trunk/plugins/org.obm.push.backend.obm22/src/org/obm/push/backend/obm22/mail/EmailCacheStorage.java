@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
 
+import javax.transaction.UserTransaction;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.minig.imap.IMAPException;
@@ -60,6 +62,10 @@ public class EmailCacheStorage {
 		this.logger = LogFactory.getLog(getClass());
 		this.lastSyncDate = new Date(0);
 		this.lastSyncKey = "";
+	}
+	
+	public UserTransaction getUserTransaction() {
+		return OBMPoolActivator.getDefault().getUserTransaction();
 	}
 
 	public MailChanges computeChanges(Set<Long> oldUids, Set<Long> fetched, Set<Long> lastUpdate) {
@@ -171,7 +177,9 @@ public class EmailCacheStorage {
 					+ " insertions.");
 		}
 		Connection con = null;
+		UserTransaction ut = getUserTransaction();
 		try {
+			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
 			del = con
 					.prepareStatement("DELETE FROM opush_sync_mail WHERE collection_id=? AND device_id=? AND mail_uid=?");
@@ -192,6 +200,10 @@ public class EmailCacheStorage {
 			}
 			del.executeBatch();
 			insert.executeBatch();
+			ut.commit();
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+			JDBCUtils.rollback(con);
 		} finally {
 			JDBCUtils.cleanup(null, del, null);
 			JDBCUtils.cleanup(con, insert, null);
