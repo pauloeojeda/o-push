@@ -359,7 +359,6 @@ public class SyncStorage implements ISyncStorage {
 
 	@Override
 	public String getDataClass(String collectionId) {
-		// TODO add mail & tasks
 		if (collectionId.contains("\\calendar\\")) {
 			return "Calendar";
 		} else if (collectionId.contains("\\contacts")) {
