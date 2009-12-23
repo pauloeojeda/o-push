@@ -167,8 +167,6 @@ public class ContactConverter {
 	public Contact contact(MSContact c) {
 		Contact oc = new Contact();
 		// JobTitle
-		// Anniversary
-		// Birthday
 		// Picture
 		// YomiLastName
 		// YomiFirstName
@@ -184,7 +182,7 @@ public class ContactConverter {
 		oc.setAssistant(c.getAssistantName());
 		oc.setAka(c.getNickName());
 		oc.setComment(c.getData());
-
+		
 		addPhone(oc, "HOME;VOICE;X-OBM-Ref1", c.getHomePhoneNumber());
 		addPhone(oc, "HOME;VOICE;X-OBM-Ref2", c.getHome2PhoneNumber());
 		addPhone(oc, "WORK;VOICE;X-OBM-Ref1", c.getBusinessPhoneNumber());
@@ -234,9 +232,16 @@ public class ContactConverter {
 				.getOtherAddressPostalCode(), c.getOtherAddressCity(), c
 				.getOtherAddressCountry(), c.getOtherAddressState());
 
-		addIM(oc, c.getIMAddress());
-		addIM(oc, c.getIMAddress2());
-		addIM(oc, c.getIMAddress3());
+		
+		if (c.getIMAddress() != null && !c.getIMAddress().isEmpty()) {
+			oc.addIMIdentifier("XMPP;X-OBM-Ref1", new InstantMessagingId("XMPP", c.getIMAddress()));
+		}
+		if (c.getIMAddress2() != null && !c.getIMAddress2().isEmpty()) {
+			oc.addIMIdentifier("XMPP;X-OBM-Ref2", new InstantMessagingId("XMPP", c.getIMAddress2()));
+		}
+		if (c.getIMAddress3() != null && !c.getIMAddress3().isEmpty()) {
+			oc.addIMIdentifier("XMPP;X-OBM-Ref3", new InstantMessagingId("XMPP", c.getIMAddress3()));
+		}
 
 		if (c.getWebPage() != null) {
 			oc.addWebsite("URL;X-OBM-Ref1", new Website(c.getWebPage()));
@@ -245,12 +250,6 @@ public class ContactConverter {
 		oc.setAnniversary(c.getAnniversary());
 		oc.setBirthday(c.getBirthday());
 		return oc;
-	}
-
-	private void addIM(Contact oc, String imAddress) {
-		if (imAddress != null) {
-			oc.addIMIdentifier("", new InstantMessagingId("XMPP", imAddress));
-		}
 	}
 
 	private void addAddress(Contact oc, String lbl, String street,
