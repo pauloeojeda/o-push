@@ -33,11 +33,11 @@ public interface IBackend {
 	 */
 	IListenerRegistration addChangeListener(ICollectionChangeListener ccl);
 
-	void resetForFullSync(String devId);
+	void resetForFullSync(BackendSession bs);
 	
 	void startEmailMonitoring(BackendSession bs, Integer collectionId);
 
-	void resetCollection(String devId, Integer collectionId);
+	void resetCollection(BackendSession bs, Integer collectionId);
 
 	boolean validatePassword(String userID, String password);
 }

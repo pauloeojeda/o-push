@@ -78,7 +78,7 @@ public class CalendarBackend extends ObmSyncBackend {
 		return ret;
 	}
 
-	public DataDelta getContentChanges(BackendSession bs, String collectionId) {
+	public DataDelta getContentChanges(BackendSession bs, String collection) {
 		List<ItemChange> addUpd = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 
@@ -86,27 +86,28 @@ public class CalendarBackend extends ObmSyncBackend {
 		CalendarClient cc = getCalendarClient(bs);
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
-		String calendar = parseCalendarId(collectionId);
+		String calendar = parseCalendarId(collection);
 		try {
 			EventChanges changes = cc.getSync(token, calendar, ls);
 			Event[] evs = changes.getUpdated();
 			for (Event e : evs) {
 				if(e.getRecurrenceId() == null){
 					ItemChange change = addCalendarChange(bs.getDevId(),
-						collectionId, e);
+						collection, e);
 					addUpd.add(change);
 				}
 			}
 			for (String del : changes.getRemoved()) {
-				deletions.add(getDeletion(bs, collectionId, del));
+				deletions.add(getDeletion(bs, collection, del));
 			}
-			bs.setUpdatedSyncDate(changes.getLastSync());
+			
+			bs.addUpdatedSyncDate(getCollectionIdFor(bs.getDevId(), collection), changes.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
 		cc.logout(token);
-		logger.info("getContentChanges(" + calendar + ", " + collectionId
+		logger.info("getContentChanges(" + calendar + ", " + collection
 				+ ", lastSync: " + ls + ") => " + addUpd.size() + " entries.");
 		return new DataDelta(addUpd, deletions);
 	}

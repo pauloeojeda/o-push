@@ -205,7 +205,6 @@ public class EmailManager {
 		for (Integer colId : listCollectionId) {
 			uidCache.remove(colId);
 		}
-		logger.info("resetForFullSync");
 	}
 
 	public void delete(BackendSession bs, Integer devId, String collectionName,

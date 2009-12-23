@@ -36,9 +36,9 @@ public class StateMachine {
 	public String allocateNewSyncKey(BackendSession bs, Integer collectionId,
 			SyncState oldState) {
 		SyncState newState = new SyncState();
-		Date nd = bs.getUpdatedSyncDate();
+		Date nd = bs.getUpdatedSyncDate(collectionId);
 		if (nd != null) {
-			newState.setLastSync(bs.getUpdatedSyncDate());
+			newState.setLastSync(bs.getUpdatedSyncDate(collectionId));
 		}
 		String newSk = UUID.randomUUID().toString();
 		newState.setKey(newSk);
