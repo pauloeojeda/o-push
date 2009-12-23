@@ -40,11 +40,9 @@ public class PingHandler extends WbxmlRequestHandler {
 		if (doc == null) {
 			logger
 					.info("Empty Ping, reusing cached heartbeat & monitored folders");
-			if(bs.getLastHeartbeat() != 0L){
-				intervalSeconds = bs.getLastHeartbeat();
-			} else {
-				intervalSeconds = backend.getStore().findLastHearbeat(bs.getDevId());
-			}
+			
+			intervalSeconds = backend.getStore().findLastHearbeat(bs.getDevId());
+			
 			// 5sec, why not ? a mobile device asking for <5sec is just stupid
 			if (bs.getLastMonitored() == null
 					|| bs.getLastMonitored().isEmpty() || intervalSeconds < 5) {
@@ -54,9 +52,12 @@ public class PingHandler extends WbxmlRequestHandler {
 			}
 		} else {
 			Element pr = doc.getDocumentElement();
-
-			intervalSeconds = Long.parseLong(DOMUtils.getUniqueElement(pr,
-					"HeartbeatInterval").getTextContent());
+			Element hb = DOMUtils.getUniqueElement(pr,"HeartbeatInterval");
+			if(hb != null){
+				intervalSeconds = Long.parseLong(hb.getTextContent());
+			} else {
+				intervalSeconds = backend.getStore().findLastHearbeat(bs.getDevId());
+			}
 			
 			Set<SyncCollection> toMonitor = new HashSet<SyncCollection>();
 			NodeList folders = pr.getElementsByTagName("Folder");
@@ -78,7 +79,6 @@ public class PingHandler extends WbxmlRequestHandler {
 				bs.setLastMonitored(toMonitor);
 			}
 			backend.getStore().updateLastHearbeat(bs.getDevId(), intervalSeconds);
-			bs.setLastHeartbeat(intervalSeconds);
 		}
 
 		if (intervalSeconds > 0 && bs.getLastMonitored() != null) {

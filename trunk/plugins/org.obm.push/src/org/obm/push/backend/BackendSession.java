@@ -32,7 +32,6 @@ public class BackendSession {
 
 	private String policyKey;
 
-	private long lastHeartbeat;
 	private Set<SyncCollection> lastMonitored;
 	
 	public BackendSession(String loginAtDomain, String password, String devId,
@@ -152,14 +151,6 @@ public class BackendSession {
 
 	public String getPolicyKey() {
 		return policyKey;
-	}
-
-	public long getLastHeartbeat() {
-		return lastHeartbeat;
-	}
-
-	public void setLastHeartbeat(long lastHeartbeat) {
-		this.lastHeartbeat = lastHeartbeat;
 	}
 
 	public Set<SyncCollection> getLastMonitored() {
