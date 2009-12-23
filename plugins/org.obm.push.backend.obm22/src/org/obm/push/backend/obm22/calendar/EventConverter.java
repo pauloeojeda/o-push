@@ -47,6 +47,7 @@ public class EventConverter {
 		}
 
 		mse.setSubject(e.getTitle());
+		mse.setDescription(e.getDescription());
 		mse.setLocation(e.getLocation());
 		mse.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
 		mse.setStartTime(e.getDate());
@@ -336,10 +337,15 @@ public class EventConverter {
 
 	private Event convertEventOne(Event parentEvent, MSEvent data) {
 		Event e = new Event();
-		if (data.getSubject() == null || data.getSubject().isEmpty()) {
+		if (parentEvent.getTitle() != null || !parentEvent.getTitle().isEmpty()) {
 			e.setTitle(parentEvent.getTitle());
 		} else {
 			e.setTitle(data.getSubject());
+		}
+		if (parentEvent.getDescription() != null || !parentEvent.getDescription().isEmpty()) {
+			e.setTitle(parentEvent.getDescription());
+		} else {
+			e.setTitle(data.getDescription());
 		}
 		e.setLocation(data.getLocation());
 		e.setDate(data.getStartTime());
