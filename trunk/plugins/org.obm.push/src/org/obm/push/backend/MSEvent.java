@@ -15,6 +15,7 @@ public class MSEvent implements IApplicationData {
 	private String location;
 	private String subject;
 	private String uID;
+	private String description;
 	private Date dtStamp;
 	private Date endTime;
 	private Date startTime;
@@ -208,5 +209,13 @@ public class MSEvent implements IApplicationData {
 
 	public void setObmUID(String obmUID) {
 		this.obmUID = obmUID;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }
