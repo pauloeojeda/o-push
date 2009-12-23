@@ -337,15 +337,15 @@ public class EventConverter {
 
 	private Event convertEventOne(Event parentEvent, MSEvent data) {
 		Event e = new Event();
-		if (parentEvent.getTitle() != null || !parentEvent.getTitle().isEmpty()) {
+		if (parentEvent != null && parentEvent.getTitle() != null && !parentEvent.getTitle().isEmpty()) {
 			e.setTitle(parentEvent.getTitle());
 		} else {
 			e.setTitle(data.getSubject());
 		}
-		if (parentEvent.getDescription() != null || !parentEvent.getDescription().isEmpty()) {
-			e.setTitle(parentEvent.getDescription());
+		if (parentEvent != null && parentEvent.getDescription() != null && !parentEvent.getDescription().isEmpty()) {
+			e.setDescription(parentEvent.getDescription());
 		} else {
-			e.setTitle(data.getDescription());
+			e.setDescription(data.getDescription());
 		}
 		e.setLocation(data.getLocation());
 		e.setDate(data.getStartTime());
