@@ -24,7 +24,7 @@ public class BackendSession {
 	private SyncState state;
 	private PIMDataType dataType;
 	private Properties hints;
-	private Date updatedSyncDate;
+	private Map<Integer,Date> updatedSyncDate;
 	private Map<Integer, Set<ItemChange>> unSynchronizedItemChangeByCollection;
 	private Map<Integer, SyncState> lastClientSyncState;
 
@@ -45,6 +45,7 @@ public class BackendSession {
 		this.command = command;
 		this.unSynchronizedItemChangeByCollection = new HashMap<Integer, Set<ItemChange>>();
 		this.lastClientSyncState = new HashMap<Integer, SyncState>();
+		this.updatedSyncDate = new HashMap<Integer, Date>();
 		loadHints();
 	}
 
@@ -129,12 +130,12 @@ public class BackendSession {
 		this.dataType = dataType;
 	}
 
-	public Date getUpdatedSyncDate() {
-		return updatedSyncDate;
+	public Date getUpdatedSyncDate(Integer collectionId) {
+		return updatedSyncDate.get(collectionId);
 	}
 
-	public void setUpdatedSyncDate(Date updatedSyncDate) {
-		this.updatedSyncDate = updatedSyncDate;
+	public void addUpdatedSyncDate(Integer collectionId, Date updatedSyncDate) {
+		this.updatedSyncDate.put(collectionId, updatedSyncDate);
 	}
 
 	public void setProtocolVersion(double parseInt) {
@@ -192,5 +193,29 @@ public class BackendSession {
 
 	public void addLastClientSyncState(Integer collectionId, SyncState synckey) {
 		lastClientSyncState.put(collectionId, synckey);
+	}
+
+	public void clearUpdatedSyncDate() {
+		
+	}
+
+	public void clearUnSynchronizedItemChangeByCollection() {
+		
+	}
+
+	public void clearLastClientSyncState() {
+		
+	}
+	
+	public void clearAll(){
+		this.updatedSyncDate = new HashMap<Integer, Date>();
+		this.unSynchronizedItemChangeByCollection = new HashMap<Integer, Set<ItemChange>>();
+		this.lastClientSyncState = new HashMap<Integer, SyncState>();
+	}
+	
+	public void clear(Integer collectionId){
+		this.updatedSyncDate.remove(collectionId);
+		this.unSynchronizedItemChangeByCollection.remove(collectionId);
+		this.lastClientSyncState.remove(collectionId);
 	}
 }

@@ -150,12 +150,13 @@ public class OBMBackend implements IBackend {
 	}
 
 	@Override
-	public void resetForFullSync(String devId) {
-		logger.info("resetForFullSync devId: " + devId);
+	public void resetForFullSync(BackendSession bs) {
+		logger.info("resetForFullSync devId: " + bs.getDevId());
 		try {
-			Set<Integer> colIds = getStore().getAllCollectionId(devId);
+			Set<Integer> colIds = getStore().getAllCollectionId(bs.getDevId());
 			EmailManager.getInstance().resetForFullSync(colIds);
-			getStore().resetForFullSync(devId);
+			getStore().resetForFullSync(bs.getDevId());
+			bs.clearAll();
 		} catch (RuntimeException re) {
 			logger.error(re.getMessage(), re);
 			throw re;
@@ -163,13 +164,14 @@ public class OBMBackend implements IBackend {
 	}
 
 	@Override
-	public void resetCollection(String devId, Integer collectionId) {
-		logger.info("resetForFullSync devId: " + devId);
+	public void resetCollection(BackendSession bs, Integer collectionId) {
+		logger.info("reset Collection "+collectionId+" For Full Sync devId: " + bs.getDevId());
 		try {
 			Set<Integer> colIds = new HashSet<Integer>();
 			colIds.add(collectionId);
 			EmailManager.getInstance().resetForFullSync(colIds);
-			getStore().resetCollection(devId,collectionId);
+			getStore().resetCollection(bs.getDevId(),collectionId);
+			bs.clear(collectionId);
 		} catch (RuntimeException re) {
 			logger.error(re.getMessage(), re);
 			throw re;

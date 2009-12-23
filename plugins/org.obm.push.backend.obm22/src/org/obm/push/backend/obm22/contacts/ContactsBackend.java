@@ -78,7 +78,7 @@ public class ContactsBackend extends ObmSyncBackend {
 
 			time = System.currentTimeMillis() - time;
 
-			bs.setUpdatedSyncDate(changes.getLastSync());
+			bs.addUpdatedSyncDate(getCollectionIdFor(bs.getDevId(), collection), changes.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

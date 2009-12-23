@@ -70,7 +70,7 @@ public class MailBackend extends ObmSyncBackend {
 					collection);
 			changes = getChanges(bs, collectionId, collection, mc.getUpdated());
 			deletions.addAll(getDeletions(bs, collection, mc.getRemoved()));
-			bs.setUpdatedSyncDate(mc.getLastSync());
+			bs.addUpdatedSyncDate(getCollectionIdFor(bs.getDevId(), collection), mc.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}

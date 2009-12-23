@@ -100,7 +100,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 
 			for (SyncCollection c : collections) {
 				if ("0".equals(c.getSyncKey())) {
-					backend.resetCollection(bs.getDevId(), c.getCollectionId());
+					backend.resetCollection(bs, c.getCollectionId());
 					bs.setState(new SyncState());
 				}
 
