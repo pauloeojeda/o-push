@@ -93,13 +93,7 @@ public class CalendarEncoder implements IDataEncoder {
 		e(p, "Calendar:Location", ev.getLocation());
 		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
 
-		if (bs.getProtocolVersion() > 12) {
-			Element d = DOMUtils.createElement(p, "AirSyncBase:Body");
-			e(d, "AirSyncBase:Type", Type.PLAIN_TEXT.toString());
-			DOMUtils.createElementAndText(d, "AirSyncBase:EstimatedDataSize",
-					"0");
-			DOMUtils.createElementAndText(d, "AirSyncBase:Truncated", "1");
-		}
+		encodeBody(bs, p, ev);
 
 		if (ev.getRecurrence() != null) {
 			encodeRecurrence(p, ev);
@@ -126,8 +120,7 @@ public class CalendarEncoder implements IDataEncoder {
 		}
 
 		if (isReponse && bs.getProtocolVersion() > 12) {
-			e(p, "AirSyncBase:NativeBodyType", Type.PLAIN_TEXT
-					.toString());
+			e(p, "AirSyncBase:NativeBodyType", Type.PLAIN_TEXT.toString());
 		}
 
 		if (ev.getReminder() != null) {
@@ -135,7 +128,6 @@ public class CalendarEncoder implements IDataEncoder {
 		}
 
 		// DOMUtils.createElement(p, "Calendar:Compressed_RTF");
-		// DOMUtils.createElement(p, "Calendar:Body");
 
 	}
 
@@ -146,13 +138,15 @@ public class CalendarEncoder implements IDataEncoder {
 		for (MSEvent ex : excepts) {
 			Element e = DOMUtils.createElement(es, "Calendar:Exception");
 			if (ex.isDeletedException()) {
-				DOMUtils.createElementAndText(e, "Calendar:ExceptionIsDeleted", "1");
+
+				DOMUtils.createElementAndText(e, "Calendar:ExceptionIsDeleted",
+						"1");
 				DOMUtils
 						.createElementAndText(e, "Calendar:MeetingStatus",
 								CalendarMeetingStatus.MEETING_IS_CANCELED
 										.asIntString());
-			} else {
 
+			} else {
 				if (bs.checkHint("hint.loadAttendees", true)
 						&& ex.getAttendees().size() > 1) {
 					e(e, "Calendar:MeetingStatus",
@@ -163,15 +157,7 @@ public class CalendarEncoder implements IDataEncoder {
 									.asIntString());
 				}
 
-				if (bs.getProtocolVersion() > 12) {
-					Element d = DOMUtils.createElement(e, "AirSyncBase:Body");
-					e(d, "AirSyncBase:Type", Type.PLAIN_TEXT
-							.toString());
-					DOMUtils.createElementAndText(d,
-							"AirSyncBase:EstimatedDataSize", "0");
-					DOMUtils.createElementAndText(d, "AirSyncBase:Truncated",
-							"1");
-				}
+				encodeBody(bs, e, ex);
 
 				e(e, "Calendar:Location", ex.getLocation());
 				e(e, "Calendar:Sensitivity", "0");
@@ -181,10 +167,13 @@ public class CalendarEncoder implements IDataEncoder {
 					e(e, "Calendar:ReminderMinsBefore", ex.getReminder()
 							.toString());
 				}
+				DOMUtils.createElement(e, "Calendar:Categories");
 			}
+			e(e, "Calendar:Subject", ex.getSubject());
+
 			DOMUtils.createElementAndText(e, "Calendar:ExceptionStartTime", sdf
 					.format(ex.getExceptionStartTime()));
-			
+
 			DOMUtils.createElementAndText(e, "Calendar:StartTime", sdf
 					.format(ex.getStartTime()));
 			if (ex.getEndTime() != null) {
@@ -196,8 +185,23 @@ public class CalendarEncoder implements IDataEncoder {
 						.format(ex.getDtStamp()));
 			}
 		}
-		// Exceptions.Exception.Categories
+	}
 
+	private void encodeBody(BackendSession bs, Element p, MSEvent event) {
+		if (bs.getProtocolVersion() > 12) {
+			Element d = DOMUtils.createElement(p, "AirSyncBase:Body");
+			e(d, "AirSyncBase:Type", Type.PLAIN_TEXT.toString());
+			DOMUtils.createElementAndText(d, "AirSyncBase:EstimatedDataSize",
+					event.getDescription() != null ? ""
+							+ event.getDescription().length() : "0");
+			DOMUtils.createElementAndText(d, "AirSyncBase:Data", event.getDescription());
+		} else {
+			if(event.getDescription() != null && event.getDescription().length()>0){
+//				Doesn't work with wm5
+//				DOMUtils.createElementAndText(p, "Email:BodyTruncated", "0");
+//				DOMUtils.createElementAndText(p, "Email:Body", event.getDescription()+"\r\n");
+			}
+		}
 	}
 
 	private void encodeRecurrence(Element p, MSEvent ev) {
