@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSAttendee;
+import org.obm.push.backend.MSEmailBodyType;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.Recurrence;
 import org.obm.push.backend.SyncCollection;
@@ -93,13 +94,13 @@ public class CalendarEncoder implements IDataEncoder {
 		e(p, "Calendar:Location", ev.getLocation());
 		e(p, "Calendar:EndTime", sdf.format(ev.getEndTime()));
 
-		encodeBody(bs, p, ev);
+		encodeBody(c, bs, p, ev);
 
 		if (ev.getRecurrence() != null) {
 			encodeRecurrence(p, ev);
 		}
 
-		encodeExceptions(bs, p, ev.getExceptions());
+		encodeExceptions(c, bs, p, ev.getExceptions());
 
 		e(p, "Calendar:Sensitivity", "0");
 		e(p, "Calendar:BusyStatus", ev.getBusyStatus().asIntString());
@@ -131,8 +132,8 @@ public class CalendarEncoder implements IDataEncoder {
 
 	}
 
-	private void encodeExceptions(BackendSession bs, Element p,
-			List<MSEvent> excepts) {
+	private void encodeExceptions(SyncCollection c, BackendSession bs,
+			Element p, List<MSEvent> excepts) {
 		// Exceptions.Exception
 		Element es = DOMUtils.createElement(p, "Calendar:Exceptions");
 		for (MSEvent ex : excepts) {
@@ -157,7 +158,7 @@ public class CalendarEncoder implements IDataEncoder {
 									.asIntString());
 				}
 
-				encodeBody(bs, e, ex);
+				encodeBody(c, bs, e, ex);
 
 				e(e, "Calendar:Location", ex.getLocation());
 				e(e, "Calendar:Sensitivity", "0");
@@ -187,19 +188,26 @@ public class CalendarEncoder implements IDataEncoder {
 		}
 	}
 
-	private void encodeBody(BackendSession bs, Element p, MSEvent event) {
+	private void encodeBody(SyncCollection c, BackendSession bs, Element p,
+			MSEvent event) {
 		if (bs.getProtocolVersion() > 12) {
 			Element d = DOMUtils.createElement(p, "AirSyncBase:Body");
 			e(d, "AirSyncBase:Type", Type.PLAIN_TEXT.toString());
 			DOMUtils.createElementAndText(d, "AirSyncBase:EstimatedDataSize",
 					event.getDescription() != null ? ""
 							+ event.getDescription().length() : "0");
-			DOMUtils.createElementAndText(d, "AirSyncBase:Data", event.getDescription());
+			if (event.getDescription() != null
+					&& event.getDescription().length() > 0) {
+				DOMUtils.createElementAndText(d, "AirSyncBase:Data", event
+						.getDescription());
+			}
 		} else {
-			if(event.getDescription() != null && event.getDescription().length()>0){
-//				Doesn't work with wm5
-//				DOMUtils.createElementAndText(p, "Email:BodyTruncated", "0");
-//				DOMUtils.createElementAndText(p, "Email:Body", event.getDescription()+"\r\n");
+			if (event.getDescription() != null
+					&& event.getDescription().length() > 0) {
+				// Doesn't work with wm5
+				// DOMUtils.createElementAndText(p, "Email:BodyTruncated", "0");
+				// DOMUtils.createElementAndText(p, "Email:Body",
+				// event.getDescription()+"\r\n");
 			}
 		}
 	}
