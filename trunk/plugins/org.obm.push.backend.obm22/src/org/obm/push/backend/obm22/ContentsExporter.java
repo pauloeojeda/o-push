@@ -53,6 +53,8 @@ public class ContentsExporter implements IContentsExporter {
 			bs.setDataType(PIMDataType.CALENDAR);
 		} else if (collectionId.endsWith("\\contacts")) {
 			bs.setDataType(PIMDataType.CONTACTS);
+		} else if (collectionId.contains("\\tasks")) {
+			bs.setDataType(PIMDataType.TASKS);
 		} else {
 			bs.setDataType(PIMDataType.EMAIL);
 		}
