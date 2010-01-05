@@ -76,7 +76,7 @@ public class EmailManager {
 	}
 
 	private void locateImap(BackendSession bs) {
-		imapHost = new LocatorClient().locateHost("mail/imap", bs
+		imapHost = new LocatorClient().locateHost("mail/imap_frontend", bs
 				.getLoginAtDomain());
 		logger.info("Using " + imapHost + " as imap host.");
 	}
