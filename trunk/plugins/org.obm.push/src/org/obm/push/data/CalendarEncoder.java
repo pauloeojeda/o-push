@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSAttendee;
-import org.obm.push.backend.MSEmailBodyType;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.Recurrence;
 import org.obm.push.backend.SyncCollection;

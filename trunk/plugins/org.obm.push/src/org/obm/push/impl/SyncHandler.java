@@ -94,8 +94,6 @@ public class SyncHandler extends WbxmlRequestHandler {
 			reply = DOMUtils.createDoc(null, "Sync");
 			Element root = reply.getDocumentElement();
 
-			boolean invalid = false;
-
 			Element cols = DOMUtils.createElement(root, "Collections");
 
 			for (SyncCollection c : collections) {
@@ -114,16 +112,21 @@ public class SyncHandler extends WbxmlRequestHandler {
 					st.setLastSync(oldClientSyncKey.getLastSync());
 				}
 
-				if (!st.isValid()) {
-					invalid = true;
-					break;
-				}
-
 				Element ce = DOMUtils.createElement(cols, "Collection");
 				if (c.getDataClass() != null) {
 					DOMUtils
 							.createElementAndText(ce, "Class", c.getDataClass());
 				}
+
+				if (!st.isValid()) {
+					// invalid = true;
+					DOMUtils.createElementAndText(ce, "CollectionId", c
+							.getCollectionId().toString());
+					DOMUtils.createElementAndText(ce, "Status",
+							SyncStatus.INVALID_SYNC_KEY.asXmlValue());
+					break;
+				}
+
 				Element sk = DOMUtils.createElement(ce, "SyncKey");
 				DOMUtils.createElementAndText(ce, "CollectionId", c
 						.getCollectionId().toString());
@@ -145,13 +148,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 				bs.addLastClientSyncState(c.getCollectionId(), st);
 				sk.setTextContent(sm.allocateNewSyncKey(bs,
 						c.getCollectionId(), st));
-			}
-			if (invalid) {
-				root.removeChild(cols);
-				// DOMUtils.createElementAndText(root, "Status",
-				// SyncStatus.HIERARCHY_CHANGED.asXmlValue());
-				DOMUtils.createElementAndText(root, "Status",
-						SyncStatus.INVALID_SYNC_KEY.asXmlValue());
+
 			}
 			responder.sendResponse("AirSync", reply);
 		} catch (Exception e) {
