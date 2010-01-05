@@ -204,7 +204,7 @@ public class ActiveSyncServlet extends HttpServlet {
 	private String p(HttpServletRequest r, String name) {
 		String ret = null;
 		String qs = r.getQueryString();
-		if (qs.contains("User=")) {
+		if (qs.contains("Cmd=")) {
 			ret = r.getParameter(name);
 		} else {
 			Base64QueryString bqs = new Base64QueryString(qs);
