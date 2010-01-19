@@ -337,12 +337,14 @@ public class EventConverter {
 
 	private Event convertEventOne(Event parentEvent, MSEvent data) {
 		Event e = new Event();
-		if (parentEvent != null && parentEvent.getTitle() != null && !parentEvent.getTitle().isEmpty()) {
+		if (parentEvent != null && parentEvent.getTitle() != null
+				&& !parentEvent.getTitle().isEmpty()) {
 			e.setTitle(parentEvent.getTitle());
 		} else {
 			e.setTitle(data.getSubject());
 		}
-		if (parentEvent != null && parentEvent.getDescription() != null && !parentEvent.getDescription().isEmpty()) {
+		if (parentEvent != null && parentEvent.getDescription() != null
+				&& !parentEvent.getDescription().isEmpty()) {
 			e.setDescription(parentEvent.getDescription());
 		} else {
 			e.setDescription(data.getDescription());
@@ -367,20 +369,23 @@ public class EventConverter {
 				e.addAttendee(convertAttendee(at));
 			}
 		}
-		
+
 		if (data.getBusyStatus() == null) {
-			e.setOpacity(parentEvent.getOpacity());
+			if (parentEvent != null) {
+				e.setOpacity(parentEvent.getOpacity());
+			}
 		} else {
 			e.setOpacity(opacity(data.getBusyStatus()));
 		}
-		
-		
+
 		if (data.getSensitivity() == null) {
-			e.setPrivacy(parentEvent.getPrivacy());
+			if (parentEvent != null) {
+				e.setPrivacy(parentEvent.getPrivacy());
+			}
 		} else {
 			e.setPrivacy(privacy(data.getSensitivity()));
 		}
-		
+
 		return e;
 	}
 
