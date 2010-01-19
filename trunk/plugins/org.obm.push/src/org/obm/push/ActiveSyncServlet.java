@@ -87,16 +87,11 @@ public class ActiveSyncServlet extends HttpServlet {
 					.getAttribute(ICollectionChangeListener.REG_NAME);
 			if (reg != null) {
 				reg.cancel();
-			} else {
-				logger
-						.warn("Could not cancel listener registration, expect a memory leak");
 			}
 
 			ICollectionChangeListener ccl = (ICollectionChangeListener) request
 					.getAttribute(ICollectionChangeListener.LISTENER);
-			if (ccl == null) {
-				logger.warn("no listener", new Throwable());
-			} else {
+			if (ccl != null) {
 				ph.sendResponse((BackendSession) c.getObject(), new Responder(
 						response), ccl.getDirtyCollections(), false);
 			}
