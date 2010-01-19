@@ -48,9 +48,8 @@ public class Base64QueryString {
 		this.data = Base64.decode(b64.toCharArray());
 		int i = 0;
 		protocolVersion = "" + (((float) data[i++]) / 10.0); // i==0
-		logger.info("version: " + protocolVersion);
 		cmdCode = data[i++]; // 1
-		logger.info("cmd: " + cmdCode);
+		
 		int locale = (data[i++] << 8) + data[i++]; // i==2 and i==3
 
 		// windows mobile 6.5 use a GUID instead of a string, so we cannot
@@ -70,9 +69,10 @@ public class Base64QueryString {
 		}
 		devType = new String(data, i + 1, data[i]);
 		i += data[i] + 1;
-		logger.info("protoVersion: " + protocolVersion + " cmd: " + cmdCode
-				+ " locInt: " + locale + " devId: "+deviceId + " pKey: "
-				+ policyKey + " type: " + devType);
+		logger.info("protoVersion: " + protocolVersion + " cmd: "
+				+ Base64CommandCodes.getCmd(cmdCode) + " locInt: " + locale
+				+ " devId: " + deviceId + " pKey: " + policyKey + " type: "
+				+ devType);
 
 		// TODO variable parts
 	}
@@ -90,7 +90,7 @@ public class Base64QueryString {
 		if (key.equalsIgnoreCase("Cmd")) {
 			return Base64CommandCodes.getCmd(cmdCode);
 		}
-		
+
 		if (key.equalsIgnoreCase("DeviceId")) {
 			return deviceId;
 		}

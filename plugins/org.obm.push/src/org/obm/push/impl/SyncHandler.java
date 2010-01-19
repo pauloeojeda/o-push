@@ -25,10 +25,10 @@ import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.data.CalendarDecoder;
 import org.obm.push.data.ContactsDecoder;
+import org.obm.push.data.EmailDecoder;
 import org.obm.push.data.EncoderFactory;
 import org.obm.push.data.IDataDecoder;
 import org.obm.push.data.IDataEncoder;
-import org.obm.push.data.EmailDecoder;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
@@ -80,8 +80,18 @@ public class SyncHandler extends WbxmlRequestHandler {
 
 		StateMachine sm = new StateMachine(backend.getStore());
 
-		NodeList nl = doc.getDocumentElement().getElementsByTagName(
-				"Collection");
+		Element query = doc.getDocumentElement();
+		String wait = DOMUtils.getElementText(query, "Wait");
+		if (wait != null) {
+			int secs = Integer.parseInt(wait) * 60;
+			logger.info("suspend for " + secs + "sec.");
+			try {
+				Thread.sleep(secs * 1000);
+			} catch (InterruptedException e) {
+			}
+		}
+
+		NodeList nl = query.getElementsByTagName("Collection");
 		LinkedList<SyncCollection> collections = new LinkedList<SyncCollection>();
 		HashMap<String, String> processedClientIds = new HashMap<String, String>();
 		for (int i = 0; i < nl.getLength(); i++) {
