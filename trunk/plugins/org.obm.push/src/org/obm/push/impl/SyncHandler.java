@@ -362,7 +362,10 @@ public class SyncHandler extends WbxmlRequestHandler {
 						"TruncationSize");
 				String type = DOMUtils.getElementText(bodyPreference, "Type");
 				BodyPreference bp = new BodyPreference();
-				bp.setTruncationSize(Integer.parseInt(truncationSize));
+				// nokia n900 sets type without truncationsize
+				if (truncationSize != null) {
+					bp.setTruncationSize(Integer.parseInt(truncationSize));
+				}
 				bp.setType(MSEmailBodyType.getValueOf(Integer.parseInt(type)));
 				collection.setBodyPreference(bp);
 			}
