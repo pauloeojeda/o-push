@@ -1,5 +1,6 @@
 package org.obm.push.storage.jdbc;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -221,6 +222,11 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	public boolean syncAuthorized(String loginAtDomain, String deviceId) {
+		File f = new File("/etc/opush/no.sync.perms");
+		if (f.exists()) {
+			return true;
+		}
+		
 		String[] parts = loginAtDomain.split("@");
 		String login = parts[0].toLowerCase();
 		String domain = parts[1].toLowerCase();
