@@ -38,7 +38,7 @@ fi
 
 
 opush_pid=/var/run/opush.pid
-opush_home=/usr/share/opush
+opush_home=/usr/share/o-push
 opush_logs=/var/log/opush/opush.log
 jps=$JAVA_HOME/bin/jps
 
@@ -73,6 +73,7 @@ stop_opush() {
       start-stop-daemon --stop --quiet --oknodo --pidfile ${opush_pid}
     else
       kill `cat ${opush_pid}`
+    fi
     echo -n "Waiting for OBM Opush Server shutdown."
     while opush_running; do
     echo -n "."
