@@ -12,7 +12,7 @@ Before starting the o-push binary, you need to have the following components up 
   * OBM-Sync server >= 2.2.7
   * /etc/obm/obm_conf.ini from a working obm 2.2.x PostgreSQL installation
   * correct firewall setup. o-push will connect to :
-     * OBM PostgreSQL database to locate where you obm-sync server is.
+     * obm-locator to locate where you obm-sync server is.
      * Your obm-sync host via http://obm-sync-host:8080/obm-sync/services
   * A working apache server that will be your entry point to o-push and will reverse proxy all your queries to it.
 
