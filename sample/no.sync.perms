@@ -1,0 +1,7 @@
+What is this File?
+
+If this file is present into /etc/opush, default sync are Authorized, else
+you muse authorized each PDA on OBM interface to sync.
+
+
+
