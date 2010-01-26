@@ -1,6 +1,5 @@
 package org.obm.push.storage.jdbc;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,6 +20,7 @@ import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
 
+import fr.aliasource.utils.IniFile;
 import fr.aliasource.utils.JDBCUtils;
 
 /**
@@ -222,10 +222,21 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	public boolean syncAuthorized(String loginAtDomain, String deviceId) {
-		File f = new File("/etc/opush/no.sync.perms");
-		if (f.exists()) {
+		IniFile ini = new IniFile("/etc/opush/sync_perms.ini") {
+			@Override
+			public String getCategory() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		};
+		Map<String, String> data = ini.getData();
+		String syncperm = data.get("allow.unknown.pda");
+		
+		if (syncperm == "true") {
 			return true;
 		}
+		
+		
 		
 		String[] parts = loginAtDomain.split("@");
 		String login = parts[0].toLowerCase();
