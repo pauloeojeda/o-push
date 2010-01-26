@@ -2,8 +2,6 @@ package org.obm.push.impl;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContinuation;
@@ -22,7 +20,7 @@ public class SmartReplyHandler extends MailRequestHandler {
 
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
-			byte[] mailContent, Boolean saveInSent, HttpServletRequest request,
+			byte[] mailContent, Boolean saveInSent, ActiveSyncRequest request,
 			Responder responder) throws IOException {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");

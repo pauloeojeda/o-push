@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
@@ -35,7 +34,7 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
-			HttpServletRequest request, Responder responder) throws IOException {
+			ActiveSyncRequest request, Responder responder) throws IOException {
 		
 		InputStream in = request.getInputStream();
 		byte[] input = FileUtils.streamBytes(in, true);

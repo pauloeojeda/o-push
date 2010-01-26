@@ -1,6 +1,7 @@
 package org.obm.push;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IBackendFactory;
 import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.IListenerRegistration;
+import org.obm.push.impl.ActiveSyncRequest;
 import org.obm.push.impl.Credentials;
 import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.GetAttachmentHandler;
@@ -206,13 +208,8 @@ public class ActiveSyncServlet extends HttpServlet {
 	 */
 	private String p(HttpServletRequest r, String name) {
 		String ret = null;
-		String qs = r.getQueryString();
-		if (qs.contains("Cmd=")) {
-			ret = r.getParameter(name);
-		} else {
-			Base64QueryString bqs = new Base64QueryString(qs);
-			ret = bqs.getValue(name);
-		}
+		ActiveSyncRequest asr = getActiveSyncRequest(r);
+		ret = asr.getParameter(name);
 		if (ret == null) {
 			ret = r.getHeader(name);
 		}
@@ -241,8 +238,23 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		sendASHeaders(response);
-		rh.process(new PushContinuation(continuation, request), bs, request,
+		rh.process(new PushContinuation(continuation, request), bs, getActiveSyncRequest(request),
 				new Responder(response));
+	}
+
+	private ActiveSyncRequest getActiveSyncRequest(HttpServletRequest r) {
+		String qs = r.getQueryString();
+		if (qs.contains("Cmd=")) {
+			return null;
+		} else {
+			InputStream is = null;
+			try{
+				is = r.getInputStream();
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			}
+			return new Base64QueryString(r.getQueryString(),is);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
