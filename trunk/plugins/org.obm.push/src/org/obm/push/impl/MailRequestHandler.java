@@ -2,9 +2,6 @@ package org.obm.push.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,18 +19,10 @@ public abstract class MailRequestHandler implements IRequestHandler {
 		this.backend = backend;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
-			HttpServletRequest request, Responder responder) throws IOException {
+			ActiveSyncRequest request, Responder responder) throws IOException {
 
-		Enumeration params = request.getParameterNames();
-		while (params.hasMoreElements()) {
-			String p = (String) params.nextElement();
-			logger
-					.info("Parameter[" + p + ": " + request.getParameter(p)
-							+ "]");
-		}
 		Boolean saveInSent = false;
 		String sis = request.getParameter("SaveInSent");
 		if (sis != null) {
@@ -49,7 +38,7 @@ public abstract class MailRequestHandler implements IRequestHandler {
 	}
 
 	public abstract void process(IContinuation continuation, BackendSession bs,
-			byte[] mailContent, Boolean saveInSent, HttpServletRequest request,
+			byte[] mailContent, Boolean saveInSent, ActiveSyncRequest request,
 			Responder responder) throws IOException;
 
 }

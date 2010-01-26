@@ -1,11 +1,15 @@
 package org.obm.push;
 
+import java.io.InputStream;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.impl.ActiveSyncRequest;
 import org.obm.push.impl.Base64CommandCodes;
+import org.obm.push.impl.Base64ParameterCodes;
 import org.obm.push.utils.Base64;
 
-public class Base64QueryString {
+public class Base64QueryString implements ActiveSyncRequest{
 
 	/**
 	 * <code>
@@ -38,13 +42,28 @@ public class Base64QueryString {
 
 	private static final Log logger = LogFactory
 			.getLog(Base64QueryString.class);
+	
+	private InputStream stream;
+	
 	private byte[] data;
 	private String protocolVersion;
 	private String devType;
 	private String deviceId;
 	private int cmdCode;
+	
+	private String attachmentName;
+	private String collectionId;
+	private String collectionName;
+	private String itemId;
+	private String longId;
+	private String parentId;
+	private String occurrence;
+	private String saveInSent;
+	private String acceptMultiPart;
+	
 
-	public Base64QueryString(String b64) {
+	public Base64QueryString(String b64, InputStream stream) {
+		this.stream = stream;
 		this.data = Base64.decode(b64.toCharArray());
 		int i = 0;
 		protocolVersion = "" + (((float) data[i++]) / 10.0); // i==0
@@ -74,29 +93,111 @@ public class Base64QueryString {
 				+ " devId: " + deviceId + " pKey: " + policyKey + " type: "
 				+ devType);
 
+		while(data.length>i){
+			i = decodeParameters(i);
+		}
 		// TODO variable parts
+		
+		
 	}
 
-	public String getValue(String key) {
+	private int decodeParameters(int i) {
+		Base64ParameterCodes tag = Base64ParameterCodes.getParam(data[i++]);
+		byte length = data[i++];
+		byte[] value = new byte[length];
+		for(int j = 0; j<length;j++){
+			value[j] = data[i++]; 
+		}
+		switch (tag) {
+		case AttachmentName:
+			this.attachmentName = new String(value);
+			break;
+		case CollectionId:
+			this.collectionId = new String(value);
+			break; 
+		case CollectionName:
+			this.collectionName = new String(value);
+			break; 
+		case ItemId:
+			this.itemId = new String(value);
+			break; 
+		case LongId:
+			this.longId = new String(value);
+			break; 
+		case ParentId:
+			this.parentId = new String(value);
+			break; 
+		case Occurrence:
+			this.occurrence = new String(value);
+			break; 
+		case Options:
+			if(value.length>0){
+				if(value[0] == 0x01){
+					this.saveInSent = "T";
+				} else if(value[0] == 0x02){
+					this.acceptMultiPart = "T";
+				}
+			}
+			break; 
+		case User:
+			break; 
+		default:
+			break;
+		}
+		return i;
+	}
+	
+	@Override
+	public String getParameter(String key) {
 
 		if (key.equalsIgnoreCase("MS-ASProtocolVersion")) {
 			return protocolVersion;
 		}
-
 		if (key.equalsIgnoreCase("DeviceType")) {
 			return devType;
 		}
-
 		if (key.equalsIgnoreCase("Cmd")) {
 			return Base64CommandCodes.getCmd(cmdCode);
 		}
-
 		if (key.equalsIgnoreCase("DeviceId")) {
 			return deviceId;
+		}
+		if (key.equalsIgnoreCase("AttachmentName")) {
+			return attachmentName;
+		}
+		if (key.equalsIgnoreCase("CollectionId")) {
+			return collectionId;
+		}
+		if (key.equalsIgnoreCase("CollectionName")) {
+			return collectionName;
+		}
+		if (key.equalsIgnoreCase("ItemId")) {
+			return itemId;
+		}
+		if (key.equalsIgnoreCase("LongId")) {
+			return longId;
+		}
+		if (key.equalsIgnoreCase("ParentId")) {
+			return parentId;
+		}
+		if (key.equalsIgnoreCase("Occurrence")) {
+			return occurrence;
+		}
+		if (key.equalsIgnoreCase("SaveInSent")) {
+			return saveInSent;
+		}
+		if (key.equalsIgnoreCase("AcceptMultiPart")) {
+			return acceptMultiPart;
 		}
 
 		logger.warn("cannot fetch '" + key + "' in b64 query string");
 
 		return null;
 	}
+
+	@Override
+	public InputStream getInputStream() {
+		return stream;
+	}
+
 }

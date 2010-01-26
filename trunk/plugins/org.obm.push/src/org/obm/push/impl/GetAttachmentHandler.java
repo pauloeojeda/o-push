@@ -3,8 +3,6 @@ package org.obm.push.impl;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
@@ -29,7 +27,7 @@ public class GetAttachmentHandler implements IRequestHandler {
 
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
-			HttpServletRequest request, Responder responder) throws IOException {
+			ActiveSyncRequest request, Responder responder) throws IOException {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 

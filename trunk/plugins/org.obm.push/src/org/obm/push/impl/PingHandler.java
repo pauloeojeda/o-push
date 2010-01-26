@@ -95,11 +95,11 @@ public class PingHandler extends WbxmlRequestHandler implements
 			continuation.storeData(ICollectionChangeListener.LISTENER, l);
 			logger.info("suspend for " + intervalSeconds + " seconds");
 			synchronized (bs) {
-				logger
-						.warn("for testing purpose, we will only suspend for 40sec (to monitor: "
-								+ bs.getLastMonitored() + ")");
-				continuation.suspend(40 * 1000);
-//				 continuation.suspend(intervalSeconds * 1000);
+				// logger
+				// .warn("for testing purpose, we will only suspend for 40sec (to monitor: "
+				// + bs.getLastMonitored() + ")");
+				// continuation.suspend(40 * 1000);
+				continuation.suspend(intervalSeconds * 1000);
 			}
 		} else {
 			logger.warn("forcing hierarchy change");
