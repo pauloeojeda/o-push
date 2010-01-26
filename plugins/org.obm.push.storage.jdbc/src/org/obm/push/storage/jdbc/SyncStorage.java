@@ -225,14 +225,12 @@ public class SyncStorage implements ISyncStorage {
 		IniFile ini = new IniFile("/etc/opush/sync_perms.ini") {
 			@Override
 			public String getCategory() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};
-		Map<String, String> data = ini.getData();
-		String syncperm = data.get("allow.unknown.pda");
+		String syncperm = ini.getData().get("allow.unknown.pda");
 		
-		if (syncperm == "true") {
+		if ("true".equals(syncperm)) {
 			return true;
 		}
 		
