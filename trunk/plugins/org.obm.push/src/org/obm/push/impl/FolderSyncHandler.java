@@ -40,7 +40,7 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 
 		if ("0".equals(syncKey)) {
 			backend.resetForFullSync(bs);
-			bs.setState(new SyncState());
+			bs.setState(new SyncState());	
 		}
 
 		StateMachine sm = new StateMachine(backend.getStore());

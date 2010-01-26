@@ -38,7 +38,7 @@ public interface ISyncStorage {
 	 */
 	Integer getCollectionMapping(String deviceId, String collectionId);
 
-	String getCollectionString(Integer collectionId);
+	String getCollectionPath(Integer collectionId);
 
 	String getDataClass(String collectionId);
 

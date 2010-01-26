@@ -27,6 +27,9 @@ public class BackendSession {
 	private Map<Integer,Date> updatedSyncDate;
 	private Map<Integer, Set<ItemChange>> unSynchronizedItemChangeByCollection;
 	private Map<Integer, SyncState> lastClientSyncState;
+	private int lastWait;
+	
+	private String lastContinuationHandler;
 
 	private double protocolVersion;
 
@@ -45,6 +48,7 @@ public class BackendSession {
 		this.unSynchronizedItemChangeByCollection = new HashMap<Integer, Set<ItemChange>>();
 		this.lastClientSyncState = new HashMap<Integer, SyncState>();
 		this.updatedSyncDate = new HashMap<Integer, Date>();
+		this.lastMonitored = new HashSet<SyncCollection>();
 		loadHints();
 	}
 
@@ -209,4 +213,21 @@ public class BackendSession {
 		this.unSynchronizedItemChangeByCollection.remove(collectionId);
 		this.lastClientSyncState.remove(collectionId);
 	}
+	
+	public String getLastContinuationHandler() {
+		return lastContinuationHandler;
+	}
+
+	public void setLastContinuationHandler(String lastContinuationHandler) {
+		this.lastContinuationHandler = lastContinuationHandler;
+	}
+
+	public int getLastWait() {
+		return lastWait;
+	}
+
+	public void setLastWait(int lastWait) {
+		this.lastWait = lastWait;
+	}
+
 }

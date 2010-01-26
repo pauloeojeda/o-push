@@ -44,11 +44,6 @@ public class EmailMonitoringThread implements IIdleCallback {
 		this.backend = cb;
 		this.bs = bs;
 		collectionName = backend.getCollectionNameFor(collectionId);
-		try {
-			startIdle();
-		} catch (IMAPException e) {
-			logger.error(e.getMessage(), e);
-		}
 	}
 
 	public void startIdle() throws IMAPException {
@@ -59,6 +54,8 @@ public class EmailMonitoringThread implements IIdleCallback {
 					collectionName));
 		}
 		store.startIdle();
+		logger.info("Start email push monitoring for collection[ "
+				+ collectionName + "]");
 	}
 
 	private Set<SyncCollection> getChangedCollections(BackendSession session,
@@ -96,38 +93,52 @@ public class EmailMonitoringThread implements IIdleCallback {
 
 	public void stopIdle() {
 		store.stopIdle();
+		logger.info("Stop email push monitoring for collection[ "
+				+ collectionName + "]");
 	}
 
 	@Override
 	public synchronized void receive(IdleLine line) {
-		if (line != null  && ( IdleTag.EXISTS.equals(line.getTag())
-				|| IdleTag.FETCH.equals(line.getTag()))) {
-			Set<SyncCollection> lsc = new HashSet<SyncCollection>();
+		if (line != null) {
+			if ((IdleTag.EXISTS.equals(line.getTag()) || IdleTag.FETCH
+					.equals(line.getTag()))) {
+				stopIdle();
+				Set<SyncCollection> lsc = new HashSet<SyncCollection>();
 
-			SyncCollection sc = new SyncCollection();
-			String s = collectionName;
-			sc.setCollectionName(s);
-			lsc.add(sc);
+				SyncCollection sc = new SyncCollection();
+				String s = collectionName;
+				sc.setCollectionName(s);
+				lsc.add(sc);
 
-			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-			cal.setTime(new Date());
+				Calendar cal = Calendar
+						.getInstance(TimeZone.getTimeZone("GMT"));
+				cal.setTime(new Date());
 
-			ChangedCollections cols = new ChangedCollections(cal.getTime(), lsc);
-			logger.info("DB lastSync: " + cal.getTime());
+				ChangedCollections cols = new ChangedCollections(cal.getTime(),
+						lsc);
+				logger.info("DB lastSync: " + cal.getTime());
 
-			LinkedList<PushNotification> toNotify = new LinkedList<PushNotification>();
-			for (ICollectionChangeListener ccl : ccls) {
-				Set<SyncCollection> monitoredCollections = ccl
-						.getMonitoredCollections();
-				Set<SyncCollection> changes = getChangedCollections(ccl
-						.getSession(), cols, monitoredCollections);
-				if (!changes.isEmpty()) {
-					this.stopIdle();
-					toNotify.add(new PushNotification(changes, ccl));
+				LinkedList<PushNotification> toNotify = new LinkedList<PushNotification>();
+				for (ICollectionChangeListener ccl : ccls) {
+					Set<SyncCollection> monitoredCollections = ccl
+							.getMonitoredCollections();
+					Set<SyncCollection> changes = getChangedCollections(ccl
+							.getSession(), cols, monitoredCollections);
+					if (!changes.isEmpty()) {
+						this.stopIdle();
+						toNotify.add(new PushNotification(changes, ccl));
+					}
 				}
-			}
-			for (PushNotification pn : toNotify) {
-				pn.emit();
+				for (PushNotification pn : toNotify) {
+					pn.emit();
+				}
+			} else if (IdleTag.BYE.equals(line.getTag())) {
+				try {
+					logger.info("Disconnect from IMAP[Timeout]");
+					startIdle();
+				} catch (IMAPException e) {
+					logger.error(e.getMessage(), e);
+				}
 			}
 		}
 	}

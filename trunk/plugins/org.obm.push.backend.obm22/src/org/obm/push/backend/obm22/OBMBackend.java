@@ -13,7 +13,6 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
-import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.IHierarchyExporter;
 import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.IListenerRegistration;
@@ -83,8 +82,19 @@ public class OBMBackend implements IBackend {
 	}
 	
 	public void startEmailMonitoring(BackendSession bs, Integer collectionId){
-		MailBackend mailBackend = new MailBackend(store);
-		EmailMonitoringThread emt = new EmailMonitoringThread(mailBackend, registeredListeners,bs,collectionId);
+		EmailMonitoringThread emt = emailPushMonitors.get(collectionId);
+		if(emt != null){
+			emt.stopIdle();
+		} else {
+			MailBackend mailBackend = new MailBackend(store);
+			emt = new EmailMonitoringThread(mailBackend, registeredListeners,bs,collectionId);
+		}
+		try {
+			emt.startIdle();
+		} catch (Exception e) {
+			logger.error("Error while starting idle on collection["+collectionId+"]", e);
+			emt.stopIdle();
+		}
 		emailPushMonitors.put(collectionId, emt);
 	}
 
@@ -123,14 +133,14 @@ public class OBMBackend implements IBackend {
 		}
 	}
 
-	public void onChangeFound(IContinuation continuation, BackendSession bs) {
-		logger.info("onChangesFound");
-		synchronized (bs) {
-			continuation.setObject(bs);
-			continuation.resume();
-			logger.info("after resume !!");
-		}
-	}
+//	public void onChangeFound(IContinuation continuation, BackendSession bs) {
+//		logger.info("onChangesFound");
+//		synchronized (bs) {
+//			continuation.setObject(bs);
+//			continuation.resume();
+//			logger.info("after resume !!");
+//		}
+//	}
 
 	@Override
 	public ISyncStorage getStore() {
@@ -156,7 +166,7 @@ public class OBMBackend implements IBackend {
 //			Set<Integer> colIds = getStore().getAllCollectionId(bs.getDevId());
 //			EmailManager.getInstance().resetForFullSync(colIds);
 //			getStore().resetForFullSync(bs.getDevId());
-			bs.clearAll();
+//			bs.clearAll();
 //		} catch (RuntimeException re) {
 //			logger.error(re.getMessage(), re);
 //			throw re;

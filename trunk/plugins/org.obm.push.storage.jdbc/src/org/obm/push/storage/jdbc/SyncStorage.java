@@ -338,7 +338,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public String getCollectionString(Integer collectionId) {
+	public String getCollectionPath(Integer collectionId) {
 		String ret = null;
 
 		Connection con = null;
@@ -364,14 +364,14 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public String getDataClass(String collectionId) {
-		if (collectionId.contains("\\calendar\\")) {
+	public String getDataClass(String collectionPath) {
+		if (collectionPath.contains("\\calendar\\")) {
 			return "Calendar";
-		} else if (collectionId.contains("\\contacts")) {
+		} else if (collectionPath.contains("\\contacts")) {
 			return "Contacts";
-		} else if (collectionId.contains("\\email\\")) {
+		} else if (collectionPath.contains("\\email\\")) {
 			return "Email";
-		} else if (collectionId.contains("\\task\\")) {
+		} else if (collectionPath.contains("\\task\\")) {
 			return "Task";
 		} else {
 			return "Folder";

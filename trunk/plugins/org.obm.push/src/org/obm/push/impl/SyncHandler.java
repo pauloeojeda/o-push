@@ -10,15 +10,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.obm.push.ActiveSyncServlet;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.BodyPreference;
+import org.obm.push.backend.CollectionChangeListener;
 import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FilterType;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IBackend;
+import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.IContinuation;
+import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEmailBodyType;
 import org.obm.push.backend.PIMDataType;
@@ -54,8 +58,8 @@ import org.w3c.dom.NodeList;
 //</Collection>
 //</Collections>
 //</Sync>
-
-public class SyncHandler extends WbxmlRequestHandler {
+public class SyncHandler extends WbxmlRequestHandler implements
+		IContinuationHandler {
 
 	public static final Integer SYNC_TRUNCATION_ALL = 9;
 
@@ -80,96 +84,117 @@ public class SyncHandler extends WbxmlRequestHandler {
 
 		StateMachine sm = new StateMachine(backend.getStore());
 
-		Element query = doc.getDocumentElement();
-		String wait = DOMUtils.getElementText(query, "Wait");
-		if (wait != null) {
-			int secs = Integer.parseInt(wait) * 60;
-			logger.info("suspend for " + secs + "sec.");
-			try {
-				Thread.sleep(secs * 1000);
-			} catch (InterruptedException e) {
+		Set<SyncCollection> collections = new HashSet<SyncCollection>();
+		Map<String, String> processedClientIds = new HashMap<String, String>();
+		String wait = "";
+		if (doc != null) {
+			Element query = doc.getDocumentElement();
+			NodeList nl = query.getElementsByTagName("Collection");
+
+			for (int i = 0; i < nl.getLength(); i++) {
+				Element col = (Element) nl.item(i);
+				collections.add(processCollection(bs, sm, col,
+						processedClientIds));
+			}
+			wait = DOMUtils.getElementText(query, "Wait");
+			if (query.getElementsByTagName("Partial").getLength() > 0) {
+				logger.info("Partial element has been found. "
+						+ bs.getLastMonitored().size()
+						+ " collection(s) are loaded from cache");
+				if (bs.getLastMonitored() == null
+						|| bs.getLastMonitored().size() == 0) {
+					try {
+						Document reply = null;
+						reply = DOMUtils.createDoc(null, "Sync");
+						Element root = reply.getDocumentElement();
+						// Status 13
+						// The client sent an empty or partial Sync request, but
+						// the
+						// server is unable to process it. Please resend the
+						// request
+						// with the full XML
+						// TODO Cache in database last collections monitored
+						DOMUtils.createElementAndText(root, "Status", "13");
+						responder.sendResponse("AirSync", reply);
+					} catch (Exception e) {
+						logger.error("Error creating Sync response", e);
+					}
+					return;
+				}
+				collections.addAll(bs.getLastMonitored());
 			}
 		}
 
-		NodeList nl = query.getElementsByTagName("Collection");
-		LinkedList<SyncCollection> collections = new LinkedList<SyncCollection>();
-		HashMap<String, String> processedClientIds = new HashMap<String, String>();
-		for (int i = 0; i < nl.getLength(); i++) {
-			Element col = (Element) nl.item(i);
-			collections.add(processCollection(bs, sm, col, processedClientIds));
-		}
+		if ((wait != null && wait.length() > 0) || doc == null) {
+			if (collections.size() == 0) {
+				logger.info(bs.getLastMonitored().size()
+						+ " collection(s) are loaded from cache");
+				collections.addAll(bs.getLastMonitored());
+			}
 
-		Document reply = null;
-		try {
-			reply = DOMUtils.createDoc(null, "Sync");
-			Element root = reply.getDocumentElement();
+			int secs = 0;
+			try {
+				secs = Integer.parseInt(wait) * 60;
+			} catch (NumberFormatException e) {
+			}
+			if (secs == 0) {
+				secs = bs.getLastWait();
+			}
 
-			Element cols = DOMUtils.createElement(root, "Collections");
-
-			for (SyncCollection c : collections) {
-				if ("0".equals(c.getSyncKey())) {
-					backend.resetCollection(bs, c.getCollectionId());
-					bs.setState(new SyncState());
+			// 59*60
+			if (secs > 3540) {
+				try {
+					Document reply = null;
+					reply = DOMUtils.createDoc(null, "Sync");
+					Element root = reply.getDocumentElement();
+					DOMUtils.createElementAndText(root, "Status", "14");
+					DOMUtils.createElementAndText(root, "Limit", "59");
+					responder.sendResponse("AirSync", reply);
+				} catch (Exception e) {
+					logger.error("Error creating Sync response", e);
 				}
-
-				String syncKey = c.getSyncKey();
-				SyncState st = sm.getSyncState(syncKey);
-
-				SyncState oldClientSyncKey = bs.getLastClientSyncState(c
-						.getCollectionId());
-				if (oldClientSyncKey != null
-						&& oldClientSyncKey.getKey().equals(syncKey)) {
-					st.setLastSync(oldClientSyncKey.getLastSync());
-				}
-
-				Element ce = DOMUtils.createElement(cols, "Collection");
-				if (c.getDataClass() != null) {
-					DOMUtils
-							.createElementAndText(ce, "Class", c.getDataClass());
-				}
-
-				if (!st.isValid()) {
-					// invalid = true;
-					DOMUtils.createElementAndText(ce, "CollectionId", c
-							.getCollectionId().toString());
-					DOMUtils.createElementAndText(ce, "Status",
-							SyncStatus.INVALID_SYNC_KEY.asXmlValue());
+				return;
+			}
+			logger.info("suspend for " + secs + "sec.");
+			for (SyncCollection sc : collections) {
+				String collectionPath = backend.getStore().getCollectionPath(
+						sc.getCollectionId());
+				sc.setCollectionName(collectionPath);
+				String dataClass = backend.getStore().getDataClass(
+						collectionPath);
+				// sc.setDataClass(dataClass) causes errors with wm6.1
+				if ("email".equalsIgnoreCase(dataClass)) {
+					backend.startEmailMonitoring(bs, sc.getCollectionId());
 					break;
 				}
+			}
+			bs.setLastContinuationHandler(ActiveSyncServlet.SYNC_HANDLER);
+			bs.setLastMonitored(collections);
+			bs.setLastWait(secs);
+			CollectionChangeListener l = new CollectionChangeListener(bs,
+					continuation, collections);
+			IListenerRegistration reg = backend.addChangeListener(l);
+			continuation.storeData(ICollectionChangeListener.REG_NAME, reg);
+			continuation.storeData(ICollectionChangeListener.LISTENER, l);
 
-				Element sk = DOMUtils.createElement(ce, "SyncKey");
-				DOMUtils.createElementAndText(ce, "CollectionId", c
-						.getCollectionId().toString());
-				DOMUtils.createElementAndText(ce, "Status", "1");
-				if (!syncKey.equals("0")) {
-					int col = c.getCollectionId();
-					String colStr = backend.getStore().getCollectionString(col);
-					IContentsExporter cex = backend.getContentsExporter(bs);
-					cex.configure(bs, c.getDataClass(), c.getFilterType(), st,
-							colStr);
-
-					if (c.getFetchIds().size() == 0) {
-						doUpdates(bs, c, ce, cex, processedClientIds);
-					} else {
-						// fetch
-						doFetch(bs, c, ce, cex);
-					}
-				}
-				bs.addLastClientSyncState(c.getCollectionId(), st);
-				sk.setTextContent(sm.allocateNewSyncKey(bs,
-						c.getCollectionId(), st));
+			logger.info("suspend for " + secs + " seconds");
+			synchronized (bs) {
+				logger
+						.warn("for testing purpose, we will only suspend for 40sec (to monitor: "
+								+ bs.getLastMonitored() + ")");
+				continuation.suspend(40 * 1000);
+				// continuation.suspend(secs * 1000);
 
 			}
-			responder.sendResponse("AirSync", reply);
-		} catch (Exception e) {
-			logger.error("Error creating Sync response", e);
+		} else {
+			processResponse(bs, responder, collections, false,
+					processedClientIds);
 		}
 	}
 
 	private void doUpdates(BackendSession bs, SyncCollection c, Element ce,
-			IContentsExporter cex, HashMap<String, String> processedClientIds) {
-		String col = backend.getStore()
-				.getCollectionString(c.getCollectionId());
+			IContentsExporter cex, Map<String, String> processedClientIds) {
+		String col = backend.getStore().getCollectionPath(c.getCollectionId());
 		DataDelta delta = null;
 		if (bs.getUnSynchronizedItemChange(c.getCollectionId()).size() == 0) {
 			delta = cex.getChanged(bs, c.getFilterType(), col);
@@ -238,7 +263,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 
 	private List<ItemChange> processWindowSize(SyncCollection c,
 			DataDelta delta, BackendSession bs,
-			HashMap<String, String> processedClientIds) {
+			Map<String, String> processedClientIds) {
 		List<ItemChange> changed = new ArrayList<ItemChange>();
 		if (delta != null) {
 			changed.addAll(delta.getChanges());
@@ -313,9 +338,7 @@ public class SyncHandler extends WbxmlRequestHandler {
 		encoder.encode(bs, apData, data, c, true);
 	}
 
-	private SyncCollection processCollection(BackendSession bs,
-			StateMachine sm, Element col,
-			HashMap<String, String> processedClientIds) {
+	private SyncCollection decodeCollection(Element col) {
 		SyncCollection collection = new SyncCollection();
 		collection.setDataClass(DOMUtils.getElementText(col, "Class"));
 		collection.setSyncKey(DOMUtils.getElementText(col, "SyncKey"));
@@ -369,12 +392,19 @@ public class SyncHandler extends WbxmlRequestHandler {
 				bp.setType(MSEmailBodyType.getValueOf(Integer.parseInt(type)));
 				collection.setBodyPreference(bp);
 			}
-
 		}
 		// TODO sync supported
 		// TODO sync <deletesasmoves/>
 		// TODO sync <getchanges/>
 		// TODO sync options
+
+		return collection;
+	}
+
+	private SyncCollection processCollection(BackendSession bs,
+			StateMachine sm, Element col, Map<String, String> processedClientIds) {
+
+		SyncCollection collection = decodeCollection(col);
 
 		SyncState oldColState = sm.getSyncState(collection.getSyncKey());
 		collection.setSyncState(oldColState);
@@ -416,9 +446,9 @@ public class SyncHandler extends WbxmlRequestHandler {
 	 */
 	private void processModification(BackendSession bs,
 			SyncCollection collection, IContentsImporter importer,
-			Element modification, HashMap<String, String> processedClientIds) {
+			Element modification, Map<String, String> processedClientIds) {
 		int col = collection.getCollectionId();
-		String collectionId = backend.getStore().getCollectionString(col);
+		String collectionId = backend.getStore().getCollectionPath(col);
 		String modType = modification.getNodeName();
 		logger.info("modType: " + modType);
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
@@ -476,5 +506,83 @@ public class SyncHandler extends WbxmlRequestHandler {
 
 	private IDataDecoder getDecoder(String dataClass) {
 		return decoders.get(dataClass);
+	}
+
+	@Override
+	public void sendResponse(BackendSession bs, Responder responder,
+			Set<SyncCollection> changedFolders, boolean sendHierarchyChange) {
+		processResponse(bs, responder, bs.getLastMonitored(),
+				sendHierarchyChange, new HashMap<String, String>());
+	}
+
+	public void processResponse(BackendSession bs, Responder responder,
+			Set<SyncCollection> changedFolders, boolean sendHierarchyChange,
+			Map<String, String> processedClientIds) {
+
+		StateMachine sm = new StateMachine(backend.getStore());
+
+		Document reply = null;
+		try {
+			reply = DOMUtils.createDoc(null, "Sync");
+			Element root = reply.getDocumentElement();
+
+			Element cols = DOMUtils.createElement(root, "Collections");
+
+			for (SyncCollection c : changedFolders) {
+				if ("0".equals(c.getSyncKey())) {
+					backend.resetCollection(bs, c.getCollectionId());
+					bs.setState(new SyncState());
+				}
+
+				String syncKey = c.getSyncKey();
+				SyncState st = sm.getSyncState(syncKey);
+
+				SyncState oldClientSyncKey = bs.getLastClientSyncState(c
+						.getCollectionId());
+				if (oldClientSyncKey != null
+						&& oldClientSyncKey.getKey().equals(syncKey)) {
+					st.setLastSync(oldClientSyncKey.getLastSync());
+				}
+
+				Element ce = DOMUtils.createElement(cols, "Collection");
+				if (c.getDataClass() != null) {
+					DOMUtils
+							.createElementAndText(ce, "Class", c.getDataClass());
+				}
+
+				if (!st.isValid()) {
+					DOMUtils.createElementAndText(ce, "CollectionId", c
+							.getCollectionId().toString());
+					DOMUtils.createElementAndText(ce, "Status",
+							SyncStatus.INVALID_SYNC_KEY.asXmlValue());
+					break;
+				}
+
+				Element sk = DOMUtils.createElement(ce, "SyncKey");
+				DOMUtils.createElementAndText(ce, "CollectionId", c
+						.getCollectionId().toString());
+				DOMUtils.createElementAndText(ce, "Status", "1");
+				if (!syncKey.equals("0")) {
+					int col = c.getCollectionId();
+					String colStr = backend.getStore().getCollectionPath(col);
+					IContentsExporter cex = backend.getContentsExporter(bs);
+					cex.configure(bs, c.getDataClass(), c.getFilterType(), st,
+							colStr);
+
+					if (c.getFetchIds().size() == 0) {
+						doUpdates(bs, c, ce, cex, processedClientIds);
+					} else {
+						// fetch
+						doFetch(bs, c, ce, cex);
+					}
+				}
+				bs.addLastClientSyncState(c.getCollectionId(), st);
+				sk.setTextContent(sm.allocateNewSyncKey(bs,
+						c.getCollectionId(), st));
+			}
+			responder.sendResponse("AirSync", reply);
+		} catch (Exception e) {
+			logger.error("Error creating Sync response", e);
+		}
 	}
 }

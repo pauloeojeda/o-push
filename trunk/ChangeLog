@@ -1,3 +1,46 @@
+2010-01-26  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Adding push implementation when the element "Wait" is present in a
+	sync request
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.startEmailMonitoring), (OBMBackend),
+	(OBMBackend.resetForFullSync):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmSyncBackend.java: (ObmSyncBackend.getCollectionNameFor):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailMonitoringThread.java:
+	(EmailMonitoringThread.EmailMonitoringThread),
+	(EmailMonitoringThread.startIdle),
+	(EmailMonitoringThread.stopIdle), (EmailMonitoringThread.receive):
+	* plugins/org.obm.push.storage.jdbc/src/org/obm/push/storage/jdbc/S
+	yncStorage.java: (SyncStorage.getCollectionPath),
+	(SyncStorage.getDataClass):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet), (ActiveSyncServlet.service):
+	* plugins/org.obm.push/src/org/obm/push/backend/BackendSession.java
+	: (BackendSession), (BackendSession.BackendSession),
+	(BackendSession.getLastContinuationHandler),
+	(BackendSession.setLastContinuationHandler),
+	(BackendSession.getLastWait), (BackendSession.setLastWait):
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/IContinuationHandler.j
+	ava: (IContinuationHandler):
+	* plugins/org.obm.push/src/org/obm/push/impl/MoveItemsHandler.java:
+	(MoveItemsHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler), (PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler), (SyncHandler.process), (SyncHandler.doUpdates),
+	(SyncHandler.processWindowSize), (SyncHandler.decodeCollection),
+	(SyncHandler.processCollection), (SyncHandler.processModification),
+	(SyncHandler.sendResponse), (SyncHandler.processResponse):
+	* plugins/org.obm.push/src/org/obm/push/store/ISyncStorage.java:
+	(ISyncStorage):
+
 2009-11-26  Adrien POUPARD  <adrien.poupard@aliasource.fr>
 
 	Add email attachment support
