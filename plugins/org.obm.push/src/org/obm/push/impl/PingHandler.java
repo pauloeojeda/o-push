@@ -3,6 +3,7 @@ package org.obm.push.impl;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.obm.push.ActiveSyncServlet;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.CollectionChangeListener;
 import org.obm.push.backend.IBackend;
@@ -25,7 +26,8 @@ import org.w3c.dom.NodeList;
  * @author tom
  * 
  */
-public class PingHandler extends WbxmlRequestHandler {
+public class PingHandler extends WbxmlRequestHandler implements
+		IContinuationHandler {
 
 	public PingHandler(IBackend backend) {
 		super(backend);
@@ -40,9 +42,10 @@ public class PingHandler extends WbxmlRequestHandler {
 		if (doc == null) {
 			logger
 					.info("Empty Ping, reusing cached heartbeat & monitored folders");
-			
-			intervalSeconds = backend.getStore().findLastHearbeat(bs.getDevId());
-			
+
+			intervalSeconds = backend.getStore()
+					.findLastHearbeat(bs.getDevId());
+
 			// 5sec, why not ? a mobile device asking for <5sec is just stupid
 			if (bs.getLastMonitored() == null
 					|| bs.getLastMonitored().isEmpty() || intervalSeconds < 5) {
@@ -52,13 +55,14 @@ public class PingHandler extends WbxmlRequestHandler {
 			}
 		} else {
 			Element pr = doc.getDocumentElement();
-			Element hb = DOMUtils.getUniqueElement(pr,"HeartbeatInterval");
-			if(hb != null){
+			Element hb = DOMUtils.getUniqueElement(pr, "HeartbeatInterval");
+			if (hb != null) {
 				intervalSeconds = Long.parseLong(hb.getTextContent());
 			} else {
-				intervalSeconds = backend.getStore().findLastHearbeat(bs.getDevId());
+				intervalSeconds = backend.getStore().findLastHearbeat(
+						bs.getDevId());
 			}
-			
+
 			Set<SyncCollection> toMonitor = new HashSet<SyncCollection>();
 			NodeList folders = pr.getElementsByTagName("Folder");
 			for (int i = 0; i < folders.getLength(); i++) {
@@ -68,7 +72,7 @@ public class PingHandler extends WbxmlRequestHandler {
 				int id = Integer.parseInt(DOMUtils.getElementText(f, "Id"));
 				sc.setCollectionId(id);
 				toMonitor.add(sc);
-				if("email".equalsIgnoreCase(sc.getDataClass())){
+				if ("email".equalsIgnoreCase(sc.getDataClass())) {
 					backend.startEmailMonitoring(bs, id);
 				}
 			}
@@ -78,10 +82,12 @@ public class PingHandler extends WbxmlRequestHandler {
 						+ toMonitor.size());
 				bs.setLastMonitored(toMonitor);
 			}
-			backend.getStore().updateLastHearbeat(bs.getDevId(), intervalSeconds);
+			backend.getStore().updateLastHearbeat(bs.getDevId(),
+					intervalSeconds);
 		}
 
 		if (intervalSeconds > 0 && bs.getLastMonitored() != null) {
+			bs.setLastContinuationHandler(ActiveSyncServlet.PING_HANDLER);
 			CollectionChangeListener l = new CollectionChangeListener(bs,
 					continuation, bs.getLastMonitored());
 			IListenerRegistration reg = backend.addChangeListener(l);
@@ -93,7 +99,7 @@ public class PingHandler extends WbxmlRequestHandler {
 						.warn("for testing purpose, we will only suspend for 40sec (to monitor: "
 								+ bs.getLastMonitored() + ")");
 				continuation.suspend(40 * 1000);
-				// continuation.suspend(intervalSeconds * 1000);
+//				 continuation.suspend(intervalSeconds * 1000);
 			}
 		} else {
 			logger.warn("forcing hierarchy change");

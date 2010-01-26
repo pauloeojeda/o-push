@@ -27,6 +27,7 @@ import org.obm.push.impl.FolderSyncHandler;
 import org.obm.push.impl.GetAttachmentHandler;
 import org.obm.push.impl.GetItemEstimateHandler;
 import org.obm.push.impl.HintsLoader;
+import org.obm.push.impl.IContinuationHandler;
 import org.obm.push.impl.IRequestHandler;
 import org.obm.push.impl.MeetingResponseHandler;
 import org.obm.push.impl.MoveItemsHandler;
@@ -54,6 +55,9 @@ import org.obm.push.utils.RunnableExtensionLoader;
  */
 public class ActiveSyncServlet extends HttpServlet {
 
+	public static final String SYNC_HANDLER = "Sync";
+	public static final String PING_HANDLER = "Ping";
+	
 	/**
 	 * 
 	 */
@@ -78,24 +82,28 @@ public class ActiveSyncServlet extends HttpServlet {
 				+ request.getMethod());
 
 		if (c.isResumed() || c.isPending()) {
-			PingHandler ph = null;
-			synchronized (handlers) {
-				ph = (PingHandler) handlers.get("Ping");
-			}
-
+			BackendSession bs = (BackendSession) c.getObject();
+			IContinuationHandler ph = null;
+			
 			IListenerRegistration reg = (IListenerRegistration) request
 					.getAttribute(ICollectionChangeListener.REG_NAME);
 			if (reg != null) {
 				reg.cancel();
 			}
 
+			if(bs == null){
+				return;
+			}
+			synchronized (handlers) {
+				ph = (IContinuationHandler) handlers.get(bs.getLastContinuationHandler());
+			}
+		
 			ICollectionChangeListener ccl = (ICollectionChangeListener) request
 					.getAttribute(ICollectionChangeListener.LISTENER);
 			if (ccl != null) {
-				ph.sendResponse((BackendSession) c.getObject(), new Responder(
+				ph.sendResponse(bs, new Responder(
 						response), ccl.getDirtyCollections(), false);
 			}
-
 			return;
 		}
 

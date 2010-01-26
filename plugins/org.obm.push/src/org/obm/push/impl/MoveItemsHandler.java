@@ -79,11 +79,11 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 				try {
 					srcCollectionId = Integer
 							.parseInt(item.getSourceFolderId());
-					srcCollection = backend.getStore().getCollectionString(
+					srcCollection = backend.getStore().getCollectionPath(
 							srcCollectionId);
 					dstCollectionId = Integer.parseInt(item
 							.getDestinationFolderId());
-					dstCollection = backend.getStore().getCollectionString(
+					dstCollection = backend.getStore().getCollectionPath(
 							dstCollectionId);
 				} catch (NumberFormatException nfe) {
 				}

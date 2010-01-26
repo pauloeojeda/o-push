@@ -92,7 +92,7 @@ public class ObmSyncBackend {
 	}
 	
 	public String getCollectionNameFor(Integer collectionId) {
-		return storage.getCollectionString(collectionId);
+		return storage.getCollectionPath(collectionId);
 	}
 	
 	public String getServerIdFor(String deviceId, String collection,

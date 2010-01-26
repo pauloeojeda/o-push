@@ -61,7 +61,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 				int col = -1;
 				try {
 					col = c.getCollectionId();
-					collectionId = backend.getStore().getCollectionString(col);
+					collectionId = backend.getStore().getCollectionPath(col);
 				} catch (NumberFormatException nfe) {
 				}
 				Element response = DOMUtils.createElement(root, "Response");
