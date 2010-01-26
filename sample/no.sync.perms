@@ -1,7 +1,7 @@
-What is this File?
+What is this file ?
 
-If this file is present into /etc/opush, default sync are Authorized, else
-you muse authorized each PDA on OBM interface to sync.
+If this file is present into /etc/opush, sync will be authorized by
+default.
 
 
 
