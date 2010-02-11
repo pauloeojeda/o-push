@@ -107,7 +107,6 @@ public class ContentsExporter implements IContentsExporter {
 					&& cal.getTime().after(bs.getState().getLastSync())) {
 				bs.getState().setLastSync(cal.getTime());
 			}
-			logger.info("getChanged: " + bs.getState().getLastSync());
 		}
 	}
 
@@ -136,7 +135,6 @@ public class ContentsExporter implements IContentsExporter {
 	@Override
 	public DataDelta getChanged(BackendSession bs, FilterType filterType,
 			String collectionId) {
-		logger.info("getChanged: " + bs + " collectionId: " + collectionId);
 		DataDelta delta = null;
 		switch (bs.getDataType()) {
 		case CALENDAR:
@@ -156,7 +154,7 @@ public class ContentsExporter implements IContentsExporter {
 			delta = getTasksChanges(bs);
 			break;
 		}
-
+		logger.info("Get changed from" + bs.getState().getLastSync() + " on collectionId[" + collectionId+"]");
 		return delta;
 	}
 
