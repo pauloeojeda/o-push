@@ -1,5 +1,46 @@
 2010-01-26  Adrien POUPARD  <adrien.poupard@aliasource.fr>
 
+	Decoding Command Parameters of a base64-encoded query	
+
+	* plugins/org.obm.push.tests/src/org/obm/push/tests/Base64QueryStri
+	ngTests.java: (Base64QueryStringTests.testBase64QueryString):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.p), (ActiveSyncServlet.processActiveSyncMethod),
+	(ActiveSyncServlet.getActiveSyncRequest), (ActiveSyncServlet):
+	* plugins/org.obm.push/src/org/obm/push/Base64QueryString.java:
+	(Base64QueryString), (Base64QueryString.Base64QueryString),
+	(Base64QueryString.decodeParameters),
+	(Base64QueryString.getParameter),
+	(Base64QueryString.getInputStream):
+	* plugins/org.obm.push/src/org/obm/push/SimpleQueryString.java:
+	(SimpleQueryString), (SimpleQueryString.SimpleQueryString),
+	(SimpleQueryString.getParameter),
+	(SimpleQueryString.getInputStream):
+	* plugins/org.obm.push/src/org/obm/push/impl/ActiveSyncRequest.java
+	: (ActiveSyncRequest):
+	* plugins/org.obm.push/src/org/obm/push/impl/Base64ParameterCodes.j
+	ava:
+	* plugins/org.obm.push/src/org/obm/push/impl/GetAttachmentHandler.j
+	ava: (GetAttachmentHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/IRequestHandler.java:
+	(IRequestHandler):
+	* plugins/org.obm.push/src/org/obm/push/impl/MailRequestHandler.jav
+	a: (MailRequestHandler), (MailRequestHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SendMailHandler.java:
+	(SendMailHandler), (SendMailHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SmartForwardHandler.ja
+	va: (SmartForwardHandler), (SmartForwardHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SmartReplyHandler.java
+	: (SmartReplyHandler), (SmartReplyHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/WbxmlRequestHandler.ja
+	va: (WbxmlRequestHandler.process):
+
+2010-01-26  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
 	Adding push implementation when the element "Wait" is present in a
 	sync request
 

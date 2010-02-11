@@ -44,7 +44,7 @@ public final class XTrustProvider extends java.security.Provider {
 	private final static String INFO = "XTrust JSSE Provider (implements trust factory with truststore validation disabled)";
 	private final static double VERSION = 1.0D;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked"})
 	public XTrustProvider() {
 		super(NAME, VERSION, INFO);
 

@@ -245,7 +245,7 @@ public class ActiveSyncServlet extends HttpServlet {
 	private ActiveSyncRequest getActiveSyncRequest(HttpServletRequest r) {
 		String qs = r.getQueryString();
 		if (qs.contains("Cmd=")) {
-			return null;
+			return new SimpleQueryString(r);
 		} else {
 			InputStream is = null;
 			try{
