@@ -49,9 +49,12 @@ public class PingHandler extends WbxmlRequestHandler implements
 			// 5sec, why not ? a mobile device asking for <5sec is just stupid
 			if (bs.getLastMonitored() == null
 					|| bs.getLastMonitored().isEmpty() || intervalSeconds < 5) {
+
 				logger.error("Don't know what to monitor, " + "interval: "
 						+ intervalSeconds + " toMonitor: "
-						+ bs.getLastMonitored(), new RuntimeException());
+						+ bs.getLastMonitored());
+				sendError(responder, PingStatus.MISSING_REQUEST_PARAMS);
+				return;
 			}
 		} else {
 			Element pr = doc.getDocumentElement();
@@ -102,8 +105,22 @@ public class PingHandler extends WbxmlRequestHandler implements
 				continuation.suspend(intervalSeconds * 1000);
 			}
 		} else {
-			logger.warn("forcing hierarchy change");
-			sendResponse(bs, responder, null, true);
+			logger.error("Don't know what to monitor, interval is null");
+			sendError(responder, PingStatus.MISSING_REQUEST_PARAMS);
+			// sendResponse(bs, responder, null, true);
+		}
+	}
+
+	private void sendError(Responder responder, PingStatus status) {
+		Document ret = DOMUtils.createDoc(null, "Ping");
+		Element root = ret.getDocumentElement();
+		DOMUtils.createElementAndText(root, "Status",
+				status.toString());
+
+		try {
+			responder.sendResponse("Ping", ret);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
 		}
 	}
 
