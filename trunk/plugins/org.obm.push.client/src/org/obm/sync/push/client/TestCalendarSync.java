@@ -43,6 +43,19 @@ public class TestCalendarSync extends AbstractPushTest {
 				+ " events from server.");
 		assertTrue(nl.getLength() > 0);
 
+		
+		String sk1 = DOMUtils.getUniqueElement(ret.getDocumentElement(),
+				"SyncKey").getTextContent();
+
+		in = loadDataFile("CalSyncRequest3.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"SyncKey");
+		synckeyElem.setTextContent(sk1);
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
 	}
 
 	public void testCalAdd() throws Exception {
@@ -68,8 +81,9 @@ public class TestCalendarSync extends AbstractPushTest {
 		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
 				"SyncKey");
 		synckeyElem.setTextContent(sk);
-		Element cliidElem = DOMUtils.getUniqueElement(doc.getDocumentElement(), "ClientId");
-		cliidElem.setTextContent(""+new Random().nextInt(999999999));
+		Element cliidElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"ClientId");
+		cliidElem.setTextContent("" + new Random().nextInt(999999999));
 		DOMUtils.logDom(doc);
 		ret = postXml("AirSync", doc, "Sync");
 		assertNotNull(ret);
