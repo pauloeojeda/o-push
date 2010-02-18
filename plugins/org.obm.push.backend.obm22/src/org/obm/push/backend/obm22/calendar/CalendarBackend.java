@@ -35,7 +35,7 @@ public class CalendarBackend extends ObmSyncBackend {
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		List<ItemChange> ret = new LinkedList<ItemChange>();
 
-		if (!bs.checkHint("hint.multipleCalendars", true)) {
+		if (!bs.checkHint("hint.multipleCalendars", false)) {
 			ItemChange ic = new ItemChange();
 			String col = getDefaultCalendarName(bs);
 			ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
@@ -51,7 +51,6 @@ public class CalendarBackend extends ObmSyncBackend {
 				"o-push");
 		try {
 			CalendarInfo[] cals = cc.listCalendars(token);
-			int i = 0;
 
 			int idx = bs.getLoginAtDomain().indexOf("@");
 			String domain = bs.getLoginAtDomain().substring(idx);
@@ -62,8 +61,8 @@ public class CalendarBackend extends ObmSyncBackend {
 						+ "\\calendar\\" + ci.getUid() + domain;
 				ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
 				ic.setParentId("0");
-				ic.setDisplayName(ci.getMail());
-				if (i++ == 0) {
+				ic.setDisplayName(ci.getMail() + " calendar");
+				if (bs.getLoginAtDomain().equalsIgnoreCase(ci.getMail())) {
 					ic.setItemType(FolderType.DEFAULT_CALENDAR_FOLDER);
 				} else {
 					ic.setItemType(FolderType.USER_CREATED_CALENDAR_FOLDER);
