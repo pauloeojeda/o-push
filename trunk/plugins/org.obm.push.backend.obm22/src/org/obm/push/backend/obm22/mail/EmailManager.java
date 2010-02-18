@@ -85,7 +85,6 @@ public class EmailManager {
 		if (imapHost == null) {
 			locateImap(bs);
 		}
-		logger.info("*** imapHost: "+imapHost+" login: "+bs.getLoginAtDomain()+" pass: "+bs.getPassword());
 		StoreClient imapCli = new StoreClient(imapHost, 143, bs
 				.getLoginAtDomain(), bs.getPassword());
 		return imapCli;
