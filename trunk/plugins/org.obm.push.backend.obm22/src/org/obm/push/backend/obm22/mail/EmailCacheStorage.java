@@ -30,7 +30,6 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.minig.imap.IMAPException;
 import org.minig.imap.SearchQuery;
 import org.minig.imap.StoreClient;
 import org.minig.obm.pool.OBMPoolActivator;
@@ -137,7 +136,7 @@ public class EmailCacheStorage {
 					mails.add(Long.valueOf(uid));
 				}
 			}
-		} catch (IMAPException e) {
+		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		} finally {
 			try {
@@ -146,6 +145,7 @@ public class EmailCacheStorage {
 				logger.error(e.getMessage(), e);
 			}
 		}
+		logger.info(mails.size() +" mails arrived since "+lastUpdate);
 		return mails;
 	}
 
@@ -232,9 +232,8 @@ public class EmailCacheStorage {
 		}
 
 		writeTime = System.currentTimeMillis() - writeTime;
-
 		
-		Set<Long> lastUp = loadMailFromIMAP(bs, imapStore, mailBox, this.lastSyncDate);
+		Set<Long> lastUp = loadMailFromIMAP(bs, imapStore, mailBox, bs.getState().getLastSync());
 		MailChanges sync = computeChanges(memoryCache, current, lastUp);
 		this.mailChangesCache = sync;
 
