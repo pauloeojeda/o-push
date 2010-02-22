@@ -72,7 +72,7 @@ public class EventConverter {
 		mse.setExceptions(getException(e.getRecurrence()));
 
 		if (e.getAlert() != null && e.getAlert() > 0) {
-			mse.setReminder(e.getAlert());
+			mse.setReminder(e.getAlert() / 60);
 		}
 		mse.setUID(e.getExtId());
 		mse.setObmUID(e.getUid());
@@ -357,7 +357,7 @@ public class EventConverter {
 		e.setAllday(data.getAllDayEvent());
 		e.setRecurrenceId(data.getExceptionStartTime());
 		if (data.getReminder() != null && data.getReminder() > 0) {
-			e.setAlert(data.getReminder());
+			e.setAlert(data.getReminder() * 60);
 		}
 
 		if (data.getAttendees() == null || data.getAttendees().isEmpty()) {
