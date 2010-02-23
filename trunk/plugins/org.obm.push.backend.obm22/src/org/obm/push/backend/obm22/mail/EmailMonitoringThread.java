@@ -92,9 +92,11 @@ public class EmailMonitoringThread implements IIdleCallback {
 	}
 
 	public void stopIdle() {
-		store.stopIdle();
-		store.logout();
-		store = null;
+		if (store != null) {
+			store.stopIdle();
+			store.logout();
+			store = null;
+		}
 		logger.info("Stop email push monitoring for collection[ "
 				+ collectionName + "]");
 	}
