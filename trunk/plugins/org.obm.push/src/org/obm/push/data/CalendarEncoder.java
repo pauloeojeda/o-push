@@ -97,9 +97,9 @@ public class CalendarEncoder implements IDataEncoder {
 
 		if (ev.getRecurrence() != null) {
 			encodeRecurrence(p, ev);
+			encodeExceptions(c, bs, p, ev.getExceptions());
 		}
 
-		encodeExceptions(c, bs, p, ev.getExceptions());
 
 		e(p, "Calendar:Sensitivity", "0");
 		e(p, "Calendar:BusyStatus", ev.getBusyStatus().asIntString());
