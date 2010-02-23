@@ -59,7 +59,7 @@ public class ActiveSyncServlet extends HttpServlet {
 
 	public static final String SYNC_HANDLER = "Sync";
 	public static final String PING_HANDLER = "Ping";
-	
+
 	/**
 	 * 
 	 */
@@ -86,31 +86,37 @@ public class ActiveSyncServlet extends HttpServlet {
 		if (c.isResumed() || c.isPending()) {
 			BackendSession bs = (BackendSession) c.getObject();
 			IContinuationHandler ph = null;
-			
+
 			IListenerRegistration reg = (IListenerRegistration) request
 					.getAttribute(ICollectionChangeListener.REG_NAME);
 			if (reg != null) {
 				reg.cancel();
 			}
 
-			if(bs == null){
+			if (bs == null) {
 				return;
 			}
 			synchronized (handlers) {
-				ph = (IContinuationHandler) handlers.get(bs.getLastContinuationHandler());
+				ph = (IContinuationHandler) handlers.get(bs
+						.getLastContinuationHandler());
 			}
-		
+
 			ICollectionChangeListener ccl = (ICollectionChangeListener) request
 					.getAttribute(ICollectionChangeListener.LISTENER);
 			if (ccl != null) {
-				ph.sendResponse(bs, new Responder(
-						response), ccl.getDirtyCollections(), false);
+				ph.sendResponse(bs, new Responder(response), ccl
+						.getDirtyCollections(), false);
 			}
 			return;
 		}
 
 		String m = request.getMethod();
 		if ("OPTIONS".equals(m)) {
+			sendOptionsResponse(response);
+			return;
+		}
+
+		if ("GET".equals(m)) { // htc sapphire does that
 			sendOptionsResponse(response);
 			return;
 		}
@@ -238,8 +244,8 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		sendASHeaders(response);
-		rh.process(new PushContinuation(continuation, request), bs, getActiveSyncRequest(request),
-				new Responder(response));
+		rh.process(new PushContinuation(continuation, request), bs,
+				getActiveSyncRequest(request), new Responder(response));
 	}
 
 	private ActiveSyncRequest getActiveSyncRequest(HttpServletRequest r) {
@@ -248,12 +254,12 @@ public class ActiveSyncServlet extends HttpServlet {
 			return new SimpleQueryString(r);
 		} else {
 			InputStream is = null;
-			try{
+			try {
 				is = r.getInputStream();
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
 			}
-			return new Base64QueryString(r.getQueryString(),is);
+			return new Base64QueryString(r.getQueryString(), is);
 		}
 	}
 
@@ -349,7 +355,7 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private boolean validatePassword(String loginAtDomain, String password) {
-		return backend.validatePassword(loginAtDomain,password);
+		return backend.validatePassword(loginAtDomain, password);
 	}
 
 	@Override
