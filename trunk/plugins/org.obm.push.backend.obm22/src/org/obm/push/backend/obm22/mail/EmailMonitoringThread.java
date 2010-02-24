@@ -1,6 +1,7 @@
 package org.obm.push.backend.obm22.mail;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -40,7 +41,7 @@ public class EmailMonitoringThread implements IIdleCallback {
 	public EmailMonitoringThread(ObmSyncBackend cb,
 			Set<ICollectionChangeListener> ccls, BackendSession bs,
 			Integer collectionId) {
-		this.ccls = ccls;
+		this.ccls = Collections.synchronizedSet(ccls);
 		this.backend = cb;
 		this.bs = bs;
 		collectionName = backend.getCollectionNameFor(collectionId);
