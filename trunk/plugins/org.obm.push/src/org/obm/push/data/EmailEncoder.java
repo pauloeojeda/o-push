@@ -57,8 +57,8 @@ public class EmailEncoder implements IDataEncoder {
 					buildStringAdresses(mail.getCc()));
 		}
 		if (mail.getFrom() != null) {
-			DOMUtils.createElementAndText(parent, "Email:From", mail.getFrom()
-					.getMail());
+			DOMUtils.createElementAndText(parent, "Email:From",
+					formatEmail(mail.getFrom()));
 		} else {
 			DOMUtils.createElementAndText(parent, "Email:From", "");
 		}
@@ -363,13 +363,27 @@ public class EmailEncoder implements IDataEncoder {
 		StringBuilder sb = new StringBuilder();
 		for (Iterator<MSAddress> it = addresses.iterator(); it.hasNext();) {
 			MSAddress addr = it.next();
-			sb.append(addr.getMail());
+			sb.append(formatEmail(addr));
 			if (it.hasNext()) {
 				sb.append(", ");
 			}
 		}
 		return sb.toString();
+	}
 
+	private String formatEmail(MSAddress addr) {
+		StringBuilder sb = new StringBuilder();
+		if (addr.getDisplayName() != null && addr.getDisplayName().length() > 0) {
+			sb.append("\"");
+			sb.append(addr.getDisplayName());
+			sb.append("\"");
+		}
+		if (addr.getMail() != null && addr.getMail().length() > 0) {
+			sb.append(" <");
+			sb.append(addr.getMail());
+			sb.append("> ");
+		}
+		return sb.toString();
 	}
 
 }
