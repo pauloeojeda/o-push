@@ -18,6 +18,7 @@ import org.w3c.dom.Element;
  */
 public class ProvisionHandler extends WbxmlRequestHandler {
 
+	private final static String DEFAULT_PKEY = "3378841480";
 	private Random random;
 
 	public ProvisionHandler(IBackend backend) {
@@ -52,7 +53,7 @@ public class ProvisionHandler extends WbxmlRequestHandler {
 				DOMUtils.createElementAndText(policy, "PolicyType", policyType);
 				DOMUtils.createElementAndText(policy, "Status", "1");
 				// pKey = "" + Math.abs((random.nextInt() >> 2));
-				pKey = "3378841480";
+				pKey = DEFAULT_PKEY;
 				DOMUtils.createElementAndText(policy, "PolicyKey", pKey);
 				Element data = DOMUtils.createElement(policy, "Data");
 
@@ -72,10 +73,16 @@ public class ProvisionHandler extends WbxmlRequestHandler {
 				Element policies = DOMUtils.createElement(root, "Policies");
 				Element policy = DOMUtils.createElement(policies, "Policy");
 				DOMUtils.createElementAndText(policy, "PolicyType", policyType);
-				DOMUtils.createElementAndText(policy, "Status", "1");
-				pKey = "" + Math.abs((random.nextInt() >> 2));
-				bs.setPolicyKey(pKey);
-				DOMUtils.createElementAndText(policy, "PolicyKey", pKey);
+				if (DEFAULT_PKEY.equals(pKey)) {
+					DOMUtils.createElementAndText(policy, "Status", "1");
+					pKey = "" + Math.abs((random.nextInt() >> 2));
+					bs.setPolicyKey(pKey);
+					DOMUtils.createElementAndText(policy, "PolicyKey", pKey);
+				} else {
+					//The client is acknowledging the wrong policy key.
+					DOMUtils.createElementAndText(policy, "Status", "5");
+				}
+				
 
 				responder.sendResponse("Provision", ret);
 
