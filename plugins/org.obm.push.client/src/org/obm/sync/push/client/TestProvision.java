@@ -22,6 +22,8 @@ public class TestProvision extends AbstractPushTest {
 
 		InputStream in = loadDataFile("ProvisionRequest1Protocol2.5.xml");
 		Document doc = DOMUtils.parse(in);
+		System.out.println("From test:");
+		DOMUtils.logDom(doc);
 		Document ret = postXml("Provision", doc, "Provision", "0", "2.5");
 		assertNotNull(ret);
 		
@@ -31,7 +33,22 @@ public class TestProvision extends AbstractPushTest {
 		doc = DOMUtils.parse(in);
 		Element elemPolicy = DOMUtils.getUniqueElement(doc.getDocumentElement(), "PolicyKey");
 		elemPolicy.setTextContent(policyKey);
+		System.out.println("From test:");
+		DOMUtils.logDom(doc);
 		ret = postXml("Provision", doc, "Provision", "0", "2.5");
+		
+		policyKey = DOMUtils.getElementText(ret.getDocumentElement(), "PolicyKey");
+
+		in = loadDataFile("ProvisionRequest2Protocol2.5.xml");
+		doc = DOMUtils.parse(in);
+		elemPolicy = DOMUtils.getUniqueElement(doc.getDocumentElement(), "PolicyKey");
+		elemPolicy.setTextContent(policyKey);
+		System.out.println("From test:");
+		DOMUtils.logDom(doc);
+		ret = postXml("Provision", doc, "Provision", "0", "2.5");
+		Element policy = DOMUtils.getUniqueElement(ret.getDocumentElement(), "Policy");
+		String status = DOMUtils.getElementText(policy, "Status");
+		assertEquals("5", status);
 		
 	}
 }
