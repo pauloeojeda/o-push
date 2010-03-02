@@ -114,7 +114,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 						// request
 						// with the full XML
 						// TODO Cache in database last collections monitored
-						DOMUtils.createElementAndText(root, "Status", "13");
+						DOMUtils.createElementAndText(root, "Status",
+								SyncStatus.PARTIAL_REQUEST.asXmlValue());
 						responder.sendResponse("AirSync", reply);
 					} catch (Exception e) {
 						logger.error("Error creating Sync response", e);
@@ -147,7 +148,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					Document reply = null;
 					reply = DOMUtils.createDoc(null, "Sync");
 					Element root = reply.getDocumentElement();
-					DOMUtils.createElementAndText(root, "Status", "14");
+					DOMUtils.createElementAndText(root, "Status",
+							SyncStatus.WAIT_INTERVAL_OUT_OF_RANGE.asXmlValue());
 					DOMUtils.createElementAndText(root, "Limit", "59");
 					responder.sendResponse("AirSync", reply);
 				} catch (Exception e) {
@@ -179,10 +181,10 @@ public class SyncHandler extends WbxmlRequestHandler implements
 
 			logger.info("suspend for " + secs + " seconds");
 			synchronized (bs) {
-//				logger
-//						.warn("for testing purpose, we will only suspend for 40sec (to monitor: "
-//								+ bs.getLastMonitored() + ")");
-//				continuation.suspend(40 * 1000);
+				// logger
+				// .warn("for testing purpose, we will only suspend for 40sec (to monitor: "
+				// + bs.getLastMonitored() + ")");
+				// continuation.suspend(40 * 1000);
 				continuation.suspend(secs * 1000);
 
 			}
@@ -231,13 +233,15 @@ public class SyncHandler extends WbxmlRequestHandler implements
 				DOMUtils.createElementAndText(add, "ClientId", clientId);
 				DOMUtils
 						.createElementAndText(add, "ServerId", ic.getServerId());
-				DOMUtils.createElementAndText(add, "Status", "1");
+				DOMUtils.createElementAndText(add, "Status", SyncStatus.OK
+						.asXmlValue());
 			} else if (processedClientIds.keySet().contains(ic.getServerId())) {
 				// Change asked by device
 				Element add = DOMUtils.createElement(responses, "Change");
 				DOMUtils
 						.createElementAndText(add, "ServerId", ic.getServerId());
-				DOMUtils.createElementAndText(add, "Status", "1");
+				DOMUtils.createElementAndText(add, "Status", SyncStatus.OK
+						.asXmlValue());
 			} else {
 				// New change done on server
 				Element add = DOMUtils.createElement(commands, "Add");
@@ -315,7 +319,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		for (ItemChange ic : changed) {
 			Element add = DOMUtils.createElement(commands, "Fetch");
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
-			DOMUtils.createElementAndText(add, "Status", "1");
+			DOMUtils.createElementAndText(add, "Status", SyncStatus.OK
+					.asXmlValue());
 			c.setTruncation(null);
 			if (c.getBodyPreference() != null) {
 				c.getBodyPreference().setTruncationSize(null);
@@ -555,30 +560,34 @@ public class SyncHandler extends WbxmlRequestHandler implements
 							.getCollectionId().toString());
 					DOMUtils.createElementAndText(ce, "Status",
 							SyncStatus.INVALID_SYNC_KEY.asXmlValue());
-					break;
-				}
+					DOMUtils.createElementAndText(ce, "SyncKey",
+							"0");
+				} else {
 
-				Element sk = DOMUtils.createElement(ce, "SyncKey");
-				DOMUtils.createElementAndText(ce, "CollectionId", c
-						.getCollectionId().toString());
-				DOMUtils.createElementAndText(ce, "Status", "1");
-				if (!syncKey.equals("0")) {
-					int col = c.getCollectionId();
-					String colStr = backend.getStore().getCollectionPath(col);
-					IContentsExporter cex = backend.getContentsExporter(bs);
-					cex.configure(bs, c.getDataClass(), c.getFilterType(), st,
-							colStr);
+					Element sk = DOMUtils.createElement(ce, "SyncKey");
+					DOMUtils.createElementAndText(ce, "CollectionId", c
+							.getCollectionId().toString());
+					DOMUtils.createElementAndText(ce, "Status", SyncStatus.OK
+							.asXmlValue());
+					if (!syncKey.equals("0")) {
+						int col = c.getCollectionId();
+						String colStr = backend.getStore().getCollectionPath(
+								col);
+						IContentsExporter cex = backend.getContentsExporter(bs);
+						cex.configure(bs, c.getDataClass(), c.getFilterType(),
+								st, colStr);
 
-					if (c.getFetchIds().size() == 0) {
-						doUpdates(bs, c, ce, cex, processedClientIds);
-					} else {
-						// fetch
-						doFetch(bs, c, ce, cex);
+						if (c.getFetchIds().size() == 0) {
+							doUpdates(bs, c, ce, cex, processedClientIds);
+						} else {
+							// fetch
+							doFetch(bs, c, ce, cex);
+						}
 					}
+					bs.addLastClientSyncState(c.getCollectionId(), st);
+					sk.setTextContent(sm.allocateNewSyncKey(bs, c
+							.getCollectionId(), st));
 				}
-				bs.addLastClientSyncState(c.getCollectionId(), st);
-				sk.setTextContent(sm.allocateNewSyncKey(bs,
-						c.getCollectionId(), st));
 			}
 			responder.sendResponse("AirSync", reply);
 		} catch (Exception e) {
