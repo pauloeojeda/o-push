@@ -189,7 +189,8 @@ public class EmailCacheStorage {
 				del.setInt(3, l.intValue());
 				del.addBatch();
 			}
-
+			del.executeBatch();
+			
 			insert = con
 					.prepareStatement("INSERT INTO opush_sync_mail (collection_id, device_id, mail_uid) VALUES (?, ?, ?)");
 			for (Long l : toInsert) {
@@ -198,7 +199,6 @@ public class EmailCacheStorage {
 				insert.setInt(3, l.intValue());
 				insert.addBatch();
 			}
-			del.executeBatch();
 			insert.executeBatch();
 			ut.commit();
 		} catch (Throwable e) {
