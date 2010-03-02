@@ -66,44 +66,50 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 				}
 				Element response = DOMUtils.createElement(root, "Response");
 				if (collectionId != null) {
-					DOMUtils.createElementAndText(response, "Status", "1");
-					Element ce = DOMUtils.createElement(response, "Collection");
-					if (c.getDataClass() != null) {
-						DOMUtils.createElementAndText(ce, "Class", c
-								.getDataClass());
-					}
-					DOMUtils.createElementAndText(ce, "CollectionId", c
-							.getCollectionId().toString());
-					Element estim = DOMUtils.createElement(ce, "Estimate");
-					
 					SyncState state = sm.getSyncState(c.getSyncKey());
-					IContentsExporter exporter = backend
-							.getContentsExporter(bs);
-					exporter.configure(bs, c.getDataClass(), c.getFilterType(),
-							state, collectionId);
-					int count = exporter.getCount(bs,c.getFilterType(), collectionId)
-							+ bs.getUnSynchronizedItemChange(
-									c.getCollectionId()).size();
-					estim.setTextContent(count+"");
-					
-					bs.addLastClientSyncState(c.getCollectionId(), state);
+					if(!state.isValid()){
+						buildError(response, c
+								.getCollectionId().toString(), "4");
+					} else {
+						DOMUtils.createElementAndText(response, "Status", "1");
+						Element ce = DOMUtils.createElement(response, "Collection");
+						if (c.getDataClass() != null) {
+							DOMUtils.createElementAndText(ce, "Class", c
+									.getDataClass());
+						}
+						DOMUtils.createElementAndText(ce, "CollectionId", c
+								.getCollectionId().toString());
+						Element estim = DOMUtils.createElement(ce, "Estimate");
+						
+						
+						IContentsExporter exporter = backend
+								.getContentsExporter(bs);
+						exporter.configure(bs, c.getDataClass(), c.getFilterType(),
+								state, collectionId);
+						int count = exporter.getCount(bs,c.getFilterType(), collectionId)
+								+ bs.getUnSynchronizedItemChange(
+										c.getCollectionId()).size();
+						estim.setTextContent(count+"");
+						
+						bs.addLastClientSyncState(c.getCollectionId(), state);
+					}
 				} else {
 					logger.warn("no mapping for collection with id "
 							+ c.getCollectionId());
 					// one collection id was invalid
-					DOMUtils.createElementAndText(response, "Status", "2");
-					Element ce = DOMUtils.createElement(response, "Collection");
-					if (c.getDataClass() != null) {
-						DOMUtils.createElementAndText(ce, "Class", c
-								.getDataClass());
-					}
-					DOMUtils.createElementAndText(ce, "CollectionId", c
-							.getCollectionId().toString());
+					buildError(response, c
+							.getCollectionId().toString(), "2");
 				}
 			}
 			responder.sendResponse("ItemEstimate", rep);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
+	}
+
+	private void buildError(Element response, String collectionId, String status) {
+		DOMUtils.createElementAndText(response, "Status", status);
+		Element ce = DOMUtils.createElement(response, "Collection");
+		DOMUtils.createElementAndText(ce, "CollectionId", collectionId);
 	}
 }
