@@ -92,7 +92,13 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 							+ c.getCollectionId());
 					// one collection id was invalid
 					DOMUtils.createElementAndText(response, "Status", "2");
-					break;
+					Element ce = DOMUtils.createElement(response, "Collection");
+					if (c.getDataClass() != null) {
+						DOMUtils.createElementAndText(ce, "Class", c
+								.getDataClass());
+					}
+					DOMUtils.createElementAndText(ce, "CollectionId", c
+							.getCollectionId().toString());
 				}
 			}
 			responder.sendResponse("ItemEstimate", rep);
