@@ -16,12 +16,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mortbay.util.ajax.Continuation;
-import org.mortbay.util.ajax.ContinuationSupport;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IBackendFactory;
 import org.obm.push.backend.ICollectionChangeListener;
+import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.impl.ActiveSyncRequest;
 import org.obm.push.impl.Credentials;
@@ -77,18 +76,17 @@ public class ActiveSyncServlet extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		Continuation c = ContinuationSupport.getContinuation(request, request);
+		IContinuation c = new PushContinuation(request);
 
 		logger.info("q: " + request.getQueryString() + " pending: "
 				+ c.isPending() + " resumed: " + c.isResumed() + " m: "
 				+ request.getMethod());
 
 		if (c.isResumed() || c.isPending()) {
-			BackendSession bs = (BackendSession) c.getObject();
+			BackendSession bs = c.getBackendSession();
 			IContinuationHandler ph = null;
 
-			IListenerRegistration reg = (IListenerRegistration) request
-					.getAttribute(ICollectionChangeListener.REG_NAME);
+			IListenerRegistration reg = c.getListenerRegistration();
 			if (reg != null) {
 				reg.cancel();
 			}
@@ -101,9 +99,10 @@ public class ActiveSyncServlet extends HttpServlet {
 						.getLastContinuationHandler());
 			}
 
-			ICollectionChangeListener ccl = (ICollectionChangeListener) request
-					.getAttribute(ICollectionChangeListener.LISTENER);
-			if (ccl != null) {
+			ICollectionChangeListener ccl = c.getCollectionChangeListener();
+			if(c.isError()){
+				ph.sendError(new Responder(response), ccl.getDirtyCollections(), c.getErrorStatus());
+			} else if (ccl != null) {
 				ph.sendResponse(bs, new Responder(response), ccl
 						.getDirtyCollections(), false);
 			}
@@ -222,7 +221,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		return ret;
 	}
 
-	private void processActiveSyncMethod(Continuation continuation,
+	private void processActiveSyncMethod(IContinuation continuation,
 			String userID, String password, String devId,
 			HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
@@ -244,7 +243,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		sendASHeaders(response);
-		rh.process(new PushContinuation(continuation, request), bs,
+		rh.process(continuation, bs,
 				getActiveSyncRequest(request), new Responder(response));
 	}
 

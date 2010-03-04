@@ -7,7 +7,6 @@ import org.obm.push.ActiveSyncServlet;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.CollectionChangeListener;
 import org.obm.push.backend.IBackend;
-import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.backend.SyncCollection;
@@ -94,8 +93,8 @@ public class PingHandler extends WbxmlRequestHandler implements
 			CollectionChangeListener l = new CollectionChangeListener(bs,
 					continuation, bs.getLastMonitored());
 			IListenerRegistration reg = backend.addChangeListener(l);
-			continuation.storeData(ICollectionChangeListener.REG_NAME, reg);
-			continuation.storeData(ICollectionChangeListener.LISTENER, l);
+			continuation.setListenerRegistration(reg);
+			continuation.setCollectionChangeListener(l);
 			logger.info("suspend for " + intervalSeconds + " seconds");
 			synchronized (bs) {
 				// logger
@@ -108,19 +107,6 @@ public class PingHandler extends WbxmlRequestHandler implements
 			logger.error("Don't know what to monitor, interval is null");
 			sendError(responder, PingStatus.MISSING_REQUEST_PARAMS);
 			// sendResponse(bs, responder, null, true);
-		}
-	}
-
-	private void sendError(Responder responder, PingStatus status) {
-		Document ret = DOMUtils.createDoc(null, "Ping");
-		Element root = ret.getDocumentElement();
-		DOMUtils.createElementAndText(root, "Status",
-				status.toString());
-
-		try {
-			responder.sendResponse("Ping", ret);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
 		}
 	}
 
@@ -141,19 +127,38 @@ public class PingHandler extends WbxmlRequestHandler implements
 			Set<SyncCollection> changedFolders, boolean sendHierarchyChange) {
 		if (sendHierarchyChange) {
 			DOMUtils.createElementAndText(element, "Status",
-					PingStatus.FOLDER_SYNC_REQUIRED.toString());
+					PingStatus.FOLDER_SYNC_REQUIRED.asXmlValue());
 		} else if (changedFolders == null || changedFolders.isEmpty()) {
 			DOMUtils.createElementAndText(element, "Status",
-					PingStatus.NO_CHANGES.toString());
+					PingStatus.NO_CHANGES.asXmlValue());
 		} else {
 			DOMUtils.createElementAndText(element, "Status",
-					PingStatus.CHANGES_OCCURED.toString());
+					PingStatus.CHANGES_OCCURED.asXmlValue());
 			Element folders = DOMUtils.createElement(element, "Folders");
 			for (SyncCollection sc : changedFolders) {
 				DOMUtils.createElementAndText(folders, "Folder", sc
 						.getCollectionId().toString());
 			}
 		}
+	}
+
+	private void sendError(Responder responder, PingStatus status) {
+		sendError(responder, new HashSet<SyncCollection>(), status.asXmlValue());
+	}
+
+	@Override
+	public void sendError(Responder responder,
+			Set<SyncCollection> changedFolders, String errorStatus) {
+		Document ret = DOMUtils.createDoc(null, "Ping");
+		Element root = ret.getDocumentElement();
+		DOMUtils.createElementAndText(root, "Status", errorStatus);
+
+		try {
+			responder.sendResponse("Ping", ret);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
 	}
 
 }

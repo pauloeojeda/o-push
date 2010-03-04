@@ -12,9 +12,6 @@ import java.util.Set;
  */
 public interface ICollectionChangeListener {
 
-	public static final String REG_NAME = "CCL_REG";
-	public static final String LISTENER = "CC_LISTENER";
-
 	Set<SyncCollection> getMonitoredCollections();
 
 	BackendSession getSession();
