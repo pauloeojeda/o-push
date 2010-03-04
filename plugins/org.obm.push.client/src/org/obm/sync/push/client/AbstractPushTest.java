@@ -49,6 +49,14 @@ public class AbstractPushTest extends TestCase {
 		// this.devType = "PocketPC";
 		// this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
 
+		// this.login = "admin";
+		// this.userId = "test.tlse.lng\\adrien";
+		// this.password = "aliacom";
+		// this.devId = "359593005624680";
+		// this.devType = "RoadSyncClient";
+		// this.userAgent = "RoadSyncClient/701.341";
+		// this.url = "http://localhost/Microsoft-Server-ActiveSync";
+
 		this.login = "Administrator";
 		this.userId = "test.tlse.lng\\Administrator";
 		this.password = "aliacom";
@@ -56,6 +64,7 @@ public class AbstractPushTest extends TestCase {
 		this.devType = "iPhone";
 		this.userAgent = "Apple-iPhone/701.341";
 		this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
+//		this.url = "http://172.16.97.1/Microsoft-Server-ActiveSync";
 
 		this.hc = createHttpClient();
 	}
@@ -70,9 +79,8 @@ public class AbstractPushTest extends TestCase {
 				new MultiThreadedHttpConnectionManager());
 		HttpConnectionManagerParams mp = ret.getHttpConnectionManager()
 				.getParams();
-		mp.setDefaultMaxConnectionsPerHost(4);
-		mp.setMaxTotalConnections(8);
-
+		mp.setDefaultMaxConnectionsPerHost(8);
+		mp.setMaxTotalConnections(16);
 		// ret.getState().setCredentials(new AuthScope("10.0.0.5", 443,
 		// "ZPush"),
 		// new UsernamePasswordCredentials(userId, "aliacom"));
@@ -151,54 +159,54 @@ public class AbstractPushTest extends TestCase {
 		}
 
 		Document xml = null;
-		synchronized (hc) {
-			try {
-				int ret = hc.executeMethod(pm);
-				Header[] hs = pm.getResponseHeaders();
-				for (Header h : hs) {
-					System.err.println("head[" + h.getName() + "] => "
-							+ h.getValue());
-				}
-				if (ret != HttpStatus.SC_OK) {
-					System.err.println("method failed:\n" + pm.getStatusLine()
-							+ "\n" + pm.getResponseBodyAsString());
-				} else {
-					InputStream is = pm.getResponseBodyAsStream();
-					File localCopy = File.createTempFile("pushresp_", ".bin");
-					FileUtils.transfer(is, new FileOutputStream(localCopy),
-							true);
-					System.out.println("binary response stored in "
-							+ localCopy.getAbsolutePath());
+		try {
+			int ret = 0;
+			ret = hc.executeMethod(pm);
+			Header[] hs = pm.getResponseHeaders();
+			for (Header h : hs) {
+				System.err.println("head[" + h.getName() + "] => "
+						+ h.getValue());
+			}
+			if (ret != HttpStatus.SC_OK) {
+				System.err.println("method failed:\n" + pm.getStatusLine()
+						+ "\n" + pm.getResponseBodyAsString());
+			} else {
+				InputStream is = pm.getResponseBodyAsStream();
+				File localCopy = File.createTempFile("pushresp_", ".bin");
+				FileUtils.transfer(is, new FileOutputStream(localCopy), true);
+				System.out.println("binary response stored in "
+						+ localCopy.getAbsolutePath());
 
-					FileInputStream in = new FileInputStream(localCopy);
-					out = new ByteArrayOutputStream();
-					FileUtils.transfer(in, out, true);
+				FileInputStream in = new FileInputStream(localCopy);
+				out = new ByteArrayOutputStream();
+				FileUtils.transfer(in, out, true);
+				if (out.toByteArray().length > 0) {
 					xml = WBXMLTools.toXml(out.toByteArray());
 					DOMUtils.logDom(xml);
 				}
-			} finally {
-				pm.releaseConnection();
 			}
-			return xml;
+		} finally {
+			pm.releaseConnection();
 		}
+		return xml;
 	}
 
-	protected byte[] postGetAttachment(String attachmentName)
-			throws Exception {
+	protected byte[] postGetAttachment(String attachmentName) throws Exception {
 		return postGetAttachment(attachmentName, "12.1");
 	}
 
-	protected byte[] postGetAttachment(String attachmentName, String protocolVersion)
-			throws Exception {
+	protected byte[] postGetAttachment(String attachmentName,
+			String protocolVersion) throws Exception {
 		PostMethod pm = new PostMethod(url + "?User=" + login + "&DeviceId="
-				+ devId + "&DeviceType=" + devType + "&Cmd=GetAttachment&AttachmentName=" +attachmentName);
+				+ devId + "&DeviceType=" + devType
+				+ "&Cmd=GetAttachment&AttachmentName=" + attachmentName);
 		pm.setRequestHeader("Authorization", authValue());
 		pm.setRequestHeader("User-Agent", userAgent);
 		pm.setRequestHeader("Ms-Asprotocolversion", protocolVersion);
 		pm.setRequestHeader("Accept", "*/*");
 		pm.setRequestHeader("Accept-Language", "fr-fr");
 		pm.setRequestHeader("Connection", "keep-alive");
-		
+
 		synchronized (hc) {
 			try {
 				int ret = hc.executeMethod(pm);
@@ -211,8 +219,8 @@ public class AbstractPushTest extends TestCase {
 					System.err.println("method failed:\n" + pm.getStatusLine()
 							+ "\n" + pm.getResponseBodyAsString());
 				} else {
-					for(Header h : pm.getResponseHeaders()){
-						System.out.println(h.getName() +": "+h.getValue());
+					for (Header h : pm.getResponseHeaders()) {
+						System.out.println(h.getName() + ": " + h.getValue());
 					}
 					InputStream is = pm.getResponseBodyAsStream();
 					File localCopy = File.createTempFile("pushresp_", ".bin");
@@ -229,6 +237,6 @@ public class AbstractPushTest extends TestCase {
 			}
 		}
 		return null;
-		
+
 	}
 }
