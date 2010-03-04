@@ -133,14 +133,6 @@ public class OBMBackend implements IBackend {
 		}
 	}
 
-//	public void onChangeFound(IContinuation continuation, BackendSession bs) {
-//		logger.info("onChangesFound");
-//		synchronized (bs) {
-//			continuation.setObject(bs);
-//			continuation.resume();
-//			logger.info("after resume !!");
-//		}
-//	}
 
 	@Override
 	public ISyncStorage getStore() {
@@ -158,7 +150,7 @@ public class OBMBackend implements IBackend {
 				+ "] change listener registered on backend");
 		return ret;
 	}
-
+	
 	@Override
 	public void resetForFullSync(BackendSession bs) {
 		logger.info("resetForFullSync devId: " + bs.getDevId());

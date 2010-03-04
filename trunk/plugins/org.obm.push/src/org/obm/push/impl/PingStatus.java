@@ -11,8 +11,7 @@ public enum PingStatus {
 	FOLDER_SYNC_REQUIRED, // 7
 	SERVER_ERROR; // 8
 
-	@Override
-	public String toString() {
+	public String asXmlValue() {
 		switch (this) {
 		case CHANGES_OCCURED:
 			return "2";

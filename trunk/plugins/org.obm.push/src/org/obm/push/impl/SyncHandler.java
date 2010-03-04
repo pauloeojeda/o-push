@@ -18,7 +18,6 @@ import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FilterType;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IBackend;
-import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.IContinuation;
@@ -60,9 +59,14 @@ import org.w3c.dom.NodeList;
 //</Sync>
 public class SyncHandler extends WbxmlRequestHandler implements
 		IContinuationHandler {
-
+	
 	public static final Integer SYNC_TRUNCATION_ALL = 9;
-
+	private static Set<IContinuation> waitContinuationCache;
+	
+	static{
+		waitContinuationCache = new HashSet<IContinuation>();
+	}
+	
 	private Map<String, IDataDecoder> decoders;
 
 	private EncoderFactory encoders;
@@ -176,9 +180,9 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			CollectionChangeListener l = new CollectionChangeListener(bs,
 					continuation, collections);
 			IListenerRegistration reg = backend.addChangeListener(l);
-			continuation.storeData(ICollectionChangeListener.REG_NAME, reg);
-			continuation.storeData(ICollectionChangeListener.LISTENER, l);
-
+			continuation.setListenerRegistration(reg);
+			continuation.setCollectionChangeListener(l);
+			waitContinuationCache.add(continuation);
 			logger.info("suspend for " + secs + " seconds");
 			synchronized (bs) {
 				// logger
@@ -467,6 +471,13 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		if (dd != null) {
 			if (syncData != null) {
 				data = dd.decode(syncData);
+				for(IContinuation cont : waitContinuationCache){
+					for(SyncCollection colLis : cont.getCollectionChangeListener().getMonitoredCollections()){
+						if(colLis.getCollectionId().equals(col)){
+							cont.error(SyncStatus.NEED_RETRY.asXmlValue());
+						}
+					}
+				}
 			}
 			if (modType.equals("Modify")) {
 				if (data.isRead()) {
@@ -513,11 +524,14 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		return decoders.get(dataClass);
 	}
 
+	
+	
 	@Override
 	public void sendResponse(BackendSession bs, Responder responder,
 			Set<SyncCollection> changedFolders, boolean sendHierarchyChange) {
 		processResponse(bs, responder, bs.getLastMonitored(),
 				sendHierarchyChange, new HashMap<String, String>());
+		
 	}
 
 	public void processResponse(BackendSession bs, Responder responder,
@@ -593,5 +607,21 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		} catch (Exception e) {
 			logger.error("Error creating Sync response", e);
 		}
+	}
+
+	@Override
+	public void sendError(Responder responder,
+			Set<SyncCollection> changedFolders, String errorStatus) {
+		Document ret = DOMUtils.createDoc(null, "Sync");
+		Element root = ret.getDocumentElement();
+		DOMUtils.createElementAndText(root, "Status",
+				errorStatus.toString());
+		
+		try {
+			responder.sendResponse("AirSync", ret);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+
 	}
 }
