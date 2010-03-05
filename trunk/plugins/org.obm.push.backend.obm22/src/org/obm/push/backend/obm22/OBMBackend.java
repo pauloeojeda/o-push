@@ -129,7 +129,7 @@ public class OBMBackend implements IBackend {
 		if (bs.getProtocolVersion() <= 2.5) {
 			return new MSWAPProvisioningXML();
 		} else {
-			return new MSEASProvisioingWBXML();
+			return new MSEASProvisioingWBXML(bs.getProtocolVersion());
 		}
 	}
 
