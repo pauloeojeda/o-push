@@ -9,6 +9,7 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.SyncCollection;
+import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
@@ -52,24 +53,21 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 			cols.add(sc);
 		}
 
-		try {
-			StateMachine sm = new StateMachine(backend.getStore());
-			Document rep = DOMUtils.createDoc(null, "GetItemEstimate");
-			Element root = rep.getDocumentElement();
-			for (SyncCollection c : cols) {
-				String collectionId = null;
-				int col = -1;
-				try {
-					col = c.getCollectionId();
-					collectionId = backend.getStore().getCollectionPath(col);
-				} catch (NumberFormatException nfe) {
-				}
-				Element response = DOMUtils.createElement(root, "Response");
+		StateMachine sm = new StateMachine(backend.getStore());
+		Document rep = DOMUtils.createDoc(null, "GetItemEstimate");
+		Element root = rep.getDocumentElement();
+	
+		for (SyncCollection c : cols) {
+			Element response = DOMUtils.createElement(root, "Response");
+			String collectionId = null;
+			int col = -1;
+			try {
+				col = c.getCollectionId();
+				collectionId = backend.getStore().getCollectionPath(col);
 				if (collectionId != null) {
 					SyncState state = sm.getSyncState(c.getSyncKey());
-					if(!state.isValid()){
-						buildError(response, c
-								.getCollectionId().toString(), "4");
+					if (!state.isValid()) {
+							buildError(response, c.getCollectionId().toString(), GetItemEstimateStatus.INVALID_SYNC_KEY);
 					} else {
 						DOMUtils.createElementAndText(response, "Status", "1");
 						Element ce = DOMUtils.createElement(response, "Collection");
@@ -80,35 +78,39 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 						DOMUtils.createElementAndText(ce, "CollectionId", c
 								.getCollectionId().toString());
 						Element estim = DOMUtils.createElement(ce, "Estimate");
-						
-						
+
 						IContentsExporter exporter = backend
 								.getContentsExporter(bs);
 						exporter.configure(bs, c.getDataClass(), c.getFilterType(),
 								state, collectionId);
-						int count = exporter.getCount(bs,c.getFilterType(), collectionId)
+						int count = exporter.getCount(bs, c.getFilterType(),
+								collectionId)
 								+ bs.getUnSynchronizedItemChange(
 										c.getCollectionId()).size();
-						estim.setTextContent(count+"");
-						
+						estim.setTextContent(count + "");
+
 						bs.addLastClientSyncState(c.getCollectionId(), state);
 					}
 				} else {
 					logger.warn("no mapping for collection with id "
 							+ c.getCollectionId());
-					// one collection id was invalid
-					buildError(response, c
-							.getCollectionId().toString(), "2");
+					throw new CollectionNotFoundException();
+					
 				}
+			} catch (CollectionNotFoundException e) {
+					buildError(response, c.getCollectionId().toString(), GetItemEstimateStatus.INVALID_COLLECTION);
 			}
+			
+		}
+		try {
 			responder.sendResponse("ItemEstimate", rep);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
 
-	private void buildError(Element response, String collectionId, String status) {
-		DOMUtils.createElementAndText(response, "Status", status);
+	private void buildError(Element response, String collectionId, GetItemEstimateStatus status) {
+		DOMUtils.createElementAndText(response, "Status", status.asXmlValue());
 		Element ce = DOMUtils.createElement(response, "Collection");
 		DOMUtils.createElementAndText(ce, "CollectionId", collectionId);
 	}

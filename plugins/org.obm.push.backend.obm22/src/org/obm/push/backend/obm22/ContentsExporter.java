@@ -17,6 +17,7 @@ import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.state.SyncState;
 
 public class ContentsExporter implements IContentsExporter {
@@ -166,7 +167,7 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	@Override
-	public List<ItemChange> fetch(BackendSession bs, List<String> fetchServerIds) {
+	public List<ItemChange> fetch(BackendSession bs, List<String> fetchServerIds) throws ActiveSyncException {
 		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
 		switch (bs.getDataType()) {
 		case CALENDAR:

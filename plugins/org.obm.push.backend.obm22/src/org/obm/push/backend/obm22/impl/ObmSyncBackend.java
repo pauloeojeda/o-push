@@ -10,6 +10,7 @@ import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.locator.client.LocatorClient;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.ItemChange;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.client.calendar.CalendarClient;
@@ -45,7 +46,7 @@ public class ObmSyncBackend {
 	}
 
 	protected ItemChange getDeletion(BackendSession bs, String collection,
-			String del) {
+			String del) throws ActiveSyncException {
 		ItemChange ic = new ItemChange();
 		ic.setServerId(getServerIdFor(bs.getDevId(), collection, del));
 		return ic;
@@ -87,16 +88,16 @@ public class ObmSyncBackend {
 		}
 	}
 
-	public Integer getCollectionIdFor(String deviceId, String collection) {
+	public Integer getCollectionIdFor(String deviceId, String collection) throws ActiveSyncException {
 		return storage.getCollectionMapping(deviceId, collection);
 	}
 	
-	public String getCollectionNameFor(Integer collectionId) {
+	public String getCollectionNameFor(Integer collectionId) throws ActiveSyncException {
 		return storage.getCollectionPath(collectionId);
 	}
 	
 	public String getServerIdFor(String deviceId, String collection,
-			String clientId) {
+			String clientId) throws ActiveSyncException {
 		int folderId = storage.getCollectionMapping(deviceId, collection);
 		StringBuilder sb = new StringBuilder(10);
 		sb.append(folderId);
@@ -110,4 +111,9 @@ public class ObmSyncBackend {
 	public int getDevId(String deviceId) {
 		return storage.getDevId(deviceId);
 	}
+	
+	public String createCollectionMapping(String devId, String col) {
+		return storage.addCollectionMapping(devId, col).toString();
+	}
+
 }

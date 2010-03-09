@@ -9,6 +9,7 @@ import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSContact;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.book.BookType;
@@ -44,7 +45,15 @@ public class ContactsBackend extends ObmSyncBackend {
 
 		ItemChange ic = new ItemChange();
 		String col = "obm:\\\\" + bs.getLoginAtDomain() + "\\contacts";
-		ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
+		String serverId ;
+		try {
+			serverId = getServerIdFor(bs.getDevId(), col, null);
+		} catch (ActiveSyncException e) {
+			serverId = createCollectionMapping(bs.getDevId(), col);
+			ic.setIsNew(true);
+		}
+		
+		ic.setServerId(serverId);
 		ic.setParentId("0");
 		ic.setDisplayName(bs.getLoginAtDomain() + " contacts");
 		ic.setItemType(FolderType.DEFAULT_CONTACTS_FOLDER);
@@ -88,7 +97,7 @@ public class ContactsBackend extends ObmSyncBackend {
 	}
 
 	private ItemChange getContactChange(BackendSession bs, String collection,
-			Contact c) {
+			Contact c) throws ActiveSyncException {
 		ItemChange ic = new ItemChange();
 		ic.setServerId(getServerIdFor(bs.getDevId(), collection, ""
 				+ c.getUid()));
@@ -98,7 +107,7 @@ public class ContactsBackend extends ObmSyncBackend {
 	}
 
 	public String createOrUpdate(BackendSession bs, String collectionId,
-			String serverId, String clientId, MSContact data) {
+			String serverId, String clientId, MSContact data) throws ActiveSyncException {
 		logger.info("create in " + collectionId + " (contact: "
 				+ data.getFirstName() + " " + data.getLastName() + ")");
 		BookClient bc = getBookClient(bs);

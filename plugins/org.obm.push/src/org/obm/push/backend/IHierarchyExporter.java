@@ -2,6 +2,7 @@ package org.obm.push.backend;
 
 import java.util.List;
 
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.state.SyncState;
 
 /**
@@ -13,19 +14,19 @@ import org.obm.push.state.SyncState;
  */
 public interface IHierarchyExporter {
 
-	void configure(BackendSession bs, String dataClass, Integer filterType, SyncState state,
-			int i, int j);
+	void configure(BackendSession bs, String dataClass, Integer filterType,
+			SyncState state, int i, int j);
 
 	SyncState getState(BackendSession bs);
 
-	void synchronize(BackendSession bs);
+//	void synchronize(BackendSession bs);
 
 	List<ItemChange> getChanged(BackendSession bs);
 
 	int getCount(BackendSession bs);
 
 	List<ItemChange> getDeleted(BackendSession bs);
-	
-	int getRootFolderId(BackendSession bs);
+
+	int getRootFolderId(BackendSession bs) throws ActiveSyncException;
 
 }

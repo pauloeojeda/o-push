@@ -12,6 +12,7 @@ import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.ICollectionChangeListener;
 import org.obm.push.backend.SyncCollection;
+import org.obm.push.exception.ActiveSyncException;
 
 public abstract class MonitoringThread implements Runnable {
 
@@ -76,29 +77,38 @@ public abstract class MonitoringThread implements Runnable {
 		Set<SyncCollection> ret = new HashSet<SyncCollection>();
 
 		for (SyncCollection sc : cols.getChanged()) {
-			int id = backend.getCollectionIdFor(session.getDevId(), sc
-					.getCollectionName());
-			sc.setCollectionId(id);
-			logger.info("processing sc: id: " + sc.getCollectionId()
-					+ " name: " + sc.getCollectionName());
-			if (monitoredCollections.contains(sc)) {
-				logger.info("******** PUSH " + sc.getCollectionId() + " name: "
-						+ sc.getCollectionName() + " ********");
-				ret.add(sc);
-			} else {
-				logger.info("** " + sc.getCollectionId()
-						+ " modified but nobody cares **");
-				for (SyncCollection mon : monitoredCollections) {
-					logger.info("   * monitored: " + mon.getCollectionId());
+			int id;
+			try {
+				id = backend.getCollectionIdFor(session.getDevId(), sc
+						.getCollectionPath());
+				sc.setCollectionId(id);
+				logger.info("processing sc: id: " + sc.getCollectionId()
+						+ " name: " + sc.getCollectionPath());
+				if (monitoredCollections.contains(sc)) {
+					logger.info("******** PUSH " + sc.getCollectionId() + " name: "
+							+ sc.getCollectionPath() + " ********");
+					ret.add(sc);
+				} else {
+					logger.info("** " + sc.getCollectionId()
+							+ " modified but nobody cares **");
+					for (SyncCollection mon : monitoredCollections) {
+						logger.info("   * monitored: " + mon.getCollectionId());
+					}
 				}
+			} catch (ActiveSyncException e) {
 			}
+			
 		}
 
 		for (SyncCollection toPush : ret) {
-			String colName = toPush.getCollectionName();
-			int collectionId = backend.getCollectionIdFor(session.getDevId(),
-					colName);
-			toPush.setCollectionId(collectionId);
+			try {
+				String colName = toPush.getCollectionPath();
+				int collectionId = backend.getCollectionIdFor(session.getDevId(),
+						colName);
+				toPush.setCollectionId(collectionId);
+			} catch (ActiveSyncException e) {
+			}
+			
 		}
 
 		return ret;

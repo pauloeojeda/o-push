@@ -2,10 +2,12 @@ package org.obm.push.backend;
 
 public class ItemChange {
 
-	public String serverId;
-	public String parentId;
-	public String displayName;
-	public FolderType itemType;
+	private String serverId;
+	private String parentId;
+	private String displayName;
+	private FolderType itemType;
+	private boolean isNew;
+	
 	private IApplicationData data;
 
 	public String getServerId() {
@@ -46,5 +48,13 @@ public class ItemChange {
 
 	public void setData(IApplicationData data) {
 		this.data = data;
+	}
+
+	public Boolean isNew() {
+		return isNew;
+	}
+
+	public void setIsNew(Boolean isNew) {
+		this.isNew = isNew;
 	}
 }

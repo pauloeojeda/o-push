@@ -25,6 +25,7 @@ import org.obm.push.backend.obm22.mail.EmailManager;
 import org.obm.push.backend.obm22.mail.EmailMonitoringThread;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.backend.obm22.tasks.TasksBackend;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.provisioning.MSEASProvisioingWBXML;
 import org.obm.push.provisioning.MSWAPProvisioningXML;
 import org.obm.push.provisioning.Policy;
@@ -81,7 +82,7 @@ public class OBMBackend implements IBackend {
 		contactThread.start();
 	}
 	
-	public void startEmailMonitoring(BackendSession bs, Integer collectionId){
+	public void startEmailMonitoring(BackendSession bs, Integer collectionId) throws ActiveSyncException{
 		EmailMonitoringThread emt = emailPushMonitors.get(collectionId);
 		if(emt != null){
 			emt.stopIdle();

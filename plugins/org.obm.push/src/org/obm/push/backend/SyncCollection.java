@@ -13,7 +13,7 @@ public class SyncCollection {
 	private String dataClass;
 	private Integer conflict;
 	private Integer collectionId;
-	private String collectionName;
+	private String collectionPath;
 	private String syncKey;
 	private Integer truncation;
 	private boolean deletesAsMoves;
@@ -122,12 +122,12 @@ public class SyncCollection {
 		this.moreAvailable = moreAvailable;
 	}
 	
-	public String getCollectionName() {
-		return collectionName;
+	public String getCollectionPath() {
+		return collectionPath;
 	}
 
-	public void setCollectionName(String collectionName) {
-		this.collectionName = collectionName;
+	public void setCollectionPath(String collectionPath) {
+		this.collectionPath = collectionPath;
 	}
 
 	@Override

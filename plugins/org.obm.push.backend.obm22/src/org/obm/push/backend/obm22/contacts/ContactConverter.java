@@ -40,18 +40,18 @@ public class ContactConverter {
 		msc.setTitle(c.getTitle());
 		msc.setDepartment(c.getService());
 		msc.setCompanyName(c.getCompany());
-		if(c.getWebsites().values().size()>0){
+		if (c.getWebsites().values().size() > 0) {
 			msc.setWebPage(c.getWebsites().values().iterator().next().getUrl());
 		}
 		msc.setBirthday(c.getBirthday());
 		msc.setAnniversary(c.getAnniversary());
-		
+
 		msc.setManagerName(c.getManager());
 		msc.setAssistantName(c.getAssistant());
 		msc.setSpouse(c.getSpouse());
-//		msc.setCategories()
-//		msc.setChildren(children)
-		
+		// msc.setCategories()
+		// msc.setChildren(children)
+
 		msc.setData(c.getComment());
 
 		msc.setMobilePhoneNumber(obmPhone(c, "CELL;VOICE;X-OBM-Ref1"));
@@ -62,7 +62,7 @@ public class ContactConverter {
 
 		msc.setBusinessFaxNumber(obmPhone(c, "WORK;FAX;X-OBM-Ref1"));
 		msc.setHomeFaxNumber(obmPhone(c, "HOME;FAX;X-OBM-Ref1"));
-		
+
 		msc.setPagerNumber(obmPhone(c, "PAGER;X-OBM-Ref1"));
 
 		msc.setEmail1Address(obmMail(c, "INTERNET;X-OBM-Ref1"));
@@ -163,7 +163,7 @@ public class ContactConverter {
 	 * @param c
 	 * @return
 	 */
-	
+
 	public Contact contact(MSContact c) {
 		Contact oc = new Contact();
 		// JobTitle
@@ -182,7 +182,7 @@ public class ContactConverter {
 		oc.setAssistant(c.getAssistantName());
 		oc.setAka(c.getNickName());
 		oc.setComment(c.getData());
-		
+
 		addPhone(oc, "HOME;VOICE;X-OBM-Ref1", c.getHomePhoneNumber());
 		addPhone(oc, "HOME;VOICE;X-OBM-Ref2", c.getHome2PhoneNumber());
 		addPhone(oc, "WORK;VOICE;X-OBM-Ref1", c.getBusinessPhoneNumber());
@@ -195,22 +195,21 @@ public class ContactConverter {
 		if (c.getRadioPhoneNumber() != null
 				&& !c.getRadioPhoneNumber().isEmpty()) {
 			i++;
-			addPhone(oc, "OTHER;X-OBM-Ref"+i, c.getRadioPhoneNumber());
+			addPhone(oc, "OTHER;X-OBM-Ref" + i, c.getRadioPhoneNumber());
 		}
 		if (c.getAssistantPhoneNumber() != null
 				&& !c.getAssistantPhoneNumber().isEmpty()) {
 			i++;
-			addPhone(oc, "OTHER;X-OBM-Ref"+i, c.getAssistantPhoneNumber());
+			addPhone(oc, "OTHER;X-OBM-Ref" + i, c.getAssistantPhoneNumber());
 		}
-		if (c.getCarPhoneNumber() != null
-				&& !c.getCarPhoneNumber().isEmpty()) {
+		if (c.getCarPhoneNumber() != null && !c.getCarPhoneNumber().isEmpty()) {
 			i++;
-			addPhone(oc, "OTHER;X-OBM-Ref"+i, c.getCarPhoneNumber());
+			addPhone(oc, "OTHER;X-OBM-Ref" + i, c.getCarPhoneNumber());
 		}
 		if (c.getCompanyMainPhone() != null
 				&& !c.getCompanyMainPhone().isEmpty()) {
 			i++;
-			addPhone(oc, "OTHER;X-OBM-Ref"+i, c.getCompanyMainPhone());
+			addPhone(oc, "OTHER;X-OBM-Ref" + i, c.getCompanyMainPhone());
 		}
 
 		addPhone(oc, "WORK;FAX;X-OBM-Ref1", c.getBusinessFaxNumber());
@@ -232,21 +231,23 @@ public class ContactConverter {
 				.getOtherAddressPostalCode(), c.getOtherAddressCity(), c
 				.getOtherAddressCountry(), c.getOtherAddressState());
 
-		
 		if (c.getIMAddress() != null && !c.getIMAddress().isEmpty()) {
-			oc.addIMIdentifier("XMPP;X-OBM-Ref1", new InstantMessagingId("XMPP", c.getIMAddress()));
+			oc.addIMIdentifier("XMPP;X-OBM-Ref1", new InstantMessagingId(
+					"XMPP", c.getIMAddress()));
 		}
 		if (c.getIMAddress2() != null && !c.getIMAddress2().isEmpty()) {
-			oc.addIMIdentifier("XMPP;X-OBM-Ref2", new InstantMessagingId("XMPP", c.getIMAddress2()));
+			oc.addIMIdentifier("XMPP;X-OBM-Ref2", new InstantMessagingId(
+					"XMPP", c.getIMAddress2()));
 		}
 		if (c.getIMAddress3() != null && !c.getIMAddress3().isEmpty()) {
-			oc.addIMIdentifier("XMPP;X-OBM-Ref3", new InstantMessagingId("XMPP", c.getIMAddress3()));
+			oc.addIMIdentifier("XMPP;X-OBM-Ref3", new InstantMessagingId(
+					"XMPP", c.getIMAddress3()));
 		}
 
 		if (c.getWebPage() != null) {
 			oc.addWebsite("URL;X-OBM-Ref1", new Website(c.getWebPage()));
 		}
-		
+
 		oc.setAnniversary(c.getAnniversary());
 		oc.setBirthday(c.getBirthday());
 		return oc;
@@ -254,8 +255,10 @@ public class ContactConverter {
 
 	private void addAddress(Contact oc, String lbl, String street,
 			String postalCode, String city, String country, String state) {
-		oc.addAddress(lbl, new Address(street, postalCode, null, city, country,
+		if(!isEmpty(street) && !isEmpty(postalCode) && !isEmpty(city) && !isEmpty(country) && !isEmpty(state)){
+			oc.addAddress(lbl, new Address(street, postalCode, null, city, country,
 				state));
+		}
 	}
 
 	private void addEmail(Contact oc, String label, String email) {
@@ -268,6 +271,10 @@ public class ContactConverter {
 		if (msPhone != null) {
 			obmContact.addPhone(label, new Phone(msPhone));
 		}
+	}
+
+	private boolean isEmpty(String s) {
+		return s == null || s.isEmpty();
 	}
 
 }

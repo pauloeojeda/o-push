@@ -2,6 +2,7 @@ package org.obm.push.store;
 
 import java.util.Set;
 
+import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.state.SyncState;
 
 public interface ISyncStorage {
@@ -28,17 +29,18 @@ public interface ISyncStorage {
 	 */
 	boolean initDevice(String loginAtDomain, String deviceId, String deviceType);
 
+	Integer addCollectionMapping(String deviceId, String collection);
+	
 	/**
-	 * Fetches the id associated with a given collection id string. Creates a
-	 * new one if missing.
+	 * Fetches the id associated with a given collection id string.
 	 * 
 	 * @param deviceId
 	 * @param collectionId
 	 * @return
 	 */
-	Integer getCollectionMapping(String deviceId, String collectionId);
+	Integer getCollectionMapping(String deviceId, String collectionId) throws CollectionNotFoundException;
 
-	String getCollectionPath(Integer collectionId);
+	String getCollectionPath(Integer collectionId) throws CollectionNotFoundException;
 
 	String getDataClass(String collectionId);
 
