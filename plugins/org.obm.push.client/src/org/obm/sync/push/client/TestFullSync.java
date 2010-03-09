@@ -1,14 +1,12 @@
 package org.obm.sync.push.client;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 public class TestFullSync extends AbstractPushTest {
 
@@ -65,37 +63,6 @@ public class TestFullSync extends AbstractPushTest {
 		
 		while(!push1.hasResp() || !push2.hasResp() ||!push3.hasResp() || !push4.hasResp() ){
 		}
-	}
-	
-	private void fillSyncKey(Element root, Map<String, String> sks) {
-		NodeList nl = root.getElementsByTagName("Collection");
-
-		for (int i = 0; i < nl.getLength(); i++) {
-			Element col = (Element) nl.item(i);
-			String collectionId = DOMUtils.getElementText(col, "CollectionId");
-			String syncKey = sks.get(collectionId);
-			Element synckeyElem = DOMUtils.getUniqueElement(col,
-			"SyncKey");
-			if(synckeyElem == null){
-				synckeyElem = DOMUtils.getUniqueElement(col,
-				"AirSync:SyncKey");
-			}
-			synckeyElem.setTextContent(syncKey);
-		}
-		
-	}
-
-	private Map<String, String> processCollection(Element root) {
-		Map<String,String> ret = new HashMap<String, String>();
-		NodeList nl = root.getElementsByTagName("Collection");
-
-		for (int i = 0; i < nl.getLength(); i++) {	
-			Element col = (Element) nl.item(i);
-			String collectionId = DOMUtils.getElementText(col, "CollectionId");
-			String syncKey  = DOMUtils.getElementText(col, "SyncKey");
-			ret.put(collectionId, syncKey);
-		}
-		return ret;
 	}
 	
 	private class SyncPush extends Thread{

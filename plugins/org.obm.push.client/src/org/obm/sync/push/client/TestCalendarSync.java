@@ -27,7 +27,7 @@ public class TestCalendarSync extends AbstractPushTest {
 
 		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
 				"SyncKey").getTextContent();
-
+		
 		in = loadDataFile("CalSyncRequest2.xml");
 		doc = DOMUtils.parse(in);
 		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
@@ -36,25 +36,32 @@ public class TestCalendarSync extends AbstractPushTest {
 		DOMUtils.logDom(doc);
 		ret = postXml("AirSync", doc, "Sync");
 		assertNotNull(ret);
-
-		NodeList nl = ret.getDocumentElement().getElementsByTagName(
-				"ApplicationData");
-		System.out.println("received " + nl.getLength()
-				+ " events from server.");
-		assertTrue(nl.getLength() > 0);
-
 		
-		String sk1 = DOMUtils.getUniqueElement(ret.getDocumentElement(),
-				"SyncKey").getTextContent();
-
-		in = loadDataFile("CalSyncRequest3.xml");
+		in = loadDataFile("FolderSyncRequest.xml");
 		doc = DOMUtils.parse(in);
-		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"SyncKey");
-		synckeyElem.setTextContent(sk1);
-		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
+		DOMUtils.getUniqueElement(doc.getDocumentElement(),
+		"SyncKey").setTextContent(sk);
+		ret = postXml("FolderHierarchy", doc, "FolderSync");
 		assertNotNull(ret);
+
+//		NodeList nl = ret.getDocumentElement().getElementsByTagName(
+//				"ApplicationData");
+//		System.out.println("received " + nl.getLength()
+//				+ " events from server.");
+//		assertTrue(nl.getLength() > 0);
+//
+//		
+//		String sk1 = DOMUtils.getUniqueElement(ret.getDocumentElement(),
+//				"SyncKey").getTextContent();
+//
+//		in = loadDataFile("CalSyncRequest3.xml");
+//		doc = DOMUtils.parse(in);
+//		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+//				"SyncKey");
+//		synckeyElem.setTextContent(sk1);
+//		DOMUtils.logDom(doc);
+//		ret = postXml("AirSync", doc, "Sync");
+//		assertNotNull(ret);
 
 	}
 

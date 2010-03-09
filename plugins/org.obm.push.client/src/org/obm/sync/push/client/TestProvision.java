@@ -16,6 +16,15 @@ public class TestProvision extends AbstractPushTest {
 		Document ret = postXml("Provision", doc, "Provision");
 		assertNotNull(ret);
 	}
+	
+	public void testSettingsProvisionProtocol120() throws Exception {
+		optionsQuery();
+
+		InputStream in = loadDataFile("ProvisionRequest1.xml");
+		Document doc = DOMUtils.parse(in);
+		Document ret = postXml("Provision", doc, "Provision",null,"12.0");
+		assertNotNull(ret);
+	}
 
 	public void testSettingsProvisionProtocol25() throws Exception {
 		optionsQuery();
