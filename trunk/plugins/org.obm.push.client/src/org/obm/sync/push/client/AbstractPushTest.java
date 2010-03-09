@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -21,6 +23,8 @@ import org.obm.push.utils.DOMUtils;
 import org.obm.push.utils.FileUtils;
 import org.obm.push.wbxml.WBXMLTools;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class AbstractPushTest extends TestCase {
 
@@ -64,7 +68,7 @@ public class AbstractPushTest extends TestCase {
 		this.devType = "iPhone";
 		this.userAgent = "Apple-iPhone/701.341";
 		this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
-//		this.url = "http://172.16.97.1/Microsoft-Server-ActiveSync";
+		// this.url = "http://172.16.97.1/Microsoft-Server-ActiveSync";
 
 		this.hc = createHttpClient();
 	}
@@ -135,6 +139,16 @@ public class AbstractPushTest extends TestCase {
 	protected Document postXml(String namespace, Document doc, String cmd)
 			throws Exception {
 		return postXml(namespace, doc, cmd, null, "12.1");
+	}
+
+	protected Document postXml120(String namespace, Document doc, String cmd)
+			throws Exception {
+		return postXml(namespace, doc, cmd, null, "12.0");
+	}
+
+	protected Document postXml25(String namespace, Document doc, String cmd)
+			throws Exception {
+		return postXml(namespace, doc, cmd, null, "2.5");
 	}
 
 	@SuppressWarnings("deprecation")
@@ -238,5 +252,37 @@ public class AbstractPushTest extends TestCase {
 		}
 		return null;
 
+	}
+	
+	protected void fillSyncKey(Element root, Map<String, String> sks) {
+		NodeList nl = root.getElementsByTagName("Collection");
+
+		for (int i = 0; i < nl.getLength(); i++) {
+			Element col = (Element) nl.item(i);
+			String collectionId = DOMUtils.getElementText(col, "CollectionId");
+			String syncKey = sks.get(collectionId);
+			Element synckeyElem = DOMUtils.getUniqueElement(col,
+			"SyncKey");
+			if(synckeyElem == null){
+				synckeyElem = DOMUtils.getUniqueElement(col,
+				"AirSync:SyncKey");
+			}
+			synckeyElem.setTextContent(syncKey);
+		}
+		
+	}
+
+	protected Map<String, String> processCollection(Element root) {
+		Map<String,String> ret = new HashMap<String, String>();
+		NodeList nl = root.getElementsByTagName("Collection");
+
+		for (int i = 0; i < nl.getLength(); i++) {	
+			Element col = (Element) nl.item(i);
+			String collectionId = DOMUtils.getElementText(col, "CollectionId");
+			String syncKey  = DOMUtils.getElementText(col, "SyncKey");
+			ret.put(collectionId, syncKey);
+			System.out.println(collectionId+" "+syncKey);
+		}
+		return ret;
 	}
 }

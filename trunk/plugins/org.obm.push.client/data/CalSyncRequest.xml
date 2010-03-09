@@ -5,5 +5,9 @@
 <SyncKey>0</SyncKey>
 <CollectionId>1</CollectionId>
 </Collection>
+<Collection>
+<SyncKey>0</SyncKey>
+<CollectionId>2</CollectionId>
+</Collection>
 </Collections>
 </Sync>

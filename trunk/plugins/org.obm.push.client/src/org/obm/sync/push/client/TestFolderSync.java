@@ -13,5 +13,19 @@ public class TestFolderSync extends AbstractPushTest {
 		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
 		assertNotNull(ret);
 	}
+	
+	public void testFolderSyncBadSyncKey() throws Exception {
+		InputStream in = loadDataFile("FolderSyncRequestBadSyncKey.xml");
+		Document doc = DOMUtils.parse(in);
+		
+		Document ret = postXml25("FolderHierarchy", doc, "FolderSync");
+		assertNotNull(ret);
+		
+		ret = postXml120("FolderHierarchy", doc, "FolderSync");
+		assertNotNull(ret);
+		
+		ret = postXml("FolderHierarchy", doc, "FolderSync");
+		assertNotNull(ret);
+	}
 
 }
