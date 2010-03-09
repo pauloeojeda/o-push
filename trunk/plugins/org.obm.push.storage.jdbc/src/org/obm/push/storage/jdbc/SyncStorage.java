@@ -372,13 +372,14 @@ public class SyncStorage implements ISyncStorage {
 
 			if (rs.next()) {
 				ret = rs.getString(1);
-			} else {
-				throw new CollectionNotFoundException();
 			}
 		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
+		}
+		if(ret == null){
+			throw new CollectionNotFoundException();
 		}
 		return ret;
 	}

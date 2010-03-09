@@ -11,6 +11,7 @@ import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -78,6 +79,8 @@ public class PingHandler extends WbxmlRequestHandler implements
 				if ("email".equalsIgnoreCase(sc.getDataClass())) {
 					try {
 						backend.startEmailMonitoring(bs, id);
+					} catch (CollectionNotFoundException e) {
+						sendError(responder, PingStatus.FOLDER_SYNC_REQUIRED);
 					} catch (ActiveSyncException e) {
 						sendError(responder, PingStatus.SERVER_ERROR);
 					}
