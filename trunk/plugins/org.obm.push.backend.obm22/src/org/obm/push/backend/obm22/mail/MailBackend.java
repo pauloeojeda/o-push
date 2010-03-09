@@ -19,6 +19,7 @@ import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSAttachementData;
 import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.client.calendar.CalendarClient;
@@ -36,26 +37,14 @@ public class MailBackend extends ObmSyncBackend {
 
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		ItemChange ic = new ItemChange();
-		ic.setServerId(genServerId(bs, "INBOX"));
-		ic.setParentId("0");
-		ic.setDisplayName(bs.getLoginAtDomain()+" inbox");
-		ic.setItemType(FolderType.DEFAULT_INBOX_FOLDER);
-		ret.add(ic);
 
-		ic = new ItemChange();
-		ic.setServerId(genServerId(bs, "Sent"));
-		ic.setParentId("0");
-		ic.setDisplayName(bs.getLoginAtDomain()+" sent");
-		ic.setItemType(FolderType.DEFAULT_SENT_EMAIL_FOLDER);
-		ret.add(ic);
+		ret.add(genItemChange(bs, "INBOX", FolderType.DEFAULT_INBOX_FOLDER));
+		ret
+				.add(genItemChange(bs, "Sent",
+						FolderType.DEFAULT_SENT_EMAIL_FOLDER));
+		ret.add(genItemChange(bs, "Trash",
+				FolderType.DEFAULT_DELETED_ITEMS_FOLDERS));
 
-		ic = new ItemChange();
-		ic.setServerId(genServerId(bs, "Trash"));
-		ic.setParentId("0");
-		ic.setDisplayName(bs.getLoginAtDomain()+" trash");
-		ic.setItemType(FolderType.DEFAULT_DELETED_ITEMS_FOLDERS);
-		ret.add(ic);
 		return ret;
 	}
 
@@ -63,28 +52,46 @@ public class MailBackend extends ObmSyncBackend {
 		logger.info("Collection: " + collection);
 		List<ItemChange> changes = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
-		int collectionId = getCollectionIdFor(bs.getDevId(), collection);
 		try {
+			int collectionId = getCollectionIdFor(bs.getDevId(), collection);
+
 			int devId = getDevId(bs.getDevId());
 			MailChanges mc = emailManager.getSync(bs, devId, collectionId,
 					collection);
 			changes = getChanges(bs, collectionId, collection, mc.getUpdated());
 			deletions.addAll(getDeletions(bs, collection, mc.getRemoved()));
-			bs.addUpdatedSyncDate(getCollectionIdFor(bs.getDevId(), collection), mc.getLastSync());
+			bs.addUpdatedSyncDate(
+					getCollectionIdFor(bs.getDevId(), collection), mc
+							.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 		return new DataDelta(changes, deletions);
 	}
 
-	private String genServerId(BackendSession bs, String imapFolder) {
+	private ItemChange genItemChange(BackendSession bs, String imapFolder,
+			FolderType type) {
+		ItemChange ic = new ItemChange();
+		ic.setParentId("0");
+		ic.setDisplayName(bs.getLoginAtDomain() + " " + imapFolder);
+		ic.setItemType(type);
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("obm:\\\\");
 		sb.append(bs.getLoginAtDomain());
 		sb.append("\\email\\");
 		sb.append(imapFolder);
 		String s = sb.toString();
-		return getServerIdFor(bs.getDevId(), s, null);
+		String serverId;
+		try {
+			serverId = getServerIdFor(bs.getDevId(), s, null);
+		} catch (ActiveSyncException e) {
+			serverId = createCollectionMapping(bs.getDevId(), sb.toString());
+			ic.setIsNew(true);
+		}
+
+		ic.setServerId(serverId);
+		return ic;
 	}
 
 	private List<ItemChange> getChanges(BackendSession bs,
@@ -110,7 +117,7 @@ public class MailBackend extends ObmSyncBackend {
 	}
 
 	protected List<ItemChange> getDeletions(BackendSession bs,
-			String collection, Set<Long> uids) {
+			String collection, Set<Long> uids) throws ActiveSyncException {
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 		for (Long uid : uids) {
 			deletions.add(getDeletion(bs, collection, uid.toString()));
@@ -118,7 +125,8 @@ public class MailBackend extends ObmSyncBackend {
 		return deletions;
 	}
 
-	public List<ItemChange> fetchItems(BackendSession bs, List<String> fetchIds) {
+	public List<ItemChange> fetchItems(BackendSession bs, List<String> fetchIds)
+			throws ActiveSyncException {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		for (String serverId : fetchIds) {
 			Integer collectionId = getCollectionIdFor(serverId);
@@ -147,14 +155,15 @@ public class MailBackend extends ObmSyncBackend {
 	public void delete(BackendSession bs, String serverId) {
 		logger.info("delete serverId " + serverId);
 		if (serverId != null) {
-			Long uid = getEmailUidFor(serverId);
-			Integer collectionId = getCollectionIdFor(serverId);
-			String collectionName = getCollectionNameFor(collectionId);
-			Integer devId = getDevId(bs.getDevId());
 			try {
+				Long uid = getEmailUidFor(serverId);
+				Integer collectionId = getCollectionIdFor(serverId);
+				String collectionName = getCollectionNameFor(collectionId);
+				Integer devId = getDevId(bs.getDevId());
+
 				emailManager.delete(bs, devId, collectionName, collectionId,
 						uid);
-			} catch (IMAPException e) {
+			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
@@ -181,15 +190,19 @@ public class MailBackend extends ObmSyncBackend {
 			String messageId) {
 		logger.info("move(" + bs.getLoginAtDomain() + ", messageId "
 				+ messageId + " from " + srcFolder + " to " + dstFolder + ")");
-		Integer srcFolderId = getCollectionIdFor(bs.getDevId(), srcFolder);
-		Integer dstFolderId = getCollectionIdFor(bs.getDevId(), dstFolder);
-		Integer devId = getDevId(bs.getDevId());
+		Integer srcFolderId = null;
+		Integer dstFolderId = null;
 		Long newUidMail = null;
 		try {
+			srcFolderId = getCollectionIdFor(bs.getDevId(), srcFolder);
+
+			dstFolderId = getCollectionIdFor(bs.getDevId(), dstFolder);
+			Integer devId = getDevId(bs.getDevId());
+
 			newUidMail = emailManager.moveItem(bs, devId, srcFolder,
 					srcFolderId, dstFolder, dstFolderId,
 					getEmailUidFor(messageId));
-		} catch (IMAPException e) {
+		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 		if (newUidMail == null) {
@@ -295,7 +308,7 @@ public class MailBackend extends ObmSyncBackend {
 	}
 
 	public MSEmail getEmail(BackendSession bs, Integer collectionId,
-			String serverId) {
+			String serverId) throws ActiveSyncException {
 		String collectionName = getCollectionNameFor(collectionId);
 		Long uid = getEmailUidFor(serverId);
 		Set<Long> uids = new HashSet<Long>();
@@ -331,9 +344,9 @@ public class MailBackend extends ObmSyncBackend {
 				+ "] [emailUid" + messageId + "] [mimePartAddress:"
 				+ mimePartAddress + "] [contentType" + contentType
 				+ "] [contentTransferEncoding" + contentTransferEncoding + "]");
-		String collectionName = getCollectionNameFor(Integer
-				.parseInt(collectionId));
 		try {
+			String collectionName = getCollectionNameFor(Integer
+					.parseInt(collectionId));
 			InputStream is = emailManager.findAttachment(bs, collectionName,
 					Long.parseLong(messageId), mimePartAddress);
 

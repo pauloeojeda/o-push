@@ -22,6 +22,7 @@ import org.obm.push.backend.SyncCollection;
 import org.obm.push.backend.obm22.impl.ChangedCollections;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.backend.obm22.impl.PushNotification;
+import org.obm.push.exception.ActiveSyncException;
 
 public class EmailMonitoringThread implements IIdleCallback {
 
@@ -40,7 +41,7 @@ public class EmailMonitoringThread implements IIdleCallback {
 
 	public EmailMonitoringThread(ObmSyncBackend cb,
 			Set<ICollectionChangeListener> ccls, BackendSession bs,
-			Integer collectionId) {
+			Integer collectionId) throws ActiveSyncException {
 		this.ccls = Collections.synchronizedSet(ccls);
 		this.backend = cb;
 		this.bs = bs;
@@ -64,29 +65,40 @@ public class EmailMonitoringThread implements IIdleCallback {
 		Set<SyncCollection> ret = new HashSet<SyncCollection>();
 
 		for (SyncCollection sc : cols.getChanged()) {
-			int id = backend.getCollectionIdFor(session.getDevId(), sc
-					.getCollectionName());
-			sc.setCollectionId(id);
-			logger.info("processing sc: id: " + sc.getCollectionId()
-					+ " name: " + sc.getCollectionName());
-			if (monitoredCollections.contains(sc)) {
-				logger.info("******** PUSH " + sc.getCollectionId() + " name: "
-						+ sc.getCollectionName() + " ********");
-				ret.add(sc);
-			} else {
-				logger.info("** " + sc.getCollectionId()
-						+ " modified but nobody cares **");
-				for (SyncCollection mon : monitoredCollections) {
-					logger.info("   * monitored: " + mon.getCollectionId());
+			try {
+				int id = backend.getCollectionIdFor(session.getDevId(), sc
+						.getCollectionPath());
+				sc.setCollectionId(id);
+				logger.info("processing sc: id: " + sc.getCollectionId()
+						+ " name: " + sc.getCollectionPath());
+				if (monitoredCollections.contains(sc)) {
+					logger.info("******** PUSH " + sc.getCollectionId() + " name: "
+							+ sc.getCollectionPath() + " ********");
+					ret.add(sc);
+				} else {
+					logger.info("** " + sc.getCollectionId()
+							+ " modified but nobody cares **");
+					for (SyncCollection mon : monitoredCollections) {
+						logger.info("   * monitored: " + mon.getCollectionId());
+					}
 				}
+			} catch (ActiveSyncException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
 		for (SyncCollection toPush : ret) {
-			String colName = toPush.getCollectionName();
-			int collectionId = backend.getCollectionIdFor(session.getDevId(),
-					colName);
-			toPush.setCollectionId(collectionId);
+			try {
+				String colName = toPush.getCollectionPath();
+				int collectionId = backend.getCollectionIdFor(session.getDevId(),
+						colName);
+				toPush.setCollectionId(collectionId);
+			} catch (ActiveSyncException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
 
 		return ret;
@@ -112,7 +124,7 @@ public class EmailMonitoringThread implements IIdleCallback {
 
 				SyncCollection sc = new SyncCollection();
 				String s = collectionName;
-				sc.setCollectionName(s);
+				sc.setCollectionPath(s);
 				lsc.add(sc);
 
 				Calendar cal = Calendar

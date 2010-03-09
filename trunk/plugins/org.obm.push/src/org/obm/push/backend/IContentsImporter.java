@@ -1,6 +1,7 @@
 package org.obm.push.backend;
 
 import org.obm.push.data.calendarenum.AttendeeStatus;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.state.SyncState;
 
 /**
@@ -17,7 +18,7 @@ public interface IContentsImporter {
 	void importMessageReadFlag(BackendSession bs, String serverId, boolean read);
 
 	String importMessageChange(BackendSession bs, String collectionId,
-			String serverId, String clientId, IApplicationData data);
+			String serverId, String clientId, IApplicationData data) throws ActiveSyncException;
 
 	void importMessageMove(BackendSession bs, String serverId, String trash);
 

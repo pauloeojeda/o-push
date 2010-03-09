@@ -10,6 +10,7 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.IListenerRegistration;
 import org.obm.push.backend.SyncCollection;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -75,7 +76,11 @@ public class PingHandler extends WbxmlRequestHandler implements
 				sc.setCollectionId(id);
 				toMonitor.add(sc);
 				if ("email".equalsIgnoreCase(sc.getDataClass())) {
-					backend.startEmailMonitoring(bs, id);
+					try {
+						backend.startEmailMonitoring(bs, id);
+					} catch (ActiveSyncException e) {
+						sendError(responder, PingStatus.SERVER_ERROR);
+					}
 				}
 			}
 			// pda is allowed to only send the folder list on the first ping

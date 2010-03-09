@@ -7,6 +7,7 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.store.ISyncStorage;
 
 public class TasksBackend extends ObmSyncBackend {
@@ -25,7 +26,14 @@ public class TasksBackend extends ObmSyncBackend {
 
 		ItemChange ic = new ItemChange();
 		String col = getDefaultCalendarName(bs);
-		ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
+		String serverId;
+		try {
+			serverId = getServerIdFor(bs.getDevId(), col, null);
+		} catch (ActiveSyncException e) {
+			serverId = createCollectionMapping(bs.getDevId(), col);
+			ic.setIsNew(true);
+		}
+		ic.setServerId(serverId);
 		ic.setParentId("0");
 		ic.setDisplayName(bs.getLoginAtDomain()+" tasks");
 		ic.setItemType(FolderType.DEFAULT_TASKS_FOLDER);

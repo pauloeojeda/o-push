@@ -1,6 +1,5 @@
 package org.obm.push.backend.obm22;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,6 +13,7 @@ import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.backend.obm22.tasks.TasksBackend;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.state.SyncState;
 
 public class HierarchyExporter implements IHierarchyExporter {
@@ -27,8 +27,9 @@ public class HierarchyExporter implements IHierarchyExporter {
 	private ContactsBackend contactsBackend;
 	private TasksBackend tasksBackend;
 
-	public HierarchyExporter(FolderBackend folderExporter, MailBackend mailExporter,
-			CalendarBackend calendarExporter, ContactsBackend contactsBackend, TasksBackend tasksBackend) {
+	public HierarchyExporter(FolderBackend folderExporter,
+			MailBackend mailExporter, CalendarBackend calendarExporter,
+			ContactsBackend contactsBackend, TasksBackend tasksBackend) {
 		this.folderExporter = folderExporter;
 		this.mailExporter = mailExporter;
 		this.calendarExporter = calendarExporter;
@@ -54,83 +55,25 @@ public class HierarchyExporter implements IHierarchyExporter {
 		return bs.getState();
 	}
 
-	public void synchronize(BackendSession bs) {
-		logger.info("synchronize");
-		folderExporter.synchronize(bs);
-		
-		List<ItemChange> lic = getCalendarChanges(bs);
-		addChanges(lic);
-		lic = getCalendarDeletions(bs.getState().getLastSync());
-		addDeletions(lic);
-
-		lic = getContactsChanges(bs);
-		addChanges(lic);
-		lic = getContactsDeletions(bs);
-		addDeletions(lic);
-
-		lic = getTasksChanges(bs);
-		addChanges(lic);
-		lic = getTasksDeletions(bs.getState().getLastSync());
-		addDeletions(lic);
-
-		lic = getMailChanges(bs);
-		addChanges(lic);
-		lic = getMailDeletions(bs.getState().getLastSync());
-		addDeletions(lic);
-	}
-
-	private void addDeletions(List<ItemChange> lic) {
-		// TODO Auto-generated method stub
-
-	}
-
-	private void addChanges(List<ItemChange> lic) {
-		// TODO Auto-generated method stub
-
-	}
-
 	private List<ItemChange> getContactsChanges(BackendSession bs) {
 		return contactsBackend.getHierarchyChanges(bs);
-	}
-
-	private List<ItemChange> getContactsDeletions(BackendSession bs) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
 	}
 
 	private List<ItemChange> getTasksChanges(BackendSession bs) {
 		return tasksBackend.getHierarchyChanges(bs);
 	}
 
-	private List<ItemChange> getTasksDeletions(Date lastSync) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
-	}
-
 	private List<ItemChange> getCalendarChanges(BackendSession bs) {
 		return calendarExporter.getHierarchyChanges(bs);
-	}
-
-	private List<ItemChange> getCalendarDeletions(Date lastSync) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
 	}
 
 	private List<ItemChange> getMailChanges(BackendSession bs) {
 		return mailExporter.getHierarchyChanges(bs);
 	}
 
-	private List<ItemChange> getMailDeletions(Date lastSync) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		// TODO Auto-generated method stub
-		return ret;
-	}
-
 	@Override
 	public List<ItemChange> getChanged(BackendSession bs) {
+		folderExporter.synchronize(bs);
 		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
 		changes.addAll(getCalendarChanges(bs));
 		changes.addAll(getMailChanges(bs));
@@ -150,7 +93,7 @@ public class HierarchyExporter implements IHierarchyExporter {
 	}
 
 	@Override
-	public int getRootFolderId(BackendSession bs) {
+	public int getRootFolderId(BackendSession bs) throws ActiveSyncException {
 		return folderExporter.getServerIdFor(bs);
 	}
 

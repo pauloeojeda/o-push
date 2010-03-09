@@ -3,7 +3,6 @@ package org.obm.push.storage.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -17,6 +16,7 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.minig.obm.pool.OBMPoolActivator;
+import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
 
@@ -64,7 +64,7 @@ public class SyncStorage implements ISyncStorage {
 				cal.setTimeInMillis(rs.getTimestamp(2).getTime());
 				ret.setLastSync(cal.getTime());
 			}
-		} catch (SQLException se) {
+		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
@@ -92,7 +92,7 @@ public class SyncStorage implements ISyncStorage {
 				ret.setKey(syncKey);
 				ret.setLastSync(rs.getTimestamp(2));
 			}
-		} catch (SQLException se) {
+		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
@@ -117,7 +117,7 @@ public class SyncStorage implements ISyncStorage {
 			if (rs.next()) {
 				return rs.getLong("last_heartbeat");
 			}
-		} catch (SQLException se) {
+		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
@@ -229,13 +229,11 @@ public class SyncStorage implements ISyncStorage {
 			}
 		};
 		String syncperm = ini.getData().get("allow.unknown.pda");
-		
+
 		if ("true".equals(syncperm)) {
 			return true;
 		}
-		
-		
-		
+
 		String[] parts = loginAtDomain.split("@");
 		String login = parts[0].toLowerCase();
 		String domain = parts[1].toLowerCase();
@@ -259,7 +257,7 @@ public class SyncStorage implements ISyncStorage {
 			if (rs.next()) {
 				hasSyncPerm = true;
 			}
-		} catch (SQLException se) {
+		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
@@ -305,16 +303,15 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public Integer getCollectionMapping(String deviceId, String collection) {
+	public Integer getCollectionMapping(String deviceId, String collection)
+			throws CollectionNotFoundException {
 		int id = devIdCache.get(deviceId);
 		Integer ret = null;
 
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		UserTransaction ut = getUserTransaction();
 		try {
-			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
 			ps = con
 					.prepareStatement("SELECT id FROM opush_folder_mapping WHERE device_id=? AND collection=?");
@@ -324,30 +321,42 @@ public class SyncStorage implements ISyncStorage {
 
 			if (rs.next()) {
 				ret = rs.getInt(1);
-			} else {
-				rs.close();
-				rs = null;
-				ps.close();
-
-				ps = con
-						.prepareStatement("INSERT INTO opush_folder_mapping (device_id, collection) VALUES (?, ?)");
-				ps.setInt(1, id);
-				ps.setString(2, collection);
-				ps.executeUpdate();
-				ret = OBMPoolActivator.getDefault().lastInsertId(con);
 			}
-			ut.commit();
 		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
-			JDBCUtils.rollback(ut);
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
+		}
+		if (ret == null) {
+			throw new CollectionNotFoundException();
+		}
+		return ret;
+	}
+
+	public Integer addCollectionMapping(String deviceId, String collection) {
+		int id = devIdCache.get(deviceId);
+		Integer ret = null;
+		Connection con = null;
+		PreparedStatement ps = null;
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("INSERT INTO opush_folder_mapping (device_id, collection) VALUES (?, ?)");
+			ps.setInt(1, id);
+			ps.setString(2, collection);
+			ps.executeUpdate();
+			ret = OBMPoolActivator.getDefault().lastInsertId(con);
+		} catch (Throwable e) {
+			logger.info(e.getMessage(), e);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
 		}
 		return ret;
 	}
 
 	@Override
-	public String getCollectionPath(Integer collectionId) {
+	public String getCollectionPath(Integer collectionId)
+			throws CollectionNotFoundException {
 		String ret = null;
 
 		Connection con = null;
@@ -363,8 +372,10 @@ public class SyncStorage implements ISyncStorage {
 
 			if (rs.next()) {
 				ret = rs.getString(1);
+			} else {
+				throw new CollectionNotFoundException();
 			}
-		} catch (SQLException se) {
+		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
@@ -408,7 +419,7 @@ public class SyncStorage implements ISyncStorage {
 
 			logger.warn("mappings & states cleared for full sync of device "
 					+ devId);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
@@ -469,7 +480,7 @@ public class SyncStorage implements ISyncStorage {
 			while (rs.next()) {
 				ret.add(rs.getInt("id"));
 			}
-		} catch (SQLException se) {
+		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);

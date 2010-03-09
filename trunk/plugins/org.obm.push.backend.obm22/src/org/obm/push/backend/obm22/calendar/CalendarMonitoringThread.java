@@ -101,7 +101,7 @@ public class CalendarMonitoringThread extends MonitoringThread {
 
 			SyncCollection sc = new SyncCollection();
 			String s = colName.toString();
-			sc.setCollectionName(s);
+			sc.setCollectionPath(s);
 			changed.add(sc);
 			i++;
 			if (logger.isInfoEnabled()) {

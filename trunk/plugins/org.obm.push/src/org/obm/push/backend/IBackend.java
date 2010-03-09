@@ -1,5 +1,6 @@
 package org.obm.push.backend;
 
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.provisioning.Policy;
 import org.obm.push.store.ISyncStorage;
 
@@ -35,7 +36,7 @@ public interface IBackend {
 
 	void resetForFullSync(BackendSession bs);
 	
-	void startEmailMonitoring(BackendSession bs, Integer collectionId);
+	void startEmailMonitoring(BackendSession bs, Integer collectionId) throws ActiveSyncException;
 
 	void resetCollection(BackendSession bs, Integer collectionId);
 

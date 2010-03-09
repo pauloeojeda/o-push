@@ -2,6 +2,7 @@ package org.obm.push.backend;
 
 import java.util.List;
 
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.state.SyncState;
 
 /**
@@ -21,7 +22,7 @@ public interface IContentsExporter {
 
 	int getCount(BackendSession bs, FilterType filterType, String collectionId);
 
-	List<ItemChange> fetch(BackendSession bs, List<String> fetchIds);
+	List<ItemChange> fetch(BackendSession bs, List<String> fetchIds) throws ActiveSyncException;
 	
 	MSAttachementData getEmailAttachement(BackendSession bs, String attachmentName);
 	

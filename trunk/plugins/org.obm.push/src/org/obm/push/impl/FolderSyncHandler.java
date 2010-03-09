@@ -1,5 +1,6 @@
 package org.obm.push.impl;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.obm.push.backend.IHierarchyImporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.ServerId;
 import org.obm.push.backend.SyncFolder;
+import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
@@ -45,7 +47,10 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 
 		StateMachine sm = new StateMachine(backend.getStore());
 		SyncState state = sm.getSyncState(syncKey);
-
+		if(!state.isValid()){
+			sendError(responder, FolderSyncStatus.INVALID_SYNC_KEY);
+			return ;
+		}
 		// look for Add, Modify, Remove
 
 		Element changes = DOMUtils.getUniqueElement(doc.getDocumentElement(),
@@ -88,14 +93,13 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 			Element sk = DOMUtils.createElement(root, "SyncKey");
 			changes = DOMUtils.createElement(root, "Changes");
 
-			exporter.synchronize(bs);
-
 			// FIXME we know that we do not monitor hierarchy, so just respond
 			// that nothing changed
+			List<ItemChange> changed = exporter.getChanged(bs);
 			if ("0".equals(syncKey)) {
 				int cnt = exporter.getCount(bs);
 				DOMUtils.createElementAndText(changes, "Count", cnt + "");
-				List<ItemChange> changed = exporter.getChanged(bs);
+				
 				for (ItemChange sf : changed) {
 					Element add = DOMUtils.createElement(changes, "Add");
 					encode(add, sf);
@@ -107,11 +111,21 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 				}
 			} else {
 				DOMUtils.createElementAndText(changes, "Count", "0");
+				for (ItemChange sf : changed) {
+					logger.info(sf.getServerId());
+					if(sf.isNew()){
+						sendError(responder, FolderSyncStatus.INVALID_SYNC_KEY);
+						return ;
+					}
+				} 
 			}
 			String newSyncKey = sm.allocateNewSyncKey(bs, exporter
 					.getRootFolderId(bs), state);
 			sk.setTextContent(newSyncKey);
 			responder.sendResponse("FolderHierarchy", ret);
+		} catch (CollectionNotFoundException e) {
+			logger.error(e.getMessage(), e);
+			sendError(responder, FolderSyncStatus.INVALID_SYNC_KEY);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -129,5 +143,16 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 	private SyncFolder folder(Element e) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private void sendError(Responder resp, FolderSyncStatus status){
+			Document ret = DOMUtils.createDoc(null, "FolderSync");
+			Element root = ret.getDocumentElement();
+			DOMUtils.createElementAndText(root, "Status", status.asXmlValue());
+			try {
+				resp.sendResponse("FolderHierarchy", ret);
+			} catch (IOException e) {
+				logger.info(e.getMessage(), e);
+			}
 	}
 }

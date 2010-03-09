@@ -14,6 +14,7 @@ import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.data.calendarenum.AttendeeType;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.calendar.CalendarInfo;
@@ -38,7 +39,14 @@ public class CalendarBackend extends ObmSyncBackend {
 		if (!bs.checkHint("hint.multipleCalendars", false)) {
 			ItemChange ic = new ItemChange();
 			String col = getDefaultCalendarName(bs);
-			ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
+			String serverId;
+			try {
+				serverId = getServerIdFor(bs.getDevId(), col, null);
+			} catch (ActiveSyncException e) {
+				serverId = createCollectionMapping(bs.getDevId(), col);
+				ic.setIsNew(true);
+			}
+			ic.setServerId(serverId);
 			ic.setParentId("0");
 			ic.setDisplayName(bs.getLoginAtDomain()+" calendar");
 			ic.setItemType(FolderType.DEFAULT_CALENDAR_FOLDER);
@@ -121,7 +129,7 @@ public class CalendarBackend extends ObmSyncBackend {
 	}
 
 	private ItemChange addCalendarChange(String deviceId, String collection,
-			Event e) {
+			Event e) throws ActiveSyncException {
 		ItemChange ic = new ItemChange();
 		ic.setServerId(getServerIdFor(deviceId, collection, e.getUid()));
 		MSEvent cal = new EventConverter().convertEvent(e);
@@ -130,7 +138,7 @@ public class CalendarBackend extends ObmSyncBackend {
 	}
 
 	public String createOrUpdate(BackendSession bs, String collectionId,
-			String serverId, String clientId, MSEvent data) {
+			String serverId, String clientId, MSEvent data) throws ActiveSyncException {
 		logger.info("createOrUpdate(" + bs.getLoginAtDomain() + ", "
 				+ collectionId + ", " + serverId + ", " + clientId + ", "
 				+ data.getSubject() + ")");
