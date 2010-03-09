@@ -33,6 +33,7 @@ import org.obm.push.data.EncoderFactory;
 import org.obm.push.data.IDataDecoder;
 import org.obm.push.data.IDataEncoder;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
@@ -194,19 +195,22 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					// + bs.getLastMonitored() + ")");
 					// continuation.suspend(40 * 1000);
 					continuation.suspend(secs * 1000);
-
 				}
 			} else {
 				processResponse(bs, responder, collections, false,
 						processedClientIds);
 			}
+		} catch (CollectionNotFoundException ce) {
+			sendError(responder, new HashSet<SyncCollection>(),
+					SyncStatus.OBJECT_NOT_FOUND.asXmlValue());
 		} catch (ActiveSyncException e) {
-			sendError(responder, new HashSet<SyncCollection>(), SyncStatus.OBJECT_NOT_FOUND.asXmlValue());
+			logger.error(e.getMessage(), e);
 		}
 	}
 
 	private void doUpdates(BackendSession bs, SyncCollection c, Element ce,
-			IContentsExporter cex, Map<String, String> processedClientIds) throws ActiveSyncException {
+			IContentsExporter cex, Map<String, String> processedClientIds)
+			throws ActiveSyncException {
 		String col = backend.getStore().getCollectionPath(c.getCollectionId());
 		DataDelta delta = null;
 		if (bs.getUnSynchronizedItemChange(c.getCollectionId()).size() == 0) {
@@ -458,11 +462,12 @@ public class SyncHandler extends WbxmlRequestHandler implements
 	 * @param importer
 	 * @param modification
 	 * @param processedClientIds
-	 * @throws ActiveSyncException 
+	 * @throws ActiveSyncException
 	 */
 	private void processModification(BackendSession bs,
 			SyncCollection collection, IContentsImporter importer,
-			Element modification, Map<String, String> processedClientIds) throws ActiveSyncException {
+			Element modification, Map<String, String> processedClientIds)
+			throws ActiveSyncException {
 		int col = collection.getCollectionId();
 		String collectionId = backend.getStore().getCollectionPath(col);
 		String modType = modification.getNodeName();
@@ -555,58 +560,64 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			Element cols = DOMUtils.createElement(root, "Collections");
 
 			for (SyncCollection c : changedFolders) {
-				if ("0".equals(c.getSyncKey())) {
-					backend.resetCollection(bs, c.getCollectionId());
-					bs.setState(new SyncState());
-				}
-
-				String syncKey = c.getSyncKey();
-				SyncState st = sm.getSyncState(syncKey);
-
-				SyncState oldClientSyncKey = bs.getLastClientSyncState(c
-						.getCollectionId());
-				if (oldClientSyncKey != null
-						&& oldClientSyncKey.getKey().equals(syncKey)) {
-					st.setLastSync(oldClientSyncKey.getLastSync());
-				}
-
 				Element ce = DOMUtils.createElement(cols, "Collection");
-				if (c.getDataClass() != null) {
-					DOMUtils
-							.createElementAndText(ce, "Class", c.getDataClass());
-				}
+				try {
+					if ("0".equals(c.getSyncKey())) {
+						backend.resetCollection(bs, c.getCollectionId());
+						bs.setState(new SyncState());
+					}
 
-				if (!st.isValid()) {
-					DOMUtils.createElementAndText(ce, "CollectionId", c
-							.getCollectionId().toString());
-					DOMUtils.createElementAndText(ce, "Status",
-							SyncStatus.INVALID_SYNC_KEY.asXmlValue());
-					DOMUtils.createElementAndText(ce, "SyncKey", "0");
-				} else {
+					String syncKey = c.getSyncKey();
+					SyncState st = sm.getSyncState(syncKey);
 
-					Element sk = DOMUtils.createElement(ce, "SyncKey");
-					DOMUtils.createElementAndText(ce, "CollectionId", c
-							.getCollectionId().toString());
-					DOMUtils.createElementAndText(ce, "Status", SyncStatus.OK
-							.asXmlValue());
-					if (!syncKey.equals("0")) {
+					SyncState oldClientSyncKey = bs.getLastClientSyncState(c
+							.getCollectionId());
+					if (oldClientSyncKey != null
+							&& oldClientSyncKey.getKey().equals(syncKey)) {
+						st.setLastSync(oldClientSyncKey.getLastSync());
+					}
+					
+					if (c.getDataClass() != null) {
+						DOMUtils.createElementAndText(ce, "Class", c
+								.getDataClass());
+					}
+
+					if (!st.isValid()) {
+						DOMUtils.createElementAndText(ce, "CollectionId", c
+								.getCollectionId().toString());
+						DOMUtils.createElementAndText(ce, "Status",
+								SyncStatus.INVALID_SYNC_KEY.asXmlValue());
+						DOMUtils.createElementAndText(ce, "SyncKey", "0");
+					} else {
+
+						Element sk = DOMUtils.createElement(ce, "SyncKey");
+						DOMUtils.createElementAndText(ce, "CollectionId", c
+								.getCollectionId().toString());
+						DOMUtils.createElementAndText(ce, "Status",
+								SyncStatus.OK.asXmlValue());
 						int col = c.getCollectionId();
 						String colStr = backend.getStore().getCollectionPath(
 								col);
-						IContentsExporter cex = backend.getContentsExporter(bs);
-						cex.configure(bs, c.getDataClass(), c.getFilterType(),
-								st, colStr);
+						if (!syncKey.equals("0")) {
+							IContentsExporter cex = backend
+									.getContentsExporter(bs);
+							cex.configure(bs, c.getDataClass(), c
+									.getFilterType(), st, colStr);
 
-						if (c.getFetchIds().size() == 0) {
-							doUpdates(bs, c, ce, cex, processedClientIds);
-						} else {
-							// fetch
-							doFetch(bs, c, ce, cex);
+							if (c.getFetchIds().size() == 0) {
+								doUpdates(bs, c, ce, cex, processedClientIds);
+							} else {
+								// fetch
+								doFetch(bs, c, ce, cex);
+							}
 						}
+						bs.addLastClientSyncState(c.getCollectionId(), st);
+						sk.setTextContent(sm.allocateNewSyncKey(bs, c
+								.getCollectionId(), st));
 					}
-					bs.addLastClientSyncState(c.getCollectionId(), st);
-					sk.setTextContent(sm.allocateNewSyncKey(bs, c
-							.getCollectionId(), st));
+				} catch (CollectionNotFoundException e) {
+					 sendError(responder, new HashSet<SyncCollection>(),
+					 SyncStatus.OBJECT_NOT_FOUND.asXmlValue());
 				}
 			}
 			responder.sendResponse("AirSync", reply);
@@ -614,7 +625,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			logger.error("Error creating Sync response", e);
 		}
 	}
-
+	
 	@Override
 	public void sendError(Responder responder,
 			Set<SyncCollection> changedFolders, String errorStatus) {
