@@ -32,9 +32,9 @@ public class TestCalendarSync extends AbstractPushTest {
 		doc = DOMUtils.parse(in);
 		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
 				"SyncKey");
-		synckeyElem.setTextContent(sk);
+//		synckeyElem.setTextContent(sk);
 		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
+		ret = postXml25("AirSync", doc, "Sync");
 		assertNotNull(ret);
 		
 		in = loadDataFile("FolderSyncRequest.xml");
