@@ -156,4 +156,18 @@ public class Decoder {
 		else
 			return Boolean.FALSE;
 	}
+	
+	//"obm obm" <user3@dom1.fr>
+	public String parseDOMEmail(Element elt) {
+		if(elt == null){
+			return null;
+		}
+		String email = elt.getTextContent();
+		if(email.contains("<")){
+			int id = email.indexOf("<");
+			int id2 = email.indexOf(">");
+			email = email.substring(id+1, id2);
+		}
+		return email;
+	}
 }
