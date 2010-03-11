@@ -38,9 +38,9 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setWebPage(parseDOMString(DOMUtils.getUniqueElement(syncData, "Webpage")));
 		
 		contact.setDepartment(parseDOMString(DOMUtils.getUniqueElement(syncData, "Department")));
-		contact.setEmail1Address(parseDOMString(DOMUtils.getUniqueElement(syncData, "Email1Address")));
-		contact.setEmail2Address(parseDOMString(DOMUtils.getUniqueElement(syncData, "Email2Address")));
-		contact.setEmail3Address(parseDOMString(DOMUtils.getUniqueElement(syncData, "Email3Address")));
+		contact.setEmail1Address(parseDOMEmail(DOMUtils.getUniqueElement(syncData, "Email1Address")));
+		contact.setEmail2Address(parseDOMEmail(DOMUtils.getUniqueElement(syncData, "Email2Address")));
+		contact.setEmail3Address(parseDOMEmail(DOMUtils.getUniqueElement(syncData, "Email3Address")));
 		contact.setBusinessFaxNumber(parseDOMString(DOMUtils.getUniqueElement(syncData, "BusinessFaxNumber")));
 		contact.setFileAs(parseDOMString(DOMUtils.getUniqueElement(syncData, "FileAs")));
 		contact.setFirstName(parseDOMString(DOMUtils.getUniqueElement(syncData, "FirstName")));
