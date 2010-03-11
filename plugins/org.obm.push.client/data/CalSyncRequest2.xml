@@ -8,12 +8,6 @@
 <GetChanges/>
 <WindowSize>50</WindowSize>
 </Collection>
-<Collection>
-<SyncKey>FILL_ME</SyncKey>
-<CollectionId>200</CollectionId>
-<GetChanges/>
-<WindowSize>50</WindowSize>
-</Collection>
 </Collections>
 </Sync>
 
