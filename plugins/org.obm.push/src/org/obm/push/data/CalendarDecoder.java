@@ -181,6 +181,16 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 	void setEventCalendar(MSEvent calendar, Element domSource) {
 		calendar.setLocation(parseDOMString(DOMUtils.getUniqueElement(
 				domSource, "Location")));
+		
+		// description
+		Element body = DOMUtils.getUniqueElement(domSource, "Body");
+		if (body != null) {
+			Element data = DOMUtils.getUniqueElement(body, "Data");
+			if (data != null) {
+				calendar.setDescription(data.getTextContent());
+			}
+		}
+		
 		calendar.setDtStamp(parseDOMDate(DOMUtils.getUniqueElement(domSource,
 				"DTStamp")));
 		calendar.setSubject(parseDOMString(DOMUtils.getUniqueElement(domSource,
