@@ -112,7 +112,6 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 			} else {
 				DOMUtils.createElementAndText(changes, "Count", "0");
 				for (ItemChange sf : changed) {
-					logger.info(sf.getServerId());
 					if(sf.isNew()){
 						sendError(responder, FolderSyncStatus.INVALID_SYNC_KEY);
 						return ;
