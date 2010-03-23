@@ -202,7 +202,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 				}
 			}
 		} 
-		Element rtf = DOMUtils.getUniqueElement(domSource, "CompressedRTF");
+		Element rtf = DOMUtils.getUniqueElement(domSource, "Compressed_RTF");
 		if (rtf != null) {
 			String txt = rtf.getTextContent();
 			calendar.setDescription(Utils.extractB64CompressedRTF(txt));
