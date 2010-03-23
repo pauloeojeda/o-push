@@ -264,6 +264,17 @@ public class SyncHandler extends WbxmlRequestHandler implements
 						.createElementAndText(add, "ServerId", ic.getServerId());
 				serializeChange(bs, add, c, ic);
 			}
+			processedClientIds.remove(ic.getServerId());
+		}
+
+		// Send error for the remaining entry in the Map because the
+		// client has requested the addition of a resource that already exists
+		// on the server
+		for (Entry<String, String> entry : processedClientIds.entrySet()) {
+			Element add = DOMUtils.createElement(responses, "Add");
+			DOMUtils.createElementAndText(add, "ClientId", entry.getValue());
+			DOMUtils.createElementAndText(add, "Status",
+					SyncStatus.CONVERSATION_ERROR.asXmlValue());
 		}
 		if (delta != null) {
 			List<ItemChange> del = delta.getDeletions();
@@ -576,7 +587,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 							&& oldClientSyncKey.getKey().equals(syncKey)) {
 						st.setLastSync(oldClientSyncKey.getLastSync());
 					}
-					
+
 					if (c.getDataClass() != null) {
 						DOMUtils.createElementAndText(ce, "Class", c
 								.getDataClass());
@@ -616,8 +627,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 								.getCollectionId(), st));
 					}
 				} catch (CollectionNotFoundException e) {
-					 sendError(responder, new HashSet<SyncCollection>(),
-					 SyncStatus.OBJECT_NOT_FOUND.asXmlValue());
+					sendError(responder, new HashSet<SyncCollection>(),
+							SyncStatus.OBJECT_NOT_FOUND.asXmlValue());
 				}
 			}
 			responder.sendResponse("AirSync", reply);
@@ -625,7 +636,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			logger.error("Error creating Sync response", e);
 		}
 	}
-	
+
 	@Override
 	public void sendError(Responder responder,
 			Set<SyncCollection> changedFolders, String errorStatus) {
