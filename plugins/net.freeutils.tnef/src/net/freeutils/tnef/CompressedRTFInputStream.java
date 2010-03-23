@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+
 /**
  * The <code>CompressedRTFInputStream</code> class provides
  * decompression of compressed RTF data.
