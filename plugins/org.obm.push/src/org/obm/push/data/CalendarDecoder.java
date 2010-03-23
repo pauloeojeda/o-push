@@ -13,6 +13,7 @@ import org.obm.push.data.calendarenum.CalendarMeetingStatus;
 import org.obm.push.data.calendarenum.CalendarSensitivity;
 import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.data.calendarenum.RecurrenceType;
+import org.obm.push.data.email.Type;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
 
@@ -181,16 +182,24 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 	void setEventCalendar(MSEvent calendar, Element domSource) {
 		calendar.setLocation(parseDOMString(DOMUtils.getUniqueElement(
 				domSource, "Location")));
-		
+
 		// description
 		Element body = DOMUtils.getUniqueElement(domSource, "Body");
 		if (body != null) {
 			Element data = DOMUtils.getUniqueElement(body, "Data");
 			if (data != null) {
-				calendar.setDescription(data.getTextContent());
+				Type bodyType = Type.valueOf(DOMUtils.getUniqueElement(body,
+						"Type").getTextContent());
+				String txt = data.getTextContent();
+				if (bodyType == Type.PLAIN_TEXT) {
+					calendar.setDescription(data.getTextContent());
+				} else {
+					logger.warn("Unsupported body type: " + bodyType + "\n"
+							+ txt);
+				}
 			}
 		}
-		
+
 		calendar.setDtStamp(parseDOMDate(DOMUtils.getUniqueElement(domSource,
 				"DTStamp")));
 		calendar.setSubject(parseDOMString(DOMUtils.getUniqueElement(domSource,
