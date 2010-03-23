@@ -5,6 +5,4 @@ Bundle-SymbolicName: org.obm.push.tests
 Bundle-Version: 1.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.obm.push;bundle-version="1.0.0",
- org.junit;bundle-version="3.8.2",
- net.freeutils.tnef;bundle-version="1.0.0",
- fr.aliasource.utils;bundle-version="1.0.0"
+ org.junit;bundle-version="3.8.2"

@@ -3,6 +3,7 @@ package org.obm.push.impl;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.obm.push.Utils;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.FilterType;
 import org.obm.push.backend.IBackend;
