@@ -23,7 +23,7 @@ package net.freeutils.tnef;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
+
 
 /**
  * The <code>TNEFUtils</code> class provides utility methods used by the TNEF
@@ -182,28 +182,6 @@ public class TNEFUtils {
             checksum = (int)(checksum + calculateChecksum(buf, 0, read)) % 65536;
 
         return checksum;
-    }
-
-    /**
-     * Returns the name of a constant which is defined in given Class,
-     * has a name beginning with given prefix, and has given value. If the
-     * constant's name cannot be found, the value is returned as a hex String.
-     *
-     * @param cls the Class containing the constant
-     * @param constPrefix the prefix of the constant name (used in grouping constants)
-     * @param value the constant's value
-     * @return the name of the constant
-     */
-    public static String getConstName(Class cls, String constPrefix, long value) {
-        Field[] fields = cls.getFields();
-        try {
-            for (int i = 0; i < fields.length; i++) {
-                if (fields[i].getName().startsWith(constPrefix) && 
-                        fields[i].getLong(null) == value)
-                    return fields[i].getName();
-            }
-        } catch (IllegalAccessException ignore) {}
-        return "0x" + Long.toHexString(value);
     }
 
     /**
