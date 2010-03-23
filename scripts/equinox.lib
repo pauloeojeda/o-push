@@ -6,7 +6,7 @@
 if [ -f '/etc/opush/mem_conf.ini' ] ; then
   source /etc/opush/mem_conf.ini
 else
-  MEM=64
+  MEM=128
 fi
 
 
