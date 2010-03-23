@@ -2,6 +2,7 @@ package org.obm.push.data;
 
 import java.util.ArrayList;
 
+import org.obm.push.Utils;
 import org.obm.push.backend.MSAttendee;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.IApplicationData;
@@ -193,11 +194,18 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 				String txt = data.getTextContent();
 				if (bodyType == Type.PLAIN_TEXT) {
 					calendar.setDescription(data.getTextContent());
+				} else if (bodyType == Type.RTF) {
+					calendar.setDescription(Utils.extractB64CompressedRTF(txt));
 				} else {
 					logger.warn("Unsupported body type: " + bodyType + "\n"
 							+ txt);
 				}
 			}
+		} 
+		Element rtf = DOMUtils.getUniqueElement(domSource, "CompressedRTF");
+		if (rtf != null) {
+			String txt = rtf.getTextContent();
+			calendar.setDescription(Utils.extractB64CompressedRTF(txt));
 		}
 
 		calendar.setDtStamp(parseDOMDate(DOMUtils.getUniqueElement(domSource,
