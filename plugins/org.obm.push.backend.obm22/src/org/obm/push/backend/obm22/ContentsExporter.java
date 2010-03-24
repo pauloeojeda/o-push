@@ -155,7 +155,7 @@ public class ContentsExporter implements IContentsExporter {
 			delta = getTasksChanges(bs);
 			break;
 		}
-		logger.info("Get changed from" + bs.getState().getLastSync() + " on collectionId[" + collectionId+"]");
+		logger.info("Get changed from " + bs.getState().getLastSync() + " on collectionId[" + collectionId+"]");
 		return delta;
 	}
 
