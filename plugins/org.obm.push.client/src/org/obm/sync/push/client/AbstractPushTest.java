@@ -53,7 +53,7 @@ public class AbstractPushTest extends TestCase {
 		// this.devType = "PocketPC";
 		// this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
 
-		// this.login = "admin";
+		// this.login = "adrien";
 		// this.userId = "test.tlse.lng\\adrien";
 		// this.password = "aliacom";
 		// this.devId = "359593005624680";
@@ -68,7 +68,6 @@ public class AbstractPushTest extends TestCase {
 		this.devType = "iPhone";
 		this.userAgent = "Apple-iPhone/701.341";
 		this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
-		// this.url = "http://172.16.97.1/Microsoft-Server-ActiveSync";
 
 		this.hc = createHttpClient();
 	}
@@ -253,7 +252,7 @@ public class AbstractPushTest extends TestCase {
 		return null;
 
 	}
-	
+
 	protected void fillSyncKey(Element root, Map<String, String> sks) {
 		NodeList nl = root.getElementsByTagName("Collection");
 
@@ -261,27 +260,25 @@ public class AbstractPushTest extends TestCase {
 			Element col = (Element) nl.item(i);
 			String collectionId = DOMUtils.getElementText(col, "CollectionId");
 			String syncKey = sks.get(collectionId);
-			Element synckeyElem = DOMUtils.getUniqueElement(col,
-			"SyncKey");
-			if(synckeyElem == null){
-				synckeyElem = DOMUtils.getUniqueElement(col,
-				"AirSync:SyncKey");
+			Element synckeyElem = DOMUtils.getUniqueElement(col, "SyncKey");
+			if (synckeyElem == null) {
+				synckeyElem = DOMUtils.getUniqueElement(col, "AirSync:SyncKey");
 			}
 			synckeyElem.setTextContent(syncKey);
 		}
-		
+
 	}
 
 	protected Map<String, String> processCollection(Element root) {
-		Map<String,String> ret = new HashMap<String, String>();
+		Map<String, String> ret = new HashMap<String, String>();
 		NodeList nl = root.getElementsByTagName("Collection");
 
-		for (int i = 0; i < nl.getLength(); i++) {	
+		for (int i = 0; i < nl.getLength(); i++) {
 			Element col = (Element) nl.item(i);
 			String collectionId = DOMUtils.getElementText(col, "CollectionId");
-			String syncKey  = DOMUtils.getElementText(col, "SyncKey");
+			String syncKey = DOMUtils.getElementText(col, "SyncKey");
 			ret.put(collectionId, syncKey);
-			System.out.println(collectionId+" "+syncKey);
+			System.out.println(collectionId + " " + syncKey);
 		}
 		return ret;
 	}

@@ -3,7 +3,7 @@
 <Collections>
 <Collection>
 <SyncKey>FILL_ME</SyncKey>
-<CollectionId>100</CollectionId>
+<CollectionId>1</CollectionId>
 <DeletesAsMoves/>
 <GetChanges/>
 <WindowSize>50</WindowSize>
