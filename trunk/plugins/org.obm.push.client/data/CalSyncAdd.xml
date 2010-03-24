@@ -2,12 +2,8 @@
 <Sync xmlns:Calendar="pouic">
 	<Collections>
 		<Collection>
-			<Class>Calendar</Class>
 			<SyncKey>FILL_ME</SyncKey>
 			<CollectionId>1</CollectionId>
-			<DeletesAsMoves />
-			<GetChanges />
-			<WindowSize>50</WindowSize>
 			<Commands>
 				<Add>
 					<ClientId>RAND_ID</ClientId>
@@ -26,12 +22,6 @@
 						<Calendar:StartTime>20090608T100000Z</Calendar:StartTime>
 						<Calendar:UID>040000008200E00074C5B7101A82E00800000000792AA3784DFC80EDFC43A1468AC46FB62EF4A20F0D46F467AEF399E0F4113B35
 						</Calendar:UID>
-						<Calendar:Recurrence>
-							<Calendar:RecurrenceOccurrences>2
-							</Calendar:RecurrenceOccurrences>
-							<Calendar:RecurrenceInterval>1</Calendar:RecurrenceInterval>
-							<Calendar:RecurrenceType>0</Calendar:RecurrenceType>
-						</Calendar:Recurrence>
 					</ApplicationData>
 				</Add>
 			</Commands>
