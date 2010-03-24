@@ -30,6 +30,7 @@ import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.minig.imap.InternalDate;
 import org.minig.imap.SearchQuery;
 import org.minig.imap.StoreClient;
 import org.minig.obm.pool.OBMPoolActivator;
@@ -62,12 +63,13 @@ public class EmailCacheStorage {
 		this.lastSyncDate = new Date(0);
 		this.lastSyncKey = "";
 	}
-	
+
 	public UserTransaction getUserTransaction() {
 		return OBMPoolActivator.getDefault().getUserTransaction();
 	}
 
-	public MailChanges computeChanges(Set<Long> oldUids, Set<Long> fetched, Set<Long> lastUpdate) {
+	public MailChanges computeChanges(Set<Long> oldUids, Set<Long> fetched,
+			Set<Long> lastUpdate) {
 		Set<Long> removed = new HashSet<Long>();
 		Set<Long> old = new HashSet<Long>();
 		if (oldUids != null) {
@@ -78,7 +80,7 @@ public class EmailCacheStorage {
 
 		Set<Long> updated = new HashSet<Long>();
 		updated.addAll(lastUpdate);
-		updated.removeAll(old);
+		// updated.removeAll(old);
 
 		MailChanges mc = new MailChanges();
 		mc.setUpdated(updated);
@@ -127,13 +129,26 @@ public class EmailCacheStorage {
 
 	private Set<Long> loadMailFromIMAP(BackendSession bs,
 			StoreClient imapStore, String mailBox, Date lastUpdate) {
+		long time = System.currentTimeMillis();
 		Set<Long> mails = new HashSet<Long>();
 		try {
 			if (imapStore.login()) {
 				imapStore.select(mailBox);
+				// imapStore.uidSearch return messages whose internal date
+				// (disregarding time and timezone)
+				// is within or later than the specified date.
 				long[] uids = imapStore.uidSearch(new SearchQuery(lastUpdate));
-				for (long uid : uids) {
-					mails.add(Long.valueOf(uid));
+				if (lastUpdate != null && !lastUpdate.equals(new Date(0))) {
+					InternalDate[] tabID = imapStore.uidFetchInternalDate(uids);
+					for (InternalDate id : tabID) {
+						if (id.after(lastUpdate)) {
+							mails.add(Long.valueOf(id.getUid()));
+						}
+					}
+				} else {
+					for (long uid : uids) {
+						mails.add(Long.valueOf(uid));
+					}
 				}
 			}
 		} catch (Throwable e) {
@@ -145,7 +160,11 @@ public class EmailCacheStorage {
 				logger.error(e.getMessage(), e);
 			}
 		}
-		logger.info(mails.size() +" mails arrived since "+lastUpdate);
+		if (logger.isDebugEnabled()) {
+			time = System.currentTimeMillis() - time;
+			logger.debug(debugName + " loadMailFromIMAP() in " + time + "ms.");
+		}
+		logger.info(mails.size() + " mails arrived since " + lastUpdate);
 		return mails;
 	}
 
@@ -190,7 +209,7 @@ public class EmailCacheStorage {
 				del.addBatch();
 			}
 			del.executeBatch();
-			
+
 			insert = con
 					.prepareStatement("INSERT INTO opush_sync_mail (collection_id, device_id, mail_uid) VALUES (?, ?, ?)");
 			for (Long l : toInsert) {
@@ -214,14 +233,12 @@ public class EmailCacheStorage {
 			BackendSession bs, Integer collectionId, String mailBox)
 			throws InterruptedException, SQLException {
 		long time = System.currentTimeMillis();
-		Set<Long> memoryCache = loadMailFromDb(bs, devId, collectionId);
 		long ct = System.currentTimeMillis();
+		Set<Long> memoryCache = loadMailFromDb(bs, devId, collectionId);
 		ct = System.currentTimeMillis() - ct;
-		long upd = System.currentTimeMillis();
-		Set<Long> current = loadMailFromIMAP(bs, imapStore, mailBox, null);
-		upd = System.currentTimeMillis() - upd;
 
 		long writeTime = System.currentTimeMillis();
+		Set<Long> current = loadMailFromIMAP(bs, imapStore, mailBox, null);
 		if (!current.equals(memoryCache)) {
 			updateDbCache(bs, devId, collectionId, current);
 		} else if (bs.getState().getLastSync() != null
@@ -230,19 +247,21 @@ public class EmailCacheStorage {
 				&& bs.getState().getKey().equals(this.lastSyncKey)) {
 			return this.mailChangesCache;
 		}
-
 		writeTime = System.currentTimeMillis() - writeTime;
-		
-		Set<Long> lastUp = loadMailFromIMAP(bs, imapStore, mailBox, bs.getState().getLastSync());
+
+		long computeChangesTime = System.currentTimeMillis();
+		Set<Long> lastUp = loadMailFromIMAP(bs, imapStore, mailBox, bs
+				.getState().getLastSync());
 		MailChanges sync = computeChanges(memoryCache, current, lastUp);
 		this.mailChangesCache = sync;
-
+		computeChangesTime = System.currentTimeMillis() - computeChangesTime;
 		time = System.currentTimeMillis() - time;
 		logger.info("[" + bs.getLoginAtDomain() + "]: collectionId ["
 				+ collectionId + "] "
 				+ (sync.getUpdated().size() + sync.getRemoved().size())
 				+ " changes found. (" + time + "ms (loadCache: " + ct
-				+ "ms, updCache: " + upd + "ms))");
+				+ "ms, updCache: " + writeTime + "ms, computeChanges: "
+				+ computeChangesTime + "ms))");
 
 		memoryCache = current;
 		this.lastSyncKey = bs.getState().getKey();
