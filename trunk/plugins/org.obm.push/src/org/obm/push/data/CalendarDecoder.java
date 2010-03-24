@@ -189,8 +189,8 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		if (body != null) {
 			Element data = DOMUtils.getUniqueElement(body, "Data");
 			if (data != null) {
-				Type bodyType = Type.valueOf(DOMUtils.getUniqueElement(body,
-						"Type").getTextContent());
+				Type bodyType = Type.fromInt(Integer.parseInt(DOMUtils.getUniqueElement(body,
+						"Type").getTextContent()));
 				String txt = data.getTextContent();
 				if (bodyType == Type.PLAIN_TEXT) {
 					calendar.setDescription(data.getTextContent());

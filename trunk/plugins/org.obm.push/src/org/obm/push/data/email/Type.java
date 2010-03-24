@@ -23,4 +23,19 @@ public enum Type {
 		}
 	}
 
+	public static Type fromInt(int i) {
+		switch (i) {
+		case 2:
+			return HTML;
+		case 3:
+			return RTF;
+		case 4:
+			return MIME;
+
+		case 1:
+		default:
+			return PLAIN_TEXT;
+		}
+	}
+
 }
