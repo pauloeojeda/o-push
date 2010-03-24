@@ -3,8 +3,9 @@ package org.obm.push.data;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.Utils;
-import org.obm.push.backend.MSContact;
 import org.obm.push.backend.IApplicationData;
+import org.obm.push.backend.MSContact;
+import org.obm.push.data.email.Type;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
@@ -23,7 +24,6 @@ import org.w3c.dom.Element;
 
 public class ContactsDecoder extends Decoder implements IDataDecoder {
 
-	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(SyncHandler.class);
 
 	@Override
@@ -160,6 +160,23 @@ public class ContactsDecoder extends Decoder implements IDataDecoder {
 		contact.setData(parseDOMString(DOMUtils.getUniqueElement(syncData,
 				"Data")));
 
+		Element body = DOMUtils.getUniqueElement(syncData, "Body");
+		if (body != null) {
+			Element data = DOMUtils.getUniqueElement(body, "Data");
+			if (data != null) {
+				Type bodyType = Type.fromInt(Integer.parseInt(DOMUtils.getUniqueElement(body,
+						"Type").getTextContent()));
+				String txt = data.getTextContent();
+				if (bodyType == Type.PLAIN_TEXT) {
+					contact.setData(data.getTextContent());
+				} else if (bodyType == Type.RTF) {
+					contact.setData(Utils.extractB64CompressedRTF(txt));
+				} else {
+					logger.warn("Unsupported body type: " + bodyType + "\n"
+							+ txt);
+				}
+			}
+		} 
 		Element rtf = DOMUtils.getUniqueElement(syncData, "CompressedRTF");
 		if (rtf != null) {
 			String txt = rtf.getTextContent();
