@@ -35,7 +35,7 @@ import org.obm.sync.calendar.RecurrenceKind;
  */
 public class EventConverter {
 
-	@SuppressWarnings("unused")
+//	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(EventConverter.class);
 
 	public MSEvent convertEvent(Event e) {
@@ -58,11 +58,10 @@ public class EventConverter {
 		c.add(Calendar.SECOND, e.getDuration());
 		mse.setEndTime(c.getTime());
 
-		List<MSAttendee> l = new LinkedList<MSAttendee>();
 		for (Attendee at : e.getAttendees()) {
-			l.add(convertAttendee(at));
+			mse.addAttendee(convertAttendee(at));
 		}
-		mse.setAttendees(l);
+		
 
 		mse.setOrganizerName(e.getOwner());
 		mse.setAllDayEvent(e.isAllday());
@@ -282,7 +281,6 @@ public class EventConverter {
 	}
 
 	private AttendeeType type(ParticipationRole required) {
-		// TODO Auto-generated method stub
 		return AttendeeType.REQUIRED;
 	}
 
@@ -312,7 +310,6 @@ public class EventConverter {
 	public Event convertEvent(MSEvent data) {
 		Event e = convertEventOne(null, data);
 		e.setExtId(data.getUID());
-
 		if (data.getRecurrence() != null) {
 			EventRecurrence r = getRecurrence(data);
 			e.setRecurrence(r);
@@ -416,10 +413,14 @@ public class EventConverter {
 		ret.setEmail(at.getEmail());
 		ret.setRequired(ParticipationRole.REQ);
 		ret.setState(status(at.getAttendeeStatus()));
+		logger.info("Add attendee "+ret.getEmail()+" "+ret.getDisplayName() +" "+at.getAttendeeStatus());
 		return ret;
 	}
 
 	private ParticipationState status(AttendeeStatus attendeeStatus) {
+		if(attendeeStatus == null){
+			return ParticipationState.NEEDSACTION; 
+		}
 		switch (attendeeStatus) {
 		case DECLINE:
 			return ParticipationState.DECLINED;

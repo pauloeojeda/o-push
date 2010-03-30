@@ -43,16 +43,37 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 
 		containerNode = DOMUtils.getUniqueElement(syncData, "Attendees");
 		if (containerNode != null) {
-			ArrayList<MSAttendee> attendees = new ArrayList<MSAttendee>();
+			// <Attendee>
+			// <AttendeeName>noIn TheDatabase</AttendeeName>
+			// <AttendeeEmail>notin@mydb.com</AttendeeEmail>
+			// <AttendeeType>1</AttendeeType>
+			// </Attendee>
+			// <Attendee>
+			// <AttendeeName>Fff Tt</AttendeeName>
+			// <AttendeeEmail>ff@tt.com</AttendeeEmail>
+			// <AttendeeType>2</AttendeeType>
+			// </Attendee>
+			
 			for (int i = 0, n = containerNode.getChildNodes().getLength(); i < n; i += 1) {
 				Element subnode = (Element) containerNode.getChildNodes().item(
 						i);
 				MSAttendee attendee = new MSAttendee();
-
-				attendee.setEmail(parseDOMString(DOMUtils.getUniqueElement(
-						subnode, "Email")));
-				attendee.setName(parseDOMString(DOMUtils.getUniqueElement(
-						subnode, "Name")));
+				
+				String email = parseDOMString(DOMUtils.getUniqueElement(
+						subnode, "Email"));
+				if(email == null || "".equals(email)){
+					email = parseDOMString(DOMUtils.getUniqueElement(
+							subnode, "AttendeeEmail"));
+				}
+				attendee.setEmail(email);
+				
+				String name = parseDOMString(DOMUtils.getUniqueElement(
+						subnode, "Name"));
+				if(name == null || "".equals(name)){
+					name = parseDOMString(DOMUtils.getUniqueElement(
+							subnode, "AttendeeName"));
+				}
+				attendee.setName(name);
 
 				switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(syncData,
 						"AttendeeStatus"))) {
@@ -95,11 +116,11 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 					logger.info("parse attendeeStatus: "
 							+ attendee.getAttendeeType());
 				}
+				calendar.addAttendee(attendee);
 			}
-			calendar.setAttendees(attendees);
 		}
+		
 		// Exceptions
-
 		containerNode = DOMUtils.getUniqueElement(syncData, "Exceptions");
 		if (containerNode != null) {
 			ArrayList<MSEvent> exceptions = new ArrayList<MSEvent>();

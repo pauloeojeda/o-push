@@ -1,6 +1,5 @@
 package org.obm.push.backend.obm22.calendar;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -158,21 +157,20 @@ public class CalendarBackend extends ObmSyncBackend {
 			id = serverId;
 		}
 
-		if (data.getAttendees() == null || data.getAttendees().isEmpty()) {
-			String email = bs.getLoginAtDomain();
-			try {
-				email = cc.getUserEmail(token);
-			} catch (Exception e) {
-				logger.error("Error finding email: " + e.getMessage(), e);
-			}
-			List<MSAttendee> msal = new ArrayList<MSAttendee>(1);
-			MSAttendee at = new MSAttendee();
-			at.setEmail(email);
-			at.setAttendeeStatus(AttendeeStatus.ACCEPT);
-			at.setAttendeeType(AttendeeType.REQUIRED);
-			msal.add(at);
-			data.setAttendees(msal);
+		String email = bs.getLoginAtDomain();
+		try {
+			email = cc.getUserEmail(token);
+		} catch (Exception e) {
+			logger.error("Error finding email: " + e.getMessage(), e);
 		}
+		
+		MSAttendee at = new MSAttendee();
+		at.setEmail(email);
+		at.setAttendeeStatus(AttendeeStatus.ACCEPT);
+		at.setAttendeeType(AttendeeType.REQUIRED);
+		
+		data.addAttendee(at);
+		
 		Event event = new EventConverter().convertEvent(data);
 		if (id != null) {
 			int idx = id.lastIndexOf(":");
