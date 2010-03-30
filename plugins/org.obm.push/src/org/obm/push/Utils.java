@@ -24,16 +24,17 @@ public class Utils {
 	}
 
 	public static String extractB64CompressedRTF(String b64) {
-		String ret = null;
+		String ret = "";
 		try {
 			byte[] bin = Base64.decode(b64.toCharArray());
+			if (bin.length > 0) {
+				ByteArrayInputStream in = new ByteArrayInputStream(bin);
+				CompressedRTFInputStream cin = new CompressedRTFInputStream(in);
 
-			ByteArrayInputStream in = new ByteArrayInputStream(bin);
-			CompressedRTFInputStream cin = new CompressedRTFInputStream(in);
-
-			String rtfDecompressed = FileUtils.streamString(cin, true);
-			ret = extractRtfText(new ByteArrayInputStream(rtfDecompressed
-					.getBytes()));
+				String rtfDecompressed = FileUtils.streamString(cin, true);
+				ret = extractRtfText(new ByteArrayInputStream(rtfDecompressed
+						.getBytes()));
+			}
 		} catch (Exception e) {
 			logger.error("error extracting compressed rtf", e);
 		}
@@ -42,11 +43,11 @@ public class Utils {
 
 	private static String extractRtfText(InputStream stream)
 			throws IOException, BadLocationException {
-			RTFEditorKit kit = new RTFEditorKit();
-			Document doc = kit.createDefaultDocument();
-			kit.read(stream, doc, 0);
+		RTFEditorKit kit = new RTFEditorKit();
+		Document doc = kit.createDefaultDocument();
+		kit.read(stream, doc, 0);
 
-			return doc.getText(0, doc.getLength());
+		return doc.getText(0, doc.getLength());
 	}
 
 }
