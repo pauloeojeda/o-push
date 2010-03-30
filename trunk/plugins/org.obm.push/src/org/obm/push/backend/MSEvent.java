@@ -1,7 +1,9 @@
 package org.obm.push.backend;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.obm.push.data.calendarenum.CalendarBusyStatus;
@@ -24,7 +26,7 @@ public class MSEvent implements IApplicationData {
 	private CalendarSensitivity sensitivity;
 	private CalendarMeetingStatus meetingStatus;
 	private Integer reminder;
-	private List<MSAttendee> attendees;
+	private Set<MSAttendee> attendees;
 	private List<String> categories;
 	private Recurrence recurrence;
 	private List<MSEvent> exceptions;
@@ -32,6 +34,10 @@ public class MSEvent implements IApplicationData {
 	private Date exceptionStartTime;
 	private boolean deletedException;
 	private String obmUID;
+	
+	public MSEvent(){
+		this.attendees = new HashSet<MSAttendee>();
+	}
 
 	public TimeZone getTimeZone() {
 		return timeZone;
@@ -121,13 +127,19 @@ public class MSEvent implements IApplicationData {
 		this.reminder = reminder;
 	}
 
-	public List<MSAttendee> getAttendees() {
+	public Set<MSAttendee> getAttendees() {
 		return attendees;
 	}
-
-	public void setAttendees(List<MSAttendee> attendees) {
-		this.attendees = attendees;
+	
+	public void addAttendee(MSAttendee att) {
+		if(!attendees.contains(att)){
+			attendees.add(att);
+		}
 	}
+
+//	public void setAttendees(Set<MSAttendee> attendees) {
+//		this.attendees = attendees;
+//	}
 
 	public List<String> getCategories() {
 		return categories;
