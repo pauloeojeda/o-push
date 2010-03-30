@@ -13,6 +13,7 @@ public class SyncState {
 
 	
 	private Date lastSync;
+	private Boolean lastSyncFiltred;
 	private String key;
 
 	public SyncState() {
@@ -20,6 +21,7 @@ public class SyncState {
 		cal.set(Calendar.YEAR, 1970);
 		cal.set(Calendar.MONTH, Calendar.JANUARY);
 		lastSync = cal.getTime();
+		lastSyncFiltred = false;
 	}
 	
 	public Date getLastSync() {
@@ -44,6 +46,13 @@ public class SyncState {
 	public void setKey(String key) {
 		this.key = key;
 	}
-	
+
+	public Boolean isLastSyncFiltred() {
+		return lastSyncFiltred;
+	}
+
+	public void setLastSyncFiltred(Boolean lastSyncFiltred) {
+		this.lastSyncFiltred = lastSyncFiltred;
+	}
 	
 }

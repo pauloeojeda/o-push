@@ -48,7 +48,7 @@ public class CalendarBackend extends ObmSyncBackend {
 			}
 			ic.setServerId(serverId);
 			ic.setParentId("0");
-			ic.setDisplayName(bs.getLoginAtDomain()+" calendar");
+			ic.setDisplayName(bs.getLoginAtDomain() + " calendar");
 			ic.setItemType(FolderType.DEFAULT_CALENDAR_FOLDER);
 			ret.add(ic);
 			return ret;
@@ -95,20 +95,27 @@ public class CalendarBackend extends ObmSyncBackend {
 				"o-push");
 		String calendar = parseCalendarId(collection);
 		try {
-			EventChanges changes = cc.getSync(token, calendar, ls);
+			EventChanges changes = null;
+			if (bs.getState().isLastSyncFiltred()) {
+				changes = cc.getSyncEventDate(token, calendar, ls);
+			} else {
+				changes = cc.getSync(token, calendar, ls);
+			}
 			Event[] evs = changes.getUpdated();
 			for (Event e : evs) {
-				if(e.getRecurrenceId() == null){
+				if (e.getRecurrenceId() == null) {
 					ItemChange change = addCalendarChange(bs.getDevId(),
-						collection, e);
+							collection, e);
 					addUpd.add(change);
 				}
 			}
 			for (String del : changes.getRemoved()) {
 				deletions.add(getDeletion(bs, collection, del));
 			}
-			
-			bs.addUpdatedSyncDate(getCollectionIdFor(bs.getDevId(), collection), changes.getLastSync());
+
+			bs.addUpdatedSyncDate(
+					getCollectionIdFor(bs.getDevId(), collection), changes
+							.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -138,7 +145,8 @@ public class CalendarBackend extends ObmSyncBackend {
 	}
 
 	public String createOrUpdate(BackendSession bs, String collectionId,
-			String serverId, String clientId, MSEvent data) throws ActiveSyncException {
+			String serverId, String clientId, MSEvent data)
+			throws ActiveSyncException {
 		logger.info("createOrUpdate(" + bs.getLoginAtDomain() + ", "
 				+ collectionId + ", " + serverId + ", " + clientId + ", "
 				+ data.getSubject() + ")");
@@ -228,8 +236,8 @@ public class CalendarBackend extends ObmSyncBackend {
 
 			Event event = new EventConverter().convertEvent(data);
 			event = calCli.modifyEvent(at, calendar, event, true);
-			return getServerIdFor(bs.getDevId(), getDefaultCalendarName(bs) + "",
-					event.getUid());
+			return getServerIdFor(bs.getDevId(), getDefaultCalendarName(bs)
+					+ "", event.getUid());
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
