@@ -107,6 +107,7 @@ public class ContentsExporter implements IContentsExporter {
 			if (bs.getState().getLastSync() != null
 					&& cal.getTime().after(bs.getState().getLastSync())) {
 				bs.getState().setLastSync(cal.getTime());
+				bs.getState().setLastSyncFiltred(true);
 			}
 		}
 	}
