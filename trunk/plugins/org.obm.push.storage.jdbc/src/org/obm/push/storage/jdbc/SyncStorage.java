@@ -126,7 +126,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public void updateLastHearbeat(String devId, long hearbeat) {
+	public synchronized void updateLastHearbeat(String devId, long hearbeat) {
 		int id = devIdCache.get(devId);
 
 		Connection con = null;
@@ -270,7 +270,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public void updateState(String devId, Integer collectionId,
+	public synchronized void updateState(String devId, Integer collectionId,
 			SyncState oldState, SyncState state) {
 		int id = devIdCache.get(devId);
 		Connection con = null;
@@ -400,7 +400,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public void resetForFullSync(String devId) {
+	public synchronized void resetForFullSync(String devId) {
 		int id = devIdCache.get(devId);
 
 		Connection con = null;
@@ -428,7 +428,7 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public void resetCollection(String devId, Integer collectionId) {
+	public synchronized void resetCollection(String devId, Integer collectionId) {
 		int id = devIdCache.get(devId);
 
 		Connection con = null;
