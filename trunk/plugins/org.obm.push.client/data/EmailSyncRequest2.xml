@@ -6,7 +6,6 @@
 			<CollectionId>245</CollectionId>
 			<GetChanges />
 			<WindowSize>50</WindowSize>
-			<WindowSize>100</WindowSize>
 			<Options>
 				<FilterType>1</FilterType>
 			</Options>

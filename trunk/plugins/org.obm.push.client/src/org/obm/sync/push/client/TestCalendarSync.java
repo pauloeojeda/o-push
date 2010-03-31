@@ -10,7 +10,7 @@ import org.w3c.dom.NodeList;
 
 public class TestCalendarSync extends AbstractPushTest {
 
-	public void testCalSync() throws Exception {
+	public void testSync() throws Exception {
 		InputStream in = loadDataFile("FolderSyncRequest.xml");
 		Document doc = DOMUtils.parse(in);
 		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
@@ -130,8 +130,8 @@ public class TestCalendarSync extends AbstractPushTest {
 		ret = postXml("AirSync", doc, "Sync");
 		assertNotNull(ret);
 
-		sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
-				"SyncKey").getTextContent();
+		sk = DOMUtils.getUniqueElement(ret.getDocumentElement(), "SyncKey")
+				.getTextContent();
 
 		in = loadDataFile("CalSyncAdd.xml");
 		doc = DOMUtils.parse(in);
@@ -152,4 +152,68 @@ public class TestCalendarSync extends AbstractPushTest {
 		assertTrue(nl.getLength() > 0);
 
 	}
+
+	public void testCalDelete() throws Exception {
+		InputStream in = loadDataFile("FolderSyncRequest.xml");
+		Document doc = DOMUtils.parse(in);
+		Document ret = postXml25("FolderHierarchy", doc, "FolderSync");
+		assertNotNull(ret);
+
+		in = loadDataFile("CalSyncRequest.xml");
+		doc = DOMUtils.parse(in);
+		Element synckeyElem = DOMUtils.getUniqueElement(doc
+				.getDocumentElement(), "SyncKey");
+		synckeyElem.setTextContent("0");
+		DOMUtils.logDom(doc);
+		ret = postXml25("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
+				"SyncKey").getTextContent();
+
+		in = loadDataFile("CalSyncDelete1.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"SyncKey");
+		synckeyElem.setTextContent(sk);
+		Element cliidElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"ClientId");
+		String clientId = "" + new Random().nextInt(999999999);
+		cliidElem.setTextContent(clientId);
+		DOMUtils.logDom(doc);
+		ret = postXml25("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+		NodeList nl = ret.getDocumentElement().getElementsByTagName("Add");
+		String servId = null;
+		for (int i = 0; i < nl.getLength(); i++) {
+			if (nl.item(i) instanceof Element) {
+				Element elem = (Element) nl.item(i);
+				String cliId = DOMUtils.getElementText(elem, "ClientId");
+				if (clientId.equals(cliId)) {
+					servId = DOMUtils.getElementText(elem, "ServerId");
+					break;
+				}
+			}
+		}
+		if(servId == null){
+			fail();
+		}
+		sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
+		"SyncKey").getTextContent();
+		
+		in = loadDataFile("CalSyncDelete2.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"SyncKey");
+		synckeyElem.setTextContent(sk);
+		Element servIdElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"ServerId");
+		servIdElem.setTextContent(servId);
+		DOMUtils.logDom(doc);
+		ret = postXml25("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+	}
+
 }
