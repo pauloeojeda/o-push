@@ -8,6 +8,7 @@ import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSContact;
+import org.obm.push.backend.SearchResult;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.store.ISyncStorage;
@@ -45,14 +46,14 @@ public class ContactsBackend extends ObmSyncBackend {
 
 		ItemChange ic = new ItemChange();
 		String col = "obm:\\\\" + bs.getLoginAtDomain() + "\\contacts";
-		String serverId ;
+		String serverId;
 		try {
 			serverId = getServerIdFor(bs.getDevId(), col, null);
 		} catch (ActiveSyncException e) {
 			serverId = createCollectionMapping(bs.getDevId(), col);
 			ic.setIsNew(true);
 		}
-		
+
 		ic.setServerId(serverId);
 		ic.setParentId("0");
 		ic.setDisplayName(bs.getLoginAtDomain() + " contacts");
@@ -72,7 +73,7 @@ public class ContactsBackend extends ObmSyncBackend {
 		try {
 			ContactChanges changes = bc.getSync(token, BookType.contacts, bs
 					.getState().getLastSync());
-			
+
 			long time = System.currentTimeMillis();
 			for (Contact c : changes.getUpdated()) {
 				ItemChange change = getContactChange(bs, collection, c);
@@ -87,7 +88,9 @@ public class ContactsBackend extends ObmSyncBackend {
 
 			time = System.currentTimeMillis() - time;
 
-			bs.addUpdatedSyncDate(getCollectionIdFor(bs.getDevId(), collection), changes.getLastSync());
+			bs.addUpdatedSyncDate(
+					getCollectionIdFor(bs.getDevId(), collection), changes
+							.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -107,7 +110,8 @@ public class ContactsBackend extends ObmSyncBackend {
 	}
 
 	public String createOrUpdate(BackendSession bs, String collectionId,
-			String serverId, String clientId, MSContact data) throws ActiveSyncException {
+			String serverId, String clientId, MSContact data)
+			throws ActiveSyncException {
 		logger.info("create in " + collectionId + " (contact: "
 				+ data.getFirstName() + " " + data.getLastName() + ")");
 		BookClient bc = getBookClient(bs);
@@ -153,5 +157,23 @@ public class ContactsBackend extends ObmSyncBackend {
 				bc.logout(token);
 			}
 		}
+	}
+
+	public List<SearchResult> search(BackendSession bs, String query,
+			Integer rangeLower, Integer rangeUpper) {
+		BookClient bc = getBookClient(bs);
+		AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(),
+				"o-push");
+		List<SearchResult> ret = new LinkedList<SearchResult>();
+		ContactConverter cc = new ContactConverter();
+		try {
+			List<Contact> contacts = bc.searchContact(token, query, rangeUpper);
+			for(Contact contact : contacts){
+				ret.add(cc.convertToSearchResult(contact));
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return ret;
 	}
 }

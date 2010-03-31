@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.MSContact;
+import org.obm.push.backend.SearchResult;
 import org.obm.sync.book.Address;
 import org.obm.sync.book.Contact;
 import org.obm.sync.book.Email;
@@ -163,7 +164,6 @@ public class ContactConverter {
 	 * @param c
 	 * @return
 	 */
-
 	public Contact contact(MSContact c) {
 		Contact oc = new Contact();
 		// JobTitle
@@ -255,9 +255,10 @@ public class ContactConverter {
 
 	private void addAddress(Contact oc, String lbl, String street,
 			String postalCode, String city, String country, String state) {
-		if(!isEmpty(street) && !isEmpty(postalCode) && !isEmpty(city) && !isEmpty(country) && !isEmpty(state)){
-			oc.addAddress(lbl, new Address(street, postalCode, null, city, country,
-				state));
+		if (!isEmpty(street) && !isEmpty(postalCode) && !isEmpty(city)
+				&& !isEmpty(country) && !isEmpty(state)) {
+			oc.addAddress(lbl, new Address(street, postalCode, null, city,
+					country, state));
 		}
 	}
 
@@ -275,6 +276,25 @@ public class ContactConverter {
 
 	private boolean isEmpty(String s) {
 		return s == null || s.isEmpty();
+	}
+	
+	public SearchResult convertToSearchResult(Contact c) {
+		SearchResult sr = new SearchResult();
+		sr.setAlias(c.getAka());
+		sr.setCompany(c.getCompany());
+		sr.setDisplayName(c.getFirstname()+" "+c.getLastname());
+		if(c.getEmails().values().iterator().hasNext()){
+			sr.setEmailAddress(c.getEmails().values().iterator().next().getEmail());
+		}
+		sr.setFirstName(c.getFirstname());
+		sr.setLastName(c.getLastname());
+		sr.setHomePhone(obmPhone(c, "HOME;VOICE;X-OBM-Ref1"));
+		sr.setMobilePhone(obmPhone(c, "CELL;VOICE;X-OBM-Ref1"));
+		sr.setOffice(c.getService());
+		sr.setPhone(obmPhone(c, "WORK;VOICE;X-OBM-Ref1"));
+		sr.setTitle(c.getTitle());
+		
+		return sr;
 	}
 
 }

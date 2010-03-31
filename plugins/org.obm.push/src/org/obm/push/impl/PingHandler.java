@@ -166,7 +166,6 @@ public class PingHandler extends WbxmlRequestHandler implements
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
-
 	}
 
 }
