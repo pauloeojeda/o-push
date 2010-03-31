@@ -7,24 +7,26 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class TestSearch extends AbstractPushTest {
-
-	public void testSearchIphone() throws Exception {
+	
+	public void testSearchWM() throws Exception {
 		optionsQuery();
 
-		InputStream in = loadDataFile("SearchRequestIphone.xml");
+		InputStream in = loadDataFile("SearchRequestWM.xml");
 		Document doc = DOMUtils.parse(in);
-		Document ret = postXml25("Search", doc, "Search");
+		Element query = DOMUtils.getUniqueElement(doc.getDocumentElement(), "Query");
+		query.setTextContent("Meddd");
+		Document ret = postXml120("Search", doc, "Search");
 		assertNotNull(ret);
 	}
 	
-	public void testSearchWM65() throws Exception {
+	public void testSearchError() throws Exception {
 		optionsQuery();
 
-		InputStream in = loadDataFile("SearchRequestWM65.xml");
+		InputStream in = loadDataFile("SearchRequestError.xml");
 		Document doc = DOMUtils.parse(in);
 		Element query = DOMUtils.getUniqueElement(doc.getDocumentElement(), "Query");
-		query.setTextContent("Me");
-		Document ret = postXml("Search", doc, "Search");
+		query.setTextContent("Meddd");
+		Document ret = postXml120("Search", doc, "Search");
 		assertNotNull(ret);
 	}
 
