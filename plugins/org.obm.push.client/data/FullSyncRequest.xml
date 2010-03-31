@@ -3,19 +3,19 @@
 	<Collections>
 		<Collection>
 			<SyncKey>0</SyncKey>
-			<CollectionId>1</CollectionId>
+			<CollectionId>245</CollectionId>
 		</Collection>
 		<Collection>
 			<SyncKey>0</SyncKey>
-			<CollectionId>2</CollectionId>
+			<CollectionId>246</CollectionId>
 		</Collection>
 		<Collection>
 			<SyncKey>0</SyncKey>
-			<CollectionId>12</CollectionId>
+			<CollectionId>247</CollectionId>
 		</Collection>
 		<Collection>
 			<SyncKey>0</SyncKey>
-			<CollectionId>11</CollectionId>
+			<CollectionId>248</CollectionId>
 		</Collection>
 	</Collections>
 </Sync>
