@@ -13,7 +13,9 @@ import org.obm.push.backend.ItemChange;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
+import org.obm.sync.client.book.BookClient;
 import org.obm.sync.client.calendar.CalendarClient;
+import org.obm.sync.locators.AddressBookLocator;
 import org.obm.sync.locators.CalendarLocator;
 
 import fr.aliasource.utils.JDBCUtils;
@@ -43,6 +45,16 @@ public class ObmSyncBackend {
 		CalendarClient calCli = cl.locate("http://" + obmSyncHost
 				+ ":8080/obm-sync/services");
 		return calCli;
+	}
+	
+	protected BookClient getBookClient(BackendSession bs) {
+		AddressBookLocator abl = new AddressBookLocator();
+		if (obmSyncHost == null) {
+			locateObmSync(bs.getLoginAtDomain());
+		}
+		BookClient bookCli = abl.locate("http://" + obmSyncHost
+				+ ":8080/obm-sync/services");
+		return bookCli;
 	}
 
 	protected ItemChange getDeletion(BackendSession bs, String collection,

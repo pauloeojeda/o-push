@@ -31,7 +31,4 @@ public interface IContentsExporter {
 			String attachmentName);
 
 	boolean validatePassword(String userID, String password);
-
-	List<SearchResult> search(BackendSession bs, StoreName storeName, String query,
-			Integer rangeLower, Integer rangeUpper);
 }

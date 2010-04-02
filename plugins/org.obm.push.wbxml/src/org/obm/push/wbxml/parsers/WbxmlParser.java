@@ -314,7 +314,7 @@ public class WbxmlParser {
 			return readStrT();
 		}
 		if (idx < 0 || tab == null || idx >= tab.length || tab[idx] == null) {
-			throw new SAXException("id " + id + " undef. tab: " + tab);
+			throw new SAXException("id " + id + " idx "+idx+" undef. tab: " + tab);
 		}
 
 		String ret = tab[idx];

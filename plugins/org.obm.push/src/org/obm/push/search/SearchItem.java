@@ -1,4 +1,5 @@
-package org.obm.push.backend;
+package org.obm.push.search;
+
 
 /**
  * 

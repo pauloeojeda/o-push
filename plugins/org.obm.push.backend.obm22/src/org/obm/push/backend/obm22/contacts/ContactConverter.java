@@ -5,7 +5,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.MSContact;
-import org.obm.push.backend.SearchResult;
+import org.obm.push.search.SearchResult;
 import org.obm.sync.book.Address;
 import org.obm.sync.book.Contact;
 import org.obm.sync.book.Email;

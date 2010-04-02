@@ -60,6 +60,7 @@
       <plugin id="org.obm.locator.client"/>
       <plugin id="org.obm.push"/>
       <plugin id="org.obm.push.backend.obm22"/>
+      <plugin id="org.obm.push.search.ldap"/>
       <plugin id="org.obm.push.storage.jdbc"/>
       <plugin id="org.obm.push.utils"/>
       <plugin id="org.obm.push.wbxml"/>

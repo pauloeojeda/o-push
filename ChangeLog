@@ -1,3 +1,87 @@
+2010-04-02  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Search in ldap and obm-sync works
+
+	* plugins/org.obm.push.backend.obm22/plugin.xml:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter),
+	(ContentsExporter.validatePassword):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactConverter.java:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java: (ContactsBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmSyncBackend.java: (ObmSyncBackend),
+	(ObmSyncBackend.getBookClient):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/search/ObmSearchContact.java: (ObmSearchContact),
+	(ObmSearchContact.ObmSearchContact),
+	(ObmSearchContact.getStoreName), (ObmSearchContact.search),
+	(ObmSearchContact.getBookClient), (ObmSearchContact.locateObmSync):
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/Abstract
+	PushTest.java: (AbstractPushTest.setUp):
+	* plugins/org.obm.push.search.ldap/.classpath:
+	* plugins/org.obm.push.search.ldap/.project:
+	* plugins/org.obm.push.search.ldap/.settings/org.eclipse.jdt.core.p
+	refs:
+	* plugins/org.obm.push.search.ldap/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push.search.ldap/build.properties:
+	* plugins/org.obm.push.search.ldap/plugin.xml:
+	* plugins/org.obm.push.search.ldap/src/org/obm/push/searchsource/ld
+	ap/Activator.java: (Activator), (Activator.Activator),
+	(Activator.start), (Activator.stop), (Activator.getDefault):
+	* plugins/org.obm.push.search.ldap/src/org/obm/push/searchsource/ld
+	ap/BookSource.java: (BookSource), (BookSource.BookSource),
+	(BookSource.uniqueAttribute), (BookSource.getStoreName),
+	(BookSource.search):
+	* plugins/org.obm.push.search.ldap/src/org/obm/push/searchsource/ld
+	ap/Configuration.java: (Configuration),
+	(Configuration.Configuration), (Configuration.getConnection),
+	(Configuration.init), (Configuration.getBaseDn),
+	(Configuration.getFilter), (Configuration.cleanup):
+	* plugins/org.obm.push.utils/src/org/obm/push/utils/IniFile.java:
+	(IniFile), (IniFile.IniFile), (IniFile.getSetting),
+	(IniFile.getData), (IniFile.loadIniFile):
+	* plugins/org.obm.push.utils/src/org/obm/push/utils/LdapUtils.java:
+	(LdapUtils), (LdapUtils.LdapUtils), (LdapUtils.getAttributes):
+	* plugins/org.obm.push/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push/plugin.xml:
+	* plugins/org.obm.push/push.product:
+	* plugins/org.obm.push/schema/org.minig.push.search.exsd:
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/SearchItem.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/SearchResult.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/StoreName.java:
+	* plugins/org.obm.push/src/org/obm/push/impl/SearchHandler.java:
+	(SearchHandler), (SearchHandler.SearchHandler),
+	(SearchHandler.process), (SearchHandler.appendSearchResult),
+	(SearchHandler.registerSources), (SearchHandler.addRegisterSource),
+	(SearchHandler.search):
+	* plugins/org.obm.push/src/org/obm/push/search/ISearchSource.java:
+	(ISearchSource):
+	* plugins/org.obm.push/src/org/obm/push/search/SearchItem.java:
+	(SearchItem), (SearchItem.getStoreName), (SearchItem.setStoreName),
+	(SearchItem.getQuery), (SearchItem.setQuery),
+	(SearchItem.getRangeLower), (SearchItem.setRangeLower),
+	(SearchItem.getRangeUpper), (SearchItem.setRangeUpper):
+	* plugins/org.obm.push/src/org/obm/push/search/SearchResult.java:
+	(SearchResult), (SearchResult.getDisplayName),
+	(SearchResult.setDisplayName), (SearchResult.getAlias),
+	(SearchResult.setAlias), (SearchResult.getEmailAddress),
+	(SearchResult.setEmailAddress), (SearchResult.getFirstName),
+	(SearchResult.setFirstName), (SearchResult.getLastName),
+	(SearchResult.setLastName), (SearchResult.getPhone),
+	(SearchResult.setPhone), (SearchResult.getOffice),
+	(SearchResult.setOffice), (SearchResult.getTitle),
+	(SearchResult.setTitle), (SearchResult.getCompany),
+	(SearchResult.setCompany), (SearchResult.getHomePhone),
+	(SearchResult.setHomePhone), (SearchResult.getMobilePhone),
+	(SearchResult.setMobilePhone):
+	* plugins/org.obm.push/src/org/obm/push/search/StoreName.java:
+
 2010-01-26  Adrien POUPARD  <adrien.poupard@aliasource.fr>
 
 	Decoding Command Parameters of a base64-encoded query	

@@ -1,6 +1,5 @@
 package org.obm.push.backend.obm22;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,8 +14,6 @@ import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSAttachementData;
 import org.obm.push.backend.PIMDataType;
-import org.obm.push.backend.SearchResult;
-import org.obm.push.backend.StoreName;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
@@ -29,7 +26,6 @@ public class ContentsExporter implements IContentsExporter {
 
 	private MailBackend mailBackend;
 	private CalendarBackend calBackend;
-
 	private ContactsBackend contactsBackend;
 
 	public ContentsExporter(MailBackend mailBackend,
@@ -199,21 +195,5 @@ public class ContentsExporter implements IContentsExporter {
 	@Override
 	public boolean validatePassword(String loginAtDomain, String password) {
 		return calBackend.validatePassword(loginAtDomain, password);
-	}
-
-	@Override
-	public List<SearchResult> search(BackendSession bs, StoreName storeName, String query,
-			Integer rangeLower, Integer rangeUpper) {
-		switch (storeName) {
-		case GAL:
-			return contactsBackend.search(bs, query,rangeLower, rangeUpper);	
-		case DocumentLibrary:
-			break;
-		case Mailbox:
-			break;
-		default:
-			break;
-		}
-		return new ArrayList<SearchResult>(0);
 	}
 }

@@ -8,7 +8,6 @@ import org.obm.push.backend.DataDelta;
 import org.obm.push.backend.FolderType;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSContact;
-import org.obm.push.backend.SearchResult;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.store.ISyncStorage;
@@ -17,7 +16,6 @@ import org.obm.sync.book.BookType;
 import org.obm.sync.book.Contact;
 import org.obm.sync.client.book.BookClient;
 import org.obm.sync.items.ContactChanges;
-import org.obm.sync.locators.AddressBookLocator;
 
 /**
  * OBM contacts backend implementation
@@ -29,16 +27,6 @@ public class ContactsBackend extends ObmSyncBackend {
 
 	public ContactsBackend(ISyncStorage storage) {
 		super(storage);
-	}
-
-	private BookClient getBookClient(BackendSession bs) {
-		AddressBookLocator abl = new AddressBookLocator();
-		if (obmSyncHost == null) {
-			locateObmSync(bs.getLoginAtDomain());
-		}
-		BookClient bookCli = abl.locate("http://" + obmSyncHost
-				+ ":8080/obm-sync/services");
-		return bookCli;
 	}
 
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
@@ -159,21 +147,4 @@ public class ContactsBackend extends ObmSyncBackend {
 		}
 	}
 
-	public List<SearchResult> search(BackendSession bs, String query,
-			Integer rangeLower, Integer rangeUpper) {
-		BookClient bc = getBookClient(bs);
-		AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(),
-				"o-push");
-		List<SearchResult> ret = new LinkedList<SearchResult>();
-		ContactConverter cc = new ContactConverter();
-		try {
-			List<Contact> contacts = bc.searchContact(token, query, rangeUpper);
-			for(Contact contact : contacts){
-				ret.add(cc.convertToSearchResult(contact));
-			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-		return ret;
-	}
 }
