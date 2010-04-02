@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
  * 
  */
 public class SearchHandler extends WbxmlRequestHandler {
-	
+
 	private Map<StoreName, Set<ISearchSource>> sources;
 
 	public SearchHandler(IBackend backend) {
@@ -43,9 +43,9 @@ public class SearchHandler extends WbxmlRequestHandler {
 				+ ")");
 		try {
 			SearchItem searchItem = processSearch(doc.getDocumentElement());
-			
-			List<SearchResult> results = search(bs, searchItem
-					.getStoreName(), searchItem.getQuery(), 1000);
+
+			List<SearchResult> results = search(bs, searchItem.getStoreName(),
+					searchItem.getQuery(), 1000);
 
 			Document search = DOMUtils.createDoc(null, "Search");
 			Element r = search.getDocumentElement();
@@ -56,15 +56,23 @@ public class SearchHandler extends WbxmlRequestHandler {
 			DOMUtils.createElementAndText(store, "Status", SearchStatus.SUCCESS
 					.asXmlValue());
 			if (results.size() > 0) {
-				for (int i = searchItem.getRangeLower(); i<=searchItem.getRangeUpper()&&i<results.size();i++) {
+				for (int i = searchItem.getRangeLower(); i <= searchItem
+						.getRangeUpper()
+						&& i < results.size(); i++) {
 					SearchResult result = results.get(i);
 					Element er = DOMUtils.createElement(store, "Result");
 					Element properties = DOMUtils.createElement(er,
 							"Properties");
-					appendSearchResult(properties,result);
+					appendSearchResult(properties, result);
 				}
-				DOMUtils.createElementAndText(store, "Range", searchItem.getRangeLower()+"-"
-						+ (results.size()>searchItem.getRangeUpper()? searchItem.getRangeUpper() :  results.size() - 1));
+				DOMUtils
+						.createElementAndText(store, "Range",
+								searchItem.getRangeLower()
+										+ "-"
+										+ (results.size() > searchItem
+												.getRangeUpper() ? searchItem
+												.getRangeUpper() : results
+												.size() - 1));
 				DOMUtils.createElementAndText(store, "Total", ""
 						+ results.size());
 			} else {
@@ -75,7 +83,7 @@ public class SearchHandler extends WbxmlRequestHandler {
 		} catch (XMLValidationException e) {
 			sendError(responder, SearchStatus.PROTOCOL_VIOLATION);
 		} catch (Exception e) {
-			logger.error("Error creating search response",e);
+			logger.error("Error creating search response", e);
 		}
 	}
 
@@ -86,8 +94,7 @@ public class SearchHandler extends WbxmlRequestHandler {
 				.asXmlValue());
 		Element resp = DOMUtils.createElement(r, "Response");
 		Element store = DOMUtils.createElement(resp, "Store");
-		DOMUtils.createElementAndText(store, "Status", error
-				.asXmlValue());
+		DOMUtils.createElementAndText(store, "Status", error.asXmlValue());
 
 		try {
 			responder.sendResponse("Search", search);
@@ -95,59 +102,59 @@ public class SearchHandler extends WbxmlRequestHandler {
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
+
 	private void appendSearchResult(Element properties, SearchResult result) {
 		if (ne(result.getDisplayName())) {
-			DOMUtils.createElementAndText(properties,
-					"GAL:DisplayName", result.getDisplayName());
+			DOMUtils.createElementAndText(properties, "GAL:DisplayName", result
+					.getDisplayName());
 		}
 		if (ne(result.getAlias())) {
-			DOMUtils.createElementAndText(properties, "GAL:Alias",
-					result.getAlias());
+			DOMUtils.createElementAndText(properties, "GAL:Alias", result
+					.getAlias());
 		}
 		if (ne(result.getFirstName())) {
-			DOMUtils.createElementAndText(properties, "GAL:FirstName",
-					result.getFirstName());
+			DOMUtils.createElementAndText(properties, "GAL:FirstName", result
+					.getFirstName());
 		}
 		if (ne(result.getLastName())) {
-			DOMUtils.createElementAndText(properties, "GAL:LastName",
-					result.getLastName());
+			DOMUtils.createElementAndText(properties, "GAL:LastName", result
+					.getLastName());
 		}
 		if (ne(result.getEmailAddress())) {
-			DOMUtils.createElementAndText(properties,
-					"GAL:EmailAddress", result.getEmailAddress());
+			DOMUtils.createElementAndText(properties, "GAL:EmailAddress",
+					result.getEmailAddress());
 		}
-		
+
 		if (ne(result.getCompany())) {
-			DOMUtils.createElementAndText(properties,
-					"GAL:Company", result.getCompany());
+			DOMUtils.createElementAndText(properties, "GAL:Company", result
+					.getCompany());
 		}
-		
+
 		if (ne(result.getHomePhone())) {
-			DOMUtils.createElementAndText(properties,
-					"GAL:HomePhone", result.getHomePhone());
+			DOMUtils.createElementAndText(properties, "GAL:HomePhone", result
+					.getHomePhone());
 		}
-		
+
 		if (ne(result.getMobilePhone())) {
-			DOMUtils.createElementAndText(properties,
-					"GAL:MobilePhone", result.getMobilePhone());
+			DOMUtils.createElementAndText(properties, "GAL:MobilePhone", result
+					.getMobilePhone());
 		}
-		
+
 		if (ne(result.getOffice())) {
-			DOMUtils.createElementAndText(properties,
-					"GAL:Office", result.getOffice());
+			DOMUtils.createElementAndText(properties, "GAL:Office", result
+					.getOffice());
 		}
-		
+
 		if (ne(result.getPhone())) {
-			DOMUtils.createElementAndText(properties,
-					"GAL:Phone", result.getPhone());
+			DOMUtils.createElementAndText(properties, "GAL:Phone", result
+					.getPhone());
 		}
-		
+
 		if (ne(result.getTitle())) {
-			DOMUtils.createElementAndText(properties,
-					"GAL:Title", result.getTitle());
+			DOMUtils.createElementAndText(properties, "GAL:Title", result
+					.getTitle());
 		}
-		
+
 	}
 
 	private SearchItem processSearch(Element documentElement)
@@ -183,35 +190,36 @@ public class SearchHandler extends WbxmlRequestHandler {
 	private boolean ne(String value) {
 		return value != null && !"".equals(value);
 	}
-	
+
 	private void registerSources() {
 		RunnableExtensionLoader<ISearchSource> rel = new RunnableExtensionLoader<ISearchSource>();
-		List<ISearchSource> bs = rel.loadExtensions("org.obm.push",
-				"search", "search", "implementation");
+		List<ISearchSource> bs = rel.loadExtensions("org.obm.push", "search",
+				"search", "implementation");
 		for (ISearchSource ibs : bs) {
 			addRegisterSource(ibs.getStoreName(), ibs);
 		}
 	}
-	
-	private void addRegisterSource(StoreName key, ISearchSource value){
+
+	private void addRegisterSource(StoreName key, ISearchSource value) {
 		Set<ISearchSource> set = this.sources.get(key);
-		if(set == null){
-			if(logger.isDebugEnabled()){
-				logger.debug("Add "+value.getClass().getName()+" in search sources for store "+key);
+		if (set == null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Add " + value.getClass().getName()
+						+ " in search sources for store " + key);
 			}
 			set = new HashSet<ISearchSource>();
 			this.sources.put(key, set);
 		}
 		set.add(value);
 	}
-	
-	public List<SearchResult> search(BackendSession bs, StoreName store, String query,
-			Integer limit) {
+
+	public List<SearchResult> search(BackendSession bs, StoreName store,
+			String query, Integer limit) {
 		List<SearchResult> ret = new LinkedList<SearchResult>();
-		for(ISearchSource source : sources.get(store)){
+		for (ISearchSource source : sources.get(store)) {
 			ret.addAll(source.search(bs, query, limit));
 		}
 		return ret;
 	}
-	
+
 }
