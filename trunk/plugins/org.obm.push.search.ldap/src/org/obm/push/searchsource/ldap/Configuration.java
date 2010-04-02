@@ -11,6 +11,8 @@ import org.apache.commons.logging.LogFactory;
 import org.obm.push.utils.IniFile;
 
 class Configuration {
+	
+	private static final String LDAP_CONF_FILE = "/etc/opush/ldap_conf.ini"; 
 
 	private static final String SEARCH_LDAP_URL = "search.ldap.url";
 	private static final String SEARCH_LDAP_BASE = "search.ldap.basedn";
@@ -24,7 +26,7 @@ class Configuration {
 
 	public Configuration() {
 		logger = LogFactory.getLog(getClass());
-		IniFile ini = new IniFile("/etc/opush/opush_conf.ini") {
+		IniFile ini = new IniFile(LDAP_CONF_FILE) {
 			@Override
 			public String getCategory() {
 				return null;
@@ -46,12 +48,15 @@ class Configuration {
 		String url = ini.getData().get(SEARCH_LDAP_URL);
 		baseDn = ini.getData().get(SEARCH_LDAP_BASE);
 		filter = ini.getData().get(SEARCH_LDAP_FILTER);
-
+		
+		env = new Properties();
 		if (url != null && baseDn != null && filter != null) {
 			validConf = true;
+		} else {
+			logger.error("Can not find data in file "+LDAP_CONF_FILE+", research in ldap will not be activated");
+			return;
 		}
-
-		env = new Properties();
+		
 		env.put("java.naming.factory.initial",
 				"com.sun.jndi.ldap.LdapCtxFactory");
 		env.put("java.naming.provider.url", url);
@@ -76,6 +81,10 @@ class Configuration {
 			} catch (NamingException e) {
 			}
 		}
+	}
+	
+	public boolean isValid(){
+		return validConf;
 	}
 
 }
