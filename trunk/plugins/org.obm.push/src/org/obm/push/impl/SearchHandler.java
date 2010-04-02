@@ -1,16 +1,22 @@
 package org.obm.push.impl;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
-import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContinuation;
-import org.obm.push.backend.SearchItem;
-import org.obm.push.backend.SearchResult;
-import org.obm.push.backend.StoreName;
 import org.obm.push.exception.XMLValidationException;
+import org.obm.push.search.ISearchSource;
+import org.obm.push.search.SearchItem;
+import org.obm.push.search.SearchResult;
+import org.obm.push.search.StoreName;
 import org.obm.push.utils.DOMUtils;
+import org.obm.push.utils.RunnableExtensionLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -21,9 +27,13 @@ import org.w3c.dom.Element;
  * 
  */
 public class SearchHandler extends WbxmlRequestHandler {
+	
+	private Map<StoreName, Set<ISearchSource>> sources;
 
 	public SearchHandler(IBackend backend) {
 		super(backend);
+		sources = new HashMap<StoreName, Set<ISearchSource>>();
+		registerSources();
 	}
 
 	@Override
@@ -32,11 +42,10 @@ public class SearchHandler extends WbxmlRequestHandler {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 		try {
-			IContentsExporter export = backend.getContentsExporter(bs);
 			SearchItem searchItem = processSearch(doc.getDocumentElement());
-
-			List<SearchResult> results = export.search(bs, searchItem
-					.getStoreName(), searchItem.getQuery(), 0, 1000);
+			
+			List<SearchResult> results = search(bs, searchItem
+					.getStoreName(), searchItem.getQuery(), 1000);
 
 			Document search = DOMUtils.createDoc(null, "Search");
 			Element r = search.getDocumentElement();
@@ -48,7 +57,6 @@ public class SearchHandler extends WbxmlRequestHandler {
 					.asXmlValue());
 			if (results.size() > 0) {
 				for (int i = searchItem.getRangeLower(); i<=searchItem.getRangeUpper()&&i<results.size();i++) {
-					logger.info("i: "+i);
 					SearchResult result = results.get(i);
 					Element er = DOMUtils.createElement(store, "Result");
 					Element properties = DOMUtils.createElement(er,
@@ -135,7 +143,7 @@ public class SearchHandler extends WbxmlRequestHandler {
 					"GAL:Phone", result.getPhone());
 		}
 		
-		if (ne(result.getDisplayName())) {
+		if (ne(result.getTitle())) {
 			DOMUtils.createElementAndText(properties,
 					"GAL:Title", result.getTitle());
 		}
@@ -175,5 +183,35 @@ public class SearchHandler extends WbxmlRequestHandler {
 	private boolean ne(String value) {
 		return value != null && !"".equals(value);
 	}
-
+	
+	private void registerSources() {
+		RunnableExtensionLoader<ISearchSource> rel = new RunnableExtensionLoader<ISearchSource>();
+		List<ISearchSource> bs = rel.loadExtensions("org.obm.push",
+				"search", "search", "implementation");
+		for (ISearchSource ibs : bs) {
+			addRegisterSource(ibs.getStoreName(), ibs);
+		}
+	}
+	
+	private void addRegisterSource(StoreName key, ISearchSource value){
+		Set<ISearchSource> set = this.sources.get(key);
+		if(set == null){
+			if(logger.isDebugEnabled()){
+				logger.debug("Add "+value.getClass().getName()+" in search sources for store "+key);
+			}
+			set = new HashSet<ISearchSource>();
+			this.sources.put(key, set);
+		}
+		set.add(value);
+	}
+	
+	public List<SearchResult> search(BackendSession bs, StoreName store, String query,
+			Integer limit) {
+		List<SearchResult> ret = new LinkedList<SearchResult>();
+		for(ISearchSource source : sources.get(store)){
+			ret.addAll(source.search(bs, query, limit));
+		}
+		return ret;
+	}
+	
 }

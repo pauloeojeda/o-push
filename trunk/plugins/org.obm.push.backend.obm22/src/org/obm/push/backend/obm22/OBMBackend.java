@@ -54,7 +54,7 @@ public class OBMBackend implements IBackend {
 		MailBackend mailBackend = new MailBackend(store);
 		CalendarBackend calendarBackend = new CalendarBackend(store);
 		ContactsBackend contactsBackend = new ContactsBackend(store);
-		TasksBackend tasksBackend = new TasksBackend(store); 
+		TasksBackend tasksBackend = new TasksBackend(store);
 		this.store = store;
 
 		hImporter = new HierarchyImporter();

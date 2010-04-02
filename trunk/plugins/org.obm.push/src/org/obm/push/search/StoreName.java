@@ -1,4 +1,4 @@
-package org.obm.push.backend;
+package org.obm.push.search;
 
 import org.obm.push.exception.XMLValidationException;
 
