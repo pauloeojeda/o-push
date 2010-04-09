@@ -386,7 +386,7 @@ public class TagsTables {
 			"MaxAmbiguousRecipients", // 0x14
 			"CertificateCount", // 0x15
 	};
-	
+
 	/**
 	 * ValidateCert
 	 */
@@ -553,8 +553,7 @@ public class TagsTables {
 			"Type", // 0x06
 			"TruncationSize", // 0x07
 			"AllOrNone", // 0x08
-			"UNDEFINED_IN_MICROSOFT_SPEC",
-			"Body", // 0x0A
+			"UNDEFINED_IN_MICROSOFT_SPEC", "Body", // 0x0A
 			"Data", // 0x0B
 			"EstimatedDataSize", // 0x0C
 			"Truncated", // 0x0D
@@ -602,6 +601,12 @@ public class TagsTables {
 			"UserInformation", // 0x1D
 			"EmailAddresses", // 0x1E
 			"SmtpAddress", // 0x1F
+
+			// Exchange 2k10
+			"UserAgent", // 0x20
+			"EnableOutboundSMS", // 0x21
+			"MobileOperator", // 0x22
+
 	};
 
 	/**
