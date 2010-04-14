@@ -63,10 +63,10 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		IContinuationHandler {
 
 	public static final Integer SYNC_TRUNCATION_ALL = 9;
-	private static Set<IContinuation> waitContinuationCache;
+	private static Map<Integer, IContinuation> waitContinuationCache;
 
 	static {
-		waitContinuationCache = new HashSet<IContinuation>();
+		waitContinuationCache = new HashMap<Integer, IContinuation>();
 	}
 
 	private Map<String, IDataDecoder> decoders;
@@ -99,8 +99,18 @@ public class SyncHandler extends WbxmlRequestHandler implements
 
 				for (int i = 0; i < nl.getLength(); i++) {
 					Element col = (Element) nl.item(i);
-					collections.add(processCollection(bs, sm, col,
-							processedClientIds));
+					SyncCollection collec = processCollection(bs, sm, col,
+							processedClientIds);
+					collections.add(collec);
+
+					// Disables last push request
+					IContinuation cont = waitContinuationCache.get(collec
+							.getCollectionId());
+					if (cont != null) {
+						logger.info("Collection[" + collec.getCollectionId()
+								+ "]Disables last push request ");
+						cont.error(SyncStatus.NEED_RETRY.asXmlValue());
+					}
 				}
 
 				wait = DOMUtils.getElementText(query, "Wait");
@@ -116,11 +126,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 							Element root = reply.getDocumentElement();
 							// Status 13
 							// The client sent an empty or partial Sync request,
-							// but
-							// the
-							// server is unable to process it. Please resend the
-							// request
-							// with the full XML
+							// but the server is unable to process it. Please
+							// resend the request with the full XML
 							// TODO Cache in database last collections monitored
 							DOMUtils.createElementAndText(root, "Status",
 									SyncStatus.PARTIAL_REQUEST.asXmlValue());
@@ -187,7 +194,11 @@ public class SyncHandler extends WbxmlRequestHandler implements
 				IListenerRegistration reg = backend.addChangeListener(l);
 				continuation.setListenerRegistration(reg);
 				continuation.setCollectionChangeListener(l);
-				waitContinuationCache.add(continuation);
+				for (SyncCollection sc : collections) {
+					waitContinuationCache.put(sc.getCollectionId(),
+							continuation);
+				}
+
 				logger.info("suspend for " + secs + " seconds");
 				synchronized (bs) {
 					// logger
@@ -494,15 +505,6 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		if (dd != null) {
 			if (syncData != null) {
 				data = dd.decode(syncData);
-				for (IContinuation cont : waitContinuationCache) {
-					for (SyncCollection colLis : cont
-							.getCollectionChangeListener()
-							.getMonitoredCollections()) {
-						if (colLis.getCollectionId().equals(col)) {
-							cont.error(SyncStatus.NEED_RETRY.asXmlValue());
-						}
-					}
-				}
 			}
 			if (modType.equals("Modify")) {
 				if (data.isRead()) {
@@ -600,7 +602,6 @@ public class SyncHandler extends WbxmlRequestHandler implements
 								SyncStatus.INVALID_SYNC_KEY.asXmlValue());
 						DOMUtils.createElementAndText(ce, "SyncKey", "0");
 					} else {
-
 						Element sk = DOMUtils.createElement(ce, "SyncKey");
 						DOMUtils.createElementAndText(ce, "CollectionId", c
 								.getCollectionId().toString());
@@ -609,6 +610,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 						int col = c.getCollectionId();
 						String colStr = backend.getStore().getCollectionPath(
 								col);
+
 						if (!syncKey.equals("0")) {
 							IContentsExporter cex = backend
 									.getContentsExporter(bs);
