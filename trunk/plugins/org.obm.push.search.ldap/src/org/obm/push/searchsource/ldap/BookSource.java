@@ -36,7 +36,6 @@ public class BookSource implements ISearchSource {
 
 	@Override
 	public StoreName getStoreName() {
-		// TODO Auto-generated method stub
 		return StoreName.GAL;
 	}
 
@@ -57,12 +56,13 @@ public class BookSource implements ISearchSource {
 						domain));
 				List<Map<String, List<String>>> l = u.getAttributes(conf
 						.getFilter(), query, new String[] { "cn", "sn",
-						"givenName", "mail" });
+						"givenName", "mail", "telephoneNumber", "mobile" });
 				l = l.subList(0, Math.min(limit, l.size()));
 				for (Map<String, List<String>> m : l) {
 					String sn = uniqueAttribute("sn", m);
 					String givenName = uniqueAttribute("givenName", m);
 					String cn = uniqueAttribute("cn", m);
+					List<String> phones = m.get("telephoneNumber");
 					if (sn.length() == 0 || givenName.length() == 0) {
 						sn = cn;
 						givenName = "";
@@ -71,6 +71,15 @@ public class BookSource implements ISearchSource {
 					sr.setDisplayName(givenName + " " + sn);
 					sr.setLastName(sn);
 					sr.setFirstName(givenName);
+					if (phones != null) {
+						if (phones.size() > 0) {
+							sr.setPhone(phones.get(0));
+						}
+						if (phones.size() > 1) {
+							sr.setHomePhone(phones.get(1));
+						}
+					}
+					sr.setMobilePhone(uniqueAttribute("mobile", m));
 					List<String> mails = m.get("mail");
 					if (mails.iterator().hasNext()) {
 						sr.setEmailAddress(mails.iterator().next());
