@@ -52,7 +52,7 @@ public class BookSource implements ISearchSource {
 			}
 			try {
 				ctx = conf.getConnection();
-				LdapUtils u = new LdapUtils(ctx, conf.getBaseDn().replace("%d",
+				LdapUtils u = new LdapUtils(ctx, conf.getBaseDn().replaceAll("%d",
 						domain));
 				List<Map<String, List<String>>> l = u.getAttributes(conf
 						.getFilter(), query, new String[] { "cn", "sn",
@@ -81,7 +81,7 @@ public class BookSource implements ISearchSource {
 					}
 					sr.setMobilePhone(uniqueAttribute("mobile", m));
 					List<String> mails = m.get("mail");
-					if (mails.iterator().hasNext()) {
+					if (mails !=null && mails.iterator().hasNext()) {
 						sr.setEmailAddress(mails.iterator().next());
 					}
 					ret.add(sr);
