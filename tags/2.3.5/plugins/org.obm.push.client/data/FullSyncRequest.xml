@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sync>
+	<Collections>
+		<Collection>
+			<SyncKey>0</SyncKey>
+			<CollectionId>245</CollectionId>
+		</Collection>
+		<Collection>
+			<SyncKey>0</SyncKey>
+			<CollectionId>246</CollectionId>
+		</Collection>
+		<Collection>
+			<SyncKey>0</SyncKey>
+			<CollectionId>247</CollectionId>
+		</Collection>
+		<Collection>
+			<SyncKey>0</SyncKey>
+			<CollectionId>248</CollectionId>
+		</Collection>
+	</Collections>
+</Sync>

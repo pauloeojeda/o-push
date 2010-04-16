@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sync xmlns="AirSync:" xmlns:AirSyncBase="AirSyncBase:">
+	<Collections>
+		<Collection>
+			<SyncKey>FILL_ME</SyncKey>
+			<CollectionId>245</CollectionId>
+			<GetChanges />
+			<WindowSize>50</WindowSize>
+			<Options>
+				<FilterType>1</FilterType>
+			</Options>
+		</Collection>
+	</Collections>
+</Sync>
