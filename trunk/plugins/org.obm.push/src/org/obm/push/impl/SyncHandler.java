@@ -282,10 +282,12 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		// client has requested the addition of a resource that already exists
 		// on the server
 		for (String entry : processedClientIds.values()) {
-			Element add = DOMUtils.createElement(responses, "Add");
-			DOMUtils.createElementAndText(add, "ClientId", entry);
-			DOMUtils.createElementAndText(add, "Status",
-					SyncStatus.CONVERSATION_ERROR.asXmlValue());
+			if (entry != null) {
+				Element add = DOMUtils.createElement(responses, "Add");
+				DOMUtils.createElementAndText(add, "ClientId", entry);
+				DOMUtils.createElementAndText(add, "Status",
+						SyncStatus.CONVERSATION_ERROR.asXmlValue());
+			}
 		}
 		if (delta != null) {
 			List<ItemChange> del = delta.getDeletions();
