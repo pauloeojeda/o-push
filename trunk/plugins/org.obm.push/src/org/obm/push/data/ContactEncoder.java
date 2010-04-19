@@ -7,6 +7,7 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSContact;
 import org.obm.push.backend.SyncCollection;
+import org.obm.push.data.email.Type;
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Element;
 
@@ -119,8 +120,16 @@ public class ContactEncoder implements IDataEncoder {
 		
 		if (bs.getProtocolVersion() > 12) {
 			Element body = DOMUtils.createElement(parent, "AirSyncBase:Body");
-			e(body, "AirSyncBase:Type", "1");
+			e(body, "AirSyncBase:Type", Type.PLAIN_TEXT.toString());
 			e(body, "AirSyncBase:Data", c.getData());
+			e(body, "AirSyncBase:EstimatedDataSize", c.getData());
+			DOMUtils.createElementAndText(body, "AirSyncBase:EstimatedDataSize",
+					c.getData() != null ? ""
+							+ c.getData().length() : "0");
+			if (c.getData() != null
+					&& c.getData().length() > 0) {
+				DOMUtils.createElementAndText(body, "AirSyncBase:Data", c.getData());
+			}
 			e(parent, "AirSyncBase:NativeBodyType", "3");
 		} else {
 			if(c.getData() != null && c.getData().length()>0){
