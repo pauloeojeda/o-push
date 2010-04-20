@@ -125,21 +125,20 @@ public class ContactEncoder implements IDataEncoder {
 			e(body, "AirSyncBase:EstimatedDataSize", c.getData());
 			DOMUtils.createElementAndText(body, "AirSyncBase:EstimatedDataSize",
 					c.getData() != null ? ""
-							+ c.getData().length() : "0");
+							+ c.getData().trim().length() : "0");
 			if (c.getData() != null
 					&& c.getData().length() > 0) {
-				DOMUtils.createElementAndText(body, "AirSyncBase:Data", c.getData());
+				//Nokia bug when the body contains only \r\n
+				DOMUtils.createElementAndText(body, "AirSyncBase:Data", c.getData().trim());
 			}
 			e(parent, "AirSyncBase:NativeBodyType", "3");
 		} else {
 			if(c.getData() != null && c.getData().length()>0){
-				e(parent, "Contacts:BodySize", ""+c.getData().length());
-				e(parent, "Contacts:Body", c.getData());
+				e(parent, "Contacts:BodySize", ""+c.getData().trim().length());
+				e(parent, "Contacts:Body", c.getData().trim());
 			}
 		}
 
-
-		
 		// DOMUtils.createElement(parent, "Contacts:Picture");
 	}
 
