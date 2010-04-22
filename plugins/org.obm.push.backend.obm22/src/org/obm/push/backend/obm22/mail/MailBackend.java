@@ -336,20 +336,22 @@ public class MailBackend extends ObmSyncBackend {
 		if (attachmentId != null && !attachmentId.isEmpty()) {
 			Map<String, String> parsedAttId = AttachmentHelper
 					.parseAttachmentId(attachmentId);
-			String collectionId = parsedAttId
-					.get(AttachmentHelper.COLLECTION_ID);
-			String messageId = parsedAttId.get(AttachmentHelper.MESSAGE_ID);
-			String mimePartAddress = parsedAttId
-					.get(AttachmentHelper.MIME_PART_ADDRESS);
-			String contentType = parsedAttId.get(AttachmentHelper.CONTENT_TYPE);
-			String contentTransferEncoding = parsedAttId
-					.get(AttachmentHelper.CONTENT_TRANSFERE_ENCODING);
-			logger.info("attachmentId= [collectionId:" + collectionId
-					+ "] [emailUid" + messageId + "] [mimePartAddress:"
-					+ mimePartAddress + "] [contentType" + contentType
-					+ "] [contentTransferEncoding" + contentTransferEncoding
-					+ "]");
 			try {
+				String collectionId = parsedAttId
+						.get(AttachmentHelper.COLLECTION_ID);
+				String messageId = parsedAttId.get(AttachmentHelper.MESSAGE_ID);
+				String mimePartAddress = parsedAttId
+						.get(AttachmentHelper.MIME_PART_ADDRESS);
+				String contentType = parsedAttId
+						.get(AttachmentHelper.CONTENT_TYPE);
+				String contentTransferEncoding = parsedAttId
+						.get(AttachmentHelper.CONTENT_TRANSFERE_ENCODING);
+				logger.info("attachmentId= [collectionId:" + collectionId
+						+ "] [emailUid" + messageId + "] [mimePartAddress:"
+						+ mimePartAddress + "] [contentType" + contentType
+						+ "] [contentTransferEncoding"
+						+ contentTransferEncoding + "]");
+
 				String collectionName = getCollectionNameFor(Integer
 						.parseInt(collectionId));
 				InputStream is = emailManager.findAttachment(bs,
@@ -372,7 +374,7 @@ public class MailBackend extends ObmSyncBackend {
 
 				return new MSAttachementData(contentType,
 						new ByteArrayInputStream(rawData));
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
