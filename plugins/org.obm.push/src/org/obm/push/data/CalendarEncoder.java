@@ -199,6 +199,7 @@ public class CalendarEncoder implements IDataEncoder {
 					&& event.getDescription().length() > 0) {
 				DOMUtils.createElementAndText(d, "AirSyncBase:Data", event
 						.getDescription());
+				
 			}
 		} else {
 			if (event.getDescription() != null

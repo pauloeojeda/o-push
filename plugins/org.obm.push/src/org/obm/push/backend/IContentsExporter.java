@@ -3,6 +3,7 @@ package org.obm.push.backend;
 import java.util.List;
 
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.state.SyncState;
 
 /**
@@ -28,7 +29,11 @@ public interface IContentsExporter {
 			throws ActiveSyncException;
 
 	MSAttachementData getEmailAttachement(BackendSession bs,
-			String attachmentName);
+			String attachmentName) throws ObjectNotFoundException;
 
 	boolean validatePassword(String userID, String password);
+
+	public List<ItemChange> fetchMails(BackendSession bs, List<String> fetchServerIds)
+			throws ActiveSyncException;
+
 }

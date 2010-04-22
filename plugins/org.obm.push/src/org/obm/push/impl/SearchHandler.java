@@ -38,7 +38,7 @@ public class SearchHandler extends WbxmlRequestHandler {
 
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
-			Document doc, Responder responder) {
+			Document doc, ActiveSyncRequest request, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 		try {

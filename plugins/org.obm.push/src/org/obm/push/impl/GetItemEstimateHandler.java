@@ -26,7 +26,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
-			Document doc, Responder responder) {
+			Document doc, ActiveSyncRequest request, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 		List<SyncCollection> cols = new LinkedList<SyncCollection>();
@@ -57,7 +57,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 		StateMachine sm = new StateMachine(backend.getStore());
 		Document rep = DOMUtils.createDoc(null, "GetItemEstimate");
 		Element root = rep.getDocumentElement();
-	
+
 		for (SyncCollection c : cols) {
 			Element response = DOMUtils.createElement(root, "Response");
 			String collectionId = null;
@@ -68,10 +68,12 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 				if (collectionId != null) {
 					SyncState state = sm.getSyncState(c.getSyncKey());
 					if (!state.isValid()) {
-							buildError(response, c.getCollectionId().toString(), GetItemEstimateStatus.INVALID_SYNC_KEY);
+						buildError(response, c.getCollectionId().toString(),
+								GetItemEstimateStatus.INVALID_SYNC_KEY);
 					} else {
 						DOMUtils.createElementAndText(response, "Status", "1");
-						Element ce = DOMUtils.createElement(response, "Collection");
+						Element ce = DOMUtils.createElement(response,
+								"Collection");
 						if (c.getDataClass() != null) {
 							DOMUtils.createElementAndText(ce, "Class", c
 									.getDataClass());
@@ -82,8 +84,8 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 
 						IContentsExporter exporter = backend
 								.getContentsExporter(bs);
-						exporter.configure(bs, c.getDataClass(), c.getFilterType(),
-								state, collectionId);
+						exporter.configure(bs, c.getDataClass(), c
+								.getFilterType(), state, collectionId);
 						int count = exporter.getCount(bs, c.getFilterType(),
 								collectionId)
 								+ bs.getUnSynchronizedItemChange(
@@ -96,12 +98,13 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 					logger.warn("no mapping for collection with id "
 							+ c.getCollectionId());
 					throw new CollectionNotFoundException();
-					
+
 				}
 			} catch (CollectionNotFoundException e) {
-					buildError(response, c.getCollectionId().toString(), GetItemEstimateStatus.INVALID_COLLECTION);
+				buildError(response, c.getCollectionId().toString(),
+						GetItemEstimateStatus.INVALID_COLLECTION);
 			}
-			
+
 		}
 		try {
 			responder.sendResponse("ItemEstimate", rep);
@@ -110,7 +113,8 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 		}
 	}
 
-	private void buildError(Element response, String collectionId, GetItemEstimateStatus status) {
+	private void buildError(Element response, String collectionId,
+			GetItemEstimateStatus status) {
 		DOMUtils.createElementAndText(response, "Status", status.asXmlValue());
 		Element ce = DOMUtils.createElement(response, "Collection");
 		DOMUtils.createElementAndText(ce, "CollectionId", collectionId);

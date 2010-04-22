@@ -1,3 +1,79 @@
+2010-04-21  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	ItemOperations works	
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter.fetch),
+	(ContentsExporter), (ContentsExporter.fetchMails),
+	(ContentsExporter.getEmailAttachement):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend.getCollectionIdFor),
+	(MailBackend.getAttachment):
+	* plugins/org.obm.push.tests/src/org/obm/push/tests/Base64QueryStri
+	ngTests.java: (Base64QueryStringTests.testBase64QueryString):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.getActiveSyncRequest), (ActiveSyncServlet.init):
+	* plugins/org.obm.push/src/org/obm/push/Base64QueryString.java:
+	(Base64QueryString), (Base64QueryString.Base64QueryString),
+	(Base64QueryString.getHeader):
+	* plugins/org.obm.push/src/org/obm/push/SimpleQueryString.java:
+	(SimpleQueryString), (SimpleQueryString.getHeader):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/SyncCollection.java
+	: (SyncCollection), (SyncCollection.SyncCollection),
+	(SyncCollection.getBodyPreferences),
+	(SyncCollection.getBodyPreference),
+	(SyncCollection.addBodyPreference):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder.encodeBody):
+	* plugins/org.obm.push/src/org/obm/push/data/EmailEncoder.java:
+	(EmailEncoder.appendBody25), (EmailEncoder.appendBody),
+	(EmailEncoder.getAvailableFormat), (EmailEncoder.getBodyData):
+	* plugins/org.obm.push/src/org/obm/push/exception/ObjectNotFoundExc
+	eption.java: (ObjectNotFoundException):
+	* plugins/org.obm.push/src/org/obm/push/impl/ActiveSyncRequest.java
+	: (ActiveSyncRequest):
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process), (FolderSyncHandler),
+	(FolderSyncHandler.sendError):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetAttachmentHandler.j
+	ava: (GetAttachmentHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process), (GetItemEstimateHandler),
+	(GetItemEstimateHandler.buildError):
+	* plugins/org.obm.push/src/org/obm/push/impl/ItemOperationsHandler.
+	java: (ItemOperationsHandler),
+	(ItemOperationsHandler.ItemOperationsHandler),
+	(ItemOperationsHandler.process),
+	(ItemOperationsHandler.processMailboxFetch),
+	(ItemOperationsHandler.processMailFetch),
+	(ItemOperationsHandler.processFileReferenceFetch):
+	* plugins/org.obm.push/src/org/obm/push/impl/ItemOperationsStatus.j
+	ava:
+	* plugins/org.obm.push/src/org/obm/push/impl/MeetingResponseHandler
+	.java: (MeetingResponseHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/MoveItemsHandler.java:
+	(MoveItemsHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/ProvisionHandler.java:
+	(ProvisionHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/Responder.java:
+	(Responder.sendError), (Responder.sendNoChangeResponse),
+	(Responder), (Responder.sendMSSyncMultipartResponse),
+	(Responder.intToInverseByteArray):
+	* plugins/org.obm.push/src/org/obm/push/impl/SearchHandler.java:
+	(SearchHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SettingsHandler.java:
+	(SettingsHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler..process), (SyncHandler..doFetch),
+	(SyncHandler..decodeCollection), (SyncHandler..processResponse):
+	* plugins/org.obm.push/src/org/obm/push/impl/WbxmlRequestHandler.ja
+	va: (WbxmlRequestHandler.process), (WbxmlRequestHandler):
+	* sample/ldap_conf.ini:
+
 2010-04-02  Adrien POUPARD  <adrien.poupard@aliasource.fr>
 
 	Search in ldap and obm-sync works

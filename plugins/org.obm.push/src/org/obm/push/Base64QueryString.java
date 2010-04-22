@@ -2,6 +2,8 @@ package org.obm.push;
 
 import java.io.InputStream;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.impl.ActiveSyncRequest;
@@ -43,6 +45,7 @@ public class Base64QueryString implements ActiveSyncRequest{
 	private static final Log logger = LogFactory
 			.getLog(Base64QueryString.class);
 	
+	private HttpServletRequest request;
 	private InputStream stream;
 	
 	private byte[] data;
@@ -62,9 +65,10 @@ public class Base64QueryString implements ActiveSyncRequest{
 	private String acceptMultiPart;
 	
 
-	public Base64QueryString(String b64, InputStream stream) {
+	public Base64QueryString(HttpServletRequest r, InputStream stream) {
+		request = r;
 		this.stream = stream;
-		this.data = Base64.decode(b64.toCharArray());
+		this.data = Base64.decode(r.getQueryString().toCharArray());
 		int i = 0;
 		protocolVersion = "" + (((float) data[i++]) / 10.0); // i==0
 		cmdCode = data[i++]; // 1
@@ -198,6 +202,11 @@ public class Base64QueryString implements ActiveSyncRequest{
 	@Override
 	public InputStream getInputStream() {
 		return stream;
+	}
+	
+	@Override
+	public String getHeader(String name) {
+		return request.getHeader(name);
 	}
 
 }

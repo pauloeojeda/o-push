@@ -36,7 +36,7 @@ public class PingHandler extends WbxmlRequestHandler implements
 
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
-			Document doc, Responder responder) {
+			Document doc, ActiveSyncRequest request, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 		long intervalSeconds = 0;

@@ -49,7 +49,7 @@ public class MeetingResponseHandler extends WbxmlRequestHandler {
 
 	@Override
 	protected void process(IContinuation continuation, BackendSession bs,
-			Document doc, Responder responder) {
+			Document doc, ActiveSyncRequest request, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 		NodeList requests = doc.getDocumentElement().getElementsByTagName(

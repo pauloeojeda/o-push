@@ -45,7 +45,7 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 	// </MoveItems>
 	@Override
 	protected void process(IContinuation continuation, BackendSession bs,
-			Document doc, Responder responder) {
+			Document doc, ActiveSyncRequest request, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 		NodeList moves = doc.getDocumentElement().getElementsByTagName("Move");
@@ -70,11 +70,10 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 				Integer dstCollectionId = null;
 				String retDstId = "";
 				int i = item.getSourceMessageId().indexOf(":");
-				if(i>-1){
-					String mailUid = item.getSourceMessageId().substring(i+i);
-					retDstId = item.getDestinationFolderId() + ":"+ mailUid;
+				if (i > -1) {
+					String mailUid = item.getSourceMessageId().substring(i + i);
+					retDstId = item.getDestinationFolderId() + ":" + mailUid;
 				}
-				
 
 				try {
 					srcCollectionId = Integer
@@ -105,8 +104,9 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 							.valueOf(dataClass.toUpperCase()), srcCollection,
 							dstCollection, item.getSourceMessageId());
 					if (newDstId == null || "".equals(newDstId)) {
-//						DOMUtils.createElementAndText(response, "Status", "5");
-						//SEND SYNC OK
+						// DOMUtils.createElementAndText(response, "Status",
+						// "5");
+						// SEND SYNC OK
 						DOMUtils.createElementAndText(response, "Status", "3");
 					} else {
 						DOMUtils.createElementAndText(response, "Status", "3");

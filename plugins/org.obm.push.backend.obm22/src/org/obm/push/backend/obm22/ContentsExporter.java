@@ -18,6 +18,7 @@ import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.state.SyncState;
 
 public class ContentsExporter implements IContentsExporter {
@@ -181,14 +182,19 @@ public class ContentsExporter implements IContentsExporter {
 			break;
 		case TASKS:
 			break;
-
 		}
 		return changes;
+	}
+	
+	@Override
+	public List<ItemChange> fetchMails(BackendSession bs, List<String> fetchServerIds)
+			throws ActiveSyncException {
+		return mailBackend.fetchItems(bs, fetchServerIds);
 	}
 
 	@Override
 	public MSAttachementData getEmailAttachement(BackendSession bs,
-			String attachmentId) {
+			String attachmentId) throws ObjectNotFoundException{
 		return mailBackend.getAttachment(bs, attachmentId);
 	}
 

@@ -1,7 +1,9 @@
 package org.obm.push.backend;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.state.SyncState;
@@ -23,7 +25,7 @@ public class SyncCollection {
 	private boolean moreAvailable;
 	private Integer mimeSupport;
 	private Integer mimeTruncation;
-	private BodyPreference bodyPreference;
+	private Map<MSEmailBodyType,BodyPreference> bodyPreferences;
 	
 	
 	public SyncCollection() {
@@ -33,6 +35,7 @@ public class SyncCollection {
 		truncation = SyncHandler.SYNC_TRUNCATION_ALL;
 		moreAvailable = false;
 		windowSize = 100;
+		this.bodyPreferences = new HashMap<MSEmailBodyType, BodyPreference>();
 	}
 	
 	public SyncState getSyncState() {
@@ -156,12 +159,16 @@ public class SyncCollection {
 		this.mimeTruncation = mimeTruncation;
 	}
 	
-	public BodyPreference getBodyPreference() {
-		return bodyPreference;
+	public Map<MSEmailBodyType,BodyPreference> getBodyPreferences() {
+		return bodyPreferences;
+	}
+	
+	public BodyPreference getBodyPreference(MSEmailBodyType type) {
+		return bodyPreferences.get(type);
 	}
 
-	public void setBodyPreference(BodyPreference bodyPreference) {
-		this.bodyPreference = bodyPreference;
+	public void addBodyPreference(BodyPreference bodyPreference) {
+		this.bodyPreferences.put(bodyPreference.getType(), bodyPreference);
 	}
 	
 }

@@ -25,4 +25,9 @@ public class SimpleQueryString implements ActiveSyncRequest{
 		return request.getInputStream();
 	}
 
+	@Override
+	public String getHeader(String name) {
+		return request.getHeader(name);
+	}
+
 }

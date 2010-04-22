@@ -113,7 +113,10 @@ public class EmailEncoder implements IDataEncoder {
 			} else {
 				DOMUtils.createElementAndText(parent, "Email:BodyTruncated",
 						"0");
-				DOMUtils.createElementAndText(parent, "Email:Body", mailBody);
+				if (mailBody != null && mailBody.length() > 0) {
+					DOMUtils.createElementAndText(parent, "Email:Body",
+							mailBody);
+				}
 			}
 		}
 	}
@@ -132,18 +135,20 @@ public class EmailEncoder implements IDataEncoder {
 							+ data.getBytes().length);
 		}
 
-		if (c.getBodyPreference() != null
-				&& c.getBodyPreference().getTruncationSize() != null) {
-			if (c.getBodyPreference().getTruncationSize() < data.length()) {
-				data = data.substring(0, c.getBodyPreference()
+		if (c.getBodyPreference(availableFormat) != null
+				&& c.getBodyPreference(availableFormat).getTruncationSize() != null) {
+			if (c.getBodyPreference(availableFormat).getTruncationSize() < data
+					.length()) {
+				data = data.substring(0, c.getBodyPreference(availableFormat)
 						.getTruncationSize());
 				DOMUtils.createElementAndText(elemBody,
 						"AirSyncBase:Truncated", "1");
 			}
 		}
 
-		DOMUtils.createElementAndText(elemBody, "AirSyncBase:Data", data);
-
+		if (data != null && data.length() > 0) {
+			DOMUtils.createElementAndText(elemBody, "AirSyncBase:Data", data);
+		}
 		if (mail.getInvitation() != null) {
 			DOMUtils.createElementAndText(parent, "Email:ContentClass",
 					"urn:content-classes:calendarmessage");
@@ -157,12 +162,21 @@ public class EmailEncoder implements IDataEncoder {
 	}
 
 	private MSEmailBodyType getAvailableFormat(SyncCollection c, MSEmail mail) {
-
 		if (c.getMimeSupport() != null && c.getMimeSupport().equals(2)) {
 			return MSEmailBodyType.MIME;
-		} else if (c.getBodyPreference() != null
-				&& c.getBodyPreference().getType() != null) {
-			return c.getBodyPreference().getType();
+		} else if (c.getBodyPreferences().size() > 1) {
+			if (c.getBodyPreference(MSEmailBodyType.HTML) != null
+					&& mail.getBody().getValue(MSEmailBodyType.HTML) != null) {
+				return MSEmailBodyType.HTML;
+			} else if (c.getBodyPreference(MSEmailBodyType.PlainText) != null
+					&& mail.getBody().getValue(MSEmailBodyType.PlainText) != null) {
+				return MSEmailBodyType.PlainText;
+			} else if (c.getBodyPreference(MSEmailBodyType.MIME) != null
+					&& mail.getBody().getValue(MSEmailBodyType.MIME) != null) {
+				return MSEmailBodyType.MIME;
+			}
+		} else if (c.getBodyPreferences().size() == 1) {
+			return c.getBodyPreferences().get(0).getType();
 		}
 		return MSEmailBodyType.PlainText;
 	}
@@ -173,22 +187,22 @@ public class EmailEncoder implements IDataEncoder {
 		case PlainText:
 			String body = mail.getBody().getValue(MSEmailBodyType.PlainText);
 			if (body != null && body.length() != 0) {
-				return body;
+				return body.trim();
 			} else {
 				body = mail.getBody().getValue(MSEmailBodyType.HTML);
 				if (body != null && body.length() != 0) {
-					return plainFormatter.convert(body);
+					return plainFormatter.convert(body).trim();
 				}
 			}
 			break;
 		case HTML:
 			body = mail.getBody().getValue(MSEmailBodyType.HTML);
-			if (body != null && body.length() == 0) {
-				return body;
+			if (body != null && body.length() != 0) {
+				return body.trim();
 			} else {
 				body = mail.getBody().getValue(MSEmailBodyType.PlainText);
 				if (body != null && body.length() != 0) {
-					return htmlFormatter.convert(body);
+					return htmlFormatter.convert(body).trim();
 				}
 			}
 			break;
