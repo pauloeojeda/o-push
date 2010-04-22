@@ -2,11 +2,9 @@ package org.obm.sync.push.client;
 
 import java.io.InputStream;
 import java.util.Map;
-import java.util.Random;
 
 import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 public class TestFullSync extends AbstractPushTest {
 
@@ -37,8 +35,8 @@ public class TestFullSync extends AbstractPushTest {
 		ret = postXml("AirSync", doc, "Sync");
 		assertNotNull(ret);
 
-		SyncPush push1 = new SyncPush(1, ret);
-		SyncPush push2 = new SyncPush(2, ret);
+		SyncPush push1 = new SyncPush(1, ret, sks);
+		SyncPush push2 = new SyncPush(2, ret, sks);
 		PingPush push3 = new PingPush(3);
 		PingPush push4 = new PingPush(4);
 		
@@ -46,20 +44,18 @@ public class TestFullSync extends AbstractPushTest {
 		push2.start();
 		push3.start();
 		push4.start();
-		System.out.println("Avant wait");
 		Thread.sleep(5000);
-		System.out.println("Apprès wait");
-		 sks = processCollection(ret.getDocumentElement());
-		in = loadDataFile("FullSyncCalAdd.xml");
-		doc = DOMUtils.parse(in);
-		fillSyncKey(doc.getDocumentElement(), sks);
-		Element cliidElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"ClientId");
-		
-		cliidElem.setTextContent("" + new Random().nextInt(999999999));
-		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
-		assertNotNull(ret);
+		 sks.putAll(processCollection(ret.getDocumentElement()));
+//		in = loadDataFile("FullSyncCalAdd.xml");
+//		doc = DOMUtils.parse(in);
+//		fillSyncKey(doc.getDocumentElement(), sks);
+//		Element cliidElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+//				"ClientId");
+//		
+//		cliidElem.setTextContent("" + new Random().nextInt(999999999));
+//		DOMUtils.logDom(doc);
+//		ret = postXml("AirSync", doc, "Sync");
+//		assertNotNull(ret);
 		
 		while(!push1.hasResp() || !push2.hasResp() ||!push3.hasResp() || !push4.hasResp() ){
 		}
@@ -70,23 +66,25 @@ public class TestFullSync extends AbstractPushTest {
 		private int num;
 		private Document lastResponse;
 		private Boolean resp;
+		private Map<String,String> lastSyncKey;
 		
-		public SyncPush(int num, Document lastResponse){
+		public SyncPush(int num, Document lastResponse, Map<String,String> lastSyncKey){
 			this.num = num;
 			this.lastResponse = lastResponse;
 			this.resp = false;
+			this.lastSyncKey = lastSyncKey;
 		}
 
 		@Override
 		public void run() {
 			super.run();
 			System.out.println("RUN "+num);
-			Map<String,String> sks = processCollection(lastResponse.getDocumentElement());
+			lastSyncKey.putAll(processCollection(lastResponse.getDocumentElement()));
 			InputStream in = loadDataFile("FullSyncRequest3.xml");
 			Document doc;
 			try {
 				doc = DOMUtils.parse(in);
-				fillSyncKey(doc.getDocumentElement(), sks);
+				fillSyncKey(doc.getDocumentElement(), lastSyncKey);
 				DOMUtils.logDom(doc);
 				postXml("AirSync", doc, "Sync");
 			} catch (Exception e) {

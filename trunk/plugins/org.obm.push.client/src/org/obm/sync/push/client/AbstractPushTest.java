@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 import junit.framework.TestCase;
 
@@ -52,14 +53,14 @@ public class AbstractPushTest extends TestCase {
 		// this.devId = "junitDevId";
 		// this.devType = "PocketPC";
 		// this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
-
-		// this.login = "adrien";
-		// this.userId = "test.tlse.lng\\adrien";
-		// this.password = "aliacom";
-		// this.devId = "359593005624680";
-		// this.devType = "RoadSyncClient";
-		// this.userAgent = "RoadSyncClient/701.341";
-		// this.url = "http://localhost/Microsoft-Server-ActiveSync";
+//
+//		 THIS.LOGIN = "ADRIEN";
+//		 THIS.USERID = "TEST.TLSE.LNG\\ADRIEN";
+//		 THIS.PASSWORD = "ALIACOM";
+//		 THIS.DEVID = "359593005624680";
+//		 THIS.DEVTYPE = "ROADSYNCCLIENT";
+//		 THIS.USERAGENT = "ROADSYNCCLIENT/701.341";
+//		 THIS.URL = "HTTP://LOCALHOST/MICROSOFT-SERVER-ACTIVESYNC";
 
 		this.login = "Administrator";
 		this.userId = "test.tlse.lng\\Administrator";
@@ -137,26 +138,28 @@ public class AbstractPushTest extends TestCase {
 
 	protected Document postXml(String namespace, Document doc, String cmd)
 			throws Exception {
-		return postXml(namespace, doc, cmd, null, "12.1");
+		return postXml(namespace, doc, cmd, null, "12.1", false);
 	}
 
 	protected Document postXml120(String namespace, Document doc, String cmd)
 			throws Exception {
-		return postXml(namespace, doc, cmd, null, "12.0");
+		return postXml(namespace, doc, cmd, null, "12.0", false);
 	}
 
 	protected Document postXml25(String namespace, Document doc, String cmd)
 			throws Exception {
-		return postXml(namespace, doc, cmd, null, "2.5");
+		return postXml(namespace, doc, cmd, null, "2.5", false);
 	}
 
 	@SuppressWarnings("deprecation")
 	protected Document postXml(String namespace, Document doc, String cmd,
-			String policyKey, String protocolVersion) throws Exception {
+			String policyKey, String protocolVersion, boolean multipart)
+			throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		byte[] data = WBXMLTools.toWbxml(namespace, doc);
-		PostMethod pm = new PostMethod(url + "?User=" + login + "&DeviceId="
-				+ devId + "&DeviceType=" + devType + "&Cmd=" + cmd);
+		PostMethod pm = null;
+		pm = new PostMethod(url + "?User=" + login + "&DeviceId=" + devId
+				+ "&DeviceType=" + devType + "&Cmd=" + cmd);
 		pm.setRequestHeader("Content-Length", "" + data.length);
 		pm.setRequestBody(new ByteArrayInputStream(data));
 		pm.setRequestHeader("Content-Type", "application/vnd.ms-sync.wbxml");
@@ -166,7 +169,11 @@ public class AbstractPushTest extends TestCase {
 		pm.setRequestHeader("Accept", "*/*");
 		pm.setRequestHeader("Accept-Language", "fr-fr");
 		pm.setRequestHeader("Connection", "keep-alive");
-		// pm.setRequestHeader("Accept-Encoding", "gzip, deflate");
+		if (multipart) {
+			pm.setRequestHeader("MS-ASAcceptMultiPart", "T");
+			pm.setRequestHeader("Accept-Encoding", "gzip");
+		}
+
 		if (policyKey != null) {
 			pm.setRequestHeader("X-MS-PolicyKey", policyKey);
 		}
@@ -190,10 +197,50 @@ public class AbstractPushTest extends TestCase {
 				System.out.println("binary response stored in "
 						+ localCopy.getAbsolutePath());
 
-				FileInputStream in = new FileInputStream(localCopy);
+				InputStream in = new FileInputStream(localCopy);
+				if (pm.getResponseHeader("Content-Encoding") != null
+						&& pm.getResponseHeader("Content-Encoding").getValue()
+								.contains("gzip")) {
+					in = new GZIPInputStream(in);
+				}
 				out = new ByteArrayOutputStream();
 				FileUtils.transfer(in, out, true);
-				if (out.toByteArray().length > 0) {
+				if (pm.getResponseHeader("Content-Type") != null
+						&& pm.getResponseHeader("Content-Type").getValue()
+								.contains("application/vnd.ms-sync.multipart")) {
+					byte[] all = out.toByteArray();
+					int idx = 0;
+					byte[] buffer = new byte[4];
+					for (int i = 0; i < buffer.length; i++) {
+						buffer[i] = all[idx++];
+					}
+					int nbPart = byteArrayToInt(buffer);
+
+					for (int p = 0; p < nbPart; p++) {
+						for (int i = 0; i < buffer.length; i++) {
+							buffer[i] = all[idx++];
+						}
+						int start = byteArrayToInt(buffer);
+
+						for (int i = 0; i < buffer.length; i++) {
+							buffer[i] = all[idx++];
+						}
+						int length = byteArrayToInt(buffer);
+
+						byte[] value = new byte[length];
+						for (int j = 0; j < length; j++) {
+							value[j] = all[start++];
+						}
+						if (p == 0) {
+							xml = WBXMLTools.toXml(value);
+							DOMUtils.logDom(xml);
+						} else {
+							String file = new String(value);
+							System.out.println("File: " + file);
+						}
+
+					}
+				} else if (out.toByteArray().length > 0) {
 					xml = WBXMLTools.toXml(out.toByteArray());
 					DOMUtils.logDom(xml);
 				}
@@ -202,6 +249,16 @@ public class AbstractPushTest extends TestCase {
 			pm.releaseConnection();
 		}
 		return xml;
+	}
+
+	public static final int byteArrayToInt(byte[] b) {
+		byte[] inverse = new byte[b.length];
+		int in = b.length - 1;
+		for(int i = 0;i<b.length;i++){
+			inverse[in--] = b[i];
+		}
+		return (inverse[0] << 24) + ((inverse[1] & 0xFF) << 16) + ((inverse[2] & 0xFF) << 8)
+				+ (inverse[3] & 0xFF);
 	}
 
 	protected byte[] postGetAttachment(String attachmentName) throws Exception {

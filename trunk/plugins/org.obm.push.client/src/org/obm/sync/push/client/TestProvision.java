@@ -22,7 +22,7 @@ public class TestProvision extends AbstractPushTest {
 
 		InputStream in = loadDataFile("ProvisionRequest1.xml");
 		Document doc = DOMUtils.parse(in);
-		Document ret = postXml("Provision", doc, "Provision",null,"12.0");
+		Document ret = postXml("Provision", doc, "Provision",null,"12.0", false);
 		assertNotNull(ret);
 	}
 
@@ -33,7 +33,7 @@ public class TestProvision extends AbstractPushTest {
 		Document doc = DOMUtils.parse(in);
 		System.out.println("From test:");
 		DOMUtils.logDom(doc);
-		Document ret = postXml("Provision", doc, "Provision", "0", "2.5");
+		Document ret = postXml("Provision", doc, "Provision", "0", "2.5", false);
 		assertNotNull(ret);
 		
 		String policyKey = DOMUtils.getElementText(ret.getDocumentElement(), "PolicyKey");
@@ -44,7 +44,7 @@ public class TestProvision extends AbstractPushTest {
 		elemPolicy.setTextContent(policyKey);
 		System.out.println("From test:");
 		DOMUtils.logDom(doc);
-		ret = postXml("Provision", doc, "Provision", "0", "2.5");
+		ret = postXml("Provision", doc, "Provision", "0", "2.5", false);
 		
 		policyKey = DOMUtils.getElementText(ret.getDocumentElement(), "PolicyKey");
 
@@ -54,7 +54,7 @@ public class TestProvision extends AbstractPushTest {
 		elemPolicy.setTextContent(policyKey);
 		System.out.println("From test:");
 		DOMUtils.logDom(doc);
-		ret = postXml("Provision", doc, "Provision", "0", "2.5");
+		ret = postXml("Provision", doc, "Provision", "0", "2.5", false);
 		Element policy = DOMUtils.getUniqueElement(ret.getDocumentElement(), "Policy");
 		String status = DOMUtils.getElementText(policy, "Status");
 		assertEquals("5", status);
