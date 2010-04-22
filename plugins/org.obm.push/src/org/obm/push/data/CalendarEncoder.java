@@ -265,5 +265,4 @@ public class CalendarEncoder implements IDataEncoder {
 			DOMUtils.createElementAndText(p, name, val);
 		}
 	}
-
 }

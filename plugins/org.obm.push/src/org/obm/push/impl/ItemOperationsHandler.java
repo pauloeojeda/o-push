@@ -52,8 +52,9 @@ public class ItemOperationsHandler extends WbxmlRequestHandler {
 								.getParameter("AcceptMultiPart"))) {
 			multipart = true;
 		}
-		if (request.getHeader(HttpHeaders.ACCEPT_ENCODING).contains(
-				HttpHeaderValues.GZIP)) {
+		String acceptEncoding = request.getHeader(HttpHeaders.ACCEPT_ENCODING);
+		if (acceptEncoding != null
+				&& acceptEncoding.contains(HttpHeaderValues.GZIP)) {
 			gzip = true;
 		}
 		try {
@@ -66,13 +67,14 @@ public class ItemOperationsHandler extends WbxmlRequestHandler {
 			if (StoreName.Mailbox.equals(store)) {
 				processMailboxFetch(bs, responder, fetch, multipart, ret, items);
 				if (multipart) {
-					responder.sendMSSyncMultipartResponse("ItemOperations", ret,
-							items, gzip);
+					responder.sendMSSyncMultipartResponse("ItemOperations",
+							ret, items, gzip);
 				} else {
 					responder.sendResponse("ItemOperations", ret);
 				}
 			} else {
-				logger.error("ItemOperations is not implemented for store "+store);
+				logger.error("ItemOperations is not implemented for store "
+						+ store);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -132,7 +134,8 @@ public class ItemOperationsHandler extends WbxmlRequestHandler {
 			c.addBodyPreference(bp);
 			ee.encode(bs, dataElem, ic.get(0).getData(), c, true);
 			if (multipart) {
-				Element data = DOMUtils.getUniqueElement(dataElem, "Data");
+				Element data = DOMUtils.getUniqueElement(dataElem,
+						"AirSyncBase:Data");
 				String dataValue = "";
 				if (data != null) {
 					dataValue = data.getTextContent();
