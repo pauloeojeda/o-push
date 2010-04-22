@@ -230,14 +230,14 @@ public class MailMessageLoader {
 
 		MSEmailBody body = getMailBody(chosenParts, protocol);
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
-		if (chosenParts != null && chosenParts.size() > 0) {
-			for (MimePart mp : chosenParts) {
-				attach.addAll(extractAttachments(mp, protocol,  mp
-						.isInvitation()));
-			}
-		} else {
+//		if (chosenParts != null && chosenParts.size() > 0) {
+//			for (MimePart mp : chosenParts) {
+//				attach.addAll(extractAttachments(mp, protocol,  mp
+//						.isInvitation()));
+//			}
+//		} else {
 			attach = extractAttachments(mimePart, protocol);
-		}
+//		}
 		MSEmail mm = new MSEmail();
 		mm.setBody(body);
 		mm.setFrom(AddressConverter.convertAddress(h.getFrom()));
@@ -387,30 +387,30 @@ public class MailMessageLoader {
 		return rawData;
 	}
 
-	private Set<MSAttachement> extractAttachments(MimePart mimePart,
-			StoreClient protocol, boolean isInvit) throws IOException,
-			IMAPException {
-		Set<MSAttachement> attach = new HashSet<MSAttachement>();
-		if (mimePart != null) {
-			MimePart parent = mimePart.getParent();
-			if (parent != null) {
-				boolean inv = false;
-				for (MimePart mp : parent.getChildren()) {
-					inv = mp.isInvitation();
-					MSAttachement att = extractAttachmentData(mp, protocol,
-							isInvit || inv);
-					if (att != null) {
-						attach.add(att);
-					}
-				}
-				if (parent.getMimeType() == null
-						&& parent.getMimeSubtype() == null) {
-					extractAttachments(parent, protocol, inv);
-				}
-			}
-		}
-		return attach;
-	}
+	// private Set<MSAttachement> extractAttachments(MimePart mimePart,
+	// StoreClient protocol, boolean isInvit) throws IOException,
+	// IMAPException {
+	// Set<MSAttachement> attach = new HashSet<MSAttachement>();
+	// if (mimePart != null) {
+	// MimePart parent = mimePart.getParent();
+	// if (parent != null) {
+	// boolean inv = false;
+	// for (MimePart mp : parent.getChildren()) {
+	// inv = mp.isInvitation();
+	// MSAttachement att = extractAttachmentData(mp, protocol,
+	// isInvit || inv);
+	// if (att != null) {
+	// attach.add(att);
+	// }
+	// }
+	// if (parent.getMimeType() == null
+	// && parent.getMimeSubtype() == null) {
+	// extractAttachments(parent, protocol, inv);
+	// }
+	// }
+	// }
+	// return attach;
+	// }
 
 	private Set<MSAttachement> extractAttachments(MimePart mimePart,
 			StoreClient protocol) throws IOException,
