@@ -28,13 +28,13 @@ public class ContactEncoder implements IDataEncoder {
 
 		// DOMUtils.createElement(parent, "Contacts:CompressedRTF");
 
-//		if (bs.getProtocolVersion() > 12) {
-//			Element body = DOMUtils.createElement(parent, "AirSyncBase:Body");
-//			e(body, "AirSyncBase:Type", "3");
-//			e(body, "AirSyncBase:EstimatedDataSize", "5500"); // FIXME random
-//			// value....
-//			e(body, "AirSyncBase:Truncated", "1");
-//		}
+		// if (bs.getProtocolVersion() > 12) {
+		// Element body = DOMUtils.createElement(parent, "AirSyncBase:Body");
+		// e(body, "AirSyncBase:Type", "3");
+		// e(body, "AirSyncBase:EstimatedDataSize", "5500"); // FIXME random
+		// // value....
+		// e(body, "AirSyncBase:Truncated", "1");
+		// }
 
 		DOMUtils.createElementAndText(parent, "Contacts:FileAs", getFileAs(c));
 
@@ -48,23 +48,24 @@ public class ContactEncoder implements IDataEncoder {
 		e(parent, "Contacts:Title", c.getTitle());
 		e(parent, "Contacts:Department", c.getDepartment());
 		e(parent, "Contacts:CompanyName", c.getCompanyName());
-		
+
 		e(parent, "Contacts:Spouse", c.getSpouse());
 		e(parent, "Contacts:AssistantName", c.getAssistantName());
 		e(parent, "Contacts2:ManagerName", c.getManagerName());
-		if(c.getCategories() != null && c.getCategories().size()>0){
-			Element cats = DOMUtils.createElement(parent, "Contacts:Categories");
-			for(String cat : c.getCategories()){
+		if (c.getCategories() != null && c.getCategories().size() > 0) {
+			Element cats = DOMUtils
+					.createElement(parent, "Contacts:Categories");
+			for (String cat : c.getCategories()) {
 				e(cats, "Contacts:Category", cat);
 			}
 		}
-		if(c.getChildren() != null && c.getChildren().size()>0){
+		if (c.getChildren() != null && c.getChildren().size() > 0) {
 			Element ec = DOMUtils.createElement(parent, "Contacts:Children");
-			for(String Child : c.getCategories()){
+			for (String Child : c.getCategories()) {
 				e(ec, "Contacts:Category", Child);
 			}
 		}
-		
+
 		if (c.getAnniversary() != null) {
 			e(parent, "Contacts:Anniversary", sdf.format(c.getAnniversary()));
 		}
@@ -115,30 +116,26 @@ public class ContactEncoder implements IDataEncoder {
 		e(parent, "Contacts:Email1Address", c.getEmail1Address());
 		e(parent, "Contacts:Email2Address", c.getEmail2Address());
 		e(parent, "Contacts:Email3Address", c.getEmail3Address());
-		
-		
-		
+
+		String dataBody = "";
+		if(c.getData() != null){
+			dataBody = c.getData().trim();
+		}
 		if (bs.getProtocolVersion() > 12) {
 			Element body = DOMUtils.createElement(parent, "AirSyncBase:Body");
 			e(body, "AirSyncBase:Type", Type.PLAIN_TEXT.toString());
-			e(body, "AirSyncBase:Data", c.getData());
-			e(body, "AirSyncBase:EstimatedDataSize", c.getData());
-			DOMUtils.createElementAndText(body, "AirSyncBase:EstimatedDataSize",
-					c.getData() != null ? ""
-							+ c.getData().trim().length() : "0");
-			if (c.getData() != null
-					&& c.getData().length() > 0) {
-				//Nokia bug when the body contains only \r\n
-				DOMUtils.createElementAndText(body, "AirSyncBase:Data", c.getData().trim());
+			e(body, "AirSyncBase:EstimatedDataSize", ""+dataBody.length());
+			if (dataBody.length() > 0) {
+				// Nokia bug when the body contains only \r\n
+				DOMUtils.createElementAndText(body, "AirSyncBase:Data", dataBody);
 			}
 			e(parent, "AirSyncBase:NativeBodyType", "3");
 		} else {
-			if(c.getData() != null && c.getData().length()>0){
-				e(parent, "Contacts:BodySize", ""+c.getData().trim().length());
-				e(parent, "Contacts:Body", c.getData().trim());
+			if (dataBody.length() > 0) {
+				e(parent, "Contacts:BodySize", "" + dataBody.length());
+				e(parent, "Contacts:Body", dataBody);
 			}
 		}
-
 		// DOMUtils.createElement(parent, "Contacts:Picture");
 	}
 

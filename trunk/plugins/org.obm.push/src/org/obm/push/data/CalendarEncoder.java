@@ -189,17 +189,16 @@ public class CalendarEncoder implements IDataEncoder {
 
 	private void encodeBody(SyncCollection c, BackendSession bs, Element p,
 			MSEvent event) {
-		if (bs.getProtocolVersion() > 12) {
+		String body = "";
+		if(event.getDescription() != null){
+			body = event.getDescription().trim();
+		}
+		if (bs.getProtocolVersion() >= 12) {
 			Element d = DOMUtils.createElement(p, "AirSyncBase:Body");
 			e(d, "AirSyncBase:Type", Type.PLAIN_TEXT.toString());
-			DOMUtils.createElementAndText(d, "AirSyncBase:EstimatedDataSize",
-					event.getDescription() != null ? ""
-							+ event.getDescription().length() : "0");
-			if (event.getDescription() != null
-					&& event.getDescription().length() > 0) {
-				DOMUtils.createElementAndText(d, "AirSyncBase:Data", event
-						.getDescription());
-				
+			e(d, "AirSyncBase:EstimatedDataSize", ""+body.length());
+			if (body.length() > 0) {
+				DOMUtils.createElementAndText(d, "AirSyncBase:Data", body);
 			}
 		} else {
 			if (event.getDescription() != null
