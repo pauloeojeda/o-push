@@ -30,6 +30,7 @@ import org.obm.push.impl.GetItemEstimateHandler;
 import org.obm.push.impl.HintsLoader;
 import org.obm.push.impl.IContinuationHandler;
 import org.obm.push.impl.IRequestHandler;
+import org.obm.push.impl.ItemOperationsHandler;
 import org.obm.push.impl.MeetingResponseHandler;
 import org.obm.push.impl.MoveItemsHandler;
 import org.obm.push.impl.PingHandler;
@@ -258,7 +259,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
 			}
-			return new Base64QueryString(r.getQueryString(), is);
+			return new Base64QueryString(r, is);
 		}
 	}
 
@@ -386,6 +387,7 @@ public class ActiveSyncServlet extends HttpServlet {
 			handlers
 					.put("MeetingResponse", new MeetingResponseHandler(backend));
 			handlers.put("GetAttachment", new GetAttachmentHandler(backend));
+			handlers.put("ItemOperations", new ItemOperationsHandler(backend));
 
 		}
 

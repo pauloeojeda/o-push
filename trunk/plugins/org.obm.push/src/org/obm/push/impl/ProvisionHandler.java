@@ -28,7 +28,7 @@ public class ProvisionHandler extends WbxmlRequestHandler {
 
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
-			Document doc, Responder responder) {
+			Document doc, ActiveSyncRequest request, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 
@@ -79,10 +79,9 @@ public class ProvisionHandler extends WbxmlRequestHandler {
 					bs.setPolicyKey(pKey);
 					DOMUtils.createElementAndText(policy, "PolicyKey", pKey);
 				} else {
-					//The client is acknowledging the wrong policy key.
+					// The client is acknowledging the wrong policy key.
 					DOMUtils.createElementAndText(policy, "Status", "5");
 				}
-				
 
 				responder.sendResponse("Provision", ret);
 

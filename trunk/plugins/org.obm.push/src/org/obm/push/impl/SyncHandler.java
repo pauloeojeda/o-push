@@ -84,7 +84,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
-			Document doc, Responder responder) {
+			Document doc, ActiveSyncRequest request, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 		try {
@@ -107,8 +107,6 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					IContinuation cont = waitContinuationCache.get(collec
 							.getCollectionId());
 					if (cont != null) {
-						logger.info("Collection[" + collec.getCollectionId()
-								+ "]Disables last push request ");
 						cont.error(SyncStatus.NEED_RETRY.asXmlValue());
 					}
 				}
@@ -361,8 +359,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			DOMUtils.createElementAndText(add, "Status", SyncStatus.OK
 					.asXmlValue());
 			c.setTruncation(null);
-			if (c.getBodyPreference() != null) {
-				c.getBodyPreference().setTruncationSize(null);
+			for (BodyPreference bp : c.getBodyPreferences().values()) {
+				bp.setTruncationSize(null);
 			}
 			serializeChange(bs, add, c, ic);
 		}
@@ -405,8 +403,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			String mimeTruncation = DOMUtils.getElementText(option,
 					"MIMETruncation");
 			String conflict = DOMUtils.getElementText(option, "Conflict");
-			Element bodyPreference = DOMUtils.getUniqueElement(col,
-					"BodyPreference");
+			NodeList bodyPreferences = col
+					.getElementsByTagName("BodyPreference");
 
 			if (conflict != null) {
 				collection.setConflict(Integer.parseInt(conflict));
@@ -424,17 +422,22 @@ public class SyncHandler extends WbxmlRequestHandler implements
 				collection.setTruncation(Integer.parseInt(truncation));
 			}
 
-			if (bodyPreference != null) {
-				String truncationSize = DOMUtils.getElementText(bodyPreference,
-						"TruncationSize");
-				String type = DOMUtils.getElementText(bodyPreference, "Type");
-				BodyPreference bp = new BodyPreference();
-				// nokia n900 sets type without truncationsize
-				if (truncationSize != null) {
-					bp.setTruncationSize(Integer.parseInt(truncationSize));
+			if (bodyPreferences != null) {
+				for (int i = 0; i < bodyPreferences.getLength(); i++) {
+					Element bodyPreference = (Element)bodyPreferences.item(i);
+					String truncationSize = DOMUtils.getElementText(
+							bodyPreference, "TruncationSize");
+					String type = DOMUtils.getElementText(bodyPreference,
+							"Type");
+					BodyPreference bp = new BodyPreference();
+					// nokia n900 sets type without truncationsize
+					if (truncationSize != null) {
+						bp.setTruncationSize(Integer.parseInt(truncationSize));
+					}
+					bp.setType(MSEmailBodyType.getValueOf(Integer
+							.parseInt(type)));
+					collection.addBodyPreference(bp);
 				}
-				bp.setType(MSEmailBodyType.getValueOf(Integer.parseInt(type)));
-				collection.setBodyPreference(bp);
 			}
 		}
 		// TODO sync supported
@@ -566,7 +569,6 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			Map<String, String> processedClientIds) {
 
 		StateMachine sm = new StateMachine(backend.getStore());
-
 		Document reply = null;
 		try {
 			reply = DOMUtils.createDoc(null, "Sync");

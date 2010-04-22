@@ -35,7 +35,7 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
 			ActiveSyncRequest request, Responder responder) throws IOException {
-		
+
 		InputStream in = request.getInputStream();
 		byte[] input = FileUtils.streamBytes(in, true);
 		Document doc = null;
@@ -73,7 +73,7 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 			}
 		}
 
-		process(continuation, bs, doc, responder);
+		process(continuation, bs, doc, request, responder);
 	}
 
 	/**
@@ -87,6 +87,7 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 	 * @param responder
 	 */
 	protected abstract void process(IContinuation continuation,
-			BackendSession bs, Document doc, Responder responder);
+			BackendSession bs, Document doc, ActiveSyncRequest request,
+			Responder responder);
 
 }

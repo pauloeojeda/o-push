@@ -34,7 +34,7 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
-			Document doc, Responder responder) {
+			Document doc, ActiveSyncRequest request, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
 		String syncKey = DOMUtils.getElementText(doc.getDocumentElement(),
@@ -42,14 +42,14 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 
 		if ("0".equals(syncKey)) {
 			backend.resetForFullSync(bs);
-			bs.setState(new SyncState());	
+			bs.setState(new SyncState());
 		}
 
 		StateMachine sm = new StateMachine(backend.getStore());
 		SyncState state = sm.getSyncState(syncKey);
-		if(!state.isValid()){
+		if (!state.isValid()) {
 			sendError(responder, FolderSyncStatus.INVALID_SYNC_KEY);
-			return ;
+			return;
 		}
 		// look for Add, Modify, Remove
 
@@ -99,7 +99,7 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 			if ("0".equals(syncKey)) {
 				int cnt = exporter.getCount(bs);
 				DOMUtils.createElementAndText(changes, "Count", cnt + "");
-				
+
 				for (ItemChange sf : changed) {
 					Element add = DOMUtils.createElement(changes, "Add");
 					encode(add, sf);
@@ -112,11 +112,11 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 			} else {
 				DOMUtils.createElementAndText(changes, "Count", "0");
 				for (ItemChange sf : changed) {
-					if(sf.isNew()){
+					if (sf.isNew()) {
 						sendError(responder, FolderSyncStatus.INVALID_SYNC_KEY);
-						return ;
+						return;
 					}
-				} 
+				}
 			}
 			String newSyncKey = sm.allocateNewSyncKey(bs, exporter
 					.getRootFolderId(bs), state);
@@ -143,15 +143,15 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	private void sendError(Responder resp, FolderSyncStatus status){
-			Document ret = DOMUtils.createDoc(null, "FolderSync");
-			Element root = ret.getDocumentElement();
-			DOMUtils.createElementAndText(root, "Status", status.asXmlValue());
-			try {
-				resp.sendResponse("FolderHierarchy", ret);
-			} catch (IOException e) {
-				logger.info(e.getMessage(), e);
-			}
+
+	private void sendError(Responder resp, FolderSyncStatus status) {
+		Document ret = DOMUtils.createDoc(null, "FolderSync");
+		Element root = ret.getDocumentElement();
+		DOMUtils.createElementAndText(root, "Status", status.asXmlValue());
+		try {
+			resp.sendResponse("FolderHierarchy", ret);
+		} catch (IOException e) {
+			logger.info(e.getMessage(), e);
+		}
 	}
 }

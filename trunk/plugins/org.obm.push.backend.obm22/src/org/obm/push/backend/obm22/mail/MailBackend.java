@@ -20,6 +20,7 @@ import org.obm.push.backend.MSAttachementData;
 import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.client.calendar.CalendarClient;
@@ -218,7 +219,11 @@ public class MailBackend extends ObmSyncBackend {
 
 	private Integer getCollectionIdFor(String serverId) {
 		int idx = serverId.lastIndexOf(":");
-		return Integer.parseInt(serverId.substring(0, idx));
+		Integer collectionId = 0;
+		if (idx > 0) {
+			collectionId = Integer.parseInt(serverId.substring(0, idx));
+		}
+		return collectionId;
 	}
 
 	public void sendEmail(BackendSession bs, byte[] mailContent,
@@ -327,48 +332,50 @@ public class MailBackend extends ObmSyncBackend {
 	}
 
 	public MSAttachementData getAttachment(BackendSession bs,
-			String attachmentId) {
-		if (attachmentId == null || attachmentId.isEmpty()) {
-			return null;
-		}
-		Map<String, String> parsedAttId = AttachmentHelper
-				.parseAttachmentId(attachmentId);
-		String collectionId = parsedAttId.get(AttachmentHelper.COLLECTION_ID);
-		String messageId = parsedAttId.get(AttachmentHelper.MESSAGE_ID);
-		String mimePartAddress = parsedAttId
-				.get(AttachmentHelper.MIME_PART_ADDRESS);
-		String contentType = parsedAttId.get(AttachmentHelper.CONTENT_TYPE);
-		String contentTransferEncoding = parsedAttId
-				.get(AttachmentHelper.CONTENT_TRANSFERE_ENCODING);
-		logger.info("attachmentId= [collectionId:" + collectionId
-				+ "] [emailUid" + messageId + "] [mimePartAddress:"
-				+ mimePartAddress + "] [contentType" + contentType
-				+ "] [contentTransferEncoding" + contentTransferEncoding + "]");
-		try {
-			String collectionName = getCollectionNameFor(Integer
-					.parseInt(collectionId));
-			InputStream is = emailManager.findAttachment(bs, collectionName,
-					Long.parseLong(messageId), mimePartAddress);
+			String attachmentId) throws ObjectNotFoundException {
+		if (attachmentId != null && !attachmentId.isEmpty()) {
+			Map<String, String> parsedAttId = AttachmentHelper
+					.parseAttachmentId(attachmentId);
+			String collectionId = parsedAttId
+					.get(AttachmentHelper.COLLECTION_ID);
+			String messageId = parsedAttId.get(AttachmentHelper.MESSAGE_ID);
+			String mimePartAddress = parsedAttId
+					.get(AttachmentHelper.MIME_PART_ADDRESS);
+			String contentType = parsedAttId.get(AttachmentHelper.CONTENT_TYPE);
+			String contentTransferEncoding = parsedAttId
+					.get(AttachmentHelper.CONTENT_TRANSFERE_ENCODING);
+			logger.info("attachmentId= [collectionId:" + collectionId
+					+ "] [emailUid" + messageId + "] [mimePartAddress:"
+					+ mimePartAddress + "] [contentType" + contentType
+					+ "] [contentTransferEncoding" + contentTransferEncoding
+					+ "]");
+			try {
+				String collectionName = getCollectionNameFor(Integer
+						.parseInt(collectionId));
+				InputStream is = emailManager.findAttachment(bs,
+						collectionName, Long.parseLong(messageId),
+						mimePartAddress);
 
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			FileUtils.transfer(is, out, true);
-			byte[] rawData = out.toByteArray();
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				FileUtils.transfer(is, out, true);
+				byte[] rawData = out.toByteArray();
 
-			if ("QUOTED-PRINTABLE".equals(contentTransferEncoding)) {
-				out = new ByteArrayOutputStream();
-				InputStream in = new QuotedPrintableDecoderInputStream(
+				if ("QUOTED-PRINTABLE".equals(contentTransferEncoding)) {
+					out = new ByteArrayOutputStream();
+					InputStream in = new QuotedPrintableDecoderInputStream(
+							new ByteArrayInputStream(rawData));
+					FileUtils.transfer(in, out, true);
+					rawData = out.toByteArray();
+				} else if ("BASE64".equals(contentTransferEncoding)) {
+					rawData = new Base64().decode(rawData);
+				}
+
+				return new MSAttachementData(contentType,
 						new ByteArrayInputStream(rawData));
-				FileUtils.transfer(in, out, true);
-				rawData = out.toByteArray();
-			} else if ("BASE64".equals(contentTransferEncoding)) {
-				rawData = new Base64().decode(rawData);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
 			}
-
-			return new MSAttachementData(contentType, new ByteArrayInputStream(
-					rawData));
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
 		}
-		return null;
+		throw new ObjectNotFoundException();
 	}
 }

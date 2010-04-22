@@ -9,6 +9,7 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.MSAttachementData;
+import org.obm.push.exception.ObjectNotFoundException;
 
 /**
  * Handles the search cmd
@@ -33,12 +34,12 @@ public class GetAttachmentHandler implements IRequestHandler {
 
 		String AttachmentName = request.getParameter("AttachmentName");
 		
-		MSAttachementData attachment = backend.getContentsExporter(bs).getEmailAttachement(bs, AttachmentName);
-		if(attachment != null){
+		MSAttachementData attachment;
+		try {
+			attachment = backend.getContentsExporter(bs).getEmailAttachement(bs, AttachmentName);
 			responder.sendResponseFile(attachment.getContentType(), attachment.getFile());
-		} else {
+		} catch (ObjectNotFoundException e) {
 			responder.sendError(500);
 		}
-		
 	}
 }
