@@ -3,12 +3,9 @@
 	<Collections>
 		<Collection>
 			<SyncKey>FILL_ME</SyncKey>
-			<CollectionId>245</CollectionId>
-			<GetChanges />
+			<CollectionId>6</CollectionId>
+			<GetChanges/>
 			<WindowSize>50</WindowSize>
-			<Options>
-				<FilterType>1</FilterType>
-			</Options>
 		</Collection>
 	</Collections>
 </Sync>

@@ -3,11 +3,11 @@
 <Collections>
 <Collection>
 <SyncKey>FILL_ME</SyncKey>
-<CollectionId>244</CollectionId>
+<CollectionId>1</CollectionId>
 </Collection>
 <Collection>
 <SyncKey>FILL_ME</SyncKey>
-<CollectionId>248</CollectionId>
+<CollectionId>2</CollectionId>
 <Options>
 <AirSyncBase:BodyPreference>
 <AirSyncBase:Type>1</AirSyncBase:Type>
@@ -23,7 +23,7 @@
 </Collection>
 <Collection>
 <SyncKey>FILL_ME</SyncKey>
-<CollectionId>249</CollectionId>
+<CollectionId>12</CollectionId>
 <Options>
 <AirSyncBase:BodyPreference>
 <AirSyncBase:Type>1</AirSyncBase:Type>
@@ -39,7 +39,7 @@
 </Collection>
 <Collection>
 <SyncKey>FILL_ME</SyncKey>
-<CollectionId>245</CollectionId>
+<CollectionId>11</CollectionId>
 <Options>
 <FilterType>2</FilterType>
 <AirSyncBase:BodyPreference>

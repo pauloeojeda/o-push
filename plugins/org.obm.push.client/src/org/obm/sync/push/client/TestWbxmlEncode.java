@@ -22,7 +22,14 @@ public class TestWbxmlEncode extends AbstractPushTest {
 		Document doc = WBXMLTools.toXml(data);
 		DOMUtils.logDom(doc);
 	}
-
+	
+	public void testDecodeOmniaProB7330() throws Exception {
+		InputStream in = loadDataFile("OmniaProB7330.wbxml");
+		byte[] data = FileUtils.streamBytes(in, true);
+		Document doc = WBXMLTools.toXml(data);
+		DOMUtils.logDom(doc);
+	}
+	
 	public void testDecodeSettingsOmniaPro() throws Exception {
 		InputStream in = loadDataFile("settings_omnia_pro.wbxml");
 		byte[] data = FileUtils.streamBytes(in, true);
