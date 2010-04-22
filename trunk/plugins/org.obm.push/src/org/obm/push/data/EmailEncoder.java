@@ -175,7 +175,8 @@ public class EmailEncoder implements IDataEncoder {
 					&& mail.getBody().getValue(MSEmailBodyType.MIME) != null) {
 				return MSEmailBodyType.MIME;
 			}
-		} else if (c.getBodyPreferences().size() == 1) {
+		} else if (c.getBodyPreferences().size() == 1
+				&& c.getBodyPreferences().get(0) != null) {
 			return c.getBodyPreferences().get(0).getType();
 		}
 		return MSEmailBodyType.PlainText;
