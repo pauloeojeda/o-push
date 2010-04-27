@@ -61,9 +61,9 @@ public class EventConverter {
 		for (Attendee at : e.getAttendees()) {
 			mse.addAttendee(convertAttendee(at));
 		}
-		
 
 		mse.setOrganizerName(e.getOwner());
+		mse.setOrganizerEmail(e.getOwnerEmail());
 		mse.setAllDayEvent(e.isAllday());
 
 		mse.setRecurrence(getRecurrence(e.getRecurrence()));
