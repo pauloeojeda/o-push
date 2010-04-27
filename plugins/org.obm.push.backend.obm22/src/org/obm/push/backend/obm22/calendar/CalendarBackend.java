@@ -16,8 +16,10 @@ import org.obm.push.data.calendarenum.AttendeeType;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
+import org.obm.sync.calendar.Attendee;
 import org.obm.sync.calendar.CalendarInfo;
 import org.obm.sync.calendar.Event;
+import org.obm.sync.calendar.ParticipationState;
 import org.obm.sync.client.calendar.CalendarClient;
 import org.obm.sync.items.EventChanges;
 
@@ -102,7 +104,21 @@ public class CalendarBackend extends ObmSyncBackend {
 			}
 			Event[] evs = changes.getUpdated();
 			for (Event e : evs) {
-				if (e.getRecurrenceId() == null) {
+				boolean canAdd = true;
+				for (Attendee att : e.getAttendees()) {
+					if (bs.getLoginAtDomain().equals(att.getEmail())
+							&& ParticipationState.DECLINED.equals(att
+									.getState())) {
+						logger
+								.info("Event["
+										+ e.getDatabaseId()
+										+ "] The participation state is declined. The event will be deleted on phone");
+						canAdd = false;
+						deletions.add(getDeletion(bs, collection, e.getUid()));
+						break;
+					}
+				}
+				if (canAdd && e.getRecurrenceId() == null) {
 					ItemChange change = addCalendarChange(bs.getDevId(),
 							collection, e);
 					addUpd.add(change);
@@ -163,14 +179,14 @@ public class CalendarBackend extends ObmSyncBackend {
 		} catch (Exception e) {
 			logger.error("Error finding email: " + e.getMessage(), e);
 		}
-		
+
 		MSAttendee at = new MSAttendee();
 		at.setEmail(email);
 		at.setAttendeeStatus(AttendeeStatus.ACCEPT);
 		at.setAttendeeType(AttendeeType.REQUIRED);
-		
+
 		data.addAttendee(at);
-		
+
 		Event event = new EventConverter().convertEvent(data);
 		if (id != null) {
 			int idx = id.lastIndexOf(":");
