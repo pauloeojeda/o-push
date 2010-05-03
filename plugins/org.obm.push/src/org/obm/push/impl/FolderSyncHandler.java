@@ -1,5 +1,6 @@
 package org.obm.push.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,17 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 			Document doc, ActiveSyncRequest request, Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
+		if (doc == null) {
+			try {
+				responder
+						.sendResponseFile("text/plain",
+								new ByteArrayInputStream("OPUSH IS ALIVE\n"
+										.getBytes()));
+				return;
+			} catch (IOException e) {
+			}
+		}
+
 		String syncKey = DOMUtils.getElementText(doc.getDocumentElement(),
 				"SyncKey");
 
