@@ -101,8 +101,9 @@ public class ActiveSyncServlet extends HttpServlet {
 			}
 
 			ICollectionChangeListener ccl = c.getCollectionChangeListener();
-			if(c.isError()){
-				ph.sendError(new Responder(response), ccl.getDirtyCollections(), c.getErrorStatus());
+			if (c.isError()) {
+				ph.sendError(new Responder(response),
+						ccl.getDirtyCollections(), c.getErrorStatus());
 			} else if (ccl != null) {
 				ph.sendResponse(bs, new Responder(response), ccl
 						.getDirtyCollections(), false);
@@ -229,8 +230,13 @@ public class ActiveSyncServlet extends HttpServlet {
 		BackendSession bs = getSession(userID, password, devId, request);
 		logger.info("activeSyncMethod: " + bs.getCommand());
 		String proto = p(request, "MS-ASProtocolVersion");
-		bs.setProtocolVersion(Double.parseDouble(proto));
-		logger.info("Client supports protocol " + proto);
+		try {
+			bs.setProtocolVersion(Double.parseDouble(proto));
+			logger.info("Client supports protocol " + proto);
+		} catch (NumberFormatException nfe) {
+			logger.warn("missing MS-ASProtocolVersion");
+			bs.setProtocolVersion(12.1);
+		}
 
 		if (bs.getCommand() == null) {
 			logger.warn("POST received without explicit command, aborting");
@@ -244,8 +250,8 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		sendASHeaders(response);
-		rh.process(continuation, bs,
-				getActiveSyncRequest(request), new Responder(response));
+		rh.process(continuation, bs, getActiveSyncRequest(request),
+				new Responder(response));
 	}
 
 	private ActiveSyncRequest getActiveSyncRequest(HttpServletRequest r) {
