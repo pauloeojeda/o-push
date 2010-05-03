@@ -42,6 +42,8 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.MSEmail;
 import org.obm.sync.client.calendar.CalendarClient;
 
+import fr.aliasource.utils.IniFile;
+
 /**
  * 
  * @author adrienp
@@ -49,6 +51,10 @@ import org.obm.sync.client.calendar.CalendarClient;
  */
 public class EmailManager {
 
+	private static final String BACKEND_CONF_FILE = "/etc/opush/backend_conf.ini";
+	private static final String BACKEND_IMAP_LOGIN_WITH_DOMAIN = "backend.imap.loginWithDomain";
+
+	private Boolean loginWithDomain;
 	protected String imapHost;
 	protected String smtpHost;
 
@@ -60,6 +66,14 @@ public class EmailManager {
 	private EmailManager() {
 		this.logger = LogFactory.getLog(getClass());
 		this.uidCache = new HashMap<Integer, EmailCacheStorage>();
+		IniFile ini = new IniFile(BACKEND_CONF_FILE) {
+			@Override
+			public String getCategory() {
+				return null;
+			}
+		};
+		loginWithDomain = 	!"false".equals(ini.getData().get(
+				BACKEND_IMAP_LOGIN_WITH_DOMAIN));
 	}
 
 	public static EmailManager getInstance() {
@@ -85,8 +99,16 @@ public class EmailManager {
 		if (imapHost == null) {
 			locateImap(bs);
 		}
-		StoreClient imapCli = new StoreClient(imapHost, 143, bs
-				.getLoginAtDomain(), bs.getPassword());
+		String login = bs.getLoginAtDomain();
+		if (!loginWithDomain) {
+			int at = login.indexOf("@");
+			if (at > 0) {
+				login = login.substring(0, at);
+			}
+		}
+		StoreClient imapCli = new StoreClient(imapHost, 143, login, bs
+				.getPassword());
+
 		return imapCli;
 	}
 
@@ -128,7 +150,7 @@ public class EmailManager {
 			MailMessageLoader mailLoader = new MailMessageLoader();
 			MSEmail email = mailLoader.fetch(collectionId, uid, store, bs,
 					calendarClient);
-			if(email != null){
+			if (email != null) {
 				mails.add(email);
 			}
 		}
@@ -247,7 +269,7 @@ public class EmailManager {
 			store.uidStore(uids, fl, true);
 			store.expunge();
 			deleteMessageInCache(devId, srcFolderId, uid);
-				addMessageInCache(devId, dstFolderId, uid);
+			addMessageInCache(devId, dstFolderId, uid);
 		} finally {
 			try {
 				store.logout();
