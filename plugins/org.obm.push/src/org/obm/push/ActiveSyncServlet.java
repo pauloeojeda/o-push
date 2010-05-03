@@ -230,11 +230,15 @@ public class ActiveSyncServlet extends HttpServlet {
 		BackendSession bs = getSession(userID, password, devId, request);
 		logger.info("activeSyncMethod: " + bs.getCommand());
 		String proto = p(request, "MS-ASProtocolVersion");
+		if (proto == null) {
+			proto = "12.1";
+		}
+
 		try {
 			bs.setProtocolVersion(Double.parseDouble(proto));
 			logger.info("Client supports protocol " + proto);
 		} catch (NumberFormatException nfe) {
-			logger.warn("missing MS-ASProtocolVersion");
+			logger.warn("invalid MS-ASProtocolVersion: " + proto);
 			bs.setProtocolVersion(12.1);
 		}
 
