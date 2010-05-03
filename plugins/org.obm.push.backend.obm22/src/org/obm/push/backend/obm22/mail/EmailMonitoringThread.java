@@ -83,8 +83,7 @@ public class EmailMonitoringThread implements IIdleCallback {
 					}
 				}
 			} catch (ActiveSyncException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("getChangedError", e);
 			}
 		}
 
@@ -95,8 +94,7 @@ public class EmailMonitoringThread implements IIdleCallback {
 						colName);
 				toPush.setCollectionId(collectionId);
 			} catch (ActiveSyncException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("getChangedError", e);
 			}
 			
 		}

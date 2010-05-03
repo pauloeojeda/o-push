@@ -80,7 +80,7 @@ public class WBXMLTools {
 			fout.close();
 			logger.error("unparsable wbxml saved in " + tmp.getAbsolutePath());
 		} catch (Throwable t) {
-			t.printStackTrace();
+			logger.error("error storing debug file", t);
 		}
 	}
 
