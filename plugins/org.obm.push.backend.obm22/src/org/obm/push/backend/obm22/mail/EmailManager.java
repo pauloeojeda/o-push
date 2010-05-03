@@ -51,8 +51,8 @@ import fr.aliasource.utils.IniFile;
  */
 public class EmailManager {
 
-	private static final String BACKEND_CONF_FILE = "/etc/opush/backend_conf.ini";
-	private static final String BACKEND_IMAP_LOGIN_WITH_DOMAIN = "backend.imap.loginWithDomain";
+	private static final String BACKEND_CONF_FILE = "/etc/opush/mail_conf.ini";
+	private static final String BACKEND_IMAP_LOGIN_WITH_DOMAIN = "imap.loginWithDomain";
 
 	private Boolean loginWithDomain;
 	protected String imapHost;
