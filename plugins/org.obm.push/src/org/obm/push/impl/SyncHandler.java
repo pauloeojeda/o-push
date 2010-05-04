@@ -205,8 +205,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					// logger
 					// .warn("for testing purpose, we will only suspend for 40sec (to monitor: "
 					// + bs.getLastMonitored() + ")");
-					 continuation.suspend(10 * 1000);
-//					continuation.suspend(secs * 1000);
+//					 continuation.suspend(10 * 1000);
+					continuation.suspend(secs * 1000);
 				}
 			} else {
 				processResponse(bs, responder, collections, false,
