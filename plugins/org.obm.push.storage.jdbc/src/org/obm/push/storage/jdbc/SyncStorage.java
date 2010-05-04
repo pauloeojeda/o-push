@@ -279,13 +279,14 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
-			ps.setInt(1, id);
-			ps.setInt(2, collectionId);
-			ps.executeUpdate();
-
-			ps.close();
+//			ps = con
+//					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
+//			ps.setInt(1, id);
+//			ps.setInt(2, collectionId);
+//			ps.executeUpdate();
+//
+//			ps.close();
+			
 			ps = con
 					.prepareStatement("INSERT INTO opush_sync_state (sync_key, device_id, last_sync, collection_id) VALUES (?, ?, ?, ?)");
 			ps.setString(1, state.getKey());
