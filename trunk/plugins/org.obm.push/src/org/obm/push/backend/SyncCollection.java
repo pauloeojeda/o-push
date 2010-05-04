@@ -19,7 +19,6 @@ public class SyncCollection {
 	private String syncKey;
 	private Integer truncation;
 	private boolean deletesAsMoves;
-	private String newSyncKey;
 	private FilterType filterType;
 	private Integer windowSize;
 	private boolean moreAvailable;
@@ -91,14 +90,6 @@ public class SyncCollection {
 
 	public void setFetchIds(List<String> fetchIds) {
 		this.fetchIds = fetchIds;
-	}
-
-	public String getNewSyncKey() {
-		return newSyncKey;
-	}
-
-	public void setNewSyncKey(String newSyncKey) {
-		this.newSyncKey = newSyncKey;
 	}
 
 	public FilterType getFilterType() {

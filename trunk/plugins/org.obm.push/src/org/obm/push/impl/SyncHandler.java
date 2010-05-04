@@ -107,6 +107,9 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					IContinuation cont = waitContinuationCache.get(collec
 							.getCollectionId());
 					if (cont != null) {
+						for(SyncCollection s : cont.getCollectionChangeListener().getDirtyCollections()){
+							logger.info(s.getCollectionId()+" "+s.getSyncKey());
+						}
 						cont.error(SyncStatus.NEED_RETRY.asXmlValue());
 					}
 				}
@@ -202,8 +205,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					// logger
 					// .warn("for testing purpose, we will only suspend for 40sec (to monitor: "
 					// + bs.getLastMonitored() + ")");
-					// continuation.suspend(40 * 1000);
-					continuation.suspend(secs * 1000);
+					 continuation.suspend(10 * 1000);
+//					continuation.suspend(secs * 1000);
 				}
 			} else {
 				processResponse(bs, responder, collections, false,
@@ -452,9 +455,9 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			StateMachine sm, Element col, Map<String, String> processedClientIds)
 			throws ActiveSyncException {
 		SyncCollection collection = decodeCollection(col);
-		SyncState oldColState = sm.getSyncState(collection.getSyncKey());
-		collection.setSyncState(oldColState);
-		if (oldColState.isValid()) {
+		SyncState colState = sm.getSyncState(collection.getSyncKey());
+		collection.setSyncState(colState);
+		if (colState.isValid()) {
 			Element perform = DOMUtils.getUniqueElement(col, "Commands");
 
 			if (perform != null) {
