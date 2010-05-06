@@ -35,7 +35,7 @@ import org.obm.sync.calendar.RecurrenceKind;
  */
 public class EventConverter {
 
-//	@SuppressWarnings("unused")
+	// @SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(EventConverter.class);
 
 	public MSEvent convertEvent(Event e) {
@@ -307,8 +307,8 @@ public class EventConverter {
 
 	}
 
-	public Event convertEvent(MSEvent data) {
-		Event e = convertEventOne(null, data);
+	public Event convertEvent(Event oldEvent, MSEvent data) {
+		Event e = convertEventOne(oldEvent, null, data);
 		e.setExtId(data.getUID());
 		if (data.getRecurrence() != null) {
 			EventRecurrence r = getRecurrence(data);
@@ -316,7 +316,7 @@ public class EventConverter {
 			if (data.getExceptions() != null && !data.getExceptions().isEmpty()) {
 				for (MSEvent excep : data.getExceptions()) {
 					if (!excep.isDeletedException()) {
-						Event obmEvent = convertEventOne(e, excep);
+						Event obmEvent = convertEventOne(oldEvent, e, excep);
 						r.addEventException(obmEvent);
 					} else {
 						r.addException(excep.getExceptionStartTime());
@@ -332,7 +332,8 @@ public class EventConverter {
 	// Exceptions.Exception.Categories (section 2.2.3.8): This element is
 	// optional.
 
-	private Event convertEventOne(Event parentEvent, MSEvent data) {
+	private Event convertEventOne(Event oldEvent, Event parentEvent,
+			MSEvent data) {
 		Event e = new Event();
 		if (parentEvent != null && parentEvent.getTitle() != null
 				&& !parentEvent.getTitle().isEmpty()) {
@@ -380,13 +381,16 @@ public class EventConverter {
 				e.setPrivacy(parentEvent.getPrivacy());
 			}
 		} else {
-			e.setPrivacy(privacy(data.getSensitivity()));
+			e.setPrivacy(privacy(oldEvent, data.getSensitivity()));
 		}
 
 		return e;
 	}
 
-	private int privacy(CalendarSensitivity sensitivity) {
+	private int privacy(Event oldEvent, CalendarSensitivity sensitivity) {
+		if (sensitivity == null) {
+			return oldEvent != null ? oldEvent.getPrivacy() : 0;
+		}
 		switch (sensitivity) {
 		case CONFIDENTIAL:
 		case PERSONAL:
@@ -413,13 +417,14 @@ public class EventConverter {
 		ret.setEmail(at.getEmail());
 		ret.setRequired(ParticipationRole.REQ);
 		ret.setState(status(at.getAttendeeStatus()));
-		logger.info("Add attendee "+ret.getEmail()+" "+ret.getDisplayName() +" "+at.getAttendeeStatus());
+		logger.info("Add attendee " + ret.getEmail() + " "
+				+ ret.getDisplayName() + " " + at.getAttendeeStatus());
 		return ret;
 	}
 
 	private ParticipationState status(AttendeeStatus attendeeStatus) {
-		if(attendeeStatus == null){
-			return ParticipationState.NEEDSACTION; 
+		if (attendeeStatus == null) {
+			return ParticipationState.NEEDSACTION;
 		}
 		switch (attendeeStatus) {
 		case DECLINE:

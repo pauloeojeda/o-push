@@ -17,7 +17,7 @@ public enum CalendarSensitivity {
 		case CONFIDENTIAL:
 			return "3";
 		default:
-			return "0";
+			return null;
 		}
 	}
 }

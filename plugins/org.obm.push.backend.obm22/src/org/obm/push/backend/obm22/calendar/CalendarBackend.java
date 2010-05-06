@@ -169,8 +169,15 @@ public class CalendarBackend extends ObmSyncBackend {
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
 		String id = null;
+		Event oldEvent = null;
 		if (serverId != null) {
-			id = serverId;
+			int idx = serverId.lastIndexOf(":");
+			id = serverId.substring(idx + 1);
+			try {
+				oldEvent = cc.getEventFromId(token, bs.getLoginAtDomain(), id);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 
 		String email = bs.getLoginAtDomain();
@@ -187,10 +194,8 @@ public class CalendarBackend extends ObmSyncBackend {
 
 		data.addAttendee(at);
 
-		Event event = new EventConverter().convertEvent(data);
+		Event event = new EventConverter().convertEvent(oldEvent, data);
 		if (id != null) {
-			int idx = id.lastIndexOf(":");
-			id = id.substring(idx + 1);
 			try {
 				event.setUid(id);
 				cc.modifyEvent(token, parseCalendarId(collectionId), event,
@@ -248,7 +253,7 @@ public class CalendarBackend extends ObmSyncBackend {
 			logger.info("update user status[" + status.toString()
 					+ "] in calendar " + calendar);
 
-			Event event = new EventConverter().convertEvent(data);
+			Event event = new EventConverter().convertEvent(null, data);
 			event = calCli.modifyEvent(at, calendar, event, true);
 			return getServerIdFor(bs.getDevId(), getDefaultCalendarName(bs)
 					+ "", event.getUid());
