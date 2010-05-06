@@ -53,25 +53,25 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 			// <AttendeeEmail>ff@tt.com</AttendeeEmail>
 			// <AttendeeType>2</AttendeeType>
 			// </Attendee>
-			
+
 			for (int i = 0, n = containerNode.getChildNodes().getLength(); i < n; i += 1) {
 				Element subnode = (Element) containerNode.getChildNodes().item(
 						i);
 				MSAttendee attendee = new MSAttendee();
-				
+
 				String email = parseDOMString(DOMUtils.getUniqueElement(
 						subnode, "Email"));
-				if(email == null || "".equals(email)){
-					email = parseDOMString(DOMUtils.getUniqueElement(
-							subnode, "AttendeeEmail"));
+				if (email == null || "".equals(email)) {
+					email = parseDOMString(DOMUtils.getUniqueElement(subnode,
+							"AttendeeEmail"));
 				}
 				attendee.setEmail(email);
-				
-				String name = parseDOMString(DOMUtils.getUniqueElement(
-						subnode, "Name"));
-				if(name == null || "".equals(name)){
-					name = parseDOMString(DOMUtils.getUniqueElement(
-							subnode, "AttendeeName"));
+
+				String name = parseDOMString(DOMUtils.getUniqueElement(subnode,
+						"Name"));
+				if (name == null || "".equals(name)) {
+					name = parseDOMString(DOMUtils.getUniqueElement(subnode,
+							"AttendeeName"));
 				}
 				attendee.setName(name);
 
@@ -119,7 +119,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 				calendar.addAttendee(attendee);
 			}
 		}
-		
+
 		// Exceptions
 		containerNode = DOMUtils.getUniqueElement(syncData, "Exceptions");
 		if (containerNode != null) {
@@ -210,8 +210,8 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		if (body != null) {
 			Element data = DOMUtils.getUniqueElement(body, "Data");
 			if (data != null) {
-				Type bodyType = Type.fromInt(Integer.parseInt(DOMUtils.getUniqueElement(body,
-						"Type").getTextContent()));
+				Type bodyType = Type.fromInt(Integer.parseInt(DOMUtils
+						.getUniqueElement(body, "Type").getTextContent()));
 				String txt = data.getTextContent();
 				if (bodyType == Type.PLAIN_TEXT) {
 					calendar.setDescription(data.getTextContent());
@@ -222,7 +222,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 							+ txt);
 				}
 			}
-		} 
+		}
 		Element rtf = DOMUtils.getUniqueElement(domSource, "Compressed_RTF");
 		if (rtf != null) {
 			String txt = rtf.getTextContent();
