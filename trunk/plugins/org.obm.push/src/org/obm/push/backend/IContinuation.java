@@ -23,4 +23,6 @@ public interface IContinuation {
 
 	CollectionChangeListener getCollectionChangeListener();
 	void setCollectionChangeListener(CollectionChangeListener l);
+	
+	int getReqId();
 }

@@ -24,11 +24,11 @@ public class BackendSession {
 	private SyncState state;
 	private PIMDataType dataType;
 	private Properties hints;
-	private Map<Integer,Date> updatedSyncDate;
+	private Map<Integer, Date> updatedSyncDate;
 	private Map<Integer, Set<ItemChange>> unSynchronizedItemChangeByCollection;
 	private Map<Integer, SyncState> lastClientSyncState;
 	private int lastWait;
-	
+
 	private String lastContinuationHandler;
 
 	private double protocolVersion;
@@ -36,7 +36,9 @@ public class BackendSession {
 	private String policyKey;
 
 	private Set<SyncCollection> lastMonitored;
-	
+
+	private Map<String, String> lastSyncProcessedClientIds;
+
 	public BackendSession(String loginAtDomain, String password, String devId,
 			String devType, String command) {
 		super();
@@ -68,10 +70,10 @@ public class BackendSession {
 		hints = new Properties();
 		try {
 			InputStream in = BackendSession.class.getClassLoader()
-			.getResourceAsStream("hints/" + devType + ".hints");
+					.getResourceAsStream("hints/" + devType + ".hints");
 			hints.load(in);
 			in.close();
-			logger.info("Loaded hints for "+devType);
+			logger.info("Loaded hints for " + devType);
 		} catch (Throwable e) {
 			logger.warn("could not load hints for device type " + devType);
 		}
@@ -166,22 +168,25 @@ public class BackendSession {
 	}
 
 	public Set<ItemChange> getUnSynchronizedItemChange(Integer collectionId) {
-		Set<ItemChange> ret = unSynchronizedItemChangeByCollection.get(collectionId);
-		if(ret == null){
+		Set<ItemChange> ret = unSynchronizedItemChangeByCollection
+				.get(collectionId);
+		if (ret == null) {
 			ret = new HashSet<ItemChange>();
 		}
 		return ret;
 	}
 
-	public void addUnSynchronizedItemChange(Integer collectionId, ItemChange change ) {
-		Set<ItemChange> changes = unSynchronizedItemChangeByCollection.get(collectionId);
-		if(changes == null){
+	public void addUnSynchronizedItemChange(Integer collectionId,
+			ItemChange change) {
+		Set<ItemChange> changes = unSynchronizedItemChangeByCollection
+				.get(collectionId);
+		if (changes == null) {
 			changes = new HashSet<ItemChange>();
 			unSynchronizedItemChangeByCollection.put(collectionId, changes);
 		}
 		changes.add(change);
 	}
-	
+
 	public SyncState getLastClientSyncState(Integer collectionId) {
 		return lastClientSyncState.get(collectionId);
 	}
@@ -191,29 +196,29 @@ public class BackendSession {
 	}
 
 	public void clearUpdatedSyncDate() {
-		
+
 	}
 
 	public void clearUnSynchronizedItemChangeByCollection() {
-		
+
 	}
 
 	public void clearLastClientSyncState() {
-		
+
 	}
-	
-	public void clearAll(){
+
+	public void clearAll() {
 		this.updatedSyncDate = new HashMap<Integer, Date>();
 		this.unSynchronizedItemChangeByCollection = new HashMap<Integer, Set<ItemChange>>();
 		this.lastClientSyncState = new HashMap<Integer, SyncState>();
 	}
-	
-	public void clear(Integer collectionId){
+
+	public void clear(Integer collectionId) {
 		this.updatedSyncDate.remove(collectionId);
 		this.unSynchronizedItemChangeByCollection.remove(collectionId);
 		this.lastClientSyncState.remove(collectionId);
 	}
-	
+
 	public String getLastContinuationHandler() {
 		return lastContinuationHandler;
 	}
@@ -230,4 +235,12 @@ public class BackendSession {
 		this.lastWait = lastWait;
 	}
 
+	public Map<String, String> getLastSyncProcessedClientIds() {
+		return lastSyncProcessedClientIds;
+	}
+
+	public void setLastSyncProcessedClientIds(
+			Map<String, String> lastSyncProcessedClientIds) {
+		this.lastSyncProcessedClientIds = lastSyncProcessedClientIds;
+	}
 }

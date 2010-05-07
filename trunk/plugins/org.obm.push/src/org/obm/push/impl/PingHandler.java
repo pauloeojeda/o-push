@@ -54,7 +54,7 @@ public class PingHandler extends WbxmlRequestHandler implements
 				logger.error("Don't know what to monitor, " + "interval: "
 						+ intervalSeconds + " toMonitor: "
 						+ bs.getLastMonitored());
-				sendError(responder, PingStatus.MISSING_REQUEST_PARAMS);
+				sendError(responder, PingStatus.MISSING_REQUEST_PARAMS, continuation);
 				return;
 			}
 		} else {
@@ -80,9 +80,9 @@ public class PingHandler extends WbxmlRequestHandler implements
 					try {
 						backend.startEmailMonitoring(bs, id);
 					} catch (CollectionNotFoundException e) {
-						sendError(responder, PingStatus.FOLDER_SYNC_REQUIRED);
+						sendError(responder, PingStatus.FOLDER_SYNC_REQUIRED, continuation);
 					} catch (ActiveSyncException e) {
-						sendError(responder, PingStatus.SERVER_ERROR);
+						sendError(responder, PingStatus.SERVER_ERROR, continuation);
 					}
 				}
 			}
@@ -113,13 +113,14 @@ public class PingHandler extends WbxmlRequestHandler implements
 			}
 		} else {
 			logger.error("Don't know what to monitor, interval is null");
-			sendError(responder, PingStatus.MISSING_REQUEST_PARAMS);
+			sendError(responder, PingStatus.MISSING_REQUEST_PARAMS,continuation);
 			// sendResponse(bs, responder, null, true);
 		}
 	}
-
+	
+	@Override
 	public void sendResponse(BackendSession bs, Responder responder,
-			Set<SyncCollection> changedFolders, boolean sendHierarchyChange) {
+			Set<SyncCollection> changedFolders, boolean sendHierarchyChange,IContinuation continuation) {
 		Document ret = DOMUtils.createDoc(null, "Ping");
 
 		fillResponse(ret.getDocumentElement(), changedFolders,
@@ -150,13 +151,13 @@ public class PingHandler extends WbxmlRequestHandler implements
 		}
 	}
 
-	private void sendError(Responder responder, PingStatus status) {
-		sendError(responder, new HashSet<SyncCollection>(), status.asXmlValue());
+	private void sendError(Responder responder, PingStatus status, IContinuation continuation) {
+		sendError(responder, new HashSet<SyncCollection>(), status.asXmlValue(),continuation);
 	}
 
 	@Override
 	public void sendError(Responder responder,
-			Set<SyncCollection> changedFolders, String errorStatus) {
+			Set<SyncCollection> changedFolders, String errorStatus, IContinuation continuation) {
 		Document ret = DOMUtils.createDoc(null, "Ping");
 		Element root = ret.getDocumentElement();
 		DOMUtils.createElementAndText(root, "Status", errorStatus);

@@ -17,6 +17,7 @@ import org.obm.push.backend.IListenerRegistration;
 
 public class PushContinuation implements IContinuation {
 
+	private static int id = 0;
 	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory
 			.getLog(ActiveSyncServlet.class);
@@ -26,22 +27,26 @@ public class PushContinuation implements IContinuation {
 	private final static String KEY_STATUS_ERROR = "key_stauts_error";
 	private final static String KEY_COLLECTION_CHANGE_LISTENER = "key_collection_change_listener";
 	private final static String KEY_LISTENER_REGISTRATION = "key_listener_registration";
-
+	private final static String KEY_ID_REQUEST = "key_id_request";
+	
 	private Continuation c;
 	private Map<String, Object> params;
 
 	@SuppressWarnings("unchecked")
 	public PushContinuation(HttpServletRequest req) {
 		this.c = ContinuationSupport.getContinuation(req, req);
-		// this.req = req;
 		Object o = c.getObject();
 		if (o != null && o instanceof Map && (c.isPending() || c.isResumed())) {
 			params = (Map<String, Object>) o;
 		} else {
 			this.params = new HashMap<String, Object>();
+			params.put(KEY_ID_REQUEST, id++);
 			c.setObject(params);
 		}
+	}
 
+	public int getReqId() {
+		return (Integer)params.get(KEY_ID_REQUEST);
 	}
 
 	@Override

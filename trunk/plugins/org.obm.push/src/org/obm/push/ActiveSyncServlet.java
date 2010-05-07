@@ -56,7 +56,6 @@ import org.obm.push.utils.RunnableExtensionLoader;
  * 
  */
 public class ActiveSyncServlet extends HttpServlet {
-
 	public static final String SYNC_HANDLER = "Sync";
 	public static final String PING_HANDLER = "Ping";
 
@@ -81,7 +80,7 @@ public class ActiveSyncServlet extends HttpServlet {
 
 		logger.info("q: " + request.getQueryString() + " pending: "
 				+ c.isPending() + " resumed: " + c.isResumed() + " m: "
-				+ request.getMethod());
+				+ request.getMethod()+" num:"+c.getReqId());
 
 		if (c.isResumed() || c.isPending()) {
 			BackendSession bs = c.getBackendSession();
@@ -103,10 +102,10 @@ public class ActiveSyncServlet extends HttpServlet {
 			ICollectionChangeListener ccl = c.getCollectionChangeListener();
 			if (c.isError()) {
 				ph.sendError(new Responder(response),
-						ccl.getDirtyCollections(), c.getErrorStatus());
+						ccl.getDirtyCollections(), c.getErrorStatus(),c);
 			} else if (ccl != null) {
 				ph.sendResponse(bs, new Responder(response), ccl
-						.getDirtyCollections(), false);
+						.getDirtyCollections(), false,c);
 			}
 			return;
 		}

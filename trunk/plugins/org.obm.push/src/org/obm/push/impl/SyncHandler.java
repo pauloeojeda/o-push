@@ -103,17 +103,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 							processedClientIds);
 					collections.add(collec);
 
-					// Disables last push request
-					IContinuation cont = waitContinuationCache.get(collec
-							.getCollectionId());
-					if (cont != null) {
-						for(SyncCollection s : cont.getCollectionChangeListener().getDirtyCollections()){
-							logger.info(s.getCollectionId()+" "+s.getSyncKey());
-						}
-						cont.error(SyncStatus.NEED_RETRY.asXmlValue());
-					}
 				}
-
+				bs.setLastSyncProcessedClientIds(processedClientIds);
 				wait = DOMUtils.getElementText(query, "Wait");
 				if (query.getElementsByTagName("Partial").getLength() > 0) {
 					logger.info("Partial element has been found. "
@@ -205,16 +196,16 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					// logger
 					// .warn("for testing purpose, we will only suspend for 40sec (to monitor: "
 					// + bs.getLastMonitored() + ")");
-//					 continuation.suspend(10 * 1000);
+					// continuation.suspend(10 * 1000);
 					continuation.suspend(secs * 1000);
 				}
 			} else {
 				processResponse(bs, responder, collections, false,
-						processedClientIds);
+						processedClientIds, continuation);
 			}
 		} catch (CollectionNotFoundException ce) {
 			sendError(responder, new HashSet<SyncCollection>(),
-					SyncStatus.OBJECT_NOT_FOUND.asXmlValue());
+					SyncStatus.OBJECT_NOT_FOUND.asXmlValue(), continuation);
 		} catch (ActiveSyncException e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -427,7 +418,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 
 			if (bodyPreferences != null) {
 				for (int i = 0; i < bodyPreferences.getLength(); i++) {
-					Element bodyPreference = (Element)bodyPreferences.item(i);
+					Element bodyPreference = (Element) bodyPreferences.item(i);
 					String truncationSize = DOMUtils.getElementText(
 							bodyPreference, "TruncationSize");
 					String type = DOMUtils.getElementText(bodyPreference,
@@ -457,6 +448,18 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		SyncCollection collection = decodeCollection(col);
 		SyncState colState = sm.getSyncState(collection.getSyncKey());
 		collection.setSyncState(colState);
+
+		// Disables last push request
+		IContinuation cont = waitContinuationCache.get(collection
+				.getCollectionId());
+		if (cont != null) {
+			for (SyncCollection s : cont.getCollectionChangeListener()
+					.getDirtyCollections()) {
+				logger.info(s.getCollectionId() + " " + s.getSyncKey());
+			}
+			cont.error(SyncStatus.NEED_RETRY.asXmlValue());
+		}
+
 		if (colState.isValid()) {
 			Element perform = DOMUtils.getUniqueElement(col, "Commands");
 
@@ -561,15 +564,19 @@ public class SyncHandler extends WbxmlRequestHandler implements
 
 	@Override
 	public void sendResponse(BackendSession bs, Responder responder,
-			Set<SyncCollection> changedFolders, boolean sendHierarchyChange) {
+			Set<SyncCollection> changedFolders, boolean sendHierarchyChange,
+			IContinuation continuation) {
+		Map<String, String> processedClientIds = new HashMap<String, String>(bs.getLastSyncProcessedClientIds());
+		bs.setLastSyncProcessedClientIds(new HashMap<String, String>());
 		processResponse(bs, responder, bs.getLastMonitored(),
-				sendHierarchyChange, new HashMap<String, String>());
+				sendHierarchyChange, processedClientIds,
+				continuation);
 
 	}
 
 	public void processResponse(BackendSession bs, Responder responder,
 			Set<SyncCollection> changedFolders, boolean sendHierarchyChange,
-			Map<String, String> processedClientIds) {
+			Map<String, String> processedClientIds, IContinuation continuation) {
 
 		StateMachine sm = new StateMachine(backend.getStore());
 		Document reply = null;
@@ -637,9 +644,11 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					}
 				} catch (CollectionNotFoundException e) {
 					sendError(responder, new HashSet<SyncCollection>(),
-							SyncStatus.OBJECT_NOT_FOUND.asXmlValue());
+							SyncStatus.OBJECT_NOT_FOUND.asXmlValue(),
+							continuation);
 				}
 			}
+			logger.info("Resp for requestId: " + continuation.getReqId());
 			responder.sendResponse("AirSync", reply);
 		} catch (Exception e) {
 			logger.error("Error creating Sync response", e);
@@ -648,12 +657,14 @@ public class SyncHandler extends WbxmlRequestHandler implements
 
 	@Override
 	public void sendError(Responder responder,
-			Set<SyncCollection> changedFolders, String errorStatus) {
+			Set<SyncCollection> changedFolders, String errorStatus,
+			IContinuation continuation) {
 		Document ret = DOMUtils.createDoc(null, "Sync");
 		Element root = ret.getDocumentElement();
 		DOMUtils.createElementAndText(root, "Status", errorStatus.toString());
 
 		try {
+			logger.info("Resp for requestId: "+continuation.getReqId());
 			responder.sendResponse("AirSync", ret);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
