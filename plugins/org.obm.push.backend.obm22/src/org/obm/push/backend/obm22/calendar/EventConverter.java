@@ -364,7 +364,7 @@ public class EventConverter {
 			e.setAttendees(parentEvent.getAttendees());
 		} else {
 			for (MSAttendee at : data.getAttendees()) {
-				e.addAttendee(convertAttendee(at));
+				e.addAttendee(convertAttendee(oldEvent, at));
 			}
 		}
 
@@ -412,19 +412,27 @@ public class EventConverter {
 		}
 	}
 
-	private Attendee convertAttendee(MSAttendee at) {
+	private Attendee convertAttendee(Event oldEvent, MSAttendee at) {
+		ParticipationState oldState = ParticipationState.NEEDSACTION;
+		for(Attendee oldAtt : oldEvent.getAttendees()){
+			if(oldAtt.getEmail().equals(at.getEmail())){
+				oldState = oldAtt.getState();
+				break;
+			}
+		}
+		
 		Attendee ret = new Attendee();
 		ret.setEmail(at.getEmail());
 		ret.setRequired(ParticipationRole.REQ);
-		ret.setState(status(at.getAttendeeStatus()));
+		ret.setState(status(oldState,at.getAttendeeStatus()));
 		logger.info("Add attendee " + ret.getEmail() + " "
 				+ ret.getDisplayName() + " " + at.getAttendeeStatus());
 		return ret;
 	}
 
-	private ParticipationState status(AttendeeStatus attendeeStatus) {
+	private ParticipationState status(ParticipationState oldParticipationState, AttendeeStatus attendeeStatus) {
 		if (attendeeStatus == null) {
-			return ParticipationState.NEEDSACTION;
+			return oldParticipationState;
 		}
 		switch (attendeeStatus) {
 		case DECLINE:
@@ -438,7 +446,6 @@ public class EventConverter {
 		default:
 		case ACCEPT:
 			return ParticipationState.ACCEPTED;
-
 		}
 	}
 }
