@@ -100,7 +100,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 				}
 
 				switch (parseDOMNoNullInt(DOMUtils.getUniqueElement(syncData,
-						"AttendeeStatus"))) {
+						"AttendeeType"))) {
 				case 1:
 					attendee.setAttendeeType(AttendeeType.REQUIRED);
 					break;
@@ -113,7 +113,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 				}
 
 				if (attendee.getAttendeeType() != null) {
-					logger.info("parse attendeeStatus: "
+					logger.info("parse attendeeType: "
 							+ attendee.getAttendeeType());
 				}
 				calendar.addAttendee(attendee);
