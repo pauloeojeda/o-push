@@ -414,13 +414,14 @@ public class EventConverter {
 
 	private Attendee convertAttendee(Event oldEvent, MSAttendee at) {
 		ParticipationState oldState = ParticipationState.NEEDSACTION;
-		for(Attendee oldAtt : oldEvent.getAttendees()){
-			if(oldAtt.getEmail().equals(at.getEmail())){
-				oldState = oldAtt.getState();
-				break;
+		if(oldEvent != null){
+			for(Attendee oldAtt : oldEvent.getAttendees()){
+				if(oldAtt.getEmail().equals(at.getEmail())){
+					oldState = oldAtt.getState();
+					break;
+				}
 			}
 		}
-		
 		Attendee ret = new Attendee();
 		ret.setEmail(at.getEmail());
 		ret.setRequired(ParticipationRole.REQ);
