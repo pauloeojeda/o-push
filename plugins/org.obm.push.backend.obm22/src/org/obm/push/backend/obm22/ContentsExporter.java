@@ -38,8 +38,8 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	@Override
-	public void configure(BackendSession bs, String dataClass,
-			FilterType filterType, SyncState state, String collectionId) {
+	public void configure(String dataClass, FilterType filterType,
+			SyncState state, String collectionId) {
 		logger.info("configure(" + dataClass + ", " + filterType + ", " + state
 				+ ", " + collectionId + ")");
 		if (collectionId == null) {
@@ -47,21 +47,10 @@ public class ContentsExporter implements IContentsExporter {
 			return;
 		}
 
-		bs.setState(state);
-		if (dataClass != null) {
-			bs.setDataType(PIMDataType.valueOf(dataClass.toUpperCase()));
-		} else if (collectionId.contains("\\calendar\\")) {
-			bs.setDataType(PIMDataType.CALENDAR);
-		} else if (collectionId.endsWith("\\contacts")) {
-			bs.setDataType(PIMDataType.CONTACTS);
-		} else if (collectionId.contains("\\tasks")) {
-			bs.setDataType(PIMDataType.TASKS);
-		} else {
-			bs.setDataType(PIMDataType.EMAIL);
-		}
+		
 	}
 
-	private void proccessFilterType(BackendSession bs, FilterType filterType) {
+	private void proccessFilterType(SyncState state, FilterType filterType) {
 		if (filterType != null) {
 			// FILTER_BY_NO_INCOMPLETE_TASKS;//8
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -104,75 +93,83 @@ public class ContentsExporter implements IContentsExporter {
 				break;
 			}
 
-			if (bs.getState().getLastSync() != null
-					&& cal.getTime().after(bs.getState().getLastSync())) {
-				bs.getState().setLastSync(cal.getTime());
-				bs.getState().setLastSyncFiltred(true);
+			if (state.getLastSync() != null
+					&& cal.getTime().after(state.getLastSync())) {
+				state.setLastSync(cal.getTime());
+				state.setLastSyncFiltred(true);
 			}
 		}
 	}
 
-	@Override
-	public SyncState getState(BackendSession bs) {
-		return bs.getState();
+	// @Override
+	// public SyncState getState(BackendSession bs) {
+	// return bs.getState();
+	// }
+
+	private DataDelta getContactsChanges(BackendSession bs, SyncState state,
+			String collectionId) {
+		return contactsBackend.getContentChanges(bs, state, collectionId);
 	}
 
-	private DataDelta getContactsChanges(BackendSession bs, String collectionId) {
-		return contactsBackend.getContentChanges(bs, collectionId);
-	}
-
-	private DataDelta getTasksChanges(BackendSession bs) {
+	private DataDelta getTasksChanges(BackendSession bs, SyncState state) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 		return new DataDelta(ret, ret);
 	}
 
-	private DataDelta getCalendarChanges(BackendSession bs, String collectionId) {
-		return calBackend.getContentChanges(bs, collectionId);
+	private DataDelta getCalendarChanges(BackendSession bs, SyncState state,
+			String collectionId) {
+		return calBackend.getContentChanges(bs, state, collectionId);
 	}
 
-	private DataDelta getMailChanges(BackendSession bs, String collectionId) {
-		return mailBackend.getContentChanges(bs, collectionId);
+	private DataDelta getMailChanges(BackendSession bs, SyncState state,
+			String collectionId) {
+		return mailBackend.getContentChanges(bs, state, collectionId);
 	}
 
 	@Override
-	public DataDelta getChanged(BackendSession bs, FilterType filterType,
-			String collectionId) {
+	public DataDelta getChanged(BackendSession bs, SyncState state,
+			FilterType filterType, String collectionId) {
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			logger.error(e.getMessage(), e);
+		}
 		DataDelta delta = null;
-		switch (bs.getDataType()) {
+		switch (state.getDataType()) {
 		case CALENDAR:
-			proccessFilterType(bs, filterType);
-			logger.info("getChanged: " + bs.getState().getLastSync());
-			delta = getCalendarChanges(bs, collectionId);
+			proccessFilterType(state, filterType);
+			logger.info("getChanged: " + state.getLastSync());
+			delta = getCalendarChanges(bs, state, collectionId);
 			break;
 		case CONTACTS:
-			delta = getContactsChanges(bs, collectionId);
+			delta = getContactsChanges(bs, state, collectionId);
 			break;
 		case EMAIL:
-			proccessFilterType(bs, filterType);
-			logger.info("getChanged: " + bs.getState().getLastSync());
-			delta = getMailChanges(bs, collectionId);
+			proccessFilterType(state, filterType);
+			logger.info("getChanged: " + state.getLastSync());
+			delta = getMailChanges(bs, state, collectionId);
 			break;
 		case TASKS:
-			delta = getTasksChanges(bs);
+			delta = getTasksChanges(bs, state);
 			break;
 		}
-		logger.info("Get changed from " + bs.getState().getLastSync()
+		logger.info("Get changed from " + state.getLastSync()
 				+ " on collectionId[" + collectionId + "]");
 		return delta;
 	}
 
 	@Override
-	public int getCount(BackendSession bs, FilterType filterType,
-			String collectionId) {
-		DataDelta dd = getChanged(bs, filterType, collectionId);
+	public int getCount(BackendSession bs, SyncState state,
+			FilterType filterType, String collectionId) {
+		DataDelta dd = getChanged(bs, state, filterType, collectionId);
 		return (dd.getChanges().size() + dd.getDeletions().size());
 	}
 
 	@Override
-	public List<ItemChange> fetch(BackendSession bs, List<String> fetchServerIds)
-			throws ActiveSyncException {
+	public List<ItemChange> fetch(BackendSession bs, PIMDataType getDataType,
+			List<String> fetchServerIds) throws ActiveSyncException {
 		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
-		switch (bs.getDataType()) {
+		switch (getDataType) {
 		case CALENDAR:
 			break;
 		case CONTACTS:
@@ -185,16 +182,16 @@ public class ContentsExporter implements IContentsExporter {
 		}
 		return changes;
 	}
-	
+
 	@Override
-	public List<ItemChange> fetchMails(BackendSession bs, List<String> fetchServerIds)
-			throws ActiveSyncException {
+	public List<ItemChange> fetchMails(BackendSession bs,
+			List<String> fetchServerIds) throws ActiveSyncException {
 		return mailBackend.fetchItems(bs, fetchServerIds);
 	}
 
 	@Override
 	public MSAttachementData getEmailAttachement(BackendSession bs,
-			String attachmentId) throws ObjectNotFoundException{
+			String attachmentId) throws ObjectNotFoundException {
 		return mailBackend.getAttachment(bs, attachmentId);
 	}
 

@@ -2,6 +2,6 @@
 <ItemOperations xmlns="ItemOperations:" xmlns:AirSyncBase="AirSyncBase:" >
 <Fetch>
 <Store>Mailbox</Store>
-<AirSyncBase:FileReference>31_7_2_YXBwbGljYXRpb24vcGRm_QkFTRTY0</AirSyncBase:FileReference>
+<AirSyncBase:FileReference>empty</AirSyncBase:FileReference>
 </Fetch>
 </ItemOperations>

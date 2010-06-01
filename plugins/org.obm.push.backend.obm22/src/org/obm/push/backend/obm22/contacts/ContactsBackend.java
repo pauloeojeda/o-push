@@ -10,6 +10,7 @@ import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSContact;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.book.BookType;
@@ -50,17 +51,16 @@ public class ContactsBackend extends ObmSyncBackend {
 		return ret;
 	}
 
-	public DataDelta getContentChanges(BackendSession bs, String collection) {
+	public DataDelta getContentChanges(BackendSession bs, SyncState state, String collection) {
 		List<ItemChange> addUpd = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
-		logger.info("getContentChanges(" + bs.getState().getLastSync() + ")");
+		logger.info("getContentChanges(" + state.getLastSync() + ")");
 		BookClient bc = getBookClient(bs);
 		AccessToken token = bc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
 
 		try {
-			ContactChanges changes = bc.getSync(token, BookType.contacts, bs
-					.getState().getLastSync());
+			ContactChanges changes = bc.getSync(token, BookType.contacts, state.getLastSync());
 
 			long time = System.currentTimeMillis();
 			for (Contact c : changes.getUpdated()) {

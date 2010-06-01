@@ -23,7 +23,7 @@ public class FolderBackend extends ObmSyncBackend {
 		return getCollectionIdFor(bs.getDevId(), getColName(bs));
 	}
 	
-	private String getColName(BackendSession bs){
+	public String getColName(BackendSession bs){
 		return "obm:\\\\" + bs.getLoginAtDomain();
 	}
 

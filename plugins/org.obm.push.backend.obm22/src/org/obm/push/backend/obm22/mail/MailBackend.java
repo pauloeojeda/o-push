@@ -21,6 +21,7 @@ import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.ObjectNotFoundException;
+import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.client.calendar.CalendarClient;
@@ -49,7 +50,7 @@ public class MailBackend extends ObmSyncBackend {
 		return ret;
 	}
 
-	public DataDelta getContentChanges(BackendSession bs, String collection) {
+	public DataDelta getContentChanges(BackendSession bs, SyncState state, String collection) {
 		logger.info("Collection: " + collection);
 		List<ItemChange> changes = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
@@ -57,7 +58,7 @@ public class MailBackend extends ObmSyncBackend {
 			int collectionId = getCollectionIdFor(bs.getDevId(), collection);
 
 			int devId = getDevId(bs.getDevId());
-			MailChanges mc = emailManager.getSync(bs, devId, collectionId,
+			MailChanges mc = emailManager.getSync(bs,state, devId, collectionId,
 					collection);
 			changes = getChanges(bs, collectionId, collection, mc.getUpdated());
 			deletions.addAll(getDeletions(bs, collection, mc.getRemoved()));

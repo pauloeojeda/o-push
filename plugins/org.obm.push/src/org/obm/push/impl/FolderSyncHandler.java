@@ -54,11 +54,13 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 
 		if ("0".equals(syncKey)) {
 			backend.resetForFullSync(bs);
-			bs.setState(new SyncState());
+//			bs.setState(new SyncState());
 		}
 
+		IHierarchyExporter exporter = backend.getHierarchyExporter(bs);
+		
 		StateMachine sm = new StateMachine(backend.getStore());
-		SyncState state = sm.getSyncState(syncKey);
+		SyncState state = sm.getFolderSyncState(bs.getDevId(),exporter.getRootFolderUrl(bs), syncKey);
 		if (!state.isValid()) {
 			sendError(responder, FolderSyncStatus.INVALID_SYNC_KEY);
 			return;
@@ -93,10 +95,9 @@ public class FolderSyncHandler extends WbxmlRequestHandler {
 			}
 		}
 
-		IHierarchyExporter exporter = backend.getHierarchyExporter(bs);
 
 		// dataClass, filterType, state, int, int
-		exporter.configure(bs, null, null, state, 0, 0);
+		exporter.configure(state, null, null, 0, 0);
 
 		try {
 			Document ret = DOMUtils.createDoc(null, "FolderSync");

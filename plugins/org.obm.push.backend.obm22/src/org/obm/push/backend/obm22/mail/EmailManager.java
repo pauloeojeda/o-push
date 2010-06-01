@@ -40,6 +40,7 @@ import org.minig.imap.StoreClient;
 import org.obm.locator.client.LocatorClient;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.MSEmail;
+import org.obm.push.state.SyncState;
 import org.obm.sync.client.calendar.CalendarClient;
 
 import fr.aliasource.utils.IniFile;
@@ -129,11 +130,11 @@ public class EmailManager {
 		return ret;
 	}
 
-	public MailChanges getSync(BackendSession bs, Integer devId,
+	public MailChanges getSync(BackendSession bs, SyncState state, Integer devId,
 			Integer collectionId, String collectionName)
 			throws InterruptedException, SQLException, IMAPException {
 		EmailCacheStorage uc = cache(collectionId, false);
-		MailChanges sync = uc.getSync(getImapClient(bs), devId, bs,
+		MailChanges sync = uc.getSync(getImapClient(bs), devId, bs, state,
 				collectionId, parseMailBoxName(bs, collectionName));
 		return sync;
 	}

@@ -30,13 +30,13 @@ public class ContentsImporter implements IContentsImporter {
 	@Override
 	public void configure(BackendSession bs, SyncState syncState,
 			Integer conflictPolicy) {
-		bs.setState(syncState);
+//		bs.setState(syncState);
 	}
 
-	@Override
-	public SyncState getState(BackendSession bs) {
-		return bs.getState();
-	}
+//	@Override
+//	public SyncState getState(BackendSession bs) {
+//		return bs.getState();
+//	}
 
 	@Override
 	public String importMessageChange(BackendSession bs, String collectionId,

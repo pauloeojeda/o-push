@@ -11,38 +11,38 @@ import org.w3c.dom.NodeList;
 public class TestCalendarSync extends AbstractPushTest {
 
 	public void testSync() throws Exception {
-		InputStream in = loadDataFile("FolderSyncRequest.xml");
-		Document doc = DOMUtils.parse(in);
-		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
-		assertNotNull(ret);
+		// InputStream in = loadDataFile("FolderSyncRequest.xml");
+		// Document doc = DOMUtils.parse(in);
+		// Document ret = postXml("FolderHierarchy", doc, "FolderSync");
+		// assertNotNull(ret);
 
-		in = loadDataFile("CalSyncRequest.xml");
-		doc = DOMUtils.parse(in);
+		// in = loadDataFile("CalSyncRequest.xml");
+		// doc = DOMUtils.parse(in);
+		// Element synckeyElem = DOMUtils.getUniqueElement(doc
+		// .getDocumentElement(), "SyncKey");
+		// synckeyElem.setTextContent("0");
+		// DOMUtils.logDom(doc);
+		// ret = postXml("AirSync", doc, "Sync");
+		// assertNotNull(ret);
+
+		// String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
+		// "SyncKey").getTextContent();
+
+		InputStream in = loadDataFile("CalSyncRequest2.xml");
+		Document doc = DOMUtils.parse(in);
 		Element synckeyElem = DOMUtils.getUniqueElement(doc
 				.getDocumentElement(), "SyncKey");
-		synckeyElem.setTextContent("0");
+		synckeyElem.setTextContent("1115154113");
 		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
+		Document ret = postXml("AirSync", doc, "Sync");
 		assertNotNull(ret);
 
-		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
-				"SyncKey").getTextContent();
-
-		in = loadDataFile("CalSyncRequest2.xml");
-		doc = DOMUtils.parse(in);
-		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"SyncKey");
-		synckeyElem.setTextContent(sk);
-		DOMUtils.logDom(doc);
-		ret = postXml25("AirSync", doc, "Sync");
-		assertNotNull(ret);
-
-		in = loadDataFile("FolderSyncRequest.xml");
-		doc = DOMUtils.parse(in);
-		DOMUtils.getUniqueElement(doc.getDocumentElement(), "SyncKey")
-				.setTextContent(sk);
-		ret = postXml("FolderHierarchy", doc, "FolderSync");
-		assertNotNull(ret);
+		// in = loadDataFile("FolderSyncRequest.xml");
+		// doc = DOMUtils.parse(in);
+		// DOMUtils.getUniqueElement(doc.getDocumentElement(), "SyncKey")
+		// .setTextContent(sk);
+		// ret = postXml("FolderHierarchy", doc, "FolderSync");
+		// assertNotNull(ret);
 
 		// NodeList nl = ret.getDocumentElement().getElementsByTagName(
 		// "ApplicationData");
@@ -62,6 +62,78 @@ public class TestCalendarSync extends AbstractPushTest {
 		// DOMUtils.logDom(doc);
 		// ret = postXml("AirSync", doc, "Sync");
 		// assertNotNull(ret);
+
+	}
+
+	public void testSyncOldSyncKey() throws Exception {
+		InputStream in = loadDataFile("FolderSyncRequest.xml");
+		Document doc = DOMUtils.parse(in);
+		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
+		assertNotNull(ret);
+
+		in = loadDataFile("CalSyncRequest.xml");
+		doc = DOMUtils.parse(in);
+		Element synckeyElem = DOMUtils.getUniqueElement(doc
+				.getDocumentElement(), "SyncKey");
+		synckeyElem.setTextContent("0");
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+		String sk1 = DOMUtils.getUniqueElement(ret.getDocumentElement(),
+				"SyncKey").getTextContent();
+
+		in = loadDataFile("CalSyncRequest2.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"SyncKey");
+		synckeyElem.setTextContent(sk1);
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+		String sk2 = DOMUtils.getUniqueElement(ret.getDocumentElement(),
+				"SyncKey").getTextContent();
+
+		in = loadDataFile("CalSyncRequest2.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"SyncKey");
+		synckeyElem.setTextContent(sk2);
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+
+		in = loadDataFile("CalSyncRequest2.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"SyncKey");
+		synckeyElem.setTextContent(sk1);
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+		in = loadDataFile("FolderSyncRequest.xml");
+		doc = DOMUtils.parse(in);
+		ret = postXml("FolderHierarchy", doc, "FolderSync");
+		assertNotNull(ret);
+
+		in = loadDataFile("CalSyncRequest.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc
+				.getDocumentElement(), "SyncKey");
+		synckeyElem.setTextContent("0");
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+		in = loadDataFile("CalSyncRequest2.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"SyncKey");
+		synckeyElem.setTextContent(sk1);
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
 
 	}
 
@@ -135,15 +207,22 @@ public class TestCalendarSync extends AbstractPushTest {
 
 		in = loadDataFile("CalSyncAdd.xml");
 		doc = DOMUtils.parse(in);
-		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"SyncKey");
-		synckeyElem.setTextContent(sk);
+		// synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+		// "SyncKey");
+		// synckeyElem.setTextContent(sk);
 		Element cliidElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
 				"ClientId");
 		cliidElem.setTextContent("999999999");
-		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
-		assertNotNull(ret);
+		for (int i = 0; i < 2; i++) {
+			synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+					"SyncKey");
+			synckeyElem.setTextContent(sk);
+			DOMUtils.logDom(doc);
+			ret = postXml("AirSync", doc, "Sync");
+			assertNotNull(ret);
+			sk = DOMUtils.getUniqueElement(ret.getDocumentElement(), "SyncKey")
+					.getTextContent();
+		}
 
 		NodeList nl = ret.getDocumentElement().getElementsByTagName(
 				"ApplicationData");
@@ -196,19 +275,19 @@ public class TestCalendarSync extends AbstractPushTest {
 				}
 			}
 		}
-		if(servId == null){
+		if (servId == null) {
 			fail();
 		}
-		sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
-		"SyncKey").getTextContent();
-		
+		sk = DOMUtils.getUniqueElement(ret.getDocumentElement(), "SyncKey")
+				.getTextContent();
+
 		in = loadDataFile("CalSyncDelete2.xml");
 		doc = DOMUtils.parse(in);
 		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
 				"SyncKey");
 		synckeyElem.setTextContent(sk);
-		Element servIdElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"ServerId");
+		Element servIdElem = DOMUtils.getUniqueElement(
+				doc.getDocumentElement(), "ServerId");
 		servIdElem.setTextContent(servId);
 		DOMUtils.logDom(doc);
 		ret = postXml25("AirSync", doc, "Sync");

@@ -2,7 +2,7 @@ package org.obm.push.backend;
 
 public enum PIMDataType {
 
-	EMAIL, CALENDAR, CONTACTS, TASKS;
+	EMAIL, CALENDAR, CONTACTS, TASKS, FOLDER;
 
 	public String asXmlValue() {
 		switch (this) {

@@ -14,6 +14,7 @@ import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.data.calendarenum.AttendeeType;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.calendar.Attendee;
@@ -86,18 +87,18 @@ public class CalendarBackend extends ObmSyncBackend {
 		return ret;
 	}
 
-	public DataDelta getContentChanges(BackendSession bs, String collection) {
+	public DataDelta getContentChanges(BackendSession bs, SyncState state, String collection) {
 		List<ItemChange> addUpd = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 
-		Date ls = bs.getState().getLastSync();
+		Date ls = state.getLastSync();
 		CalendarClient cc = getCalendarClient(bs);
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
 		String calendar = parseCalendarId(collection);
 		try {
 			EventChanges changes = null;
-			if (bs.getState().isLastSyncFiltred()) {
+			if (state.isLastSyncFiltred()) {
 				changes = cc.getSyncEventDate(token, calendar, ls);
 			} else {
 				changes = cc.getSync(token, calendar, ls);
