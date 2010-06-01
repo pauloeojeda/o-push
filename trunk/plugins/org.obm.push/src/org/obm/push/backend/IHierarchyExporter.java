@@ -14,12 +14,14 @@ import org.obm.push.state.SyncState;
  */
 public interface IHierarchyExporter {
 
-	void configure(BackendSession bs, String dataClass, Integer filterType,
-			SyncState state, int i, int j);
+	void configure(SyncState state, String dataClass, Integer filterType,
+			int i, int j);
+	
+	String getRootFolderUrl(BackendSession bs);
 
-	SyncState getState(BackendSession bs);
+//	SyncState getState(BackendSession bs);
 
-//	void synchronize(BackendSession bs);
+	// void synchronize(BackendSession bs);
 
 	List<ItemChange> getChanged(BackendSession bs);
 

@@ -53,22 +53,22 @@ public class AbstractPushTest extends TestCase {
 		// this.devId = "junitDevId";
 		// this.devType = "PocketPC";
 		// this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
-//
-//		 THIS.LOGIN = "ADRIEN";
-//		 THIS.USERID = "TEST.TLSE.LNG\\ADRIEN";
-//		 THIS.PASSWORD = "ALIACOM";
-//		 THIS.DEVID = "359593005624680";
-//		 THIS.DEVTYPE = "ROADSYNCCLIENT";
-//		 THIS.USERAGENT = "ROADSYNCCLIENT/701.341";
-//		 THIS.URL = "HTTP://LOCALHOST/MICROSOFT-SERVER-ACTIVESYNC";
-
-		this.login = "Administrator";
-		this.userId = "test.tlse.lng\\Administrator";
+		
+		this.login = "adrien";
+		this.userId = "test.tlse.lng\\adrien";
 		this.password = "aliacom";
-		this.devId = "Appl8683191J1R4";
-		this.devType = "iPhone";
-		this.userAgent = "Apple-iPhone/701.341";
-		this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
+		this.devId = "359593005624680";
+		this.devType = "roadsyncclient";
+		this.userAgent = "roadsyncclient/701.341";
+		this.url = "http://localhost/Microsoft-Server-ActiveSync";
+
+//		 this.login = "Administrator";
+//		 this.userId = "test.tlse.lng\\Administrator";
+//		 this.password = "aliacom";
+//		 this.devId = "Appl8683191J1R4";
+//		 this.devType = "iPhone";
+//		 this.userAgent = "Apple-iPhone/701.341";
+//		 this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
 
 		this.hc = createHttpClient();
 	}
@@ -254,11 +254,11 @@ public class AbstractPushTest extends TestCase {
 	public static final int byteArrayToInt(byte[] b) {
 		byte[] inverse = new byte[b.length];
 		int in = b.length - 1;
-		for(int i = 0;i<b.length;i++){
+		for (int i = 0; i < b.length; i++) {
 			inverse[in--] = b[i];
 		}
-		return (inverse[0] << 24) + ((inverse[1] & 0xFF) << 16) + ((inverse[2] & 0xFF) << 8)
-				+ (inverse[3] & 0xFF);
+		return (inverse[0] << 24) + ((inverse[1] & 0xFF) << 16)
+				+ ((inverse[2] & 0xFF) << 8) + (inverse[3] & 0xFF);
 	}
 
 	protected byte[] postGetAttachment(String attachmentName) throws Exception {

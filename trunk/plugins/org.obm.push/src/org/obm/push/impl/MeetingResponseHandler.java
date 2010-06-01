@@ -86,13 +86,12 @@ public class MeetingResponseHandler extends WbxmlRequestHandler {
 		}
 
 		try {
-			bs.setDataType(PIMDataType.EMAIL);
 			Document reply = DOMUtils.createDoc(null, "MeetingResponse");
 			Element root = reply.getDocumentElement();
 			for (MeetingResponse item : items) {
 
 				IContentsExporter exporter = backend.getContentsExporter(bs);
-				List<ItemChange> lit = exporter.fetch(bs, Arrays.asList(item
+				List<ItemChange> lit = exporter.fetch(bs,PIMDataType.EMAIL, Arrays.asList(item
 						.getReqId()));
 				ItemChange ic = null;
 				if (lit.size() > 0) {

@@ -66,7 +66,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 				col = c.getCollectionId();
 				collectionId = backend.getStore().getCollectionPath(col);
 				if (collectionId != null) {
-					SyncState state = sm.getSyncState(c.getSyncKey());
+					SyncState state = sm.getSyncState(c.getCollectionId(), c.getSyncKey());
 					if (!state.isValid()) {
 						buildError(response, c.getCollectionId().toString(),
 								GetItemEstimateStatus.INVALID_SYNC_KEY);
@@ -84,9 +84,9 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 
 						IContentsExporter exporter = backend
 								.getContentsExporter(bs);
-						exporter.configure(bs, c.getDataClass(), c
+						exporter.configure(c.getDataClass(), c
 								.getFilterType(), state, collectionId);
-						int count = exporter.getCount(bs, c.getFilterType(),
+						int count = exporter.getCount(bs, state, c.getFilterType(),
 								collectionId)
 								+ bs.getUnSynchronizedItemChange(
 										c.getCollectionId()).size();

@@ -35,6 +35,7 @@ import org.minig.imap.SearchQuery;
 import org.minig.imap.StoreClient;
 import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.push.backend.BackendSession;
+import org.obm.push.state.SyncState;
 
 import fr.aliasource.utils.JDBCUtils;
 
@@ -230,8 +231,8 @@ public class EmailCacheStorage {
 	}
 
 	public MailChanges getSync(StoreClient imapStore, Integer devId,
-			BackendSession bs, Integer collectionId, String mailBox)
-			throws InterruptedException, SQLException {
+			BackendSession bs, SyncState state, Integer collectionId,
+			String mailBox) throws InterruptedException, SQLException {
 		long time = System.currentTimeMillis();
 		long ct = System.currentTimeMillis();
 		Set<Long> memoryCache = loadMailFromDb(bs, devId, collectionId);
@@ -241,17 +242,16 @@ public class EmailCacheStorage {
 		Set<Long> current = loadMailFromIMAP(bs, imapStore, mailBox, null);
 		if (!current.equals(memoryCache)) {
 			updateDbCache(bs, devId, collectionId, current);
-		} else if (bs.getState().getLastSync() != null
-				&& this.lastSyncDate != null
-				&& !bs.getState().getLastSync().after(this.lastSyncDate)
-				&& bs.getState().getKey().equals(this.lastSyncKey)) {
+		} else if (state.getLastSync() != null && this.lastSyncDate != null
+				&& !state.getLastSync().after(this.lastSyncDate)
+				&& state.getKey().equals(this.lastSyncKey)) {
 			return this.mailChangesCache;
 		}
 		writeTime = System.currentTimeMillis() - writeTime;
 
 		long computeChangesTime = System.currentTimeMillis();
-		Set<Long> lastUp = loadMailFromIMAP(bs, imapStore, mailBox, bs
-				.getState().getLastSync());
+		Set<Long> lastUp = loadMailFromIMAP(bs, imapStore, mailBox, state
+				.getLastSync());
 		MailChanges sync = computeChanges(memoryCache, current, lastUp);
 		this.mailChangesCache = sync;
 		computeChangesTime = System.currentTimeMillis() - computeChangesTime;
@@ -264,8 +264,8 @@ public class EmailCacheStorage {
 				+ computeChangesTime + "ms))");
 
 		memoryCache = current;
-		this.lastSyncKey = bs.getState().getKey();
-		this.lastSyncDate = bs.getState().getLastSync();
+		this.lastSyncKey = state.getKey();
+		this.lastSyncDate = state.getLastSync();
 		return sync;
 	}
 

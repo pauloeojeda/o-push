@@ -15,17 +15,17 @@ import org.obm.push.state.SyncState;
  */
 public interface IContentsExporter {
 
-	void configure(BackendSession bs, String dataClass, FilterType filterType,
+	void configure(String dataClass, FilterType filterType,
 			SyncState state, String collectionId);
 
-	SyncState getState(BackendSession bs);
+//	SyncState getState(BackendSession bs);
 
-	DataDelta getChanged(BackendSession bs, FilterType filterType,
+	DataDelta getChanged(BackendSession bs, SyncState state, FilterType filterType,
 			String collectionId);
 
-	int getCount(BackendSession bs, FilterType filterType, String collectionId);
+	int getCount(BackendSession bs, SyncState state, FilterType filterType, String collectionId);
 
-	List<ItemChange> fetch(BackendSession bs, List<String> fetchIds)
+	List<ItemChange> fetch(BackendSession bs, PIMDataType getDataType, List<String> fetchIds)
 			throws ActiveSyncException;
 
 	MSAttachementData getEmailAttachement(BackendSession bs,

@@ -27,7 +27,7 @@ public interface IContentsImporter {
 	
 	String importMoveItem(BackendSession bs, PIMDataType type, String srcFolder, String dstFolder, String messageId);
 
-	SyncState getState(BackendSession bs);
+//	SyncState getState(BackendSession bs);
 
 	void sendEmail(BackendSession bs, byte[] mailContent, Boolean saveInSent);
 

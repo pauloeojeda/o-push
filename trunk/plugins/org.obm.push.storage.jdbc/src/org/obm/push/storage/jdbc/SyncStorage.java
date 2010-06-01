@@ -59,7 +59,8 @@ public class SyncStorage implements ISyncStorage {
 			ps.setInt(2, collectionId);
 			rs = ps.executeQuery();
 			if (rs.next()) {
-				ret = new SyncState();
+				String dataPath = getCollectionPath(collectionId);
+				ret = new SyncState(dataPath);
 				ret.setKey(rs.getString(1));
 				cal.setTimeInMillis(rs.getTimestamp(2).getTime());
 				ret.setLastSync(cal.getTime());
@@ -83,14 +84,15 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
 			ps = con
-					.prepareStatement("SELECT device_id, last_sync FROM opush_sync_state WHERE sync_key=?");
+					.prepareStatement("SELECT device_id, last_sync, collection_id FROM opush_sync_state WHERE sync_key=?");
 			ps.setString(1, syncKey);
 
 			rs = ps.executeQuery();
 			if (rs.next()) {
-				ret = new SyncState();
+				ret = new SyncState(getCollectionPath(rs
+						.getInt("collection_id")));
 				ret.setKey(syncKey);
-				ret.setLastSync(rs.getTimestamp(2));
+				ret.setLastSync(rs.getTimestamp("last_sync"));
 			}
 		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
@@ -279,14 +281,14 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-//			ps = con
-//					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
-//			ps.setInt(1, id);
-//			ps.setInt(2, collectionId);
-//			ps.executeUpdate();
-//
-//			ps.close();
-			
+			// ps = con
+			// .prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
+			// ps.setInt(1, id);
+			// ps.setInt(2, collectionId);
+			// ps.executeUpdate();
+			//
+			// ps.close();
+
 			ps = con
 					.prepareStatement("INSERT INTO opush_sync_state (sync_key, device_id, last_sync, collection_id) VALUES (?, ?, ?, ?)");
 			ps.setString(1, state.getKey());
@@ -379,7 +381,7 @@ public class SyncStorage implements ISyncStorage {
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
-		if(ret == null){
+		if (ret == null) {
 			throw new CollectionNotFoundException();
 		}
 		return ret;

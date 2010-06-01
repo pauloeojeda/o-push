@@ -38,22 +38,21 @@ public class HierarchyExporter implements IHierarchyExporter {
 	}
 
 	@Override
-	public void configure(BackendSession bs, String dataClass,
-			Integer filterType, SyncState state, int i, int j) {
+	public void configure(SyncState state, String dataClass,
+			Integer filterType, int i, int j) {
 		logger.info("configure(bs, " + dataClass + ", " + filterType + ", "
 				+ state + ", " + i + ", " + j + ")");
-		bs.setState(state);
 		if (dataClass != null) {
-			bs.setDataType(PIMDataType.valueOf(dataClass.toUpperCase()));
+			state.setDataType(PIMDataType.valueOf(dataClass.toUpperCase()));
 		} else {
-			bs.setDataType(null);
+			state.setDataType(null);
 		}
 	}
 
-	@Override
-	public SyncState getState(BackendSession bs) {
-		return bs.getState();
-	}
+//	@Override
+//	public SyncState getState(BackendSession bs) {
+//		return bs.getState();
+//	}
 
 	private List<ItemChange> getContactsChanges(BackendSession bs) {
 		return contactsBackend.getHierarchyChanges(bs);
@@ -95,6 +94,11 @@ public class HierarchyExporter implements IHierarchyExporter {
 	@Override
 	public int getRootFolderId(BackendSession bs) throws ActiveSyncException {
 		return folderExporter.getServerIdFor(bs);
+	}
+
+	@Override
+	public String getRootFolderUrl(BackendSession bs) {
+		return folderExporter.getColName(bs);
 	}
 
 }

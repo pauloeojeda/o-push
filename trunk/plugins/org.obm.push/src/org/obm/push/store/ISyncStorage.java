@@ -13,7 +13,7 @@ public interface ISyncStorage {
 	SyncState findStateForDevice(String devId, Integer collectionId);
 
 	SyncState findStateForKey(String syncKey);
-
+	
 	long findLastHearbeat(String devId);
 	
 	void updateLastHearbeat(String devId, long hearbeat);
