@@ -76,17 +76,21 @@ public class CalendarEncoder implements IDataEncoder {
 			e(p, "Calendar:OrganizerEmail", bs.getLoginAtDomain());
 		}
 
-		if (bs.checkHint("hint.loadAttendees", true)
-				&& ev.getAttendees().size() > 1) {
+		if (bs.checkHint("hint.loadAttendees", true)) {
 			Element at = DOMUtils.createElement(p, "Calendar:Attendees");
-			for (MSAttendee ma : ev.getAttendees()) {
-				Element ae = DOMUtils.createElement(at, "Calendar:Attendee");
-				e(ae, "Calendar:AttendeeEmail", ma.getEmail());
-				e(ae, "Calendar:AttendeeName", ma.getName());
-				e(ae, "Calendar:AttendeeStatus", ma.getAttendeeStatus()
-						.asIntString());
-				e(ae, "Calendar:AttendeeType", ma.getAttendeeType()
-						.asIntString());
+			if (ev.getAttendees().size() > 1) {
+				for (MSAttendee ma : ev.getAttendees()) {
+					Element ae = DOMUtils
+							.createElement(at, "Calendar:Attendee");
+					e(ae, "Calendar:AttendeeEmail", ma.getEmail());
+					e(ae, "Calendar:AttendeeName", ma.getName());
+					if (bs.getProtocolVersion() >= 12) {
+						e(ae, "Calendar:AttendeeStatus", ma.getAttendeeStatus()
+								.asIntString());
+						e(ae, "Calendar:AttendeeType", ma.getAttendeeType()
+								.asIntString());
+					}
+				}
 			}
 		}
 
@@ -99,7 +103,6 @@ public class CalendarEncoder implements IDataEncoder {
 			encodeRecurrence(p, ev);
 			encodeExceptions(c, bs, p, ev.getExceptions());
 		}
-
 
 		e(p, "Calendar:Sensitivity", "0");
 		e(p, "Calendar:BusyStatus", ev.getBusyStatus().asIntString());
@@ -190,13 +193,13 @@ public class CalendarEncoder implements IDataEncoder {
 	private void encodeBody(SyncCollection c, BackendSession bs, Element p,
 			MSEvent event) {
 		String body = "";
-		if(event.getDescription() != null){
+		if (event.getDescription() != null) {
 			body = event.getDescription().trim();
 		}
 		if (bs.getProtocolVersion() >= 12) {
 			Element d = DOMUtils.createElement(p, "AirSyncBase:Body");
 			e(d, "AirSyncBase:Type", Type.PLAIN_TEXT.toString());
-			e(d, "AirSyncBase:EstimatedDataSize", ""+body.length());
+			e(d, "AirSyncBase:EstimatedDataSize", "" + body.length());
 			if (body.length() > 0) {
 				DOMUtils.createElementAndText(d, "AirSyncBase:Data", body);
 			}

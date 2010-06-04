@@ -1,2 +1,2 @@
-hint.loadAttendees=false
+hint.loadAttendees=true
 hint.multipleCalendars=false
