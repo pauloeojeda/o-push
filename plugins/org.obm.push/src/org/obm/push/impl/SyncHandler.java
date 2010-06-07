@@ -34,6 +34,7 @@ import org.obm.push.data.IDataDecoder;
 import org.obm.push.data.IDataEncoder;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.CollectionNotFoundException;
+import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
@@ -206,7 +207,16 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		} catch (CollectionNotFoundException ce) {
 			sendError(responder, new HashSet<SyncCollection>(),
 					SyncStatus.OBJECT_NOT_FOUND.asXmlValue(), continuation);
+		} catch (ObjectNotFoundException oe) {
+			sendError(responder, new HashSet<SyncCollection>(),
+					SyncStatus.OBJECT_NOT_FOUND.asXmlValue(), continuation);
 		} catch (ActiveSyncException e) {
+//			sendError(responder, new HashSet<SyncCollection>(),
+//					SyncStatus.SERVER_ERROR.asXmlValue(), continuation);
+			logger.error(e.getMessage(), e);
+		} catch (Throwable e) {
+//			sendError(responder, new HashSet<SyncCollection>(),
+//					SyncStatus.SERVER_ERROR.asXmlValue(), continuation);
 			logger.error(e.getMessage(), e);
 		}
 	}
@@ -374,13 +384,18 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		encoder.encode(bs, apData, data, c, true);
 	}
 
-	private SyncCollection decodeCollection(Element col) {
+	private SyncCollection decodeCollection(Element col) throws CollectionNotFoundException {
 		SyncCollection collection = new SyncCollection();
 		collection.setDataClass(DOMUtils.getElementText(col, "Class"));
 		collection.setSyncKey(DOMUtils.getElementText(col, "SyncKey"));
 		Element fid = DOMUtils.getUniqueElement(col, "CollectionId");
 		if (fid != null) {
-			collection.setCollectionId(Integer.parseInt(fid.getTextContent()));
+			try{
+				collection.setCollectionId(Integer.parseInt(fid.getTextContent()));	
+			} catch (NumberFormatException e){
+				throw new CollectionNotFoundException();
+			}
+			
 		}
 
 		Element wse = DOMUtils.getUniqueElement(col, "WindowSize");
