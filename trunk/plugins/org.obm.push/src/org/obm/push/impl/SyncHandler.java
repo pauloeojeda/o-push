@@ -214,10 +214,6 @@ public class SyncHandler extends WbxmlRequestHandler implements
 //			sendError(responder, new HashSet<SyncCollection>(),
 //					SyncStatus.SERVER_ERROR.asXmlValue(), continuation);
 			logger.error(e.getMessage(), e);
-		} catch (Throwable e) {
-//			sendError(responder, new HashSet<SyncCollection>(),
-//					SyncStatus.SERVER_ERROR.asXmlValue(), continuation);
-			logger.error(e.getMessage(), e);
 		}
 	}
 
