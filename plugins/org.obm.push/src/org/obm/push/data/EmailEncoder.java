@@ -11,6 +11,7 @@ import java.util.TimeZone;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
+import org.obm.push.backend.BodyPreference;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSAddress;
 import org.obm.push.backend.MSAttachement;
@@ -123,17 +124,16 @@ public class EmailEncoder implements IDataEncoder {
 
 	protected void appendBody(Element parent, MSEmail mail, SyncCollection c) {
 		Element elemBody = DOMUtils.createElement(parent, "AirSyncBase:Body");
-
 		MSEmailBodyType availableFormat = getAvailableFormat(c, mail);
 		String data = getBodyData(c, mail, availableFormat);
 
 		DOMUtils.createElementAndText(elemBody, "AirSyncBase:Type",
 				availableFormat.asIntString());
-		if (data != null) {
-			DOMUtils.createElementAndText(elemBody,
-					"AirSyncBase:EstimatedDataSize", ""
-							+ data.getBytes().length);
-		}
+		// if (data != null) {
+		// DOMUtils.createElementAndText(elemBody,
+		// "AirSyncBase:EstimatedDataSize", ""
+		// + data.getBytes().length);
+		// }
 
 		if (c.getBodyPreference(availableFormat) != null
 				&& c.getBodyPreference(availableFormat).getTruncationSize() != null) {
@@ -149,6 +149,7 @@ public class EmailEncoder implements IDataEncoder {
 		if (data != null && data.length() > 0) {
 			DOMUtils.createElementAndText(elemBody, "AirSyncBase:Data", data);
 		}
+
 		if (mail.getInvitation() != null) {
 			DOMUtils.createElementAndText(parent, "Email:ContentClass",
 					"urn:content-classes:calendarmessage");
@@ -159,6 +160,7 @@ public class EmailEncoder implements IDataEncoder {
 
 		DOMUtils.createElementAndText(parent, "AirSyncBase:NativeBodyType",
 				availableFormat.asIntString());
+
 	}
 
 	private MSEmailBodyType getAvailableFormat(SyncCollection c, MSEmail mail) {
@@ -175,9 +177,12 @@ public class EmailEncoder implements IDataEncoder {
 					&& mail.getBody().getValue(MSEmailBodyType.MIME) != null) {
 				return MSEmailBodyType.MIME;
 			}
-		} else if (c.getBodyPreferences().size() == 1
-				&& c.getBodyPreferences().get(0) != null) {
-			return c.getBodyPreferences().get(0).getType();
+		} else if (c.getBodyPreferences().size() == 1) {
+			BodyPreference pref = c.getBodyPreferences().values().iterator()
+					.next();
+			if (pref != null && pref.getType() != null) {
+				return pref.getType();
+			}
 		}
 		return MSEmailBodyType.PlainText;
 	}

@@ -41,12 +41,14 @@ public class HTMLBodyFormatter{
 
 	public String convert(String plain) {
 		StringBuilder sb = new StringBuilder();
+		sb.append("<html><body>");
 		String escaped = StringEscapeUtils.escapeHtml(plain);
 		escaped = escaped.replaceAll("\r\n", "<br>");
 		sb.append(escaped);
+		sb.append("</body></html>");
+		
 		Pattern p = Pattern.compile(PATTERN_URL + "|" + PATTERN_EMAIL);
 		Matcher m = p.matcher(sb);
-
 		StringBuffer res = parseUrl(m, sb);
 		if (res.toString().length() > 0) {
 			return res.toString();
