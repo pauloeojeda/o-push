@@ -41,6 +41,7 @@ public class MailBackend extends ObmSyncBackend {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 
 		ret.add(genItemChange(bs, "INBOX", FolderType.DEFAULT_INBOX_FOLDER));
+		ret.add(genItemChange(bs, "Drafts", FolderType.DEFAULT_DRAFTS_FOLDERS));
 		ret
 				.add(genItemChange(bs, "Sent",
 						FolderType.DEFAULT_SENT_EMAIL_FOLDER));
