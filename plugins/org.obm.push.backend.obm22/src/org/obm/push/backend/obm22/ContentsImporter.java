@@ -12,8 +12,12 @@ import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.exception.ActiveSyncException;
-import org.obm.push.state.SyncState;
 
+/**
+ * 
+ * @author adrienp
+ * 
+ */
 public class ContentsImporter implements IContentsImporter {
 
 	private MailBackend mailBackend;
@@ -28,19 +32,9 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public void configure(BackendSession bs, SyncState syncState,
-			Integer conflictPolicy) {
-//		bs.setState(syncState);
-	}
-
-//	@Override
-//	public SyncState getState(BackendSession bs) {
-//		return bs.getState();
-//	}
-
-	@Override
 	public String importMessageChange(BackendSession bs, String collectionId,
-			String serverId, String clientId, IApplicationData data) throws ActiveSyncException {
+			String serverId, String clientId, IApplicationData data)
+			throws ActiveSyncException {
 		String id = null;
 		switch (data.getType()) {
 		case CALENDAR:

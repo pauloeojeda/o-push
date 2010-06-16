@@ -37,19 +37,6 @@ public class ContentsExporter implements IContentsExporter {
 		this.contactsBackend = contactsBackend;
 	}
 
-	@Override
-	public void configure(String dataClass, FilterType filterType,
-			SyncState state, String collectionId) {
-		logger.info("configure(" + dataClass + ", " + filterType + ", " + state
-				+ ", " + collectionId + ")");
-		if (collectionId == null) {
-			logger.warn("null collection, skipping");
-			return;
-		}
-
-		
-	}
-
 	private void proccessFilterType(SyncState state, FilterType filterType) {
 		if (filterType != null) {
 			// FILTER_BY_NO_INCOMPLETE_TASKS;//8
@@ -100,11 +87,6 @@ public class ContentsExporter implements IContentsExporter {
 			}
 		}
 	}
-
-	// @Override
-	// public SyncState getState(BackendSession bs) {
-	// return bs.getState();
-	// }
 
 	private DataDelta getContactsChanges(BackendSession bs, SyncState state,
 			String collectionId) {
