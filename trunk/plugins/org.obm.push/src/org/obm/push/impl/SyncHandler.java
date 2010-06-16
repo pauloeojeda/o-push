@@ -211,8 +211,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			sendError(responder, new HashSet<SyncCollection>(),
 					SyncStatus.OBJECT_NOT_FOUND.asXmlValue(), continuation);
 		} catch (ActiveSyncException e) {
-//			sendError(responder, new HashSet<SyncCollection>(),
-//					SyncStatus.SERVER_ERROR.asXmlValue(), continuation);
+			// sendError(responder, new HashSet<SyncCollection>(),
+			// SyncStatus.SERVER_ERROR.asXmlValue(), continuation);
 			logger.error(e.getMessage(), e);
 		}
 	}
@@ -223,7 +223,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		String col = backend.getStore().getCollectionPath(c.getCollectionId());
 		DataDelta delta = null;
 		if (bs.getUnSynchronizedItemChange(c.getCollectionId()).size() == 0) {
-			delta = cex.getChanged(bs, c.getSyncState(), c.getFilterType(), col);
+			delta = cex
+					.getChanged(bs, c.getSyncState(), c.getFilterType(), col);
 		}
 		List<ItemChange> changed = processWindowSize(c, delta, bs,
 				processedClientIds);
@@ -351,7 +352,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 	private void doFetch(BackendSession bs, SyncCollection c, Element ce,
 			IContentsExporter cex) throws ActiveSyncException {
 		List<ItemChange> changed;
-		changed = cex.fetch(bs, c.getSyncState().getDataType(), c.getFetchIds());
+		changed = cex
+				.fetch(bs, c.getSyncState().getDataType(), c.getFetchIds());
 		Element commands = DOMUtils.createElement(ce, "Responses");
 		for (ItemChange ic : changed) {
 			Element add = DOMUtils.createElement(commands, "Fetch");
@@ -380,18 +382,20 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		encoder.encode(bs, apData, data, c, true);
 	}
 
-	private SyncCollection decodeCollection(Element col) throws CollectionNotFoundException {
+	private SyncCollection decodeCollection(Element col)
+			throws CollectionNotFoundException {
 		SyncCollection collection = new SyncCollection();
 		collection.setDataClass(DOMUtils.getElementText(col, "Class"));
 		collection.setSyncKey(DOMUtils.getElementText(col, "SyncKey"));
 		Element fid = DOMUtils.getUniqueElement(col, "CollectionId");
 		if (fid != null) {
-			try{
-				collection.setCollectionId(Integer.parseInt(fid.getTextContent()));	
-			} catch (NumberFormatException e){
+			try {
+				collection.setCollectionId(Integer.parseInt(fid
+						.getTextContent()));
+			} catch (NumberFormatException e) {
 				throw new CollectionNotFoundException();
 			}
-			
+
 		}
 
 		Element wse = DOMUtils.getUniqueElement(col, "WindowSize");
@@ -457,7 +461,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			StateMachine sm, Element col, Map<String, String> processedClientIds)
 			throws ActiveSyncException {
 		SyncCollection collection = decodeCollection(col);
-		SyncState colState = sm.getSyncState(collection.getCollectionId(),collection.getSyncKey());
+		SyncState colState = sm.getSyncState(collection.getCollectionId(),
+				collection.getSyncKey());
 		collection.setSyncState(colState);
 
 		// Disables last push request
@@ -485,8 +490,6 @@ public class SyncHandler extends WbxmlRequestHandler implements
 				// get our sync state for this collection
 				IContentsImporter importer = backend.getContentsImporter(
 						collection.getCollectionId(), bs);
-				importer.configure(bs, collection.getSyncState(), collection
-						.getConflict());
 				NodeList mod = perform.getChildNodes();
 				for (int j = 0; j < mod.getLength(); j++) {
 					Element modification = (Element) mod.item(j);
@@ -576,11 +579,11 @@ public class SyncHandler extends WbxmlRequestHandler implements
 	public void sendResponse(BackendSession bs, Responder responder,
 			Set<SyncCollection> changedFolders, boolean sendHierarchyChange,
 			IContinuation continuation) {
-		Map<String, String> processedClientIds = new HashMap<String, String>(bs.getLastSyncProcessedClientIds());
+		Map<String, String> processedClientIds = new HashMap<String, String>(bs
+				.getLastSyncProcessedClientIds());
 		bs.setLastSyncProcessedClientIds(new HashMap<String, String>());
 		processResponse(bs, responder, bs.getLastMonitored(),
-				sendHierarchyChange, processedClientIds,
-				continuation);
+				sendHierarchyChange, processedClientIds, continuation);
 
 	}
 
@@ -604,7 +607,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					}
 
 					String syncKey = c.getSyncKey();
-					SyncState st = sm.getSyncState(c.getCollectionId(), syncKey);
+					SyncState st = sm
+							.getSyncState(c.getCollectionId(), syncKey);
 
 					SyncState oldClientSyncKey = bs.getLastClientSyncState(c
 							.getCollectionId());
@@ -630,15 +634,10 @@ public class SyncHandler extends WbxmlRequestHandler implements
 								.getCollectionId().toString());
 						DOMUtils.createElementAndText(ce, "Status",
 								SyncStatus.OK.asXmlValue());
-						int col = c.getCollectionId();
-						String colStr = backend.getStore().getCollectionPath(
-								col);
 
 						if (!syncKey.equals("0")) {
 							IContentsExporter cex = backend
 									.getContentsExporter(bs);
-							cex.configure(c.getDataClass(), c
-									.getFilterType(), st, colStr);
 
 							if (c.getFetchIds().size() == 0) {
 								doUpdates(bs, c, ce, cex, processedClientIds);
@@ -673,7 +672,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		DOMUtils.createElementAndText(root, "Status", errorStatus.toString());
 
 		try {
-			logger.info("Resp for requestId: "+continuation.getReqId());
+			logger.info("Resp for requestId: " + continuation.getReqId());
 			responder.sendResponse("AirSync", ret);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
