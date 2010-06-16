@@ -94,8 +94,9 @@ public class EmailEncoder implements IDataEncoder {
 
 		DOMUtils.createElementAndText(parent, "Email:MessageClass", mail
 				.getMessageClass().toString());
-
-		appendMeetintRequest(parent, mail);
+		
+		//Disabling meeting request
+		// appendMeetintRequest(parent, mail);
 
 		DOMUtils.createElementAndText(parent, "Email:InternetCPID", "65001");
 
