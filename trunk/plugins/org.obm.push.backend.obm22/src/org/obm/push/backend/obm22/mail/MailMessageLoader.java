@@ -230,14 +230,14 @@ public class MailMessageLoader {
 
 		MSEmailBody body = getMailBody(chosenParts, protocol);
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
-//		if (chosenParts != null && chosenParts.size() > 0) {
-//			for (MimePart mp : chosenParts) {
-//				attach.addAll(extractAttachments(mp, protocol,  mp
-//						.isInvitation()));
-//			}
-//		} else {
-			attach = extractAttachments(mimePart, protocol);
-//		}
+		// if (chosenParts != null && chosenParts.size() > 0) {
+		// for (MimePart mp : chosenParts) {
+		// attach.addAll(extractAttachments(mp, protocol, mp
+		// .isInvitation()));
+		// }
+		// } else {
+		attach = extractAttachments(mimePart, protocol);
+		// }
 		MSEmail mm = new MSEmail();
 		mm.setBody(body);
 		mm.setFrom(AddressConverter.convertAddress(h.getFrom()));
@@ -387,39 +387,17 @@ public class MailMessageLoader {
 		return rawData;
 	}
 
-	// private Set<MSAttachement> extractAttachments(MimePart mimePart,
-	// StoreClient protocol, boolean isInvit) throws IOException,
-	// IMAPException {
-	// Set<MSAttachement> attach = new HashSet<MSAttachement>();
-	// if (mimePart != null) {
-	// MimePart parent = mimePart.getParent();
-	// if (parent != null) {
-	// boolean inv = false;
-	// for (MimePart mp : parent.getChildren()) {
-	// inv = mp.isInvitation();
-	// MSAttachement att = extractAttachmentData(mp, protocol,
-	// isInvit || inv);
-	// if (att != null) {
-	// attach.add(att);
-	// }
-	// }
-	// if (parent.getMimeType() == null
-	// && parent.getMimeSubtype() == null) {
-	// extractAttachments(parent, protocol, inv);
-	// }
-	// }
-	// }
-	// return attach;
-	// }
-
 	private Set<MSAttachement> extractAttachments(MimePart mimePart,
-			StoreClient protocol) throws IOException,
-			IMAPException {
+			StoreClient protocol) throws IOException, IMAPException {
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 		if (mimePart != null) {
-			for (MimePart mp : mimePart.getChildren()) {
-				MSAttachement msAtt = extractAttachmentData(mp,
-						protocol, mp.isInvitation());
+			boolean inv = false;
+			for (Iterator<MimePart> it = mimePart.iterator(); it.hasNext();) {
+				MimePart mp = it.next();
+				inv = mp.isInvitation();
+				MSAttachement msAtt = extractAttachmentData(mp, protocol, mp
+						.isInvitation()
+						|| inv);
 				if (msAtt != null) {
 					attach.add(msAtt);
 				}
@@ -442,8 +420,9 @@ public class MailMessageLoader {
 			Map<String, String> bp = mp.getBodyParams();
 			if (bp != null) {
 				if (bp.containsKey("name") && bp.get("name") != null) {
+
 					if (isInvitation && bp.get("name").contains(".ics")
-							 && data != null) {
+							&& data != null) {
 						invitation = new ByteArrayInputStream(data);
 					}
 					MSAttachement att = new MSAttachement();
