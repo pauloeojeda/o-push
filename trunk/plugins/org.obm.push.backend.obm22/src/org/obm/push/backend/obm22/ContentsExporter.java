@@ -111,11 +111,6 @@ public class ContentsExporter implements IContentsExporter {
 	@Override
 	public DataDelta getChanged(BackendSession bs, SyncState state,
 			FilterType filterType, String collectionId) {
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			logger.error(e.getMessage(), e);
-		}
 		DataDelta delta = null;
 		switch (state.getDataType()) {
 		case CALENDAR:
