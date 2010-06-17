@@ -255,8 +255,8 @@ public class ContactConverter {
 
 	private void addAddress(Contact oc, String lbl, String street,
 			String postalCode, String city, String country, String state) {
-		if (!isEmpty(street) && !isEmpty(postalCode) && !isEmpty(city)
-				&& !isEmpty(country) && !isEmpty(state)) {
+		if (!isEmpty(street) || !isEmpty(postalCode) || !isEmpty(city)
+				|| !isEmpty(country) || !isEmpty(state)) {
 			oc.addAddress(lbl, new Address(street, postalCode, null, city,
 					country, state));
 		}
