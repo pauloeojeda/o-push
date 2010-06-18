@@ -135,7 +135,7 @@ public class MailBackend extends ObmSyncBackend {
 			Integer collectionId = getCollectionIdFor(serverId);
 			String collectionName = getCollectionNameFor(collectionId);
 			Set<Long> uids = new HashSet<Long>();
-			uids.add(getEmailUidFor(serverId));
+			uids.add(getItemIdFor(serverId).longValue());
 			List<MSEmail> emails;
 			try {
 				emails = emailManager.fetchMails(bs, getCalendarClient(bs),
@@ -159,7 +159,7 @@ public class MailBackend extends ObmSyncBackend {
 		logger.info("delete serverId " + serverId);
 		if (serverId != null) {
 			try {
-				Long uid = getEmailUidFor(serverId);
+				Long uid = getItemIdFor(serverId).longValue();
 				Integer collectionId = getCollectionIdFor(serverId);
 				String collectionName = getCollectionNameFor(collectionId);
 				Integer devId = getDevId(bs.getDevId());
@@ -177,7 +177,7 @@ public class MailBackend extends ObmSyncBackend {
 		logger.info("createOrUpdate(" + bs.getLoginAtDomain() + ", "
 				+ collection + ", " + serverId + ", " + clientId + ")");
 		if (serverId != null) {
-			Long mailUid = getEmailUidFor(serverId);
+			Long mailUid = getItemIdFor(serverId).longValue();
 			try {
 				emailManager.updateReadFlag(bs, collection, mailUid, data
 						.isRead());
@@ -204,7 +204,7 @@ public class MailBackend extends ObmSyncBackend {
 
 			newUidMail = emailManager.moveItem(bs, devId, srcFolder,
 					srcFolderId, dstFolder, dstFolderId,
-					getEmailUidFor(messageId));
+					getItemIdFor(messageId).longValue());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -212,11 +212,6 @@ public class MailBackend extends ObmSyncBackend {
 			return null;
 		}
 		return dstFolderId + ":" + newUidMail;
-	}
-
-	private Long getEmailUidFor(String serverId) {
-		int idx = serverId.lastIndexOf(":");
-		return Long.parseLong(serverId.substring(idx + 1));
 	}
 
 	private Integer getCollectionIdFor(String serverId) {
@@ -243,7 +238,7 @@ public class MailBackend extends ObmSyncBackend {
 		try {
 			String collectionName = getCollectionNameFor(Integer
 					.parseInt(collectionId));
-			Long uid = getEmailUidFor(serverId);
+			Long uid = getItemIdFor(serverId).longValue();
 			Set<Long> uids = new HashSet<Long>();
 			uids.add(uid);
 			List<MSEmail> mail = emailManager.fetchMails(bs,
@@ -270,7 +265,7 @@ public class MailBackend extends ObmSyncBackend {
 		try {
 			String collectionName = getCollectionNameFor(Integer
 					.parseInt(collectionId));
-			Long uid = getEmailUidFor(serverId);
+			Long uid = getItemIdFor(serverId).longValue();
 			Set<Long> uids = new HashSet<Long>();
 			uids.add(uid);
 			List<InputStream> mail = emailManager.fetchMIMEMails(bs,
@@ -317,7 +312,7 @@ public class MailBackend extends ObmSyncBackend {
 	public MSEmail getEmail(BackendSession bs, Integer collectionId,
 			String serverId) throws ActiveSyncException {
 		String collectionName = getCollectionNameFor(collectionId);
-		Long uid = getEmailUidFor(serverId);
+		Long uid = getItemIdFor(serverId).longValue();
 		Set<Long> uids = new HashSet<Long>();
 		uids.add(uid);
 		List<MSEmail> emails;

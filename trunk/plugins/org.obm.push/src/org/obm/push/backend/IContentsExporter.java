@@ -29,7 +29,4 @@ public interface IContentsExporter {
 
 	boolean validatePassword(String userID, String password);
 
-	public List<ItemChange> fetchMails(BackendSession bs,
-			List<String> fetchServerIds) throws ActiveSyncException;
-
 }

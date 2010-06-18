@@ -17,8 +17,9 @@ import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSAttachementData;
 import org.obm.push.backend.MSEmailBodyType;
+import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.SyncCollection;
-import org.obm.push.data.EmailEncoder;
+import org.obm.push.data.IDataEncoder;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.search.StoreName;
@@ -94,20 +95,26 @@ public class ItemOperationsHandler extends WbxmlRequestHandler {
 			processFileReferenceFetch(bs, exporter, fetch, reference,
 					multipart, ret, items);
 		} else if (collectionId != null && serverId != null) {
-			processMailFetch(bs, exporter, multipart, collectionId, serverId,
-					type, ret, items);
+			processCollectionFetch(bs, exporter, multipart, Integer
+					.parseInt(collectionId), serverId, type, ret, items);
 		}
 	}
 
-	private void processMailFetch(BackendSession bs,
-			IContentsExporter exporter, boolean multipart, String collectionId,
-			String serverId, Integer type, Document ret, List<InputStream> items) {
+	private void processCollectionFetch(BackendSession bs,
+			IContentsExporter exporter, boolean multipart,
+			Integer collectionId, String serverId, Integer type, Document ret,
+			List<InputStream> items) {
 		List<String> fetchIds = new ArrayList<String>(1);
 		fetchIds.add(serverId);
 		ItemOperationsStatus status = ItemOperationsStatus.SUCCESS;
 		List<ItemChange> ic = null;
 		try {
-			ic = exporter.fetchMails(bs, fetchIds);
+			String collectionPath = backend.getStore().getCollectionPath(
+					collectionId);
+			PIMDataType dataType = backend.getStore().getDataClass(
+					collectionPath);
+
+			ic = exporter.fetch(bs, dataType, fetchIds);
 			if (ic.size() == 0) {
 				status = ItemOperationsStatus.DOCUMENT_LIBRARY_NOT_FOUND;
 			}
@@ -123,21 +130,28 @@ public class ItemOperationsHandler extends WbxmlRequestHandler {
 		DOMUtils.createElementAndText(fetchResp, "Status", status.asXmlValue());
 		DOMUtils.createElementAndText(fetchResp, "AirSync:ServerId", serverId);
 		DOMUtils.createElementAndText(fetchResp, "AirSync:CollectionId",
-				collectionId);
+				collectionId.toString());
 		if (ItemOperationsStatus.SUCCESS.equals(status)) {
-			Element dataElem = DOMUtils.createElement(fetchResp, "Data");
-			EmailEncoder ee = new EmailEncoder();
+			Element dataElem = DOMUtils.createElement(fetchResp, "Properties");
+
 			SyncCollection c = new SyncCollection();
-			c.setCollectionId(Integer.parseInt(collectionId));
+			c.setCollectionId(collectionId);
 			BodyPreference bp = new BodyPreference();
 			bp.setType(MSEmailBodyType.getValueOf(type));
 			c.addBodyPreference(bp);
-			ee.encode(bs, dataElem, ic.get(0).getData(), c, true);
+			IDataEncoder encoder = getEncoders().getEncoder(
+					ic.get(0).getData(), bs.getProtocolVersion());
+			encoder.encode(bs, dataElem, ic.get(0).getData(), c, true);
 			if (multipart) {
+				logger.info("////////////////////////");
+				logger.info("////////////////////////");
+				logger.info("dans multipart");
 				Element data = DOMUtils.getUniqueElement(dataElem,
 						"AirSyncBase:Data");
 				String dataValue = "";
 				if (data != null) {
+					logger.info("////////////////////////");
+					logger.info("////////////////////////");
 					dataValue = data.getTextContent();
 					Element pData = (Element) data.getParentNode();
 					pData.removeChild(data);

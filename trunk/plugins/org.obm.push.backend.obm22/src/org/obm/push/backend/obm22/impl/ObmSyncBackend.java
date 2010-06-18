@@ -119,6 +119,11 @@ public class ObmSyncBackend {
 		}
 		return sb.toString();
 	}
+	
+	protected Integer getItemIdFor(String serverId) {
+		int idx = serverId.lastIndexOf(":");
+		return Integer.parseInt(serverId.substring(idx + 1));
+	}
 
 	public int getDevId(String deviceId) {
 		return storage.getDevId(deviceId);

@@ -14,6 +14,7 @@ import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.data.calendarenum.AttendeeType;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
@@ -87,7 +88,8 @@ public class CalendarBackend extends ObmSyncBackend {
 		return ret;
 	}
 
-	public DataDelta getContentChanges(BackendSession bs, SyncState state, String collection) {
+	public DataDelta getContentChanges(BackendSession bs, SyncState state,
+			String collection) {
 		List<ItemChange> addUpd = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 
@@ -228,7 +230,16 @@ public class CalendarBackend extends ObmSyncBackend {
 				AccessToken token = bc.login(bs.getLoginAtDomain(), bs
 						.getPassword(), "o-push");
 				try {
-					bc.removeEvent(token, parseCalendarId(collectionId), id);
+					Event evr = bc.getEventFromId(token, bs.getLoginAtDomain(),
+							id);
+					if (bs.getLoginAtDomain().equals(evr.getOwnerEmail())) {
+						bc
+								.removeEvent(token,
+										parseCalendarId(collectionId), id);
+					} else {
+						MSEvent mser = new EventConverter().convertEvent(evr);
+						updateUserStatus(bs, mser, AttendeeStatus.DECLINE);
+					}
 				} catch (Exception e) {
 					logger.error(e.getMessage(), e);
 				}
@@ -265,5 +276,31 @@ public class CalendarBackend extends ObmSyncBackend {
 			calCli.logout(at);
 		}
 		return null;
+	}
+
+	public List<ItemChange> fetchItems(BackendSession bs,
+			List<String> fetchServerIds) throws ObjectNotFoundException {
+		List<ItemChange> ret = new LinkedList<ItemChange>();
+		try {
+			for (String serverId : fetchServerIds) {
+				Integer id = getItemIdFor(serverId);
+				if (id != null) {
+					CalendarClient calCli = getCalendarClient(bs);
+					AccessToken token = calCli.login(bs.getLoginAtDomain(), bs
+							.getPassword(), "o-push");
+
+					Event e = calCli.getEventFromId(token,bs.getLoginAtDomain(), id.toString());
+					ItemChange ic = new ItemChange();
+					ic.setServerId(serverId);
+					MSEvent ev = new EventConverter().convertEvent(e);
+					ic.setData(ev);
+					ret.add(ic);
+				}
+			}
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+			throw new ObjectNotFoundException();
+		}
+		return ret;
 	}
 }

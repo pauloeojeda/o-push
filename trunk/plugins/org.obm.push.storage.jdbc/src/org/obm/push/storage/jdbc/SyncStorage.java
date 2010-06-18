@@ -16,6 +16,7 @@ import javax.transaction.UserTransaction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.minig.obm.pool.OBMPoolActivator;
+import org.obm.push.backend.PIMDataType;
 import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
@@ -388,17 +389,17 @@ public class SyncStorage implements ISyncStorage {
 	}
 
 	@Override
-	public String getDataClass(String collectionPath) {
+	public PIMDataType getDataClass(String collectionPath) {
 		if (collectionPath.contains("\\calendar\\")) {
-			return "Calendar";
+			return PIMDataType.CALENDAR;
 		} else if (collectionPath.contains("\\contacts")) {
-			return "Contacts";
+			return PIMDataType.CONTACTS;
 		} else if (collectionPath.contains("\\email\\")) {
-			return "Email";
+			return PIMDataType.EMAIL;
 		} else if (collectionPath.contains("\\task\\")) {
-			return "Task";
+			return PIMDataType.TASKS;
 		} else {
-			return "Folder";
+			return PIMDataType.FOLDER;
 		}
 	}
 

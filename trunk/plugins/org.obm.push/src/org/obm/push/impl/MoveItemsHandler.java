@@ -98,10 +98,9 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 					IContentsImporter importer = backend
 							.getContentsImporter(Integer.parseInt(item
 									.getDestinationFolderId()), bs);
-					String dataClass = backend.getStore().getDataClass(
+					PIMDataType dataClass = backend.getStore().getDataClass(
 							srcCollection);
-					String newDstId = importer.importMoveItem(bs, PIMDataType
-							.valueOf(dataClass.toUpperCase()), srcCollection,
+					String newDstId = importer.importMoveItem(bs, dataClass, srcCollection,
 							dstCollection, item.getSourceMessageId());
 					if (newDstId == null || "".equals(newDstId)) {
 						// DOMUtils.createElementAndText(response, "Status",
