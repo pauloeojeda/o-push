@@ -2,6 +2,7 @@ package org.obm.push.store;
 
 import java.util.Set;
 
+import org.obm.push.backend.PIMDataType;
 import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.state.SyncState;
 
@@ -42,7 +43,7 @@ public interface ISyncStorage {
 
 	String getCollectionPath(Integer collectionId) throws CollectionNotFoundException;
 
-	String getDataClass(String collectionId);
+	PIMDataType getDataClass(String collectionId);
 
 	void resetForFullSync(String devId);
 

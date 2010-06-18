@@ -148,23 +148,26 @@ public class ContentsExporter implements IContentsExporter {
 		LinkedList<ItemChange> changes = new LinkedList<ItemChange>();
 		switch (getDataType) {
 		case CALENDAR:
+			changes.addAll(calBackend.fetchItems(bs, fetchServerIds));
 			break;
 		case CONTACTS:
+			changes.addAll(contactsBackend.fetchItems(bs, fetchServerIds));
 			break;
 		case EMAIL:
 			changes.addAll(mailBackend.fetchItems(bs, fetchServerIds));
 			break;
 		case TASKS:
+//			changes.addAll(taskBackend.fetchItems(bs, fetchServerIds));
 			break;
 		}
 		return changes;
 	}
 
-	@Override
-	public List<ItemChange> fetchMails(BackendSession bs,
-			List<String> fetchServerIds) throws ActiveSyncException {
-		return mailBackend.fetchItems(bs, fetchServerIds);
-	}
+//	@Override
+//	public List<ItemChange> fetchMails(BackendSession bs,
+//			List<String> fetchServerIds) throws ActiveSyncException {
+//		return mailBackend.fetchItems(bs, fetchServerIds);
+//	}
 
 	@Override
 	public MSAttachementData getEmailAttachement(BackendSession bs,

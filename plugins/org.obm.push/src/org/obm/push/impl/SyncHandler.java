@@ -70,17 +70,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		waitContinuationCache = new HashMap<Integer, IContinuation>();
 	}
 
-	private Map<String, IDataDecoder> decoders;
-
-	private EncoderFactory encoders;
-
 	public SyncHandler(IBackend backend) {
 		super(backend);
-		this.decoders = new HashMap<String, IDataDecoder>();
-		decoders.put("Contacts", new ContactsDecoder());
-		decoders.put("Calendar", new CalendarDecoder());
-		decoders.put("Email", new EmailDecoder());
-		this.encoders = new EncoderFactory();
 	}
 
 	@Override
@@ -171,10 +162,10 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					String collectionPath = backend.getStore()
 							.getCollectionPath(sc.getCollectionId());
 					sc.setCollectionPath(collectionPath);
-					String dataClass = backend.getStore().getDataClass(
+					PIMDataType dataClass = backend.getStore().getDataClass(
 							collectionPath);
 					// sc.setDataClass(dataClass) causes errors with wm6.1
-					if ("email".equalsIgnoreCase(dataClass)) {
+					if ("email".equalsIgnoreCase(dataClass.toString())) {
 						backend.startEmailMonitoring(bs, sc.getCollectionId());
 						break;
 					}
@@ -376,7 +367,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 	private void serializeChange(BackendSession bs, Element col,
 			SyncCollection c, ItemChange ic) {
 		IApplicationData data = ic.getData();
-		IDataEncoder encoder = encoders.getEncoder(data, bs
+		IDataEncoder encoder = getEncoders().getEncoder(data, bs
 				.getProtocolVersion());
 		Element apData = DOMUtils.createElement(col, "ApplicationData");
 		encoder.encode(bs, apData, data, c, true);
@@ -524,7 +515,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 
 		Element syncData = DOMUtils.getUniqueElement(modification,
 				"ApplicationData");
-		String dataClass = backend.getStore().getDataClass(collectionId);
+		PIMDataType dataClass = backend.getStore().getDataClass(collectionId);
 		IDataDecoder dd = getDecoder(dataClass);
 		IApplicationData data = null;
 		if (dd != null) {
@@ -557,8 +548,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 						importer.importMessageMove(bs, serverId, trash);
 					}
 				} else {
-					importer.importMessageDeletion(bs, PIMDataType
-							.valueOf(dataClass.toUpperCase()), collectionId,
+					importer.importMessageDeletion(bs, dataClass, collectionId,
 							serverId);
 				}
 			}
@@ -569,10 +559,6 @@ public class SyncHandler extends WbxmlRequestHandler implements
 				collection.getFetchIds().add(serverId);
 			}
 		}
-	}
-
-	private IDataDecoder getDecoder(String dataClass) {
-		return decoders.get(dataClass);
 	}
 
 	@Override

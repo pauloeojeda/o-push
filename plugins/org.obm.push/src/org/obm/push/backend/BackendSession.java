@@ -21,8 +21,6 @@ public class BackendSession {
 	private String devId;
 	private String devType;
 	private String command;
-//	private SyncState state;
-//	private PIMDataType dataType;
 	private Properties hints;
 	private Map<Integer, Date> updatedSyncDate;
 	private Map<Integer, Set<ItemChange>> unSynchronizedItemChangeByCollection;
@@ -119,22 +117,6 @@ public class BackendSession {
 		this.command = command;
 	}
 
-//	public SyncState getState() {
-//		return state;
-//	}
-//
-//	public void setState(SyncState state) {
-//		this.state = state;
-//	}
-
-//	public PIMDataType getDataType() {
-//		return dataType;
-//	}
-//
-//	public void setDataType(PIMDataType dataType) {
-//		this.dataType = dataType;
-//	}
-
 	public Date getUpdatedSyncDate(Integer collectionId) {
 		return updatedSyncDate.get(collectionId);
 	}
@@ -194,18 +176,6 @@ public class BackendSession {
 	public void addLastClientSyncState(Integer collectionId, SyncState synckey) {
 		lastClientSyncState.put(collectionId, synckey);
 	}
-
-//	public void clearUpdatedSyncDate() {
-//
-//	}
-//
-//	public void clearUnSynchronizedItemChangeByCollection() {
-//
-//	}
-//
-//	public void clearLastClientSyncState() {
-//
-//	}
 
 	public void clearAll() {
 		this.updatedSyncDate = new HashMap<Integer, Date>();

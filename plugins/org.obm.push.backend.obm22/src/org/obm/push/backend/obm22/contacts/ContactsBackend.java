@@ -10,6 +10,7 @@ import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSContact;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
@@ -51,7 +52,8 @@ public class ContactsBackend extends ObmSyncBackend {
 		return ret;
 	}
 
-	public DataDelta getContentChanges(BackendSession bs, SyncState state, String collection) {
+	public DataDelta getContentChanges(BackendSession bs, SyncState state,
+			String collection) {
 		List<ItemChange> addUpd = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 		logger.info("getContentChanges(" + state.getLastSync() + ")");
@@ -60,7 +62,8 @@ public class ContactsBackend extends ObmSyncBackend {
 				"o-push");
 
 		try {
-			ContactChanges changes = bc.getSync(token, BookType.contacts, state.getLastSync());
+			ContactChanges changes = bc.getSync(token, BookType.contacts, state
+					.getLastSync());
 
 			long time = System.currentTimeMillis();
 			for (Contact c : changes.getUpdated()) {
@@ -145,6 +148,33 @@ public class ContactsBackend extends ObmSyncBackend {
 				bc.logout(token);
 			}
 		}
+	}
+
+	public List<ItemChange> fetchItems(BackendSession bs,
+			List<String> fetchServerIds) throws ObjectNotFoundException {
+		List<ItemChange> ret = new LinkedList<ItemChange>();
+		try {
+			for (String serverId : fetchServerIds) {
+				Integer id = getItemIdFor(serverId);
+				if (id != null) {
+					BookClient bc = getBookClient(bs);
+					AccessToken token = bc.login(bs.getLoginAtDomain(), bs
+							.getPassword(), "o-push");
+
+					Contact c = bc.getContactFromId(token, BookType.contacts,
+							id.toString());
+					ItemChange ic = new ItemChange();
+					ic.setServerId(serverId);
+					MSContact cal = new ContactConverter().convert(c);
+					ic.setData(cal);
+					ret.add(ic);
+				}
+			}
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+			throw new ObjectNotFoundException();
+		}
+		return ret;
 	}
 
 }

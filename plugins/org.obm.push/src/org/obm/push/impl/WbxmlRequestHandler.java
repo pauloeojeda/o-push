@@ -3,6 +3,8 @@ package org.obm.push.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.transform.TransformerException;
 
@@ -11,6 +13,12 @@ import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContinuation;
+import org.obm.push.backend.PIMDataType;
+import org.obm.push.data.CalendarDecoder;
+import org.obm.push.data.ContactsDecoder;
+import org.obm.push.data.EmailDecoder;
+import org.obm.push.data.EncoderFactory;
+import org.obm.push.data.IDataDecoder;
 import org.obm.push.utils.DOMUtils;
 import org.obm.push.utils.FileUtils;
 import org.obm.push.wbxml.WBXMLTools;
@@ -27,9 +35,16 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 
 	protected Log logger = LogFactory.getLog(getClass());
 	protected IBackend backend;
+	private Map<PIMDataType, IDataDecoder> decoders;
+	private EncoderFactory encoders;
 
 	protected WbxmlRequestHandler(IBackend backend) {
 		this.backend = backend;
+		this.decoders = new HashMap<PIMDataType, IDataDecoder>();
+		decoders.put(PIMDataType.CONTACTS, new ContactsDecoder());
+		decoders.put(PIMDataType.CALENDAR, new CalendarDecoder());
+		decoders.put(PIMDataType.EMAIL, new EmailDecoder());
+		this.encoders = new EncoderFactory();
 	}
 
 	@Override
@@ -89,5 +104,13 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 	protected abstract void process(IContinuation continuation,
 			BackendSession bs, Document doc, ActiveSyncRequest request,
 			Responder responder);
+
+	protected IDataDecoder getDecoder(PIMDataType dataClass) {
+		return decoders.get(dataClass);
+	}
+
+	protected EncoderFactory getEncoders() {
+		return encoders;
+	}
 
 }
