@@ -87,6 +87,88 @@ public class TestItemOperation extends AbstractPushTest {
 		ret = postXml("ItemOperations", doc, "ItemOperations", null, "12.1", true);
 	}
 	
+	public void testItemOperationContact() throws Exception {
+		InputStream in = loadDataFile("FolderSyncRequest.xml");
+		Document doc = DOMUtils.parse(in);
+		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
+		assertNotNull(ret);
+
+		in = loadDataFile("contactSyncRequest.xml");
+		doc = DOMUtils.parse(in);
+		Element synckeyElem = DOMUtils.getUniqueElement(doc
+				.getDocumentElement(), "SyncKey");
+		synckeyElem.setTextContent("0");
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
+				"SyncKey").getTextContent();
+		in = loadDataFile("contactSyncRequest2.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"SyncKey");
+		synckeyElem.setTextContent(sk);
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+		in = loadDataFile("ItemOperationContact.xml");
+		doc = DOMUtils.parse(in);
+		Element add = DOMUtils.getUniqueElement(ret.getDocumentElement(), "Add");
+		String serverId = DOMUtils.getElementText(add, "ServerId");
+		String collectionId = serverId.split(":")[0];
+		Element serIdElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"AirSync:ServerId");
+		serIdElem.setTextContent(serverId);
+		Element colIdElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"AirSync:CollectionId");
+		colIdElem.setTextContent(collectionId);
+		DOMUtils.logDom(doc);
+		
+		ret = postXml("ItemOperations", doc, "ItemOperations", null, "12.1", true);
+	}
+	
+	public void testItemOperationCalendrier() throws Exception {
+		InputStream in = loadDataFile("FolderSyncRequest.xml");
+		Document doc = DOMUtils.parse(in);
+		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
+		assertNotNull(ret);
+
+		in = loadDataFile("CalSyncRequest.xml");
+		doc = DOMUtils.parse(in);
+		Element synckeyElem = DOMUtils.getUniqueElement(doc
+				.getDocumentElement(), "SyncKey");
+		synckeyElem.setTextContent("0");
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
+				"SyncKey").getTextContent();
+		in = loadDataFile("CalSyncRequest2.xml");
+		doc = DOMUtils.parse(in);
+		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"SyncKey");
+		synckeyElem.setTextContent(sk);
+		DOMUtils.logDom(doc);
+		ret = postXml("AirSync", doc, "Sync");
+		assertNotNull(ret);
+
+		in = loadDataFile("ItemOperationCalendar.xml");
+		doc = DOMUtils.parse(in);
+		Element add = DOMUtils.getUniqueElement(ret.getDocumentElement(), "Add");
+		String serverId = DOMUtils.getElementText(add, "ServerId");
+		String collectionId = serverId.split(":")[0];
+		Element serIdElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"AirSync:ServerId");
+		serIdElem.setTextContent(serverId);
+		Element colIdElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
+				"AirSync:CollectionId");
+		colIdElem.setTextContent(collectionId);
+		DOMUtils.logDom(doc);
+		
+		ret = postXml("ItemOperations", doc, "ItemOperations", null, "12.1", true);
+	}
+	
 	public void testItemOperationMailServerIdError() throws Exception {
 		InputStream in = loadDataFile("FolderSyncRequest.xml");
 		Document doc = DOMUtils.parse(in);

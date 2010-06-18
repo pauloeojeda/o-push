@@ -3,7 +3,7 @@
 	<Collections>
 		<Collection>
 			<SyncKey>FILL_ME</SyncKey>
-			<CollectionId>6</CollectionId>
+			<CollectionId>Mail:DEFAULT</CollectionId>
 			<GetChanges>0</GetChanges>
 			<Options>
 				<FilterType>2</FilterType>

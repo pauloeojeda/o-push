@@ -3,9 +3,9 @@
 	<Collections>
 		<Collection>
 			<SyncKey>FILL_ME</SyncKey>
-			<CollectionId>31</CollectionId>
-			<GetChanges/>
-			<WindowSize>50</WindowSize>
+			<CollectionId>90</CollectionId>
+			<DeletesAsMoves>1</DeletesAsMoves>
+			<GetChanges />
 		</Collection>
 	</Collections>
 </Sync>
