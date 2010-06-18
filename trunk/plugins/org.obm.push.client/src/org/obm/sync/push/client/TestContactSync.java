@@ -12,7 +12,7 @@ public class TestContactSync extends AbstractPushTest {
 	public void testContactSync() throws Exception {
 		InputStream in = loadDataFile("FolderSyncRequest.xml");
 		Document doc = DOMUtils.parse(in);
-		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
+		Document ret = postXml25("FolderHierarchy", doc, "FolderSync");
 		assertNotNull(ret);
 
 		in = loadDataFile("contactSyncRequest.xml");
@@ -21,7 +21,7 @@ public class TestContactSync extends AbstractPushTest {
 				.getDocumentElement(), "SyncKey");
 		synckeyElem.setTextContent("0");
 		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
+		ret = postXml25("AirSync", doc, "Sync");
 		assertNotNull(ret);
 
 		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
@@ -33,7 +33,7 @@ public class TestContactSync extends AbstractPushTest {
 				"SyncKey");
 		synckeyElem.setTextContent(sk);
 		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
+		ret = postXml25("AirSync", doc, "Sync");
 		assertNotNull(ret);
 
 		NodeList nl = ret.getDocumentElement().getElementsByTagName(

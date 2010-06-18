@@ -49,26 +49,34 @@ public class AbstractPushTest extends TestCase {
 		// TODO Auto-generated method stub
 		super.setUp();
 
-		// this.userId = "thomas@zz.com";
-		// this.devId = "junitDevId";
-		// this.devType = "PocketPC";
-		// this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
+//		 this.userId = "thomas@zz.com";
+//		 this.devId = "junitDevId";
+//		 this.devType = "PocketPC";
+//		 this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
 		
-		this.login = "adrien";
-		this.userId = "test.tlse.lng\\adrien";
-		this.password = "aliacom";
-		this.devId = "359593005624680";
-		this.devType = "roadsyncclient";
-		this.userAgent = "roadsyncclient/701.341";
-		this.url = "http://localhost/Microsoft-Server-ActiveSync";
+//		this.login = "adrien";
+//		this.userId = "test.tlse.lng\\adrien";
+//		this.password = "aliacom";
+//		this.devId = "359593005624680";
+//		this.devType = "roadsyncclient";
+//		this.userAgent = "roadsyncclient/701.341";
+//		this.url = "http://localhost/Microsoft-Server-ActiveSync";
 
-//		 this.login = "Administrator";
-//		 this.userId = "test.tlse.lng\\Administrator";
-//		 this.password = "aliacom";
-//		 this.devId = "Appl8683191J1R4";
-//		 this.devType = "iPhone";
-//		 this.userAgent = "Apple-iPhone/701.341";
-//		 this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
+		 this.login = "Administrator";
+		 this.userId = "test.tlse.lng\\Administrator";
+		 this.password = "aliacom";
+		 this.devId = "Appl8683191J1R4";
+		 this.devType = "iPhone";
+		 this.userAgent = "Apple-iPhone/701.341";
+		 this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
+		 
+//		 this.login = "apoupard.aliasource";
+//		 this.userId = "apoupard.aliasource";
+//		 this.password = "chatteta";
+//		 this.devId = "HTCAnd63793280";
+//		 this.devType = "htcbravo";
+//		 this.userAgent = "roadsyncclient/701.341";
+//		 this.url = "https://m.google.com/Microsoft-Server-ActiveSync";
 
 		this.hc = createHttpClient();
 	}
@@ -155,6 +163,8 @@ public class AbstractPushTest extends TestCase {
 	protected Document postXml(String namespace, Document doc, String cmd,
 			String policyKey, String protocolVersion, boolean multipart)
 			throws Exception {
+		System.out.println("To server:");
+		DOMUtils.logDom(doc);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		byte[] data = WBXMLTools.toWbxml(namespace, doc);
 		PostMethod pm = null;
