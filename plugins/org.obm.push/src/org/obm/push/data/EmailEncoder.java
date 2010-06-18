@@ -130,11 +130,11 @@ public class EmailEncoder implements IDataEncoder {
 
 		DOMUtils.createElementAndText(elemBody, "AirSyncBase:Type",
 				availableFormat.asIntString());
-		// if (data != null) {
-		// DOMUtils.createElementAndText(elemBody,
-		// "AirSyncBase:EstimatedDataSize", ""
-		// + data.getBytes().length);
-		// }
+		if (data != null) {
+			DOMUtils.createElementAndText(elemBody,
+					"AirSyncBase:EstimatedDataSize", ""
+							+ data.getBytes().length);
+		}
 
 		if (c.getBodyPreference(availableFormat) != null
 				&& c.getBodyPreference(availableFormat).getTruncationSize() != null) {
@@ -221,6 +221,7 @@ public class EmailEncoder implements IDataEncoder {
 		return "";
 	}
 
+	@SuppressWarnings("unused")
 	private void appendMeetintRequest(Element parent, MSEmail mail) {
 		if (mail.getInvitation() != null) {
 			Element mr = DOMUtils.createElement(parent, "Email:MeetingRequest");
