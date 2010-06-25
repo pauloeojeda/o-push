@@ -24,6 +24,7 @@ public class BackendSession {
 	private Properties hints;
 	private Map<Integer, Date> updatedSyncDate;
 	private Map<Integer, Set<ItemChange>> unSynchronizedItemChangeByCollection;
+	private Map<Integer, Set<ItemChange>> unSynchronizedDeletedItemChangeByCollection;
 	private Map<Integer, SyncState> lastClientSyncState;
 	private int lastWait;
 
@@ -46,6 +47,7 @@ public class BackendSession {
 		this.devType = devType;
 		this.command = command;
 		this.unSynchronizedItemChangeByCollection = new HashMap<Integer, Set<ItemChange>>();
+		this.unSynchronizedDeletedItemChangeByCollection = new HashMap<Integer, Set<ItemChange>>();
 		this.lastClientSyncState = new HashMap<Integer, SyncState>();
 		this.updatedSyncDate = new HashMap<Integer, Date>();
 		this.lastMonitored = new HashSet<SyncCollection>();
@@ -168,6 +170,27 @@ public class BackendSession {
 		}
 		changes.add(change);
 	}
+	
+	public void addUnSynchronizedDeletedItemChange(Integer collectionId,
+			ItemChange change) {
+		Set<ItemChange> deletes = unSynchronizedDeletedItemChangeByCollection
+				.get(collectionId);
+		if (deletes == null) {
+			deletes = new HashSet<ItemChange>();
+			unSynchronizedDeletedItemChangeByCollection.put(collectionId, deletes);
+		}
+		deletes.add(change);
+	}
+
+	public Set<ItemChange> getUnSynchronizedDeletedItemChange(
+			Integer collectionId) {
+		Set<ItemChange> ret = unSynchronizedDeletedItemChangeByCollection
+				.get(collectionId);
+		if (ret == null) {
+			ret = new HashSet<ItemChange>();
+		}
+		return ret;
+	}
 
 	public SyncState getLastClientSyncState(Integer collectionId) {
 		return lastClientSyncState.get(collectionId);
@@ -213,4 +236,5 @@ public class BackendSession {
 			Map<String, String> lastSyncProcessedClientIds) {
 		this.lastSyncProcessedClientIds = lastSyncProcessedClientIds;
 	}
+
 }
