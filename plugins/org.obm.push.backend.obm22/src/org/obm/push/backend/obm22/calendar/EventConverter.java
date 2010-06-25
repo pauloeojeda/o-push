@@ -35,7 +35,7 @@ import org.obm.sync.calendar.RecurrenceKind;
  */
 public class EventConverter {
 
-	// @SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(EventConverter.class);
 
 	public MSEvent convertEvent(Event e) {
@@ -306,10 +306,15 @@ public class EventConverter {
 		}
 
 	}
-
+	
+	public Event convertEvent(MSEvent data) {
+		return convertEvent(null, data);
+	}
+	
 	public Event convertEvent(Event oldEvent, MSEvent data) {
 		Event e = convertEventOne(oldEvent, null, data);
 		e.setExtId(data.getUID());
+		e.setUid(data.getObmUID());
 		if (data.getRecurrence() != null) {
 			EventRecurrence r = getRecurrence(data);
 			e.setRecurrence(r);
@@ -414,9 +419,9 @@ public class EventConverter {
 
 	private Attendee convertAttendee(Event oldEvent, MSAttendee at) {
 		ParticipationState oldState = ParticipationState.NEEDSACTION;
-		if(oldEvent != null){
-			for(Attendee oldAtt : oldEvent.getAttendees()){
-				if(oldAtt.getEmail().equals(at.getEmail())){
+		if (oldEvent != null) {
+			for (Attendee oldAtt : oldEvent.getAttendees()) {
+				if (oldAtt.getEmail().equals(at.getEmail())) {
 					oldState = oldAtt.getState();
 					break;
 				}
@@ -425,13 +430,12 @@ public class EventConverter {
 		Attendee ret = new Attendee();
 		ret.setEmail(at.getEmail());
 		ret.setRequired(ParticipationRole.REQ);
-		ret.setState(status(oldState,at.getAttendeeStatus()));
-		logger.info("Add attendee " + ret.getEmail() + " "
-				+ ret.getDisplayName() + " " + at.getAttendeeStatus());
+		ret.setState(status(oldState, at.getAttendeeStatus()));
 		return ret;
 	}
 
-	private ParticipationState status(ParticipationState oldParticipationState, AttendeeStatus attendeeStatus) {
+	private ParticipationState status(ParticipationState oldParticipationState,
+			AttendeeStatus attendeeStatus) {
 		if (attendeeStatus == null) {
 			return oldParticipationState;
 		}
