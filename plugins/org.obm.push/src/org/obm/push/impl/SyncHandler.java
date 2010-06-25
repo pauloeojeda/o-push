@@ -26,10 +26,6 @@ import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.MSEmailBodyType;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.SyncCollection;
-import org.obm.push.data.CalendarDecoder;
-import org.obm.push.data.ContactsDecoder;
-import org.obm.push.data.EmailDecoder;
-import org.obm.push.data.EncoderFactory;
 import org.obm.push.data.IDataDecoder;
 import org.obm.push.data.IDataEncoder;
 import org.obm.push.exception.ActiveSyncException;
@@ -236,6 +232,17 @@ public class SyncHandler extends WbxmlRequestHandler implements
 				processedIds.append(k.getValue());
 			}
 		}
+		Set<ItemChange> unSyncdeleted = bs.getUnSynchronizedDeletedItemChange(c.getCollectionId());
+		delta.getDeletions().addAll(unSyncdeleted);
+		unSyncdeleted.clear();
+		for (ItemChange ic : delta.getDeletions()) {
+			if (processedClientIds.containsKey(ic.getServerId())) {
+				changed.add(ic);
+				bs.addUnSynchronizedDeletedItemChange(c.getCollectionId(), ic);
+			} else {
+				serializeDeletion(commands, ic);
+			}
+		}
 
 		for (ItemChange ic : changed) {
 			String clientId = processedClientIds.get(ic.getServerId());
@@ -277,12 +284,6 @@ public class SyncHandler extends WbxmlRequestHandler implements
 				DOMUtils.createElementAndText(add, "ClientId", entry);
 				DOMUtils.createElementAndText(add, "Status",
 						SyncStatus.CONVERSATION_ERROR.asXmlValue());
-			}
-		}
-		if (delta != null) {
-			List<ItemChange> del = delta.getDeletions();
-			for (ItemChange ic : del) {
-				serializeDeletion(commands, ic);
 			}
 		}
 		if (responses.getChildNodes().getLength() == 0) {
@@ -367,8 +368,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 	private void serializeChange(BackendSession bs, Element col,
 			SyncCollection c, ItemChange ic) {
 		IApplicationData data = ic.getData();
-		IDataEncoder encoder = getEncoders().getEncoder(data, bs
-				.getProtocolVersion());
+		IDataEncoder encoder = getEncoders().getEncoder(data,
+				bs.getProtocolVersion());
 		Element apData = DOMUtils.createElement(col, "ApplicationData");
 		encoder.encode(bs, apData, data, c, true);
 	}
