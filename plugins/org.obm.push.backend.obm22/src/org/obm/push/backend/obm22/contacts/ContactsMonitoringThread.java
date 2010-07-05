@@ -21,18 +21,16 @@ import fr.aliasource.utils.JDBCUtils;
 
 public class ContactsMonitoringThread extends MonitoringThread {
 
-	private static final String POLL_QUERY = 
-		"		select " +
-		"		distinct " +
-		"		uo.userobm_login, d.domain_name, now() " +
-		"		from SyncedAddressbook sa " +
-		"		inner join UserObm uo on uo.userobm_id=sa.user_id " +
-		"		inner join Domain d on d.domain_id=uo.userobm_domain_id " +
-		"		inner join AddressBook ab on ab.id=sa.addressbook_id " +
-		"		where ab.timeupdate >= ? or ab.timecreate >= ? or sa.timestamp >= ? " +
-		"		; ";
-		
-		
+	private static final String POLL_QUERY = "		select "
+			+ "		distinct "
+			+ "		uo.userobm_login, d.domain_name, now() "
+			+ "		from SyncedAddressbook sa "
+			+ "		inner join UserObm uo on uo.userobm_id=sa.user_id "
+			+ "		inner join Domain d on d.domain_id=uo.userobm_domain_id "
+			+ "		inner join AddressBook ab on ab.id=sa.addressbook_id "
+			+ "		where ab.timeupdate >= ? or ab.timecreate >= ? or sa.timestamp >= ? "
+			+ "		; ";
+
 	public ContactsMonitoringThread(ObmSyncBackend cb, long freqMs,
 			Set<ICollectionChangeListener> ccls) {
 		super(cb, freqMs, ccls);
@@ -68,10 +66,10 @@ public class ContactsMonitoringThread extends MonitoringThread {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
 
-		// if (logger.isInfoEnabled() && changed.size() > 0) {
-		logger.info("changed collections: " + changed.size() + " dbDate: "
-				+ dbDate);
-		// }
+		if (logger.isInfoEnabled() && changed.size() > 0) {
+			logger.info("changed collections: " + changed.size() + " dbDate: "
+					+ dbDate);
+		}
 
 		return new ChangedCollections(dbDate, changed);
 	}
