@@ -232,15 +232,23 @@ public class SyncHandler extends WbxmlRequestHandler implements
 				processedIds.append(k.getValue());
 			}
 		}
-		Set<ItemChange> unSyncdeleted = bs.getUnSynchronizedDeletedItemChange(c.getCollectionId());
-		delta.getDeletions().addAll(unSyncdeleted);
-		unSyncdeleted.clear();
-		for (ItemChange ic : delta.getDeletions()) {
-			if (processedClientIds.containsKey(ic.getServerId())) {
-				changed.add(ic);
-				bs.addUnSynchronizedDeletedItemChange(c.getCollectionId(), ic);
-			} else {
-				serializeDeletion(commands, ic);
+
+		Set<ItemChange> unSyncdeleted = bs.getUnSynchronizedDeletedItemChange(c
+				.getCollectionId());
+		if (delta != null && delta.getDeletions() != null && unSyncdeleted != null) {
+			delta.getDeletions().addAll(unSyncdeleted);
+			unSyncdeleted.clear();
+		}
+
+		if (delta != null && delta.getDeletions() != null) {
+			for (ItemChange ic : delta.getDeletions()) {
+				if (processedClientIds.containsKey(ic.getServerId())) {
+					changed.add(ic);
+					bs.addUnSynchronizedDeletedItemChange(c.getCollectionId(),
+							ic);
+				} else {
+					serializeDeletion(commands, ic);
+				}
 			}
 		}
 

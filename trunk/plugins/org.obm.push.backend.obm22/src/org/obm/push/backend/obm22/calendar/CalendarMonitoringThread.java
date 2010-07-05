@@ -72,10 +72,10 @@ public class CalendarMonitoringThread extends MonitoringThread {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
 
-		// if (logger.isInfoEnabled() && changed.size() > 0) {
-		logger.info("changed collections: " + changed.size() + " dbDate: "
-				+ dbDate);
-		// }
+		if (logger.isInfoEnabled() && changed.size() > 0) {
+			logger.info("changed collections: " + changed.size() + " dbDate: "
+					+ dbDate);
+		}
 
 		return new ChangedCollections(dbDate, changed);
 	}
