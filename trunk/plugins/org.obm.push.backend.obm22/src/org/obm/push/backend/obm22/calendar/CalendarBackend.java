@@ -106,10 +106,11 @@ public class CalendarBackend extends ObmSyncBackend {
 				changes = cc.getSync(token, calendar, ls);
 			}
 			Event[] evs = changes.getUpdated();
+			String userEmail = cc.getUserEmail(token);
 			for (Event e : evs) {
 				boolean canAdd = true;
 				for (Attendee att : e.getAttendees()) {
-					if (bs.getLoginAtDomain().equals(att.getEmail())
+					if (userEmail.equals(att.getEmail())
 							&& ParticipationState.DECLINED.equals(att
 									.getState())) {
 						logger
