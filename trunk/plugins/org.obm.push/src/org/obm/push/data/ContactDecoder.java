@@ -22,7 +22,7 @@ import org.w3c.dom.Element;
 //</Add>
 //</Commands>
 
-public class ContactsDecoder extends Decoder implements IDataDecoder {
+public class ContactDecoder extends Decoder implements IDataDecoder {
 
 	private static final Log logger = LogFactory.getLog(SyncHandler.class);
 

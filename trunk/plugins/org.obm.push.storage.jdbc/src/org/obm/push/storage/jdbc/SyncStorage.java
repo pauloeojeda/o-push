@@ -396,7 +396,7 @@ public class SyncStorage implements ISyncStorage {
 			return PIMDataType.CONTACTS;
 		} else if (collectionPath.contains("\\email\\")) {
 			return PIMDataType.EMAIL;
-		} else if (collectionPath.contains("\\task\\")) {
+		} else if (collectionPath.contains("\\tasks\\")) {
 			return PIMDataType.TASKS;
 		} else {
 			return PIMDataType.FOLDER;
