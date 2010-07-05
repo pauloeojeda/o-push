@@ -15,10 +15,11 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.data.CalendarDecoder;
-import org.obm.push.data.ContactsDecoder;
+import org.obm.push.data.ContactDecoder;
 import org.obm.push.data.EmailDecoder;
 import org.obm.push.data.EncoderFactory;
 import org.obm.push.data.IDataDecoder;
+import org.obm.push.data.TaskDecoder;
 import org.obm.push.utils.DOMUtils;
 import org.obm.push.utils.FileUtils;
 import org.obm.push.wbxml.WBXMLTools;
@@ -41,9 +42,10 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 	protected WbxmlRequestHandler(IBackend backend) {
 		this.backend = backend;
 		this.decoders = new HashMap<PIMDataType, IDataDecoder>();
-		decoders.put(PIMDataType.CONTACTS, new ContactsDecoder());
+		decoders.put(PIMDataType.CONTACTS, new ContactDecoder());
 		decoders.put(PIMDataType.CALENDAR, new CalendarDecoder());
 		decoders.put(PIMDataType.EMAIL, new EmailDecoder());
+		decoders.put(PIMDataType.TASKS, new TaskDecoder());
 		this.encoders = new EncoderFactory();
 	}
 

@@ -61,9 +61,9 @@ public class OBMBackend implements IBackend {
 		exporter = new HierarchyExporter(folderExporter, mailBackend,
 				calendarBackend, contactsBackend, tasksBackend);
 		cImporter = new ContentsImporter(mailBackend, calendarBackend,
-				contactsBackend);
+				contactsBackend,tasksBackend);
 		contentsExporter = new ContentsExporter(mailBackend, calendarBackend,
-				contactsBackend);
+				contactsBackend,tasksBackend);
 
 		startOBMMonitoringThreads(calendarBackend);
 	}

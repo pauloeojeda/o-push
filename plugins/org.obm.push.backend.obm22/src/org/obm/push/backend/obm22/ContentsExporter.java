@@ -17,6 +17,7 @@ import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
+import org.obm.push.backend.obm22.tasks.TasksBackend;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.state.SyncState;
@@ -28,13 +29,16 @@ public class ContentsExporter implements IContentsExporter {
 	private MailBackend mailBackend;
 	private CalendarBackend calBackend;
 	private ContactsBackend contactsBackend;
+	private TasksBackend tasksBackend;
 
 	public ContentsExporter(MailBackend mailBackend,
-			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
+			CalendarBackend calendarExporter, ContactsBackend contactsBackend,
+			TasksBackend tasksBackend) {
 		super();
 		this.mailBackend = mailBackend;
 		this.calBackend = calendarExporter;
 		this.contactsBackend = contactsBackend;
+		this.tasksBackend = tasksBackend;
 	}
 
 	private void proccessFilterType(SyncState state, FilterType filterType) {
@@ -93,9 +97,9 @@ public class ContentsExporter implements IContentsExporter {
 		return contactsBackend.getContentChanges(bs, state, collectionId);
 	}
 
-	private DataDelta getTasksChanges(BackendSession bs, SyncState state) {
-		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
-		return new DataDelta(ret, ret);
+	private DataDelta getTasksChanges(BackendSession bs, SyncState state,
+			String collectionId) {
+		return this.tasksBackend.getContentChanges(bs, state, collectionId);
 	}
 
 	private DataDelta getCalendarChanges(BackendSession bs, SyncState state,
@@ -127,7 +131,7 @@ public class ContentsExporter implements IContentsExporter {
 			delta = getMailChanges(bs, state, collectionId);
 			break;
 		case TASKS:
-			delta = getTasksChanges(bs, state);
+			delta = getTasksChanges(bs, state, collectionId);
 			break;
 		}
 		logger.info("Get changed from " + state.getLastSync()
@@ -157,17 +161,11 @@ public class ContentsExporter implements IContentsExporter {
 			changes.addAll(mailBackend.fetchItems(bs, fetchServerIds));
 			break;
 		case TASKS:
-//			changes.addAll(taskBackend.fetchItems(bs, fetchServerIds));
+			 changes.addAll(tasksBackend.fetchItems(bs, fetchServerIds));
 			break;
 		}
 		return changes;
 	}
-
-//	@Override
-//	public List<ItemChange> fetchMails(BackendSession bs,
-//			List<String> fetchServerIds) throws ActiveSyncException {
-//		return mailBackend.fetchItems(bs, fetchServerIds);
-//	}
 
 	@Override
 	public MSAttachementData getEmailAttachement(BackendSession bs,
