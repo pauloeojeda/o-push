@@ -10,13 +10,16 @@ import org.minig.obm.pool.OBMPoolActivator;
 import org.obm.locator.client.LocatorClient;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.ItemChange;
+import org.obm.push.backend.PIMDataType;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.client.book.BookClient;
+import org.obm.sync.client.calendar.AbstractEventSyncClient;
 import org.obm.sync.client.calendar.CalendarClient;
 import org.obm.sync.locators.AddressBookLocator;
 import org.obm.sync.locators.CalendarLocator;
+import org.obm.sync.locators.TaskLocator;
 
 import fr.aliasource.utils.JDBCUtils;
 
@@ -38,13 +41,27 @@ public class ObmSyncBackend {
 	}
 	
 	protected CalendarClient getCalendarClient(BackendSession bs) {
-		CalendarLocator cl = new CalendarLocator();
+		return (CalendarClient) getCalendarClient(bs, PIMDataType.CALENDAR);
+	}
+	
+	protected AbstractEventSyncClient getCalendarClient(BackendSession bs, PIMDataType type) {
+		
 		if (obmSyncHost == null) {
 			locateObmSync(bs.getLoginAtDomain());
 		}
-		CalendarClient calCli = cl.locate("http://" + obmSyncHost
-				+ ":8080/obm-sync/services");
-		return calCli;
+		
+		AbstractEventSyncClient cli = null;
+		if(PIMDataType.TASKS.equals(type)){
+			TaskLocator tl = new TaskLocator();
+			cli = tl.locate("http://" + obmSyncHost
+					+ ":8080/obm-sync/services");
+		} else {
+			CalendarLocator cl = new CalendarLocator();
+			cli = cl.locate("http://" + obmSyncHost
+					+ ":8080/obm-sync/services");
+		}
+		
+		return cli;
 	}
 	
 	protected BookClient getBookClient(BackendSession bs) {

@@ -7,6 +7,7 @@ import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.data.calendarenum.RecurrenceType;
 
 public class Recurrence {
+	
 	private Date until;
 	private RecurrenceType type;
 	private Integer weekOfMonth;
@@ -14,8 +15,13 @@ public class Recurrence {
 	private Integer dayOfMonth;
 	private Integer occurrences;
 	private Integer interval;
-	
 	private Set<RecurrenceDayOfWeek> dayOfWeek;
+	
+	/*Task Attribut*/
+	private Date start;
+	private Boolean regenerate;
+	private Boolean deadOccur;
+	
 	
 	public RecurrenceType getType() {
 		return type;
@@ -65,4 +71,34 @@ public class Recurrence {
 	public void setUntil(Date until) {
 		this.until = until;
 	}
+	public Date getStart() {
+		return start;
+	}
+	public void setStart(Date start) {
+		this.start = start;
+	}
+	public Boolean getRegenerate() {
+		return regenerate;
+	}
+	public void setRegenerate(Boolean regenerate) {
+		this.regenerate = regenerate;
+	}
+	public Boolean getDeadOccur() {
+		return deadOccur;
+	}
+	public void setDeadOccur(Boolean deadOccur) {
+		this.deadOccur = deadOccur;
+	}
+	
+	@Override
+	public String toString() {
+		return "Recurrence [dayOfMonth=" + dayOfMonth + ", dayOfWeek="
+				+ dayOfWeek + ", deadOccur=" + deadOccur + ", interval="
+				+ interval + ", monthOfYear=" + monthOfYear + ", occurrences="
+				+ occurrences + ", regenerate=" + regenerate + ", start="
+				+ start + ", type=" + type + ", until=" + until
+				+ ", weekOfMonth=" + weekOfMonth + "]";
+	}
+	
+	
 }
