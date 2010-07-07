@@ -16,20 +16,21 @@ import org.obm.push.backend.SyncCollection;
 import org.obm.push.backend.obm22.impl.ChangedCollections;
 import org.obm.push.backend.obm22.impl.MonitoringThread;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
+import org.obm.sync.calendar.EventType;
 
 import fr.aliasource.utils.JDBCUtils;
 
 public class CalendarMonitoringThread extends MonitoringThread {
 
 	private static final String POLL_QUERY = "select "
-			+ "userobm_login, domain_name, now() "
+			+ "userobm_login, domain_name, now(), e.event_type as type "
 			+ "from EventLink "
 			+ "inner join UserEntity ON userentity_entity_id=eventlink_entity_id "
 			+ "inner join UserObm on userobm_id=userentity_user_id "
 			+ "inner join Domain on userobm_domain_id=domain_id "
-			+ "inner join Event on eventlink_event_id=event_id "
+			+ "inner join Event e on eventlink_event_id=e.event_id "
 			+ "where eventlink_timeupdate >= ? OR eventlink_timecreate >= ? OR event_timeupdate >= ? OR event_timecreate >= ? "
-			+ "UNION " + "select " + "userobm_login, domain_name, now() "
+			+ "UNION " + "select " + "userobm_login, domain_name, now(), deletedevent_type as type "
 			+ "from DeletedEvent "
 			+ "inner join UserObm on deletedevent_user_id=userobm_id "
 			+ "inner join Domain on userobm_domain_id=domain_id "
@@ -88,13 +89,17 @@ public class CalendarMonitoringThread extends MonitoringThread {
 			String login = rs.getString(1);
 			String domain = rs.getString(2);
 			ret = new Date(rs.getTimestamp(3).getTime());
-
+			EventType type = EventType.valueOf(rs.getString(4));
 			StringBuffer colName = new StringBuffer(255);
 			colName.append("obm:\\\\");
 			colName.append(login);
 			colName.append('@');
 			colName.append(domain);
-			colName.append("\\calendar\\");
+			if(EventType.VTODO.equals(type)){
+				colName.append("\\tasks\\");
+			} else {
+				colName.append("\\calendar\\");
+			}
 			colName.append(login);
 			colName.append('@');
 			colName.append(domain);
