@@ -6,12 +6,10 @@ import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.MSContact;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.MSEmail;
-import org.obm.push.backend.MSTask;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
-import org.obm.push.backend.obm22.tasks.TasksBackend;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.exception.ActiveSyncException;
 
@@ -25,15 +23,15 @@ public class ContentsImporter implements IContentsImporter {
 	private MailBackend mailBackend;
 	private CalendarBackend calBackend;
 	private ContactsBackend contactBackend;
-	private TasksBackend tasksBackend;
+
+	// private TasksBackend tasksBackend;
 
 	public ContentsImporter(MailBackend mailBackend,
-			CalendarBackend calBackend, ContactsBackend contactBackend,
-			TasksBackend tasksBackend) {
+			CalendarBackend calBackend, ContactsBackend contactBackend) {
 		this.mailBackend = mailBackend;
 		this.calBackend = calBackend;
 		this.contactBackend = contactBackend;
-		this.tasksBackend = tasksBackend;
+		// this.tasksBackend = tasksBackend;
 	}
 
 	@Override
@@ -44,7 +42,7 @@ public class ContentsImporter implements IContentsImporter {
 		switch (data.getType()) {
 		case CALENDAR:
 			id = calBackend.createOrUpdate(bs, collectionId, serverId,
-					clientId, (MSEvent) data);
+					clientId, data);
 			break;
 		case CONTACTS:
 			id = contactBackend.createOrUpdate(bs, collectionId, serverId,
@@ -55,8 +53,8 @@ public class ContentsImporter implements IContentsImporter {
 					clientId, (MSEmail) data);
 			break;
 		case TASKS:
-			id = tasksBackend.createOrUpdate(bs, collectionId, serverId,
-					clientId, (MSTask) data);
+			id = calBackend.createOrUpdate(bs, collectionId, serverId,
+					clientId, data);
 			break;
 		}
 		return id;
@@ -76,7 +74,7 @@ public class ContentsImporter implements IContentsImporter {
 			mailBackend.delete(bs, serverId);
 			break;
 		case TASKS:
-			tasksBackend.delete(bs, serverId);
+			calBackend.delete(bs, collectionId, serverId);
 			break;
 		}
 	}

@@ -10,6 +10,7 @@ import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSAttendee;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.Recurrence;
@@ -23,6 +24,7 @@ import org.obm.sync.calendar.Attendee;
 import org.obm.sync.calendar.Event;
 import org.obm.sync.calendar.EventOpacity;
 import org.obm.sync.calendar.EventRecurrence;
+import org.obm.sync.calendar.EventType;
 import org.obm.sync.calendar.ParticipationRole;
 import org.obm.sync.calendar.ParticipationState;
 import org.obm.sync.calendar.RecurrenceKind;
@@ -33,12 +35,12 @@ import org.obm.sync.calendar.RecurrenceKind;
  * @author tom
  * 
  */
-public class EventConverter {
+public class EventConverter implements ObmSyncCalendarConverter{
 
 	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(EventConverter.class);
 
-	public MSEvent convertEvent(Event e) {
+	public IApplicationData convert(Event e) {
 		MSEvent mse = new MSEvent();
 		if (e.getTimeUpdate() != null) {
 			mse.setDtStamp(e.getTimeUpdate());
@@ -91,7 +93,7 @@ public class EventConverter {
 		}
 
 		for (Event excp : recurrence.getEventExceptions()) {
-			MSEvent e = convertEvent(excp);
+			MSEvent e = (MSEvent) convert(excp);
 			ret.add(e);
 		}
 		return ret;
@@ -307,11 +309,15 @@ public class EventConverter {
 
 	}
 	
-	public Event convertEvent(MSEvent data) {
-		return convertEvent(null, data);
+	public Event convert(IApplicationData appliData) {
+		return convert(null, appliData,null);
 	}
 	
-	public Event convertEvent(Event oldEvent, MSEvent data) {
+	public Event convert(Event oldEvent, IApplicationData appliData, MSAttendee ownerAtt) {
+		MSEvent data = (MSEvent) appliData;
+		if(ownerAtt != null){
+			data.addAttendee(ownerAtt);
+		}
 		Event e = convertEventOne(oldEvent, null, data);
 		e.setExtId(data.getUID());
 		e.setUid(data.getObmUID());
@@ -336,10 +342,10 @@ public class EventConverter {
 	// Exceptions.Exception.Body (section 2.2.3.9): This element is optional.
 	// Exceptions.Exception.Categories (section 2.2.3.8): This element is
 	// optional.
-
 	private Event convertEventOne(Event oldEvent, Event parentEvent,
 			MSEvent data) {
 		Event e = new Event();
+		e.setType(EventType.VEVENT);
 		if (parentEvent != null && parentEvent.getTitle() != null
 				&& !parentEvent.getTitle().isEmpty()) {
 			e.setTitle(parentEvent.getTitle());

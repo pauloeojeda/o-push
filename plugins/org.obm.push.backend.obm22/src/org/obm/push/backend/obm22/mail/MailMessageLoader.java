@@ -281,7 +281,7 @@ public class MailMessageLoader {
 					}
 
 					EventConverter ec = new EventConverter();
-					return ec.convertEvent(event);
+					return (MSEvent) ec.convert(event);
 				}
 			} catch (Throwable e) {
 				logger.error(e.getMessage(), e);

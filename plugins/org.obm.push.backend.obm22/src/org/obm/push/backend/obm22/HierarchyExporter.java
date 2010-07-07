@@ -12,7 +12,6 @@ import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
-import org.obm.push.backend.obm22.tasks.TasksBackend;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.state.SyncState;
 
@@ -25,16 +24,14 @@ public class HierarchyExporter implements IHierarchyExporter {
 	private MailBackend mailExporter;
 	private CalendarBackend calendarExporter;
 	private ContactsBackend contactsBackend;
-	private TasksBackend tasksBackend;
 
 	public HierarchyExporter(FolderBackend folderExporter,
 			MailBackend mailExporter, CalendarBackend calendarExporter,
-			ContactsBackend contactsBackend, TasksBackend tasksBackend) {
+			ContactsBackend contactsBackend) {
 		this.folderExporter = folderExporter;
 		this.mailExporter = mailExporter;
 		this.calendarExporter = calendarExporter;
 		this.contactsBackend = contactsBackend;
-		this.tasksBackend = tasksBackend;
 	}
 
 	@Override
@@ -49,17 +46,12 @@ public class HierarchyExporter implements IHierarchyExporter {
 		}
 	}
 
-//	@Override
-//	public SyncState getState(BackendSession bs) {
-//		return bs.getState();
-//	}
-
 	private List<ItemChange> getContactsChanges(BackendSession bs) {
 		return contactsBackend.getHierarchyChanges(bs);
 	}
 
 	private List<ItemChange> getTasksChanges(BackendSession bs) {
-		return tasksBackend.getHierarchyChanges(bs);
+		return calendarExporter.getHierarchyTaskChanges(bs);
 	}
 
 	private List<ItemChange> getCalendarChanges(BackendSession bs) {

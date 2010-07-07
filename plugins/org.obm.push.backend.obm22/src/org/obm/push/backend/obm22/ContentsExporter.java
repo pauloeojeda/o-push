@@ -17,7 +17,6 @@ import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
-import org.obm.push.backend.obm22.tasks.TasksBackend;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.state.SyncState;
@@ -29,16 +28,15 @@ public class ContentsExporter implements IContentsExporter {
 	private MailBackend mailBackend;
 	private CalendarBackend calBackend;
 	private ContactsBackend contactsBackend;
-	private TasksBackend tasksBackend;
+//	private TasksBackend tasksBackend;
 
 	public ContentsExporter(MailBackend mailBackend,
-			CalendarBackend calendarExporter, ContactsBackend contactsBackend,
-			TasksBackend tasksBackend) {
+			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
 		super();
 		this.mailBackend = mailBackend;
 		this.calBackend = calendarExporter;
 		this.contactsBackend = contactsBackend;
-		this.tasksBackend = tasksBackend;
+//		this.tasksBackend = tasksBackend;
 	}
 
 	private void proccessFilterType(SyncState state, FilterType filterType) {
@@ -99,7 +97,7 @@ public class ContentsExporter implements IContentsExporter {
 
 	private DataDelta getTasksChanges(BackendSession bs, SyncState state,
 			String collectionId) {
-		return this.tasksBackend.getContentChanges(bs, state, collectionId);
+		return this.calBackend.getContentChanges(bs, state, collectionId);
 	}
 
 	private DataDelta getCalendarChanges(BackendSession bs, SyncState state,
@@ -161,7 +159,7 @@ public class ContentsExporter implements IContentsExporter {
 			changes.addAll(mailBackend.fetchItems(bs, fetchServerIds));
 			break;
 		case TASKS:
-			 changes.addAll(tasksBackend.fetchItems(bs, fetchServerIds));
+			 changes.addAll(calBackend.fetchItems(bs, fetchServerIds));
 			break;
 		}
 		return changes;
