@@ -84,13 +84,20 @@ public class CalendarEncoder extends Encoder implements IDataEncoder {
 							.createElement(at, "Calendar:Attendee");
 					s(ae, "Calendar:AttendeeEmail", ma.getEmail());
 					
-					if (ma.getName() == null || ma.getName().trim().length() == 0) {
+
+					if (ma.getName() == null
+							|| ma.getName().trim().length() == 0) {
 						String mail = ma.getEmail();
-						mail = mail.substring(0, mail.indexOf('@')).replace(".", " ");
+						int idx = mail.indexOf('@');
+						if (idx > 0) {
+							mail = mail.substring(0, mail.indexOf('@'))
+									.replace(".", " ");
+						}
 						ma.setName(mail);
 					}
 					
 					s(ae, "Calendar:AttendeeName", ma.getName());
+
 					if (bs.getProtocolVersion() >= 12) {
 						s(ae, "Calendar:AttendeeStatus", ma.getAttendeeStatus()
 								.asIntString());
