@@ -60,16 +60,18 @@ public class SyncStorage implements ISyncStorage {
 			ps.setInt(2, collectionId);
 			rs = ps.executeQuery();
 			if (rs.next()) {
-				String dataPath = getCollectionPath(collectionId);
+				String key = rs.getString(1);
+				long timeInMillis = rs.getTimestamp(2).getTime();
+				String dataPath = getCollectionPath(collectionId, con);
 				ret = new SyncState(dataPath);
-				ret.setKey(rs.getString(1));
-				cal.setTimeInMillis(rs.getTimestamp(2).getTime());
+				ret.setKey(key);
+				cal.setTimeInMillis(timeInMillis);
 				ret.setLastSync(cal.getTime());
 			}
 		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
 		} finally {
-			JDBCUtils.cleanup(con, ps, null);
+			JDBCUtils.cleanup(con, ps, rs);
 		}
 		return ret;
 	}
@@ -90,15 +92,16 @@ public class SyncStorage implements ISyncStorage {
 
 			rs = ps.executeQuery();
 			if (rs.next()) {
+				Timestamp lastSync = rs.getTimestamp("last_sync");
 				ret = new SyncState(getCollectionPath(rs
-						.getInt("collection_id")));
+						.getInt("collection_id"), con));
 				ret.setKey(syncKey);
-				ret.setLastSync(rs.getTimestamp("last_sync"));
+				ret.setLastSync(lastSync);
 			}
 		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
 		} finally {
-			JDBCUtils.cleanup(con, ps, null);
+			JDBCUtils.cleanup(con, ps, rs);
 		}
 		return ret;
 	}
@@ -381,6 +384,33 @@ public class SyncStorage implements ISyncStorage {
 			logger.error(se.getMessage(), se);
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
+		}
+		if (ret == null) {
+			throw new CollectionNotFoundException();
+		}
+		return ret;
+	}
+
+	private String getCollectionPath(Integer collectionId, Connection con)
+			throws CollectionNotFoundException {
+		String ret = null;
+
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		try {
+			ps = con
+					.prepareStatement("SELECT collection FROM opush_folder_mapping WHERE id=?");
+			ps.setInt(1, collectionId);
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				ret = rs.getString(1);
+			}
+		} catch (Throwable se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(null, ps, rs);
 		}
 		if (ret == null) {
 			throw new CollectionNotFoundException();
