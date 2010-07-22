@@ -260,7 +260,8 @@ public class MailMessageLoader {
 
 	private MSEvent getInvitation() throws IOException {
 		String ics = FileUtils.streamString(invitation, true);
-		if (ics != null && !"".equals(ics)) {
+		// fixme: quand ça commence pas par BEGIN, c'est surement du b64
+		if (ics != null && !"".equals(ics) && ics.startsWith("BEGIN")) {
 			AccessToken at = calendarClient.login(bs.getLoginAtDomain(), bs
 					.getPassword(), "o-push");
 			try {
@@ -284,7 +285,7 @@ public class MailMessageLoader {
 					return (MSEvent) ec.convert(event);
 				}
 			} catch (Throwable e) {
-				logger.error(e.getMessage(), e);
+				logger.error(e.getMessage()+", ics was:\n"+ics, e);
 			} finally {
 				calendarClient.logout(at);
 			}
