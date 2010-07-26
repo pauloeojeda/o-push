@@ -119,7 +119,7 @@ public class ContactsBackend extends ObmSyncBackend {
 				oc.setUid(Integer.parseInt(id));
 				oc = bc.modifyContact(token, BookType.contacts, oc);
 			} else {
-				oc = bc.createContact(token, BookType.contacts,
+				oc = bc.createContactWithoutDuplicate(token, BookType.contacts,
 						new ContactConverter().contact(data));
 				id = oc.getUid().toString();
 			}
