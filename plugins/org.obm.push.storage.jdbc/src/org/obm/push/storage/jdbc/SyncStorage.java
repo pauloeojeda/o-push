@@ -172,6 +172,7 @@ public class SyncStorage implements ISyncStorage {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		int id = 0;
+		boolean ret = true;
 		UserTransaction ut = getUserTransaction();
 		try {
 			ut.begin();
@@ -210,7 +211,7 @@ public class SyncStorage implements ISyncStorage {
 									+ login
 									+ " @ "
 									+ domain);
-					return false;
+					ret = false;
 				}
 			} else {
 				id = rs.getInt(1);
@@ -220,11 +221,11 @@ public class SyncStorage implements ISyncStorage {
 		} catch (Throwable se) {
 			logger.error(se.getMessage(), se);
 			JDBCUtils.rollback(ut);
-			return false;
+			ret = false;
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
-		return true;
+		return ret;
 	}
 
 	public boolean syncAuthorized(String loginAtDomain, String deviceId) {
