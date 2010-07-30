@@ -387,4 +387,8 @@ public class EmailManager {
 		EmailCacheStorage uc = cache(collectionId, false);
 		uc.addMessage(devId, collectionId, mailUid);
 	}
+
+	public Boolean getLoginWithDomain() {
+		return loginWithDomain;
+	}
 }
