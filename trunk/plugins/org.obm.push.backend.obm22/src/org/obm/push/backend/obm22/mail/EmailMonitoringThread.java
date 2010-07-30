@@ -162,8 +162,15 @@ public class EmailMonitoringThread implements IIdleCallback {
 		if (imapHost == null) {
 			locateImap(bs);
 		}
-		IdleClient idleCli = new IdleClient(imapHost, 143, bs
-				.getLoginAtDomain(), bs.getPassword(), this);
+		String login = bs.getLoginAtDomain();
+		if (!EmailManager.getInstance().getLoginWithDomain()) {
+			int at = login.indexOf("@");
+			if (at > 0) {
+				login = login.substring(0, at);
+			}
+		}
+
+		IdleClient idleCli = new IdleClient(imapHost, 143, login, bs.getPassword(), this);
 		return idleCli;
 	}
 
