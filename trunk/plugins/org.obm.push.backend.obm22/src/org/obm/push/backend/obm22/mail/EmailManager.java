@@ -107,6 +107,7 @@ public class EmailManager {
 				login = login.substring(0, at);
 			}
 		}
+		logger.info("creating storeClient with login: "+login+" (loginWithDomain: "+loginWithDomain+")");
 		StoreClient imapCli = new StoreClient(imapHost, 143, login, bs
 				.getPassword());
 
