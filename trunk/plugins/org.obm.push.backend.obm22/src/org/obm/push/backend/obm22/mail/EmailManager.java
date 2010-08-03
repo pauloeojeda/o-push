@@ -73,7 +73,7 @@ public class EmailManager {
 				return null;
 			}
 		};
-		loginWithDomain = 	!"false".equals(ini.getData().get(
+		loginWithDomain = !"false".equals(ini.getData().get(
 				BACKEND_IMAP_LOGIN_WITH_DOMAIN));
 	}
 
@@ -107,7 +107,8 @@ public class EmailManager {
 				login = login.substring(0, at);
 			}
 		}
-		logger.info("creating storeClient with login: "+login+" (loginWithDomain: "+loginWithDomain+")");
+		logger.info("creating storeClient with login: " + login
+				+ " (loginWithDomain: " + loginWithDomain + ")");
 		StoreClient imapCli = new StoreClient(imapHost, 143, login, bs
 				.getPassword());
 
@@ -131,8 +132,8 @@ public class EmailManager {
 		return ret;
 	}
 
-	public MailChanges getSync(BackendSession bs, SyncState state, Integer devId,
-			Integer collectionId, String collectionName)
+	public MailChanges getSync(BackendSession bs, SyncState state,
+			Integer devId, Integer collectionId, String collectionName)
 			throws InterruptedException, SQLException, IMAPException {
 		EmailCacheStorage uc = cache(collectionId, false);
 		MailChanges sync = uc.getSync(getImapClient(bs), devId, bs, state,
