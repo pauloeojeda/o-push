@@ -72,8 +72,8 @@ public class EmailMonitoringThread implements IIdleCallback {
 				logger.info("processing sc: id: " + sc.getCollectionId()
 						+ " name: " + sc.getCollectionPath());
 				if (monitoredCollections.contains(sc)) {
-					logger.info("******** PUSH " + sc.getCollectionId() + " name: "
-							+ sc.getCollectionPath() + " ********");
+					logger.info("******** PUSH " + sc.getCollectionId()
+							+ " name: " + sc.getCollectionPath() + " ********");
 					ret.add(sc);
 				} else {
 					logger.info("** " + sc.getCollectionId()
@@ -90,13 +90,13 @@ public class EmailMonitoringThread implements IIdleCallback {
 		for (SyncCollection toPush : ret) {
 			try {
 				String colName = toPush.getCollectionPath();
-				int collectionId = backend.getCollectionIdFor(session.getDevId(),
-						colName);
+				int collectionId = backend.getCollectionIdFor(session
+						.getDevId(), colName);
 				toPush.setCollectionId(collectionId);
 			} catch (ActiveSyncException e) {
 				logger.error("getChangedError", e);
 			}
-			
+
 		}
 
 		return ret;
@@ -163,7 +163,7 @@ public class EmailMonitoringThread implements IIdleCallback {
 			locateImap(bs);
 		}
 		String login = bs.getLoginAtDomain();
-		boolean useDomain = EmailManager.getInstance().getLoginWithDomain(); 
+		boolean useDomain = EmailManager.getInstance().getLoginWithDomain();
 		if (!useDomain) {
 			int at = login.indexOf("@");
 			if (at > 0) {
@@ -171,8 +171,10 @@ public class EmailMonitoringThread implements IIdleCallback {
 			}
 		}
 
-		logger.info("creating idleClient with login: "+login+" (loginWithDomain: "+useDomain+")");
-		IdleClient idleCli = new IdleClient(imapHost, 143, login, bs.getPassword(), this);
+		logger.info("creating idleClient with login: " + login
+				+ " (loginWithDomain: " + useDomain + ")");
+		IdleClient idleCli = new IdleClient(imapHost, 143, login, bs
+				.getPassword(), this);
 		return idleCli;
 	}
 
