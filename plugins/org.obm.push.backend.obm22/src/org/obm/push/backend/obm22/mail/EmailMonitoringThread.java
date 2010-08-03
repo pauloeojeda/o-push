@@ -163,19 +163,21 @@ public class EmailMonitoringThread implements IIdleCallback {
 			locateImap(bs);
 		}
 		String login = bs.getLoginAtDomain();
-		if (!EmailManager.getInstance().getLoginWithDomain()) {
+		boolean useDomain = EmailManager.getInstance().getLoginWithDomain(); 
+		if (!useDomain) {
 			int at = login.indexOf("@");
 			if (at > 0) {
 				login = login.substring(0, at);
 			}
 		}
 
+		logger.info("creating idleClient with login: "+login+" (loginWithDomain: "+useDomain+")");
 		IdleClient idleCli = new IdleClient(imapHost, 143, login, bs.getPassword(), this);
 		return idleCli;
 	}
 
 	private void locateImap(BackendSession bs) {
-		imapHost = new LocatorClient().locateHost("mail/imap", bs
+		imapHost = new LocatorClient().locateHost("mail/imap_frontend", bs
 				.getLoginAtDomain());
 		logger.info("Using " + imapHost + " as imap host.");
 	}
