@@ -21,15 +21,16 @@ import fr.aliasource.utils.JDBCUtils;
 
 public class ContactsMonitoringThread extends MonitoringThread {
 
-	private static final String POLL_QUERY = "		select "
-			+ "		distinct "
-			+ "		uo.userobm_login, d.domain_name, now() "
+	private static final String CHANGED_UIDS = "		select "
+			+ "		distinct sa.user_id, now() "
 			+ "		from SyncedAddressbook sa "
-			+ "		inner join UserObm uo on uo.userobm_id=sa.user_id "
-			+ "		inner join Domain d on d.domain_id=uo.userobm_domain_id "
 			+ "		inner join AddressBook ab on ab.id=sa.addressbook_id "
-			+ "		where ab.timeupdate >= ? or ab.timecreate >= ? or sa.timestamp >= ? "
-			+ "		; ";
+			+ "		where ab.timeupdate >= ? or ab.timecreate >= ? or sa.timestamp >= ? ";
+
+	private static final String POLL_QUERY = "		select "
+			+ "		uo.userobm_login, d.domain_name "
+			+ "		FROM UserObm uo "
+			+ "		inner join Domain d on d.domain_id=uo.userobm_domain_id WHERE uo.userobm_id IN ";
 
 	public ContactsMonitoringThread(ObmSyncBackend cb, long freqMs,
 			Set<ICollectionChangeListener> ccls) {
@@ -54,14 +55,14 @@ public class ContactsMonitoringThread extends MonitoringThread {
 		int idx = 1;
 		try {
 			con = newCon();
-			ps = con.prepareStatement(POLL_QUERY);
+			ps = con.prepareStatement(CHANGED_UIDS);
 			ps.setTimestamp(idx++, ts);
 			ps.setTimestamp(idx++, ts);
 			ps.setTimestamp(idx++, ts);
 			rs = ps.executeQuery();
-			dbDate = fillChangedCollections(rs, changed, lastSync);
+			dbDate = fillChangedCollections(con, rs, changed, lastSync);
 		} catch (Throwable t) {
-			logger.error("Error running calendar poll query", t);
+			logger.error("Error running changed uids query", t);
 		} finally {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
@@ -74,31 +75,55 @@ public class ContactsMonitoringThread extends MonitoringThread {
 		return new ChangedCollections(dbDate, changed);
 	}
 
-	private Date fillChangedCollections(ResultSet rs,
+	private Date fillChangedCollections(Connection con, ResultSet rs,
 			Set<SyncCollection> changed, Date lastSync) throws SQLException {
 		Date ret = lastSync;
+
 		int i = 0;
+		StringBuilder ids = new StringBuilder("(0");
 		while (rs.next()) {
-			String login = rs.getString(1);
-			String domain = rs.getString(2);
-			ret = new Date(rs.getTimestamp(3).getTime());
-
-			StringBuffer colName = new StringBuffer(255);
-			colName.append("obm:\\\\");
-			colName.append(login);
-			colName.append('@');
-			colName.append(domain);
-			colName.append("\\contacts");
-
-			SyncCollection sc = new SyncCollection();
-			String s = colName.toString();
-			sc.setCollectionPath(s);
-			changed.add(sc);
-			i++;
-			if (logger.isInfoEnabled()) {
-				logger.info("Detected contacts change for " + s);
+			int id = rs.getInt(1);
+			ids.append(", " + id);
+			if (i == 0) {
+				ret = new Date(rs.getTimestamp(2).getTime());
 			}
+			i++;
 		}
+		ids.append(")");
+
+		if (i > 0) {
+
+			PreparedStatement ps = null;
+			ResultSet res = null;
+			try {
+				ps = con.prepareStatement(POLL_QUERY + ids.toString());
+				res = ps.executeQuery();
+				while (res.next()) {
+					StringBuilder colName = new StringBuilder(255);
+					colName.append("obm:\\\\");
+					colName.append(res.getString(1));
+					colName.append('@');
+					colName.append(res.getString(2));
+					colName.append("\\contacts");
+
+					SyncCollection sc = new SyncCollection();
+					String s = colName.toString();
+					sc.setCollectionPath(s);
+					changed.add(sc);
+					if (logger.isInfoEnabled()) {
+						logger.info("Detected contacts change for " + s);
+					}
+
+				}
+
+			} catch (Throwable t) {
+				logger.error("Error running calendar poll query", t);
+			} finally {
+				JDBCUtils.cleanup(null, ps, res);
+			}
+
+		}
+
 		return ret;
 	}
 
