@@ -21,7 +21,9 @@ import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.data.IDataEncoder;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.exception.ObjectNotFoundException;
+import org.obm.push.exception.XMLValidationException;
 import org.obm.push.search.StoreName;
 import org.obm.push.utils.DOMUtils;
 import org.obm.push.utils.FileUtils;
@@ -61,24 +63,54 @@ public class ItemOperationsHandler extends WbxmlRequestHandler {
 		try {
 			Element fetch = DOMUtils.getUniqueElement(doc.getDocumentElement(),
 					"Fetch");
-			StoreName store = StoreName.getValue(DOMUtils.getElementText(fetch,
-					"Store"));
-			Document ret = DOMUtils.createDoc(null, "ItemOperations");
-			List<InputStream> items = new LinkedList<InputStream>();
-			if (StoreName.Mailbox.equals(store)) {
-				processMailboxFetch(bs, responder, fetch, multipart, ret, items);
-				if (multipart) {
-					responder.sendMSSyncMultipartResponse("ItemOperations",
-							ret, items, gzip);
-				} else {
-					responder.sendResponse("ItemOperations", ret);
-				}
-			} else {
-				logger.error("ItemOperations is not implemented for store "
-						+ store);
+			Element emptyFolder = DOMUtils.getUniqueElement(doc
+					.getDocumentElement(), "EmptyFolderContents");
+			if (fetch != null) {
+				fetchOperation(bs, responder, multipart, gzip, fetch);
+			} else if (emptyFolder != null) {
+				emptyFolderOperation(emptyFolder, bs, responder);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private void emptyFolderOperation(Element emptyFolder, BackendSession bs,
+			Responder responder) throws IOException,
+			CollectionNotFoundException {
+		int collectionId = Integer.parseInt(DOMUtils.getElementText(
+				emptyFolder, "CollectionId"));
+		String collectionPath = backend.getStore().getCollectionPath(
+				collectionId);
+
+		// TODO Auto-generated method stub
+		logger.info("TODO should clean collection " + collectionPath);
+
+		Document ret = DOMUtils.createDoc(null, "ItemOperations");
+		DOMUtils.createElementAndText(ret.getDocumentElement(), "Status",
+				ItemOperationsStatus.SUCCESS.asXmlValue());
+		responder.sendResponse("ItemOperations", ret);
+	}
+
+	private void fetchOperation(BackendSession bs, Responder responder,
+			boolean multipart, boolean gzip, Element fetch)
+			throws XMLValidationException, IOException {
+		StoreName store = StoreName.getValue(DOMUtils.getElementText(fetch,
+				"Store"));
+		Document ret = DOMUtils.createDoc(null, "ItemOperations");
+		List<InputStream> items = new LinkedList<InputStream>();
+		if (StoreName.Mailbox.equals(store)) {
+			processMailboxFetch(bs, responder, fetch, multipart, ret, items);
+			if (multipart) {
+				responder.sendMSSyncMultipartResponse("ItemOperations", ret,
+						items, gzip);
+			} else {
+				responder.sendResponse("ItemOperations", ret);
+			}
+		} else {
+			logger
+					.error("ItemOperations is not implemented for store "
+							+ store);
 		}
 	}
 
