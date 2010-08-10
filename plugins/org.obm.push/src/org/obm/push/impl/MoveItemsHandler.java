@@ -90,7 +90,7 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 
 				if (srcCollectionId == null) {
 					DOMUtils.createElementAndText(response, "Status", "1");
-				} else if (srcCollectionId == null) {
+				} else if (dstCollectionId == null) {
 					DOMUtils.createElementAndText(response, "Status", "2");
 				} else if (srcCollectionId.equals(dstCollectionId)) {
 					DOMUtils.createElementAndText(response, "Status", "4");
