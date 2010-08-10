@@ -51,14 +51,13 @@ public class LdapUtils {
 	 * @return
 	 * @throws NamingException
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Map<String, List<String>>> getAttributes(String filter,
 			String query, String[] attributes) throws NamingException {
 		SearchControls constraints = new SearchControls();
 		constraints.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		String attrList[] = attributes;
 		constraints.setReturningAttributes(attrList);
-		NamingEnumeration results = ctx.search(baseDn, filter.replace("%q",
+		NamingEnumeration<SearchResult> results = ctx.search(baseDn, filter.replace("%q",
 				query).replace("**", "*"), constraints);
 		List<Map<String, List<String>>> matched = new LinkedList<Map<String, List<String>>>();
 		while (results.hasMore()) {
@@ -67,10 +66,10 @@ public class LdapUtils {
 			if (attrs == null) {
 				continue;
 			}
-			NamingEnumeration ae = attrs.getAll();
+			NamingEnumeration<? extends Attribute> ae = attrs.getAll();
 			Map<String, List<String>> ret = new HashMap<String, List<String>>();
 			while (ae.hasMoreElements()) {
-				Attribute attr = (Attribute) ae.next();
+				Attribute attr = ae.next();
 				String id = attr.getID();
 				List<String> vals = null;
 				if (!ret.containsKey(id)) {
