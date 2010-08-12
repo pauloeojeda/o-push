@@ -52,23 +52,29 @@ public class BookSource implements ISearchSource {
 			}
 			try {
 				ctx = conf.getConnection();
-				LdapUtils u = new LdapUtils(ctx, conf.getBaseDn().replaceAll("%d",
-						domain));
-				List<Map<String, List<String>>> l = u.getAttributes(conf
-						.getFilter(), query, new String[] { "cn", "sn",
-						"givenName", "mail", "telephoneNumber", "mobile" });
+				LdapUtils u = new LdapUtils(ctx, conf.getBaseDn().replaceAll(
+						"%d", domain));
+				List<Map<String, List<String>>> l = u.getAttributes(
+						conf.getFilter(), query, new String[] { "displayName",
+								"cn", "sn", "givenName", "mail",
+								"telephoneNumber", "mobile" });
 				l = l.subList(0, Math.min(limit, l.size()));
 				for (Map<String, List<String>> m : l) {
 					String sn = uniqueAttribute("sn", m);
 					String givenName = uniqueAttribute("givenName", m);
 					String cn = uniqueAttribute("cn", m);
+					String display = uniqueAttribute("displayName", m);
 					List<String> phones = m.get("telephoneNumber");
 					if (sn.length() == 0 || givenName.length() == 0) {
 						sn = cn;
 						givenName = "";
 					}
 					SearchResult sr = new SearchResult();
-					sr.setDisplayName(givenName + " " + sn);
+					if (display != null && display.length() > 0) {
+						sr.setDisplayName(display);
+					} else {
+						sr.setDisplayName(givenName + " " + sn);
+					}
 					sr.setLastName(sn);
 					sr.setFirstName(givenName);
 					if (phones != null) {
@@ -81,7 +87,7 @@ public class BookSource implements ISearchSource {
 					}
 					sr.setMobilePhone(uniqueAttribute("mobile", m));
 					List<String> mails = m.get("mail");
-					if (mails !=null && mails.iterator().hasNext()) {
+					if (mails != null && mails.iterator().hasNext()) {
 						sr.setEmailAddress(mails.iterator().next());
 					}
 					ret.add(sr);
