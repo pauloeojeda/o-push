@@ -377,4 +377,9 @@ public class MailBackend extends ObmSyncBackend {
 		}
 		throw new ObjectNotFoundException();
 	}
+
+	public void purgeFolder(BackendSession bs, String collectionId) {
+		// TODO Auto-generated method stub
+		
+	}
 }

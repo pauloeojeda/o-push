@@ -1,11 +1,13 @@
 package org.obm.push.backend.obm22;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.IContentsImporter;
 import org.obm.push.backend.MSContact;
-import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.MSEmail;
+import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.backend.obm22.calendar.CalendarBackend;
 import org.obm.push.backend.obm22.contacts.ContactsBackend;
@@ -25,6 +27,7 @@ public class ContentsImporter implements IContentsImporter {
 	private ContactsBackend contactBackend;
 
 	// private TasksBackend tasksBackend;
+	private Log logger = LogFactory.getLog(getClass());
 
 	public ContentsImporter(MailBackend mailBackend,
 			CalendarBackend calBackend, ContactsBackend contactBackend) {
@@ -131,6 +134,17 @@ public class ContentsImporter implements IContentsImporter {
 			Boolean saveInSent, String collectionId, String serverId) {
 		mailBackend.forwardEmail(bs, mailContent, saveInSent, collectionId,
 				serverId);
+	}
+
+	@Override
+	public void emptyFolderContent(BackendSession bs, String collectionId) {
+		// TODO Auto-generated method stub
+		if (collectionId != null && collectionId.contains("email\\")) {
+			mailBackend.purgeFolder(bs, collectionId);
+		} else {
+			logger.warn("emptyFolderContent is only supported for emails, collection was "+collectionId);
+		}
+		
 	}
 
 }

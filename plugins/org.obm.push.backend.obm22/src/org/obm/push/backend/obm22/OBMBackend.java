@@ -41,19 +41,20 @@ public class OBMBackend implements IBackend {
 	private Set<ICollectionChangeListener> registeredListeners;
 	private CalendarMonitoringThread calendarPushMonitor;
 	private ContactsMonitoringThread contactsPushMonitor;
-	private Map<Integer, EmailMonitoringThread> emailPushMonitors; 
+	private Map<Integer, EmailMonitoringThread> emailPushMonitors;
 
 	private static final Log logger = LogFactory.getLog(OBMBackend.class);
 
 	public OBMBackend(ISyncStorage store) {
 		registeredListeners = Collections
 				.synchronizedSet(new HashSet<ICollectionChangeListener>());
-		emailPushMonitors = Collections.synchronizedMap(new HashMap<Integer, EmailMonitoringThread>());
+		emailPushMonitors = Collections
+				.synchronizedMap(new HashMap<Integer, EmailMonitoringThread>());
 		FolderBackend folderExporter = new FolderBackend(store);
 		MailBackend mailBackend = new MailBackend(store);
 		CalendarBackend calendarBackend = new CalendarBackend(store);
 		ContactsBackend contactsBackend = new ContactsBackend(store);
-//		TasksBackend tasksBackend = new TasksBackend(store);
+		// TasksBackend tasksBackend = new TasksBackend(store);
 		this.store = store;
 
 		hImporter = new HierarchyImporter();
@@ -74,28 +75,37 @@ public class OBMBackend implements IBackend {
 		calThread.setDaemon(true);
 		calThread.start();
 
-		contactsPushMonitor = new ContactsMonitoringThread(
-				cb, 5000, registeredListeners);
+		contactsPushMonitor = new ContactsMonitoringThread(cb, 5000,
+				registeredListeners);
 		Thread contactThread = new Thread(contactsPushMonitor);
 		contactThread.setDaemon(true);
 		contactThread.start();
 	}
-	
-	public void startEmailMonitoring(BackendSession bs, Integer collectionId) throws ActiveSyncException{
-		EmailMonitoringThread emt = emailPushMonitors.get(collectionId);
-		if(emt != null){
+
+	public void startEmailMonitoring(BackendSession bs, Integer collectionId)
+			throws ActiveSyncException {
+		EmailMonitoringThread emt = null;
+		synchronized (emailPushMonitors) {
+			emt = emailPushMonitors.get(collectionId);
+		}
+
+		if (emt != null) {
 			emt.stopIdle();
 		} else {
 			MailBackend mailBackend = new MailBackend(store);
-			emt = new EmailMonitoringThread(mailBackend, registeredListeners,bs,collectionId);
+			emt = new EmailMonitoringThread(mailBackend, registeredListeners,
+					bs, collectionId);
 		}
 		try {
 			emt.startIdle();
 		} catch (Exception e) {
-			logger.error("Error while starting idle on collection["+collectionId+"]", e);
+			logger.error("Error while starting idle on collection["
+					+ collectionId + "]", e);
 			emt.stopIdle();
 		}
-		emailPushMonitors.put(collectionId, emt);
+		synchronized (emailPushMonitors) {
+			emailPushMonitors.put(collectionId, emt);
+		}
 	}
 
 	@Override
@@ -133,7 +143,6 @@ public class OBMBackend implements IBackend {
 		}
 	}
 
-
 	@Override
 	public ISyncStorage getStore() {
 		return store;
@@ -150,29 +159,30 @@ public class OBMBackend implements IBackend {
 				+ "] change listener registered on backend");
 		return ret;
 	}
-	
+
 	@Override
 	public void resetForFullSync(BackendSession bs) {
 		logger.info("resetForFullSync devId: " + bs.getDevId());
-//		try {
-//			Set<Integer> colIds = getStore().getAllCollectionId(bs.getDevId());
-//			EmailManager.getInstance().resetForFullSync(colIds);
-//			getStore().resetForFullSync(bs.getDevId());
-//			bs.clearAll();
-//		} catch (RuntimeException re) {
-//			logger.error(re.getMessage(), re);
-//			throw re;
-//		}
+		// try {
+		// Set<Integer> colIds = getStore().getAllCollectionId(bs.getDevId());
+		// EmailManager.getInstance().resetForFullSync(colIds);
+		// getStore().resetForFullSync(bs.getDevId());
+		// bs.clearAll();
+		// } catch (RuntimeException re) {
+		// logger.error(re.getMessage(), re);
+		// throw re;
+		// }
 	}
 
 	@Override
 	public void resetCollection(BackendSession bs, Integer collectionId) {
-		logger.info("reset Collection "+collectionId+" For Full Sync devId: " + bs.getDevId());
+		logger.info("reset Collection " + collectionId
+				+ " For Full Sync devId: " + bs.getDevId());
 		try {
 			Set<Integer> colIds = new HashSet<Integer>();
 			colIds.add(collectionId);
 			EmailManager.getInstance().resetForFullSync(colIds);
-			getStore().resetCollection(bs.getDevId(),collectionId);
+			getStore().resetCollection(bs.getDevId(), collectionId);
 			bs.clear(collectionId);
 		} catch (RuntimeException re) {
 			logger.error(re.getMessage(), re);

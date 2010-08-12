@@ -35,5 +35,7 @@ public interface IContentsImporter {
 
 	void forwardEmail(BackendSession bs, byte[] mailContent,
 			Boolean saveInSent, String collectionId, String serverId);
+	
+	void emptyFolderContent(BackendSession bs, String collectionId);
 
 }
