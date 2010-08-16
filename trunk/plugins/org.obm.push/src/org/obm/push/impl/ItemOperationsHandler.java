@@ -87,8 +87,13 @@ public class ItemOperationsHandler extends WbxmlRequestHandler {
 		logger.info("TODO should clean collection " + collectionPath);
 
 		Document ret = DOMUtils.createDoc(null, "ItemOperations");
-		DOMUtils.createElementAndText(ret.getDocumentElement(), "Status",
+		Element root = ret.getDocumentElement();
+		DOMUtils.createElementAndText(root, "Status",
 				ItemOperationsStatus.SUCCESS.asXmlValue());
+		Element response = DOMUtils.createElement(root, "Response");
+		Element empty = DOMUtils.createElement(response, "EmptyFolderContents");
+		DOMUtils.createElementAndText(empty, "Status", ItemOperationsStatus.SUCCESS.asXmlValue());
+		DOMUtils.createElementAndText(empty, "AirSync:CollectionId", ""+collectionId);
 		responder.sendResponse("ItemOperations", ret);
 	}
 
