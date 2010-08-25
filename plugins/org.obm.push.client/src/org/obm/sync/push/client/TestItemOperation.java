@@ -42,7 +42,7 @@ public class TestItemOperation extends AbstractPushTest {
 				"AirSyncBase:FileReference");
 		refElem.setTextContent(fileRef);
 		DOMUtils.logDom(doc);
-		ret = postXml("ItemOperations", doc, "ItemOperations", null, "12.1", true);
+		ret = postMultipartXml("ItemOperations", doc, "ItemOperations");
 	}
 
 	public void testItemOperationMail() throws Exception {
@@ -84,7 +84,7 @@ public class TestItemOperation extends AbstractPushTest {
 		colIdElem.setTextContent(collectionId);
 		DOMUtils.logDom(doc);
 		
-		ret = postXml("ItemOperations", doc, "ItemOperations", null, "12.1", true);
+		ret = postMultipartXml("ItemOperations", doc, "ItemOperations");
 	}
 	
 	public void testItemOperationContact() throws Exception {
@@ -125,7 +125,7 @@ public class TestItemOperation extends AbstractPushTest {
 		colIdElem.setTextContent(collectionId);
 		DOMUtils.logDom(doc);
 		
-		ret = postXml("ItemOperations", doc, "ItemOperations", null, "12.1", true);
+		ret = postMultipartXml("ItemOperations", doc, "ItemOperations");
 	}
 	
 	public void testItemOperationCalendrier() throws Exception {
@@ -166,7 +166,7 @@ public class TestItemOperation extends AbstractPushTest {
 		colIdElem.setTextContent(collectionId);
 		DOMUtils.logDom(doc);
 		
-		ret = postXml("ItemOperations", doc, "ItemOperations", null, "12.1", true);
+		ret = postMultipartXml("ItemOperations", doc, "ItemOperations");
 	}
 	
 	public void testItemOperationMailServerIdError() throws Exception {

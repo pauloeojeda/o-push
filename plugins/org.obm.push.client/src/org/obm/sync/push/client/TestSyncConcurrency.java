@@ -7,6 +7,9 @@ import org.obm.push.utils.DOMUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import static org.obm.sync.push.client.utils.SyncKeyUtils.fillSyncKey;
+import static org.obm.sync.push.client.utils.SyncKeyUtils.processCollection;
+
 public class TestSyncConcurrency extends AbstractPushTest {
 
 	public void testConcurrencySync() throws Exception {
