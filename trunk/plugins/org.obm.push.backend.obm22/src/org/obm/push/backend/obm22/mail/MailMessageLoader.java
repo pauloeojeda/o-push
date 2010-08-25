@@ -67,8 +67,7 @@ import fr.aliasource.utils.FileUtils;
 public class MailMessageLoader {
 
 	private static final String[] HEADS_LOAD = new String[] { "Subject",
-			"From", "Date", "To", "Cc", "Bcc", "X-Mailer", "User-Agent",
-			"Message-ID" };
+			"From", "Date", "To", "Cc", "Bcc", "Message-ID" };
 
 	private CalendarClient calendarClient;
 	private BackendSession bs;
@@ -218,9 +217,8 @@ public class MailMessageLoader {
 			chosenParts = findBodyTextPart(mimePart, mimePart.getAddress());
 		}
 		if (h == null) {
-			InputStream is = protocol.uidFetchPart(tree.getUid(), mimePart
-					.getAddress()
-					+ ".HEADER");
+			InputStream is = protocol.uidFetchPart(tree.getUid(),
+					mimePart.getAddress() + ".HEADER");
 
 			Map<String, String> rawHeaders = new HashMap<String, String>();
 			parseRawHeaders(is, rawHeaders, getHeaderCharsetDecoder(mimePart));
@@ -262,8 +260,8 @@ public class MailMessageLoader {
 		String ics = FileUtils.streamString(invitation, true);
 		// fixme: quand ça commence pas par BEGIN, c'est surement du b64
 		if (ics != null && !"".equals(ics) && ics.startsWith("BEGIN")) {
-			AccessToken at = calendarClient.login(bs.getLoginAtDomain(), bs
-					.getPassword(), "o-push");
+			AccessToken at = calendarClient.login(bs.getLoginAtDomain(),
+					bs.getPassword(), "o-push");
 			try {
 				List<Event> obmEvents = calendarClient.parseICS(at, ics);
 				if (obmEvents.size() > 0) {
@@ -285,7 +283,7 @@ public class MailMessageLoader {
 					return (MSEvent) ec.convert(event);
 				}
 			} catch (Throwable e) {
-				logger.error(e.getMessage()+", ics was:\n"+ics, e);
+				logger.error(e.getMessage() + ", ics was:\n" + ics, e);
 			} finally {
 				calendarClient.logout(at);
 			}
@@ -314,8 +312,8 @@ public class MailMessageLoader {
 			mb.setCharset("utf-8");
 		} else {
 			for (MimePart mp : chosenParts) {
-				InputStream bodyText = protocol.uidFetchPart(tree.getUid(), mp
-						.getAddress());
+				InputStream bodyText = protocol.uidFetchPart(tree.getUid(),
+						mp.getAddress());
 				String charsetName = mp.getBodyParams().get("charset");
 				if (!isSupportedCharset(charsetName)) {
 					charsetName = "utf-8";
@@ -324,8 +322,9 @@ public class MailMessageLoader {
 				byte[] rawData = extractPartData(mp, bodyText);
 				String partText = new String(rawData, charsetName);
 
-				mb.addConverted(MSEmailBodyType
-						.getValueOf(mp.getFullMimeType()), partText);
+				mb.addConverted(
+						MSEmailBodyType.getValueOf(mp.getFullMimeType()),
+						partText);
 				if (logger.isDebugEnabled()) {
 					logger.debug("Added part " + mp.getFullMimeType() + "\n"
 							+ partText + "\n------");
@@ -396,9 +395,8 @@ public class MailMessageLoader {
 			for (Iterator<MimePart> it = mimePart.iterator(); it.hasNext();) {
 				MimePart mp = it.next();
 				inv = mp.isInvitation();
-				MSAttachement msAtt = extractAttachmentData(mp, protocol, mp
-						.isInvitation()
-						|| inv);
+				MSAttachement msAtt = extractAttachmentData(mp, protocol,
+						mp.isInvitation() || inv);
 				if (msAtt != null) {
 					attach.add(msAtt);
 				}
@@ -412,8 +410,8 @@ public class MailMessageLoader {
 
 		long uid = tree.getUid();
 		String id = AttachmentHelper.getAttachmentId(collectionId.toString(),
-				"" + messageId, mp.getAddress(), mp.getFullMimeType(), mp
-						.getContentTransfertEncoding());
+				"" + messageId, mp.getAddress(), mp.getFullMimeType(),
+				mp.getContentTransfertEncoding());
 		byte[] data = null;
 		InputStream part = protocol.uidFetchPart(uid, mp.getAddress());
 		data = extractPartData(mp, part);
@@ -441,8 +439,8 @@ public class MailMessageLoader {
 					att.setEstimatedDataSize(data.length);
 					return att;
 				} else if (isInvitation) {
-					invitation = protocol.uidFetchPart(tree.getUid(), mp
-							.getAddress());
+					invitation = protocol.uidFetchPart(tree.getUid(),
+							mp.getAddress());
 				}
 			}
 		} catch (Exception e) {
@@ -487,8 +485,8 @@ public class MailMessageLoader {
 			}
 		}
 		if (lastKey != null) {
-			rawHeaders.put(lastKey, DOMUtils.stripNonValidXMLCharacters(curHead
-					.toString()));
+			rawHeaders.put(lastKey,
+					DOMUtils.stripNonValidXMLCharacters(curHead.toString()));
 		}
 	}
 
