@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.zip.GZIPInputStream;
 
 import junit.framework.TestCase;
@@ -37,6 +38,7 @@ public class AbstractPushTest extends TestCase {
 	private String login;
 	private String userAgent;
 	private String password;
+	private MultiThreadedHttpConnectionManager mtManager;
 
 	protected AbstractPushTest() {
 		XTrustProvider.install();
@@ -44,39 +46,30 @@ public class AbstractPushTest extends TestCase {
 
 	// "POST /Microsoft-Server-ActiveSync?User=thomas@zz.com&DeviceId=Appl87837L1XY7H&DeviceType=iPhone&Cmd=Sync HTTP/1.1"
 
+	private String p(Properties p, String k) {
+		return p.getProperty(k);
+	}
+
 	@Override
 	protected void setUp() throws Exception {
-		// TODO Auto-generated method stub
 		super.setUp();
 
-//		 this.userId = "thomas@zz.com";
-//		 this.devId = "junitDevId";
-//		 this.devType = "PocketPC";
-//		 this.url = "https://10.0.0.5/Microsoft-Server-ActiveSync";
-		
-//		this.login = "adrien";
-//		this.userId = "test.tlse.lng\\adrien";
-//		this.password = "aliacom";
-//		this.devId = "359593005624680";
-//		this.devType = "roadsyncclient";
-//		this.userAgent = "roadsyncclient/701.341";
-//		this.url = "http://localhost/Microsoft-Server-ActiveSync";
+		InputStream in = loadDataFile("test.properties");
+		Properties p = new Properties();
+		p.load(in);
+		in.close();
 
-		 this.login = "Administrator";
-		 this.userId = "test.tlse.lng\\Administrator";
-		 this.password = "aliacom";
-		 this.devId = "Appl8683191J1R4";
-		 this.devType = "iPhone";
-		 this.userAgent = "Apple-iPhone/701.341";
-		 this.url = "http://2k3.test.tlse.lng/Microsoft-Server-ActiveSync";
-		 
-//		 this.login = "apoupard.aliasource";
-//		 this.userId = "apoupard.aliasource";
-//		 this.password = "chatteta";
-//		 this.devId = "HTCAnd63793280";
-//		 this.devType = "htcbravo";
-//		 this.userAgent = "roadsyncclient/701.341";
-//		 this.url = "https://m.google.com/Microsoft-Server-ActiveSync";
+		this.login = p(p, "login");
+		this.userId = p(p, "userId");
+		this.password = p(p, "password");
+		this.devId = p(p, "devId");
+		this.devType = p(p, "devType");
+		this.userAgent = p(p, "userAgent");
+		this.url = p(p, "url");
+
+		System.err.println("l: " + login + " u: " + userId + " p: " + password
+				+ " di: " + devId + " dt: " + devType + " ua: " + userAgent
+				+ " url: " + url);
 
 		this.hc = createHttpClient();
 	}
@@ -84,11 +77,12 @@ public class AbstractPushTest extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		mtManager.shutdown();
 	}
 
 	private HttpClient createHttpClient() {
-		HttpClient ret = new HttpClient(
-				new MultiThreadedHttpConnectionManager());
+		this.mtManager = new MultiThreadedHttpConnectionManager();
+		HttpClient ret = new HttpClient(mtManager);
 		HttpConnectionManagerParams mp = ret.getHttpConnectionManager()
 				.getParams();
 		mp.setDefaultMaxConnectionsPerHost(8);
