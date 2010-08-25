@@ -22,7 +22,7 @@ public class TestProvision extends AbstractPushTest {
 
 		InputStream in = loadDataFile("ProvisionRequest1.xml");
 		Document doc = DOMUtils.parse(in);
-		Document ret = postXml("Provision", doc, "Provision",null,"12.0", false);
+		Document ret = postXml120("Provision", doc, "Provision");
 		assertNotNull(ret);
 	}
 

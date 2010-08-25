@@ -4,7 +4,11 @@ import java.io.InputStream;
 import java.util.Map;
 
 import org.obm.push.utils.DOMUtils;
+import org.obm.sync.push.client.utils.SyncKeyUtils;
 import org.w3c.dom.Document;
+
+import static org.obm.sync.push.client.utils.SyncKeyUtils.fillSyncKey;
+import static org.obm.sync.push.client.utils.SyncKeyUtils.processCollection;
 
 public class TestFullSync extends AbstractPushTest {
 
@@ -79,12 +83,12 @@ public class TestFullSync extends AbstractPushTest {
 		public void run() {
 			super.run();
 			System.out.println("RUN "+num);
-			lastSyncKey.putAll(processCollection(lastResponse.getDocumentElement()));
+			lastSyncKey.putAll(SyncKeyUtils.processCollection(lastResponse.getDocumentElement()));
 			InputStream in = loadDataFile("FullSyncRequest3.xml");
 			Document doc;
 			try {
 				doc = DOMUtils.parse(in);
-				fillSyncKey(doc.getDocumentElement(), lastSyncKey);
+				SyncKeyUtils.fillSyncKey(doc.getDocumentElement(), lastSyncKey);
 				DOMUtils.logDom(doc);
 				postXml("AirSync", doc, "Sync");
 			} catch (Exception e) {

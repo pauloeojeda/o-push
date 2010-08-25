@@ -9,6 +9,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import static org.obm.sync.push.client.utils.SyncKeyUtils.fillSyncKey;
+import static org.obm.sync.push.client.utils.SyncKeyUtils.processCollection;
+
 public class TestGetItemEstimate extends AbstractPushTest {
 
 	public void testGetItemEstimate() throws Exception {
