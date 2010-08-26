@@ -11,7 +11,7 @@ import org.w3c.dom.Document;
 public class FolderSync extends TemplateBasedCommand<FolderSyncResponse> {
 
 	public FolderSync(String syncKey) {
-		super("FolderSync", "FolderSync", "FolderSyncRequest.xml");
+		super(NS.FolderHierarchy, "FolderSync", "FolderSyncRequest.xml");
 	}
 
 	@Override

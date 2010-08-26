@@ -1,6 +1,5 @@
 # exchange 2007 test server
-login=Administrator
-userId=test.tlse.lng\\Administrator
+login=Administrator@test.tlse.lng
 password=aliacom
 devId=Appl8683191J1R4
 devType=iPhone
