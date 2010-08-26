@@ -4,11 +4,11 @@ import java.util.List;
 
 public class FolderSyncResponse implements IEasReponse {
 
-	private List<Folder> fl;
+	private FolderHierarchy fl;
 	private String key;
 
 	public FolderSyncResponse(String key, List<Folder> fl) {
-		this.fl = fl;
+		this.fl = new FolderHierarchy(fl);
 		this.key = key;
 	}
 	
@@ -17,7 +17,7 @@ public class FolderSyncResponse implements IEasReponse {
 		return key;
 	}
 
-	public List<Folder> getFolders() {
+	public FolderHierarchy getFolders() {
 		return fl;
 	}
 	
