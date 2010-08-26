@@ -10,6 +10,7 @@ import org.obm.sync.push.client.AccountInfos;
 import org.obm.sync.push.client.IEasCommand;
 import org.obm.sync.push.client.OPClient;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public abstract class TemplateBasedCommand<T> implements IEasCommand<T> {
 
@@ -38,13 +39,13 @@ public abstract class TemplateBasedCommand<T> implements IEasCommand<T> {
 			throws Exception {
 		customizeTemplate(ai, opc);
 		Document response = opc.postXml(namespace, tpl, cmd);
-		T ret = parseResponse(response);
+		T ret = parseResponse(response.getDocumentElement());
 		return ret;
 	}
 
 	protected abstract void customizeTemplate(AccountInfos ai, OPClient opc);
 
-	protected abstract T parseResponse(Document response);
+	protected abstract T parseResponse(Element responseRootElem);
 
 	private InputStream loadDataFile(String name) {
 		return TemplateBasedCommand.class.getClassLoader().getResourceAsStream(
