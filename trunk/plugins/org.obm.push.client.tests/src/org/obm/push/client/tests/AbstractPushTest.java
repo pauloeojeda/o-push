@@ -11,7 +11,7 @@ import org.w3c.dom.Document;
 
 public class AbstractPushTest extends TestCase {
 
-	private OPClient opc;
+	protected OPClient opc;
 
 	protected AbstractPushTest() {
 	}
