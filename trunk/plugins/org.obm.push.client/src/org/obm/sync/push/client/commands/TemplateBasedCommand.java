@@ -18,8 +18,8 @@ public abstract class TemplateBasedCommand<T> implements IEasCommand<T> {
 	private String namespace;
 	private String cmd;
 
-	protected TemplateBasedCommand(String namespace, String cmd, String templateName) {
-		this.namespace = namespace;
+	protected TemplateBasedCommand(NS namespace, String cmd, String templateName) {
+		this.namespace = namespace.toString();
 		this.cmd = cmd;
 		InputStream in = loadDataFile(templateName);
 		if (in != null) {
@@ -37,10 +37,7 @@ public abstract class TemplateBasedCommand<T> implements IEasCommand<T> {
 	public T run(AccountInfos ai, OPClient opc, HttpClient hc)
 			throws Exception {
 		customizeTemplate(ai, opc);
-		
-		// exec
 		Document response = opc.postXml(namespace, tpl, cmd);
-		
 		T ret = parseResponse(response);
 		return ret;
 	}
