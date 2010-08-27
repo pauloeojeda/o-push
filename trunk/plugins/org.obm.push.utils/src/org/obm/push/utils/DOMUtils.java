@@ -273,4 +273,8 @@ public final class DOMUtils {
 		}
 		return ret;
 	}
+
+	public static Document cloneDOM(Document doc) throws TransformerException {
+		return (Document) doc.cloneNode(true);
+	}
 }
