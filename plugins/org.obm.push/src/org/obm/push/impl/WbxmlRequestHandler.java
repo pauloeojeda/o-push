@@ -1,12 +1,9 @@
 package org.obm.push.impl;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.xml.transform.TransformerException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,7 +17,6 @@ import org.obm.push.data.EmailDecoder;
 import org.obm.push.data.EncoderFactory;
 import org.obm.push.data.IDataDecoder;
 import org.obm.push.data.TaskDecoder;
-import org.obm.push.utils.DOMUtils;
 import org.obm.push.utils.FileUtils;
 import org.obm.push.wbxml.WBXMLTools;
 import org.w3c.dom.Document;
@@ -82,12 +78,7 @@ public abstract class WbxmlRequestHandler implements IRequestHandler {
 		}
 
 		if (doc != null && logger.isInfoEnabled()) {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			try {
-				DOMUtils.serialise(doc, out, true);
-				logger.info("from pda:\n" + out.toString());
-			} catch (TransformerException e) {
-			}
+			DOMDumper.dumpXml(logger, "from pda:\n", doc);
 		}
 
 		process(continuation, bs, doc, request, responder);

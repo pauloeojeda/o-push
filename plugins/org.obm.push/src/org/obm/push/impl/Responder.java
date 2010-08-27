@@ -34,12 +34,7 @@ public class Responder {
 	public void sendResponse(String defaultNamespace, Document doc)
 			throws IOException {
 		if (logger.isInfoEnabled()) {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			try {
-				DOMUtils.serialise(doc, out, true);
-				logger.info("to pda:\n" + out.toString());
-			} catch (TransformerException e) {
-			}
+			DOMDumper.dumpXml(logger, "to pda:\n", doc);
 		}
 		byte[] wbxml = WBXMLTools.toWbxml(defaultNamespace, doc);
 		resp.setContentType("application/vnd.ms-sync.wbxml");
