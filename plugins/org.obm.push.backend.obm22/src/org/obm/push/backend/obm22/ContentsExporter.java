@@ -141,7 +141,7 @@ public class ContentsExporter implements IContentsExporter {
 	public int getCount(BackendSession bs, SyncState state,
 			FilterType filterType, String collectionId) {
 		DataDelta dd = getChanged(bs, state, filterType, collectionId);
-		return (dd.getChanges().size() + dd.getDeletions().size());
+		return dd.getChanges().size();
 	}
 
 	@Override
