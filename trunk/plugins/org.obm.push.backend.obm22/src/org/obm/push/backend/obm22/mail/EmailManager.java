@@ -60,6 +60,10 @@ public class EmailManager {
 	protected String smtpHost;
 
 	private static EmailManager instance;
+	
+	static {
+		instance = new EmailManager();
+	}
 
 	private Log logger;
 	private Map<Integer, EmailCacheStorage> uidCache;
@@ -78,9 +82,6 @@ public class EmailManager {
 	}
 
 	public static EmailManager getInstance() {
-		if (instance == null) {
-			instance = new EmailManager();
-		}
 		return instance;
 	}
 
@@ -149,10 +150,9 @@ public class EmailManager {
 		StoreClient store = getImapClient(bs);
 		login(store);
 		store.select(parseMailBoxName(bs, collectionName));
+		MailMessageLoader mailLoader = new MailMessageLoader(store, calendarClient);
 		for (Long uid : uids) {
-			MailMessageLoader mailLoader = new MailMessageLoader();
-			MSEmail email = mailLoader.fetch(collectionId, uid, store, bs,
-					calendarClient);
+			MSEmail email = mailLoader.fetch(collectionId, uid, bs);
 			if (email != null) {
 				mails.add(email);
 			}

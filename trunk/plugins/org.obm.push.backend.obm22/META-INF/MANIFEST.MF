@@ -15,3 +15,4 @@ Require-Bundle: org.obm.push,
  fr.aliasource.webmail.ristretto;bundle-version="1.0.0"
 Bundle-ClassPath: lib/apache-mime4j-0.6.jar,
  .
+Export-Package: org.obm.push.backend.obm22.mail

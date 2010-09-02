@@ -64,6 +64,10 @@ import fr.aliasource.utils.FileUtils;
  * @author tom, adrienp
  * 
  */
+/**
+ * @author tom
+ *
+ */
 public class MailMessageLoader {
 
 	private static final String[] HEADS_LOAD = new String[] { "Subject",
@@ -77,25 +81,26 @@ public class MailMessageLoader {
 	private MimeTree tree;
 	private InputStream invitation;
 
+	private StoreClient store;
+
 	private static final Log logger = LogFactory
 			.getLog(MailMessageLoader.class);
 
 	/**
-	 * Creates a message loader with the given {@link AttachmentManager} for the
-	 * given {@link IFolder}
-	 * 
-	 * @param atMgr
-	 * @param f
+	 * @param store must be in selected state
+	 * @param calendarClient
 	 */
-	public MailMessageLoader() {
+	public MailMessageLoader(StoreClient store, CalendarClient calendarClient) {
 		this.tree = null;
+		this.calendarClient = calendarClient;
+		this.store = store;
 	}
 
-	public MSEmail fetch(Integer collectionId, long messageId,
-			StoreClient store, BackendSession bs, CalendarClient calendarClient)
+	public MSEmail fetch(Integer collectionId, long messageId, BackendSession bs)
 			throws IOException, IMAPException {
 		long[] set = new long[] { messageId };
-		this.calendarClient = calendarClient;
+		this.invitation = null;
+		this.tree = null;
 		this.bs = bs;
 		this.collectionId = collectionId;
 		this.messageId = messageId;
@@ -369,19 +374,20 @@ public class MailMessageLoader {
 		return null;
 	}
 
-	private byte[] extractPartData(MimePart chosenPart, InputStream bodyText)
+	private byte[] extractPartData(MimePart mp, InputStream bodyText)
 			throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		FileUtils.transfer(bodyText, out, true);
 		byte[] rawData = out.toByteArray();
-
-		if ("QUOTED-PRINTABLE".equals(chosenPart.getContentTransfertEncoding())) {
+		logger.info("[" + messageId + "] transfer encoding for part: "
+				+ mp.getContentTransfertEncoding() + " " + mp.getFullMimeType());
+		if ("QUOTED-PRINTABLE".equals(mp.getContentTransfertEncoding())) {
 			out = new ByteArrayOutputStream();
 			InputStream in = new QuotedPrintableDecoderInputStream(
 					new ByteArrayInputStream(rawData));
 			FileUtils.transfer(in, out, true);
 			rawData = out.toByteArray();
-		} else if ("BASE64".equals(chosenPart.getContentTransfertEncoding())) {
+		} else if ("BASE64".equals(mp.getContentTransfertEncoding())) {
 			rawData = new Base64().decode(rawData);
 		}
 		return rawData;
