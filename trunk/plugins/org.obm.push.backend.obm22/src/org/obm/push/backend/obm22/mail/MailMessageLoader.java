@@ -66,7 +66,7 @@ import fr.aliasource.utils.FileUtils;
  */
 /**
  * @author tom
- *
+ * 
  */
 public class MailMessageLoader {
 
@@ -87,7 +87,8 @@ public class MailMessageLoader {
 			.getLog(MailMessageLoader.class);
 
 	/**
-	 * @param store must be in selected state
+	 * @param store
+	 *            must be in selected state
 	 * @param calendarClient
 	 */
 	public MailMessageLoader(StoreClient store, CalendarClient calendarClient) {
@@ -113,7 +114,7 @@ public class MailMessageLoader {
 		MimeTree[] mts = null;
 		mts = store.uidFetchBodyStructure(set);
 		tree = mts[0];
-
+		
 		MSEmail mm = fetchOneMessage(tree, hs[0], store);
 
 		// do load messages forwarded as attachments into the indexers, as it
@@ -379,8 +380,11 @@ public class MailMessageLoader {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		FileUtils.transfer(bodyText, out, true);
 		byte[] rawData = out.toByteArray();
-		logger.info("[" + messageId + "] transfer encoding for part: "
-				+ mp.getContentTransfertEncoding() + " " + mp.getFullMimeType());
+		if (logger.isDebugEnabled()) {
+			logger.debug("[" + messageId + "] transfer encoding for part: "
+					+ mp.getContentTransfertEncoding() + " "
+					+ mp.getFullMimeType());
+		}
 		if ("QUOTED-PRINTABLE".equals(mp.getContentTransfertEncoding())) {
 			out = new ByteArrayOutputStream();
 			InputStream in = new QuotedPrintableDecoderInputStream(
@@ -397,12 +401,10 @@ public class MailMessageLoader {
 			StoreClient protocol) throws IOException, IMAPException {
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 		if (mimePart != null) {
-			boolean inv = false;
 			for (Iterator<MimePart> it = mimePart.iterator(); it.hasNext();) {
 				MimePart mp = it.next();
-				inv = mp.isInvitation();
 				MSAttachement msAtt = extractAttachmentData(mp, protocol,
-						mp.isInvitation() || inv);
+						mp.isInvitation());
 				if (msAtt != null) {
 					attach.add(msAtt);
 				}
@@ -413,7 +415,6 @@ public class MailMessageLoader {
 
 	private MSAttachement extractAttachmentData(MimePart mp,
 			StoreClient protocol, boolean isInvitation) throws IOException {
-
 		long uid = tree.getUid();
 		String id = AttachmentHelper.getAttachmentId(collectionId.toString(),
 				"" + messageId, mp.getAddress(), mp.getFullMimeType(),
@@ -445,8 +446,7 @@ public class MailMessageLoader {
 					att.setEstimatedDataSize(data.length);
 					return att;
 				} else if (isInvitation) {
-					invitation = protocol.uidFetchPart(tree.getUid(),
-							mp.getAddress());
+					invitation = new ByteArrayInputStream(data);
 				}
 			}
 		} catch (Exception e) {
