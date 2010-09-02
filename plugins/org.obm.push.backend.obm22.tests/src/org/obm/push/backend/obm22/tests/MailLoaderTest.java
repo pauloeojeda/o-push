@@ -26,6 +26,8 @@ public class MailLoaderTest extends TestCase {
 		assertNotNull(mail);
 		MSEvent invit = mail.getInvitation();
 		assertNotNull(invit);
+		
+		System.err.println("invit start: "+invit.getStartTime()+" dtstamp: "+invit.getDtStamp());
 	}
 
 }
