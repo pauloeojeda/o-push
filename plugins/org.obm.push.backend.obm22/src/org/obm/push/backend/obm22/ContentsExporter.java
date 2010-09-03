@@ -28,7 +28,8 @@ public class ContentsExporter implements IContentsExporter {
 	private MailBackend mailBackend;
 	private CalendarBackend calBackend;
 	private ContactsBackend contactsBackend;
-//	private TasksBackend tasksBackend;
+
+	// private TasksBackend tasksBackend;
 
 	public ContentsExporter(MailBackend mailBackend,
 			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
@@ -36,7 +37,7 @@ public class ContentsExporter implements IContentsExporter {
 		this.mailBackend = mailBackend;
 		this.calBackend = calendarExporter;
 		this.contactsBackend = contactsBackend;
-//		this.tasksBackend = tasksBackend;
+		// this.tasksBackend = tasksBackend;
 	}
 
 	private void proccessFilterType(SyncState state, FilterType filterType) {
@@ -50,14 +51,10 @@ public class ContentsExporter implements IContentsExporter {
 
 			switch (filterType) {
 			case ONE_DAY_BACK:
-				cal
-						.set(Calendar.DAY_OF_YEAR, cal
-								.get(Calendar.DAY_OF_YEAR) - 1);
+				cal.set(Calendar.DAY_OF_YEAR, cal.get(Calendar.DAY_OF_YEAR) - 1);
 				break;
 			case THREE_DAYS_BACK:
-				cal
-						.set(Calendar.DAY_OF_YEAR, cal
-								.get(Calendar.DAY_OF_YEAR) - 3);
+				cal.set(Calendar.DAY_OF_YEAR, cal.get(Calendar.DAY_OF_YEAR) - 3);
 				break;
 			case ONE_WEEK_BACK:
 				cal.set(Calendar.WEEK_OF_YEAR,
@@ -117,7 +114,6 @@ public class ContentsExporter implements IContentsExporter {
 		switch (state.getDataType()) {
 		case CALENDAR:
 			proccessFilterType(state, filterType);
-			logger.info("getChanged: " + state.getLastSync());
 			delta = getCalendarChanges(bs, state, collectionId);
 			break;
 		case CONTACTS:
@@ -125,7 +121,6 @@ public class ContentsExporter implements IContentsExporter {
 			break;
 		case EMAIL:
 			proccessFilterType(state, filterType);
-			logger.info("getChanged: " + state.getLastSync());
 			delta = getMailChanges(bs, state, collectionId);
 			break;
 		case TASKS:
@@ -141,7 +136,7 @@ public class ContentsExporter implements IContentsExporter {
 	public int getCount(BackendSession bs, SyncState state,
 			FilterType filterType, String collectionId) {
 		DataDelta dd = getChanged(bs, state, filterType, collectionId);
-		return dd.getChanges().size();
+		return dd.getChanges().size() + dd.getDeletions().size();
 	}
 
 	@Override
@@ -159,7 +154,7 @@ public class ContentsExporter implements IContentsExporter {
 			changes.addAll(mailBackend.fetchItems(bs, fetchServerIds));
 			break;
 		case TASKS:
-			 changes.addAll(calBackend.fetchItems(bs, fetchServerIds));
+			changes.addAll(calBackend.fetchItems(bs, fetchServerIds));
 			break;
 		}
 		return changes;
