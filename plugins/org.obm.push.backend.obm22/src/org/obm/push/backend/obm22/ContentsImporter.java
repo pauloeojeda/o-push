@@ -14,6 +14,8 @@ import org.obm.push.backend.obm22.contacts.ContactsBackend;
 import org.obm.push.backend.obm22.mail.MailBackend;
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.CollectionNotFoundException;
+import org.obm.push.exception.NotAllowedException;
 
 /**
  * 
@@ -137,12 +139,11 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public void emptyFolderContent(BackendSession bs, String collectionId) {
-		// TODO Auto-generated method stub
-		if (collectionId != null && collectionId.contains("email\\")) {
-			mailBackend.purgeFolder(bs, collectionId);
+	public void emptyFolderContent(BackendSession bs, String collectionPath, boolean deleteSubFolder) throws CollectionNotFoundException, NotAllowedException {
+		if (collectionPath != null && collectionPath.contains("email\\")) {
+			mailBackend.purgeFolder(bs, collectionPath, deleteSubFolder);
 		} else {
-			logger.warn("emptyFolderContent is only supported for emails, collection was "+collectionId);
+			throw new NotAllowedException("emptyFolderContent is only supported for emails, collection was "+collectionPath);
 		}
 		
 	}

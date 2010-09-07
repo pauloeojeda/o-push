@@ -36,6 +36,7 @@ import org.minig.imap.FlagsList;
 import org.minig.imap.IMAPException;
 import org.minig.imap.ListInfo;
 import org.minig.imap.ListResult;
+import org.minig.imap.SearchQuery;
 import org.minig.imap.StoreClient;
 import org.obm.locator.client.LocatorClient;
 import org.obm.push.backend.BackendSession;
@@ -60,7 +61,7 @@ public class EmailManager {
 	protected String smtpHost;
 
 	private static EmailManager instance;
-	
+
 	static {
 		instance = new EmailManager();
 	}
@@ -137,9 +138,18 @@ public class EmailManager {
 			Integer devId, Integer collectionId, String collectionName)
 			throws InterruptedException, SQLException, IMAPException {
 		EmailCacheStorage uc = cache(collectionId, false);
-		MailChanges sync = uc.getSync(getImapClient(bs), devId, bs, state,
-				collectionId, parseMailBoxName(bs, collectionName));
-		return sync;
+		StoreClient store = getImapClient(bs);
+		try {
+			login(store);
+			MailChanges sync = uc.getSync(getImapClient(bs), devId, bs, state,
+					collectionId, parseMailBoxName(store, bs, collectionName));
+			return sync;
+		} finally {
+			try {
+				store.logout();
+			} catch (IMAPException e) {
+			}
+		}
 	}
 
 	public List<MSEmail> fetchMails(BackendSession bs,
@@ -149,8 +159,9 @@ public class EmailManager {
 		List<MSEmail> mails = new LinkedList<MSEmail>();
 		StoreClient store = getImapClient(bs);
 		login(store);
-		store.select(parseMailBoxName(bs, collectionName));
-		MailMessageLoader mailLoader = new MailMessageLoader(store, calendarClient);
+		store.select(parseMailBoxName(store, bs, collectionName));
+		MailMessageLoader mailLoader = new MailMessageLoader(store,
+				calendarClient);
 		for (Long uid : uids) {
 			MSEmail email = mailLoader.fetch(collectionId, uid, bs);
 			if (email != null) {
@@ -167,7 +178,7 @@ public class EmailManager {
 		List<InputStream> mails = new LinkedList<InputStream>();
 		StoreClient store = getImapClient(bs);
 		login(store);
-		store.select(parseMailBoxName(bs, collectionName));
+		store.select(parseMailBoxName(store, bs, collectionName));
 		for (Long uid : uids) {
 			mails.add(store.uidFetchMessage(uid));
 		}
@@ -175,18 +186,23 @@ public class EmailManager {
 		return mails;
 	}
 
-	public ListResult listAllFolder(BackendSession bs) throws IMAPException {
+	private ListResult listAllFolder(BackendSession bs) throws IMAPException {
 		StoreClient store = getImapClient(bs);
-		ListResult ret = new ListResult(0);
 		try {
 			login(store);
-			ret = store.listAll("", "");
+			return listAllFolder(store, bs);
 		} finally {
 			try {
 				store.logout();
 			} catch (IMAPException e) {
 			}
 		}
+	}
+
+	private ListResult listAllFolder(StoreClient store, BackendSession bs)
+			throws IMAPException {
+		ListResult ret = new ListResult(0);
+		ret = store.listAll("", "");
 		return ret;
 	}
 
@@ -195,7 +211,7 @@ public class EmailManager {
 		StoreClient store = getImapClient(bs);
 		try {
 			login(store);
-			String mailBoxName = parseMailBoxName(bs, collectionName);
+			String mailBoxName = parseMailBoxName(store, bs, collectionName);
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.SEEN);
@@ -210,13 +226,28 @@ public class EmailManager {
 			}
 		}
 	}
+	
+	public String parseMailBoxName(BackendSession bs,
+			String collectionName) throws IMAPException {
+		// parse obm:\\adrien@test.tlse.lng\email\INBOX\Sent
+		StoreClient store = getImapClient(bs);
+		try {
+			login(store);
+			return parseMailBoxName(store, bs,collectionName);
+		} finally {
+			try {
+				store.logout();
+			} catch (IMAPException e) {
+			}
+		}
+	}
 
-	public String parseMailBoxName(BackendSession bs, String collectionName)
-			throws IMAPException {
+	private String parseMailBoxName(StoreClient store, BackendSession bs,
+			String collectionName) throws IMAPException {
 		// parse obm:\\adrien@test.tlse.lng\email\INBOX\Sent
 		int slash = collectionName.lastIndexOf("email\\");
 		String boxName = collectionName.substring(slash + "email\\".length());
-		ListResult lr = listAllFolder(bs);
+		ListResult lr = listAllFolder(store, bs);
 		for (ListInfo i : lr) {
 			if (i.getName().toLowerCase().contains(boxName.toLowerCase())) {
 				return i.getName();
@@ -232,12 +263,12 @@ public class EmailManager {
 		}
 	}
 
-	public void delete(BackendSession bs, Integer devId, String collectionName,
+	public void delete(BackendSession bs, Integer devId, String collectionPath,
 			Integer collectionId, Long uid) throws IMAPException {
 		StoreClient store = getImapClient(bs);
 		try {
 			login(store);
-			String mailBoxName = parseMailBoxName(bs, collectionName);
+			String mailBoxName = parseMailBoxName(store, bs, collectionPath);
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.DELETED);
@@ -261,8 +292,8 @@ public class EmailManager {
 		long[] newUid = null;
 		try {
 			login(store);
-			String srcMailBox = parseMailBoxName(bs, srcFolder);
-			String dstMailBox = parseMailBoxName(bs, dstFolder);
+			String srcMailBox = parseMailBoxName(store, bs, srcFolder);
+			String dstMailBox = parseMailBoxName(store, bs, dstFolder);
 			store.select(srcMailBox);
 			long[] uids = { uid };
 			newUid = store.uidCopy(uids, dstMailBox);
@@ -296,7 +327,7 @@ public class EmailManager {
 		StoreClient store = getImapClient(bs);
 		try {
 			login(store);
-			String mailBoxName = parseMailBoxName(bs, collectionName);
+			String mailBoxName = parseMailBoxName(store, bs, collectionName);
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.ANSWERED);
@@ -342,12 +373,38 @@ public class EmailManager {
 		StoreClient store = getImapClient(bs);
 		try {
 			login(store);
-			String mailBoxName = parseMailBoxName(bs, collectionName);
+			String mailBoxName = parseMailBoxName(store, bs, collectionName);
 			store.select(mailBoxName);
 			return store.uidFetchPart(mailUid, mimePartAddress);
 		} finally {
 			store.logout();
 		}
+	}
+
+	public void purgeFolder(BackendSession bs, Integer devId,
+			String collectionPath, Integer collectionId) throws IMAPException {
+		long time = System.currentTimeMillis();
+		StoreClient store = getImapClient(bs);
+		try {
+			login(store);
+			String mailBoxName = parseMailBoxName(store, bs, collectionPath);
+			store.select(mailBoxName);
+			logger.info("Mailbox folder[" + collectionPath
+					+ "] will be purged...");
+			long[] uids = store.uidSearch(new SearchQuery());
+			FlagsList fl = new FlagsList();
+			fl.add(Flag.DELETED);
+			store.uidStore(uids, fl, true);
+			store.expunge();
+			deleteMessageInCache(devId, collectionId, uids);
+			time = System.currentTimeMillis() - time;
+			logger.info("Mailbox folder[" + collectionPath + "] was purged in "
+					+ time + " millisec. " + uids.length
+					+ " messages have been deleted");
+		} finally {
+			store.logout();
+		}
+
 	}
 
 	private void storeInSent(BackendSession bs, byte[] mailContent)
@@ -379,9 +436,11 @@ public class EmailManager {
 	}
 
 	private void deleteMessageInCache(Integer devId, Integer collectionId,
-			Long mailUid) {
+			long... mailUids) {
 		EmailCacheStorage uc = cache(collectionId, false);
-		uc.deleteMessage(devId, collectionId, mailUid);
+		for (Long uid : mailUids) {
+			uc.deleteMessage(devId, collectionId, uid);
+		}
 	}
 
 	private void addMessageInCache(Integer devId, Integer collectionId,
