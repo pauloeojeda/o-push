@@ -20,6 +20,8 @@ import org.obm.push.backend.MSAttachementData;
 import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.obm22.impl.ObmSyncBackend;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.CollectionNotFoundException;
+import org.obm.push.exception.NotAllowedException;
 import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
@@ -51,20 +53,20 @@ public class MailBackend extends ObmSyncBackend {
 		return ret;
 	}
 
-	public DataDelta getContentChanges(BackendSession bs, SyncState state, String collection) {
-		logger.info("Collection: " + collection);
+	public DataDelta getContentChanges(BackendSession bs, SyncState state, String collectionPath) {
+		logger.info("Collection: " + collectionPath);
 		List<ItemChange> changes = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 		try {
-			int collectionId = getCollectionIdFor(bs.getDevId(), collection);
+			int collectionId = getCollectionIdFor(bs.getDevId(), collectionPath);
 
 			int devId = getDevId(bs.getDevId());
 			MailChanges mc = emailManager.getSync(bs,state, devId, collectionId,
-					collection);
-			changes = getChanges(bs, collectionId, collection, mc.getUpdated());
-			deletions.addAll(getDeletions(bs, collection, mc.getRemoved()));
+					collectionPath);
+			changes = getChanges(bs, collectionId, collectionPath, mc.getUpdated());
+			deletions.addAll(getDeletions(bs, collectionPath, mc.getRemoved()));
 			bs.addUpdatedSyncDate(
-					getCollectionIdFor(bs.getDevId(), collection), mc
+					getCollectionIdFor(bs.getDevId(), collectionPath), mc
 							.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -378,8 +380,17 @@ public class MailBackend extends ObmSyncBackend {
 		throw new ObjectNotFoundException();
 	}
 
-	public void purgeFolder(BackendSession bs, String collectionId) {
-		// TODO Auto-generated method stub
-		
+	public void purgeFolder(BackendSession bs, String collectionPath, boolean deleteSubFolder) throws CollectionNotFoundException, NotAllowedException {
+		try {
+			int devId = getDevId(bs.getDevId());
+			int collectionId = getCollectionIdFor(bs.getDevId(), collectionPath);
+			emailManager.purgeFolder(bs, devId, collectionPath, collectionId);
+			if(deleteSubFolder){
+				logger.warn("deleteSubFolder isn't implemented because opush doesn't yet manage folders");
+			}
+		} catch (Throwable e) {
+			logger.error(e.getMessage(), e);
+			throw new NotAllowedException(e);
+		}
 	}
 }

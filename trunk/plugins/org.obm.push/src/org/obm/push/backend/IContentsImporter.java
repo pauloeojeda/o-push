@@ -2,6 +2,8 @@ package org.obm.push.backend;
 
 import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.CollectionNotFoundException;
+import org.obm.push.exception.NotAllowedException;
 
 /**
  * Content management interface, ie. CRUD API.
@@ -35,7 +37,9 @@ public interface IContentsImporter {
 
 	void forwardEmail(BackendSession bs, byte[] mailContent,
 			Boolean saveInSent, String collectionId, String serverId);
-	
-	void emptyFolderContent(BackendSession bs, String collectionId);
+
+	void emptyFolderContent(BackendSession bs, String collectionPath,
+			boolean deleteSubFolder) throws CollectionNotFoundException,
+			NotAllowedException;
 
 }

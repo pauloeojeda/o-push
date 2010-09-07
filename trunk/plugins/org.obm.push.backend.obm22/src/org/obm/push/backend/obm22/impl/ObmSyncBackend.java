@@ -12,6 +12,7 @@ import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.ItemChange;
 import org.obm.push.backend.PIMDataType;
 import org.obm.push.exception.ActiveSyncException;
+import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.client.book.BookClient;
@@ -117,7 +118,7 @@ public class ObmSyncBackend {
 		}
 	}
 
-	public Integer getCollectionIdFor(String deviceId, String collection) throws ActiveSyncException {
+	public Integer getCollectionIdFor(String deviceId, String collection) throws CollectionNotFoundException {
 		return storage.getCollectionMapping(deviceId, collection);
 	}
 	

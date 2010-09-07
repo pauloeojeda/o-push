@@ -22,6 +22,7 @@ import org.obm.push.backend.SyncCollection;
 import org.obm.push.data.IDataEncoder;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.CollectionNotFoundException;
+import org.obm.push.exception.NotAllowedException;
 import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.exception.XMLValidationException;
 import org.obm.push.search.StoreName;
@@ -75,16 +76,33 @@ public class ItemOperationsHandler extends WbxmlRequestHandler {
 		}
 	}
 
+	// <?xml version="1.0" encoding="UTF-8"?>
+	// <ItemOperations>
+	// <EmptyFolderContents>
+	// <CollectionId>68</CollectionId>
+	// <Options>
+	// <DeleteSubFolders/>
+	// </Options>
+	// </EmptyFolderContents>
+	// </ItemOperations>
 	private void emptyFolderOperation(Element emptyFolder, BackendSession bs,
-			Responder responder) throws IOException,
-			CollectionNotFoundException {
+			Responder responder) throws IOException {
 		int collectionId = Integer.parseInt(DOMUtils.getElementText(
 				emptyFolder, "CollectionId"));
-		String collectionPath = backend.getStore().getCollectionPath(
-				collectionId);
-
-		// TODO Auto-generated method stub
-		logger.info("TODO should clean collection " + collectionPath);
+		Element deleteSubFolderElem = DOMUtils.getUniqueElement(emptyFolder,
+				"DeleteSubFolders");
+		ItemOperationsStatus status = null;
+		try {
+			String collectionPath = backend.getStore().getCollectionPath(
+					collectionId);
+			backend.getContentsImporter(collectionId, bs).emptyFolderContent(
+					bs, collectionPath, deleteSubFolderElem != null);
+			status = ItemOperationsStatus.SUCCESS;
+		} catch (CollectionNotFoundException e) {
+			status = ItemOperationsStatus.BLOCKED_ACCESS;
+		} catch (NotAllowedException e) {
+			status = ItemOperationsStatus.BLOCKED_ACCESS;
+		}
 
 		Document ret = DOMUtils.createDoc(null, "ItemOperations");
 		Element root = ret.getDocumentElement();
@@ -92,8 +110,10 @@ public class ItemOperationsHandler extends WbxmlRequestHandler {
 				ItemOperationsStatus.SUCCESS.asXmlValue());
 		Element response = DOMUtils.createElement(root, "Response");
 		Element empty = DOMUtils.createElement(response, "EmptyFolderContents");
-		DOMUtils.createElementAndText(empty, "Status", ItemOperationsStatus.SUCCESS.asXmlValue());
-		DOMUtils.createElementAndText(empty, "AirSync:CollectionId", ""+collectionId);
+		DOMUtils.createElementAndText(empty, "Status",
+				status.asXmlValue());
+		DOMUtils.createElementAndText(empty, "AirSync:CollectionId", ""
+				+ collectionId);
 		responder.sendResponse("ItemOperations", ret);
 	}
 
@@ -180,15 +200,10 @@ public class ItemOperationsHandler extends WbxmlRequestHandler {
 					ic.get(0).getData(), bs.getProtocolVersion());
 			encoder.encode(bs, dataElem, ic.get(0).getData(), c, true);
 			if (multipart) {
-				logger.info("////////////////////////");
-				logger.info("////////////////////////");
-				logger.info("dans multipart");
 				Element data = DOMUtils.getUniqueElement(dataElem,
 						"AirSyncBase:Data");
 				String dataValue = "";
 				if (data != null) {
-					logger.info("////////////////////////");
-					logger.info("////////////////////////");
 					dataValue = data.getTextContent();
 					Element pData = (Element) data.getParentNode();
 					pData.removeChild(data);
