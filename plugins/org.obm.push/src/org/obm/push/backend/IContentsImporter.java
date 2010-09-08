@@ -13,8 +13,6 @@ import org.obm.push.exception.NotAllowedException;
  */
 public interface IContentsImporter {
 
-	void importMessageReadFlag(BackendSession bs, String serverId, boolean read);
-
 	String importMessageChange(BackendSession bs, String collectionId,
 			String serverId, String clientId, IApplicationData data)
 			throws ActiveSyncException;

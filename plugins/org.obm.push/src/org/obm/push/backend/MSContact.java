@@ -552,11 +552,6 @@ public class MSContact implements IApplicationData {
 		return PIMDataType.CONTACTS;
 	}
 
-	@Override
-	public boolean isRead() {
-		return true;
-	}
-
 	public Date getAnniversary() {
 		return anniversary;
 	}

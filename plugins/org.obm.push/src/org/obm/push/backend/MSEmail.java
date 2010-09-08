@@ -18,11 +18,6 @@ public class MSEmail implements IApplicationData {
 		return PIMDataType.EMAIL;
 	}
 
-	@Override
-	public boolean isRead() {
-		return read;
-	}
-	
 	private static final long serialVersionUID = 1165242659388338781L;
 
 	private String subject;
@@ -198,6 +193,10 @@ public class MSEmail implements IApplicationData {
 
 	public void setSmtpId(String smtpId) {
 		this.smtpId = smtpId;
+	}
+	
+	public boolean isRead() {
+		return read;
 	}
 
 	public void setRead(boolean read) {

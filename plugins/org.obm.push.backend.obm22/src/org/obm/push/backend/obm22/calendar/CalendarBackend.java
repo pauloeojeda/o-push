@@ -163,7 +163,6 @@ public class CalendarBackend extends ObmSyncBackend {
 			for (String del : changes.getRemoved()) {
 				deletions.add(getDeletion(bs, collection, del));
 			}
-
 			bs.addUpdatedSyncDate(
 					getCollectionIdFor(bs.getDevId(), collection), changes
 							.getLastSync());
@@ -225,7 +224,8 @@ public class CalendarBackend extends ObmSyncBackend {
 		ownerAtt.setEmail(email);
 		ownerAtt.setAttendeeStatus(AttendeeStatus.ACCEPT);
 		ownerAtt.setAttendeeType(AttendeeType.REQUIRED);
-		Event event = converters.get(data.getType()).convert(oldEvent, data, ownerAtt);
+		Event event = converters.get(data.getType()).convert(oldEvent, data,
+				ownerAtt);
 		Attendee att = new Attendee();
 		att.setEmail(email);
 		if (id != null) {

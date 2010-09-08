@@ -235,7 +235,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 
 		Set<ItemChange> unSyncdeleted = bs.getUnSynchronizedDeletedItemChange(c
 				.getCollectionId());
-		if (delta != null && delta.getDeletions() != null && unSyncdeleted != null) {
+		if (delta != null && delta.getDeletions() != null
+				&& unSyncdeleted != null) {
 			delta.getDeletions().addAll(unSyncdeleted);
 			unSyncdeleted.clear();
 		}
@@ -532,12 +533,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 				data = dd.decode(syncData);
 			}
 			if (modType.equals("Modify")) {
-				if (data.isRead()) {
-					importer.importMessageReadFlag(bs, serverId, data.isRead());
-				} else {
-					importer.importMessageChange(bs, collectionId, serverId,
-							clientId, data);
-				}
+				importer.importMessageChange(bs, collectionId, serverId,
+						clientId, data);
 			} else if (modType.equals("Add") || modType.equals("Change")) {
 				logger.info("processing Add/Change (srv: " + serverId
 						+ ", cli:" + clientId + ")");
