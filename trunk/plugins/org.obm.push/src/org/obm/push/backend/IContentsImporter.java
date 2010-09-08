@@ -17,10 +17,8 @@ public interface IContentsImporter {
 			String serverId, String clientId, IApplicationData data)
 			throws ActiveSyncException;
 
-	void importMessageMove(BackendSession bs, String serverId, String trash);
-
 	void importMessageDeletion(BackendSession bs, PIMDataType type,
-			String collectionId, String serverId);
+			String collectionId, String serverId, Boolean moveToTrash);
 
 	String importMoveItem(BackendSession bs, PIMDataType type,
 			String srcFolder, String dstFolder, String messageId);

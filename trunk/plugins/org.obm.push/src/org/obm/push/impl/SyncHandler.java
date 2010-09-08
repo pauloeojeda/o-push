@@ -548,15 +548,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					processedClientIds.put(obmId, null);
 				}
 			} else if (modType.equals("Delete")) {
-				if (collection.isDeletesAsMoves()) {
-					String trash = backend.getWasteBasket();
-					if (trash != null) {
-						importer.importMessageMove(bs, serverId, trash);
-					}
-				} else {
-					importer.importMessageDeletion(bs, dataClass, collectionId,
-							serverId);
-				}
+				importer.importMessageDeletion(bs, dataClass, collectionId,
+						serverId, collection.isDeletesAsMoves());
 			}
 		} else {
 			logger.error("no decoder for " + dataClass);
