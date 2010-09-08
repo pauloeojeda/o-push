@@ -29,6 +29,7 @@ public class ContentsImporter implements IContentsImporter {
 	private ContactsBackend contactBackend;
 
 	// private TasksBackend tasksBackend;
+	@SuppressWarnings("unused")
 	private Log logger = LogFactory.getLog(getClass());
 
 	public ContentsImporter(MailBackend mailBackend,
@@ -87,14 +88,7 @@ public class ContentsImporter implements IContentsImporter {
 	@Override
 	public void importMessageMove(BackendSession bs, String serverId,
 			String trash) {
-		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public void importMessageReadFlag(BackendSession bs, String serverId,
-			boolean read) {
-		// TODO Auto-generated method stub
 	}
 
 	public String importMoveItem(BackendSession bs, PIMDataType type,
@@ -139,13 +133,17 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public void emptyFolderContent(BackendSession bs, String collectionPath, boolean deleteSubFolder) throws CollectionNotFoundException, NotAllowedException {
+	public void emptyFolderContent(BackendSession bs, String collectionPath,
+			boolean deleteSubFolder) throws CollectionNotFoundException,
+			NotAllowedException {
 		if (collectionPath != null && collectionPath.contains("email\\")) {
 			mailBackend.purgeFolder(bs, collectionPath, deleteSubFolder);
 		} else {
-			throw new NotAllowedException("emptyFolderContent is only supported for emails, collection was "+collectionPath);
+			throw new NotAllowedException(
+					"emptyFolderContent is only supported for emails, collection was "
+							+ collectionPath);
 		}
-		
+
 	}
 
 }

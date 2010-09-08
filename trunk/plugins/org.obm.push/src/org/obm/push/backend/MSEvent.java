@@ -178,11 +178,6 @@ public class MSEvent implements IApplicationData {
 		return PIMDataType.CALENDAR;
 	}
 
-	@Override
-	public boolean isRead() {
-		return true;
-	}
-
 	public Date getDtStamp() {
 		return dtStamp;
 	}
