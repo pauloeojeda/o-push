@@ -404,7 +404,12 @@ public class MailBackend extends ObmSyncBackend {
 	}
 
 	public void purgeFolder(BackendSession bs, String collectionPath, boolean deleteSubFolder) throws CollectionNotFoundException, NotAllowedException {
+		String wasteBasketPath = getWasteBasketPath(bs);
+		if(!wasteBasketPath.equals(collectionPath)){
+			throw new NotAllowedException("Only the Trash folder can be purged.");
+		}
 		try {
+			
 			int devId = getDevId(bs.getDevId());
 			int collectionId = getCollectionIdFor(bs.getDevId(), collectionPath);
 			emailManager.purgeFolder(bs, devId, collectionPath, collectionId);
