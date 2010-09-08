@@ -86,7 +86,7 @@ public class MailBackend extends ObmSyncBackend {
 		sb.append(bs.getLoginAtDomain());
 		sb.append("\\email\\");
 		sb.append(imapFolder);
-		String s = sb.toString();
+		String s = buildPath(bs, imapFolder);
 		String serverId;
 		try {
 			serverId = getServerIdFor(bs.getDevId(), s, null);
@@ -98,7 +98,20 @@ public class MailBackend extends ObmSyncBackend {
 		ic.setServerId(serverId);
 		return ic;
 	}
+	
+	private String buildPath(BackendSession bs, String imapFolder){
+		StringBuilder sb = new StringBuilder();
+		sb.append("obm:\\\\");
+		sb.append(bs.getLoginAtDomain());
+		sb.append("\\email\\");
+		sb.append(imapFolder);
+		return sb.toString();
+	}
 
+	public String getWasteBasketPath(BackendSession bs) {
+		return buildPath(bs, "Trash");
+	}
+	
 	private List<ItemChange> getChanges(BackendSession bs,
 			Integer collectionId, String collection, Set<Long> uids) {
 
@@ -157,17 +170,27 @@ public class MailBackend extends ObmSyncBackend {
 		return ret;
 	}
 
-	public void delete(BackendSession bs, String serverId) {
-		logger.info("delete serverId " + serverId);
+	public void delete(BackendSession bs, String serverId, Boolean moveToTrash) {
+		if(moveToTrash){
+			logger.info("move to trash serverId " + serverId);
+		} else {
+			logger.info("delete serverId " + serverId);
+		}
 		if (serverId != null) {
 			try {
 				Long uid = getItemIdFor(serverId).longValue();
 				Integer collectionId = getCollectionIdFor(serverId);
 				String collectionName = getCollectionNameFor(collectionId);
 				Integer devId = getDevId(bs.getDevId());
-
-				emailManager.delete(bs, devId, collectionName, collectionId,
+				
+				if(moveToTrash){
+					String wasteBasketPath = getWasteBasketPath(bs);
+					Integer wasteBasketId = getCollectionIdFor(bs.getDevId(), wasteBasketPath);
+					emailManager.moveItem(bs, devId, collectionName, collectionId, wasteBasketPath, wasteBasketId, uid);
+				} else {
+					emailManager.delete(bs, devId, collectionName, collectionId,
 						uid);
+				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}

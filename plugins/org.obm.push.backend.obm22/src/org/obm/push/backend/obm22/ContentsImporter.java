@@ -68,7 +68,7 @@ public class ContentsImporter implements IContentsImporter {
 
 	@Override
 	public void importMessageDeletion(BackendSession bs, PIMDataType type,
-			String collectionId, String serverId) {
+			String collectionId, String serverId, Boolean moveToTrash) {
 		switch (type) {
 		case CALENDAR:
 			calBackend.delete(bs, collectionId, serverId);
@@ -77,18 +77,12 @@ public class ContentsImporter implements IContentsImporter {
 			contactBackend.delete(bs, serverId);
 			break;
 		case EMAIL:
-			mailBackend.delete(bs, serverId);
+			mailBackend.delete(bs, serverId,moveToTrash);
 			break;
 		case TASKS:
 			calBackend.delete(bs, collectionId, serverId);
 			break;
 		}
-	}
-
-	@Override
-	public void importMessageMove(BackendSession bs, String serverId,
-			String trash) {
-
 	}
 
 	public String importMoveItem(BackendSession bs, PIMDataType type,
