@@ -70,14 +70,6 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 				Integer dstCollectionId = null;
 				MoveItemsStatus status = null;
 				try {
-					srcCollectionId = Integer
-							.parseInt(item.getSourceFolderId());
-					srcCollection = backend.getStore().getCollectionPath(
-							srcCollectionId);
-				} catch (Throwable nfe) {
-					status = MoveItemsStatus.INVALID_SOURCE_COLLECTION_ID;
-				}
-				try {
 					dstCollectionId = Integer.parseInt(item
 							.getDestinationFolderId());
 					dstCollection = backend.getStore().getCollectionPath(
@@ -85,6 +77,16 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 				} catch (Throwable nfe) {
 					status = MoveItemsStatus.INVALID_DESTINATION_COLLECTION_ID;
 				}
+				
+				try {
+					srcCollectionId = Integer
+							.parseInt(item.getSourceFolderId());
+					srcCollection = backend.getStore().getCollectionPath(
+							srcCollectionId);
+				} catch (Throwable nfe) {
+					status = MoveItemsStatus.INVALID_SOURCE_COLLECTION_ID;
+				}
+				
 				Element response = DOMUtils.createElement(root, "Response");
 
 				if (status == null && srcCollectionId.equals(dstCollectionId)) {
