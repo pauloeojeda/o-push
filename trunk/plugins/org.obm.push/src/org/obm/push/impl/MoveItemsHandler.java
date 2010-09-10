@@ -68,58 +68,60 @@ public class MoveItemsHandler extends WbxmlRequestHandler {
 				String dstCollection = null;
 				Integer srcCollectionId = null;
 				Integer dstCollectionId = null;
-				String retDstId = "";
-				int i = item.getSourceMessageId().indexOf(":");
-				if (i > -1) {
-					String mailUid = item.getSourceMessageId().substring(i + i);
-					retDstId = item.getDestinationFolderId() + ":" + mailUid;
-				}
-
+				MoveItemsStatus status = null;
 				try {
 					srcCollectionId = Integer
 							.parseInt(item.getSourceFolderId());
 					srcCollection = backend.getStore().getCollectionPath(
 							srcCollectionId);
+				} catch (Throwable nfe) {
+					status = MoveItemsStatus.INVALID_SOURCE_COLLECTION_ID;
+				}
+				try {
 					dstCollectionId = Integer.parseInt(item
 							.getDestinationFolderId());
 					dstCollection = backend.getStore().getCollectionPath(
 							dstCollectionId);
-				} catch (NumberFormatException nfe) {
+				} catch (Throwable nfe) {
+					status = MoveItemsStatus.INVALID_DESTINATION_COLLECTION_ID;
 				}
 				Element response = DOMUtils.createElement(root, "Response");
 
-				if (srcCollectionId == null) {
-					DOMUtils.createElementAndText(response, "Status", "1");
-				} else if (dstCollectionId == null) {
-					DOMUtils.createElementAndText(response, "Status", "2");
-				} else if (srcCollectionId.equals(dstCollectionId)) {
-					DOMUtils.createElementAndText(response, "Status", "4");
-				} else {
-					IContentsImporter importer = backend
-							.getContentsImporter(Integer.parseInt(item
-									.getDestinationFolderId()), bs);
-					PIMDataType dataClass = backend.getStore().getDataClass(
-							srcCollection);
-					String newDstId = importer.importMoveItem(bs, dataClass, srcCollection,
-							dstCollection, item.getSourceMessageId());
-					if (newDstId == null || "".equals(newDstId)) {
-						// DOMUtils.createElementAndText(response, "Status",
-						// "5");
-						// SEND SYNC OK
-						DOMUtils.createElementAndText(response, "Status", "3");
-					} else {
-						DOMUtils.createElementAndText(response, "Status", "3");
-						retDstId = newDstId;
+				if (status == null && srcCollectionId.equals(dstCollectionId)) {
+					status = MoveItemsStatus.SAME_SOURCE_AND_DESTINATION_COLLECTION_ID;
+				}
 
+				if (status == null) {
+					try {
+						IContentsImporter importer = backend
+								.getContentsImporter(Integer.parseInt(item
+										.getDestinationFolderId()), bs);
+						PIMDataType dataClass = backend.getStore()
+								.getDataClass(srcCollection);
+						String newDstId = importer.importMoveItem(bs,
+								dataClass, srcCollection, dstCollection, item
+										.getSourceMessageId());
+						DOMUtils.createElementAndText(response, "Status",
+								MoveItemsStatus.SUCCESS.asXmlValue());
+						DOMUtils.createElementAndText(response, "SrcMsgId",
+								item.getSourceMessageId());
+						DOMUtils.createElementAndText(response, "DstMsgId",
+								newDstId);
+					} catch (Exception e) {
+						DOMUtils.createElementAndText(response, "SrcMsgId",
+								item.getSourceMessageId());
+						DOMUtils.createElementAndText(response, "Status",
+								MoveItemsStatus.SERVER_ERROR.asXmlValue());
 					}
-					DOMUtils.createElementAndText(response, "DstMsgId",
-							retDstId);
+				} else {
 					DOMUtils.createElementAndText(response, "SrcMsgId", item
 							.getSourceMessageId());
+					DOMUtils.createElementAndText(response, "Status", status
+							.asXmlValue());
 				}
-				responder.sendResponse("Move", reply);
 			}
-		} catch (Exception e) {
+			responder.sendResponse("Move", reply);
+		} catch (Throwable e) {
 			logger.info("Error creating Sync response", e);
 		}
 	}

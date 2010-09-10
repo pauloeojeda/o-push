@@ -4,6 +4,7 @@ import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.exception.NotAllowedException;
+import org.obm.push.exception.ServerErrorException;
 
 /**
  * Content management interface, ie. CRUD API.
@@ -21,7 +22,8 @@ public interface IContentsImporter {
 			String collectionId, String serverId, Boolean moveToTrash);
 
 	String importMoveItem(BackendSession bs, PIMDataType type,
-			String srcFolder, String dstFolder, String messageId);
+			String srcFolder, String dstFolder, String messageId)
+			throws ServerErrorException;
 
 	void sendEmail(BackendSession bs, byte[] mailContent, Boolean saveInSent);
 
