@@ -23,6 +23,7 @@ import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.exception.NotAllowedException;
 import org.obm.push.exception.ObjectNotFoundException;
+import org.obm.push.exception.ServerErrorException;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
 import org.obm.sync.auth.AccessToken;
@@ -215,7 +216,7 @@ public class MailBackend extends ObmSyncBackend {
 	}
 
 	public String move(BackendSession bs, String srcFolder, String dstFolder,
-			String messageId) {
+			String messageId) throws ServerErrorException {
 		logger.info("move(" + bs.getLoginAtDomain() + ", messageId "
 				+ messageId + " from " + srcFolder + " to " + dstFolder + ")");
 		Integer srcFolderId = null;
@@ -230,13 +231,11 @@ public class MailBackend extends ObmSyncBackend {
 			newUidMail = emailManager.moveItem(bs, devId, srcFolder,
 					srcFolderId, dstFolder, dstFolderId,
 					getItemIdFor(messageId).longValue());
+			return dstFolderId + ":" + newUidMail;
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			throw new ServerErrorException(e);
 		}
-		if (newUidMail == null) {
-			return null;
-		}
-		return dstFolderId + ":" + newUidMail;
+		
 	}
 
 	private Integer getCollectionIdFor(String serverId) {

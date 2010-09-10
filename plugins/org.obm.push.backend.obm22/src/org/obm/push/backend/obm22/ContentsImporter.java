@@ -16,6 +16,7 @@ import org.obm.push.data.calendarenum.AttendeeStatus;
 import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.exception.NotAllowedException;
+import org.obm.push.exception.ServerErrorException;
 
 /**
  * 
@@ -86,7 +87,7 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	public String importMoveItem(BackendSession bs, PIMDataType type,
-			String srcFolder, String dstFolder, String messageId) {
+			String srcFolder, String dstFolder, String messageId) throws ServerErrorException {
 		switch (type) {
 		case CALENDAR:
 			break;
