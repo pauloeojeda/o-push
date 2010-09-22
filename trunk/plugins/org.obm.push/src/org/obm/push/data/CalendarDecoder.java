@@ -2,7 +2,6 @@ package org.obm.push.data;
 
 import java.util.ArrayList;
 
-import org.obm.push.Utils;
 import org.obm.push.backend.MSAttendee;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.IApplicationData;
@@ -16,6 +15,7 @@ import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.data.calendarenum.RecurrenceType;
 import org.obm.push.data.email.Type;
 import org.obm.push.utils.DOMUtils;
+import org.obm.push.utils.RTFUtils;
 import org.w3c.dom.Element;
 
 public class CalendarDecoder extends Decoder implements IDataDecoder {
@@ -216,7 +216,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 				if (bodyType == Type.PLAIN_TEXT) {
 					calendar.setDescription(data.getTextContent());
 				} else if (bodyType == Type.RTF) {
-					calendar.setDescription(Utils.extractB64CompressedRTF(txt));
+					calendar.setDescription(RTFUtils.extractB64CompressedRTF(txt));
 				} else {
 					logger.warn("Unsupported body type: " + bodyType + "\n"
 							+ txt);
@@ -226,7 +226,7 @@ public class CalendarDecoder extends Decoder implements IDataDecoder {
 		Element rtf = DOMUtils.getUniqueElement(domSource, "Compressed_RTF");
 		if (rtf != null) {
 			String txt = rtf.getTextContent();
-			calendar.setDescription(Utils.extractB64CompressedRTF(txt));
+			calendar.setDescription(RTFUtils.extractB64CompressedRTF(txt));
 		}
 
 		calendar.setDtStamp(parseDOMDate(DOMUtils.getUniqueElement(domSource,

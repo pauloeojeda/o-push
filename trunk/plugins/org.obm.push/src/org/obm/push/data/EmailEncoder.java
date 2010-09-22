@@ -25,6 +25,7 @@ import org.obm.push.data.formatter.HTMLBodyFormatter;
 import org.obm.push.data.formatter.PlainBodyFormatter;
 import org.obm.push.utils.Base64;
 import org.obm.push.utils.DOMUtils;
+import org.obm.push.utils.FileUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -217,7 +218,11 @@ public class EmailEncoder implements IDataEncoder {
 		case RTF:
 			return mail.getBody().getValue(MSEmailBodyType.RTF);
 		case MIME:
-			return mail.getMimeData();
+			try {
+				return FileUtils.streamString(mail.getMimeData(), false);
+			} catch (Exception e) {
+				return "";
+			}
 		}
 		return "";
 	}

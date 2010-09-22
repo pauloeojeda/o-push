@@ -37,5 +37,13 @@ public class MailChanges {
 	public void setLastSync(Date lastSync) {
 		this.lastSync = lastSync;
 	}
+	
+	public void addUpdated(Long uid){
+		this.updated.add(uid);
+	}
+	
+	public void addRemoved(Long uid){
+		this.removed.add(uid);
+	}
 
 }

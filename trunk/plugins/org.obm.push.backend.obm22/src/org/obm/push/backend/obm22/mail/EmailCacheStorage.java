@@ -50,7 +50,7 @@ import fr.aliasource.utils.JDBCUtils;
  * @author adrienp
  * 
  */
-public class EmailCacheStorage {
+public class EmailCacheStorage implements IEmailSync{
 
 	protected Log logger;
 	private String debugName;
@@ -72,12 +72,10 @@ public class EmailCacheStorage {
 	public MailChanges computeChanges(Set<Long> oldUids, Set<Long> fetched,
 			Set<Long> lastUpdate) {
 		Set<Long> removed = new HashSet<Long>();
-		Set<Long> old = new HashSet<Long>();
 		if (oldUids != null) {
-			old.addAll(oldUids);
+			removed.addAll(oldUids);
+			removed.removeAll(fetched);
 		}
-		removed.addAll(old);
-		removed.removeAll(fetched);
 
 		Set<Long> updated = new HashSet<Long>();
 		updated.addAll(lastUpdate);
@@ -230,6 +228,7 @@ public class EmailCacheStorage {
 		}
 	}
 
+	@Override
 	public MailChanges getSync(StoreClient imapStore, Integer devId,
 			BackendSession bs, SyncState state, Integer collectionId,
 			String mailBox) throws InterruptedException, SQLException {
@@ -269,6 +268,7 @@ public class EmailCacheStorage {
 		return sync;
 	}
 
+	@Override
 	public void deleteMessage(Integer devId, Integer collectionId, Long mailUid) {
 		PreparedStatement del = null;
 		if (logger.isDebugEnabled()) {
@@ -291,7 +291,8 @@ public class EmailCacheStorage {
 			JDBCUtils.cleanup(con, del, null);
 		}
 	}
-
+	
+	@Override
 	public void addMessage(Integer devId, Integer collectionId, Long mailUid) {
 		if (logger.isDebugEnabled()) {
 			logger.debug(debugName + " should run a batch with 1 insertions.");

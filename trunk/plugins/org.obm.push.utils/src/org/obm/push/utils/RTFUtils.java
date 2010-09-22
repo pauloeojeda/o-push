@@ -1,4 +1,4 @@
-package org.obm.push;
+package org.obm.push.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -12,12 +12,10 @@ import net.freeutils.tnef.CompressedRTFInputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.obm.push.utils.Base64;
-import org.obm.push.utils.FileUtils;
 
-public class Utils {
+public class RTFUtils {
 
-	private static final Log logger = LogFactory.getLog(Utils.class);
+	private static final Log logger = LogFactory.getLog(RTFUtils.class);
 
 	public static String getFolderId(String devId, String dataClass) {
 		return devId + "\\" + dataClass;
@@ -35,6 +33,19 @@ public class Utils {
 				ret = extractRtfText(new ByteArrayInputStream(rtfDecompressed
 						.getBytes()));
 			}
+		} catch (Exception e) {
+			logger.error("error extracting compressed rtf", e);
+		}
+		return ret;
+	}
+
+	public static String extractCompressedRTF(InputStream in) {
+		String ret = "";
+		try {
+			CompressedRTFInputStream cin = new CompressedRTFInputStream(in);
+			String rtfDecompressed = FileUtils.streamString(cin, true);
+			ret = extractRtfText(new ByteArrayInputStream(rtfDecompressed
+					.getBytes()));
 		} catch (Exception e) {
 			logger.error("error extracting compressed rtf", e);
 		}

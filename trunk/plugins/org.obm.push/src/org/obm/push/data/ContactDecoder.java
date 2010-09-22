@@ -2,12 +2,12 @@ package org.obm.push.data;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.obm.push.Utils;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSContact;
 import org.obm.push.data.email.Type;
 import org.obm.push.impl.SyncHandler;
 import org.obm.push.utils.DOMUtils;
+import org.obm.push.utils.RTFUtils;
 import org.w3c.dom.Element;
 
 // Nouveau contact
@@ -174,7 +174,7 @@ public class ContactDecoder extends Decoder implements IDataDecoder {
 				if (bodyType == Type.PLAIN_TEXT) {
 					contact.setData(data.getTextContent());
 				} else if (bodyType == Type.RTF) {
-					contact.setData(Utils.extractB64CompressedRTF(txt));
+					contact.setData(RTFUtils.extractB64CompressedRTF(txt));
 				} else {
 					logger.warn("Unsupported body type: " + bodyType + "\n"
 							+ txt);
@@ -184,7 +184,7 @@ public class ContactDecoder extends Decoder implements IDataDecoder {
 		Element rtf = DOMUtils.getUniqueElement(syncData, "CompressedRTF");
 		if (rtf != null) {
 			String txt = rtf.getTextContent();
-			contact.setData(Utils.extractB64CompressedRTF(txt));
+			contact.setData(RTFUtils.extractB64CompressedRTF(txt));
 		}
 
 		return contact;

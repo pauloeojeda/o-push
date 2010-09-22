@@ -3,7 +3,6 @@ package org.obm.push.impl;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.obm.push.Utils;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.FilterType;
 import org.obm.push.backend.IBackend;
@@ -14,6 +13,7 @@ import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
 import org.obm.push.utils.DOMUtils;
+import org.obm.push.utils.RTFUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -41,7 +41,7 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 			Element fid = DOMUtils.getUniqueElement(ce, "CollectionId");
 			String collectionId = null;
 			if (fid == null) {
-				collectionId = Utils.getFolderId(bs.getDevId(), dataClass);
+				collectionId = RTFUtils.getFolderId(bs.getDevId(), dataClass);
 			} else {
 				collectionId = fid.getTextContent();
 			}

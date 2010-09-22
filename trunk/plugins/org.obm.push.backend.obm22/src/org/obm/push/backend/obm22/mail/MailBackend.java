@@ -2,7 +2,7 @@ package org.obm.push.backend.obm22.mail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+	import java.io.InputStream;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,6 +26,7 @@ import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.exception.ServerErrorException;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
+import org.obm.push.tnefconverter.EmailConverter;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.client.calendar.CalendarClient;
 
@@ -54,7 +55,8 @@ public class MailBackend extends ObmSyncBackend {
 		return ret;
 	}
 
-	public DataDelta getContentChanges(BackendSession bs, SyncState state, String collectionPath) {
+	public DataDelta getContentChanges(BackendSession bs, SyncState state,
+			String collectionPath) {
 		logger.info("Collection: " + collectionPath);
 		List<ItemChange> changes = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
@@ -62,13 +64,13 @@ public class MailBackend extends ObmSyncBackend {
 			int collectionId = getCollectionIdFor(bs.getDevId(), collectionPath);
 
 			int devId = getDevId(bs.getDevId());
-			MailChanges mc = emailManager.getSync(bs,state, devId, collectionId,
-					collectionPath);
-			changes = getChanges(bs, collectionId, collectionPath, mc.getUpdated());
+			MailChanges mc = emailManager.getSync(bs, state, devId,
+					collectionId, collectionPath);
+			changes = getChanges(bs, collectionId, collectionPath, mc
+					.getUpdated());
 			deletions.addAll(getDeletions(bs, collectionPath, mc.getRemoved()));
-			bs.addUpdatedSyncDate(
-					getCollectionIdFor(bs.getDevId(), collectionPath), mc
-							.getLastSync());
+			bs.addUpdatedSyncDate(getCollectionIdFor(bs.getDevId(),
+					collectionPath), mc.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -99,8 +101,8 @@ public class MailBackend extends ObmSyncBackend {
 		ic.setServerId(serverId);
 		return ic;
 	}
-	
-	private String buildPath(BackendSession bs, String imapFolder){
+
+	private String buildPath(BackendSession bs, String imapFolder) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("obm:\\\\");
 		sb.append(bs.getLoginAtDomain());
@@ -112,7 +114,7 @@ public class MailBackend extends ObmSyncBackend {
 	public String getWasteBasketPath(BackendSession bs) {
 		return buildPath(bs, "Trash");
 	}
-	
+
 	private List<ItemChange> getChanges(BackendSession bs,
 			Integer collectionId, String collection, Set<Long> uids) {
 
@@ -172,7 +174,7 @@ public class MailBackend extends ObmSyncBackend {
 	}
 
 	public void delete(BackendSession bs, String serverId, Boolean moveToTrash) {
-		if(moveToTrash){
+		if (moveToTrash) {
 			logger.info("move to trash serverId " + serverId);
 		} else {
 			logger.info("delete serverId " + serverId);
@@ -183,14 +185,16 @@ public class MailBackend extends ObmSyncBackend {
 				Integer collectionId = getCollectionIdFor(serverId);
 				String collectionName = getCollectionNameFor(collectionId);
 				Integer devId = getDevId(bs.getDevId());
-				
-				if(moveToTrash){
+
+				if (moveToTrash) {
 					String wasteBasketPath = getWasteBasketPath(bs);
-					Integer wasteBasketId = getCollectionIdFor(bs.getDevId(), wasteBasketPath);
-					emailManager.moveItem(bs, devId, collectionName, collectionId, wasteBasketPath, wasteBasketId, uid);
+					Integer wasteBasketId = getCollectionIdFor(bs.getDevId(),
+							wasteBasketPath);
+					emailManager.moveItem(bs, devId, collectionName,
+							collectionId, wasteBasketPath, wasteBasketId, uid);
 				} else {
-					emailManager.delete(bs, devId, collectionName, collectionId,
-						uid);
+					emailManager.delete(bs, devId, collectionName,
+							collectionId, uid);
 				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -235,7 +239,7 @@ public class MailBackend extends ObmSyncBackend {
 		} catch (Exception e) {
 			throw new ServerErrorException(e);
 		}
-		
+
 	}
 
 	private Integer getCollectionIdFor(String serverId) {
@@ -327,10 +331,16 @@ public class MailBackend extends ObmSyncBackend {
 			SendEmailHandler handler, Boolean saveInSent) throws Exception {
 		MimeStreamParser parser = new MimeStreamParser();
 		parser.setContentHandler(handler);
-
+		InputStream email = null;
 		parser.parse(new ByteArrayInputStream(mailContent));
-		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), handler
-				.getMessage(), saveInSent);
+		try {
+			EmailConverter conv = new EmailConverter();
+			email = conv.convert(handler.getMessage());
+		} catch (Throwable e) {
+			email = handler.getMessage();
+		}
+		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), email,
+				saveInSent);
 	}
 
 	public MSEmail getEmail(BackendSession bs, Integer collectionId,
@@ -402,18 +412,22 @@ public class MailBackend extends ObmSyncBackend {
 		throw new ObjectNotFoundException();
 	}
 
-	public void purgeFolder(BackendSession bs, String collectionPath, boolean deleteSubFolder) throws CollectionNotFoundException, NotAllowedException {
+	public void purgeFolder(BackendSession bs, String collectionPath,
+			boolean deleteSubFolder) throws CollectionNotFoundException,
+			NotAllowedException {
 		String wasteBasketPath = getWasteBasketPath(bs);
-		if(!wasteBasketPath.equals(collectionPath)){
-			throw new NotAllowedException("Only the Trash folder can be purged.");
+		if (!wasteBasketPath.equals(collectionPath)) {
+			throw new NotAllowedException(
+					"Only the Trash folder can be purged.");
 		}
 		try {
-			
+
 			int devId = getDevId(bs.getDevId());
 			int collectionId = getCollectionIdFor(bs.getDevId(), collectionPath);
 			emailManager.purgeFolder(bs, devId, collectionPath, collectionId);
-			if(deleteSubFolder){
-				logger.warn("deleteSubFolder isn't implemented because opush doesn't yet manage folders");
+			if (deleteSubFolder) {
+				logger
+						.warn("deleteSubFolder isn't implemented because opush doesn't yet manage folders");
 			}
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
