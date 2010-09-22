@@ -130,7 +130,7 @@ public class MailMessageLoader {
 		}
 
 		fetchMimeData(store, mm);
-
+		
 		return mm;
 	}
 

@@ -26,7 +26,7 @@ public abstract class MailRequestHandler implements IRequestHandler {
 		Boolean saveInSent = false;
 		String sis = request.getParameter("SaveInSent");
 		if (sis != null) {
-			saveInSent = request.getParameter("SaveInSent").equalsIgnoreCase(
+			saveInSent = sis.equalsIgnoreCase(
 					"T");
 		}
 

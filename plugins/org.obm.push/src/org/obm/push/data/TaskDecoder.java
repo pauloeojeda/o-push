@@ -1,6 +1,5 @@
 package org.obm.push.data;
 
-import org.obm.push.Utils;
 import org.obm.push.backend.IApplicationData;
 import org.obm.push.backend.MSTask;
 import org.obm.push.backend.Recurrence;
@@ -9,6 +8,7 @@ import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
 import org.obm.push.data.calendarenum.RecurrenceType;
 import org.obm.push.data.email.Type;
 import org.obm.push.utils.DOMUtils;
+import org.obm.push.utils.RTFUtils;
 import org.w3c.dom.Element;
 
 public class TaskDecoder extends Decoder implements IDataDecoder {
@@ -60,7 +60,7 @@ public class TaskDecoder extends Decoder implements IDataDecoder {
 				if (bodyType == Type.PLAIN_TEXT) {
 					task.setDescription(data.getTextContent());
 				} else if (bodyType == Type.RTF) {
-					task.setDescription(Utils.extractB64CompressedRTF(txt));
+					task.setDescription(RTFUtils.extractB64CompressedRTF(txt));
 				} else {
 					logger.warn("Unsupported body type: " + bodyType + "\n"
 							+ txt);
@@ -70,7 +70,7 @@ public class TaskDecoder extends Decoder implements IDataDecoder {
 		Element rtf = DOMUtils.getUniqueElement(syncData, "Compressed_RTF");
 		if (rtf != null) {
 			String txt = rtf.getTextContent();
-			task.setDescription(Utils.extractB64CompressedRTF(txt));
+			task.setDescription(RTFUtils.extractB64CompressedRTF(txt));
 		}
 	}
 

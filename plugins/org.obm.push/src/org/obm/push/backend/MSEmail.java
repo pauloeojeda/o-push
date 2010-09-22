@@ -1,5 +1,6 @@
 package org.obm.push.backend;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -35,7 +36,7 @@ public class MSEmail implements IApplicationData {
 	private List<MSAddress> to;
 	private List<MSAddress> cc;
 	private List<MSAddress> bcc;
-	private String mimeData;
+	private InputStream mimeData;
 
 	private String smtpId;
 	
@@ -243,11 +244,11 @@ public class MSEmail implements IApplicationData {
 		this.attachements = attachements;
 	}
 	
-	public String getMimeData() {
+	public InputStream getMimeData() {
 		return mimeData;
 	}
 
-	public void setMimeData(String mimeData) {
+	public void setMimeData(InputStream mimeData) {
 		this.mimeData = mimeData;
 	}
 	

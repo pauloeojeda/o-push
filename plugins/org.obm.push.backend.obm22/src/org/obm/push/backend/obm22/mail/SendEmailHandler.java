@@ -1,9 +1,7 @@
 package org.obm.push.backend.obm22.mail;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.descriptor.BodyDescriptor;
 import org.apache.james.mime4j.field.Fields;
+import org.apache.james.mime4j.field.MailboxListField;
 import org.apache.james.mime4j.field.address.Mailbox;
 import org.apache.james.mime4j.parser.Field;
 import org.columba.ristretto.composer.MimeTreeRenderer;
@@ -26,7 +25,6 @@ import org.columba.ristretto.message.MimeHeader;
 import org.columba.ristretto.message.MimeType;
 import org.columba.ristretto.parser.AddressParser;
 import org.columba.ristretto.parser.ParserException;
-import org.minig.imap.impl.Base64;
 
 import fr.aliasource.utils.FileUtils;
 
@@ -47,6 +45,7 @@ public class SendEmailHandler implements
 
 	private Set<Address> to;
 	private String from;
+	private boolean hasFromField;
 
 	public SendEmailHandler(String defaultFrom) {
 		this.from = defaultFrom;
@@ -59,6 +58,7 @@ public class SendEmailHandler implements
 		currentMimePart = root;
 		localMimePart = root;
 		inBody = false;
+		hasFromField = false;
 	}
 
 	public Set<Address> getTo() {
@@ -69,18 +69,8 @@ public class SendEmailHandler implements
 		return from;
 	}
 
-	public String getMessage() {
-		try {
-			InputStream in = MimeTreeRenderer.getInstance()
-					.renderMimePart(root);
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			FileUtils.transfer(in, out, true);
-			byte[] data = out.toByteArray();
-			return new String(data);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
-		return "";
+	public InputStream getMessage() throws Exception {
+		return MimeTreeRenderer.getInstance().renderMimePart(root);
 	}
 
 	@Override
@@ -98,6 +88,7 @@ public class SendEmailHandler implements
 				}
 				basicHeader.set(arg0.getName(), arg0.getBody().trim());
 			} else if ("from".equalsIgnoreCase(arg0.getName())) {
+				hasFromField = true;
 				if (arg0.getBody() == null || !"".equals(arg0.getBody())) {
 					if (this.from != null && from.contains("@")) {
 						String[] tab = from.split("@");
@@ -213,19 +204,14 @@ public class SendEmailHandler implements
 			arg1 = new QuotedPrintableDecoderInputStream(arg1);
 		}
 		if ("base64".equalsIgnoreCase(arg0.getTransferEncoding())) {
-			byte[] b = FileUtils.streamBytes(arg1, false);
-			ByteBuffer bb = Base64.decode(new String(b));
-			if(charset == null){
-				appendToBody(bb.array());
-			} else {
-				appendToBody(new String(bb.array(), charset));
-			}
+			String b = FileUtils.streamString(arg1, false);
+			appendToBody(b.getBytes(), true);
 		} else {
-			if(charset == null){
+			if (charset == null) {
 				charset = Charset.forName("UTF-8");
 			}
 			byte[] value = FileUtils.streamBytes(arg1, false);
-			appendToBody(new String(value,charset));
+			appendToBody(new String(value, charset));
 		}
 	}
 
@@ -240,10 +226,10 @@ public class SendEmailHandler implements
 		}
 	}
 
-	private void appendToBody(byte[] value) {
+	private void appendToBody(byte[] value, boolean encoded) {
 		if (value != null && localMimePart != null) {
 			ByteBufferSource bbs = new ByteBufferSource(value);
-			localMimePart.setBody(bbs);
+			localMimePart.setBody(bbs, encoded);
 		}
 	}
 
@@ -253,6 +239,15 @@ public class SendEmailHandler implements
 
 	@Override
 	public void endHeader() throws MimeException {
+		if (!inBody && !hasFromField) {
+			if (this.from != null && from.contains("@")) {
+				String[] tab = from.split("@");
+				Mailbox mb = new Mailbox(tab[0], tab[1]);
+				MailboxListField arg0 = Fields.from(mb);
+				basicHeader.set(arg0.getName(), arg0.getBody().trim());
+			}
+			
+		}
 	}
 
 	@Override
