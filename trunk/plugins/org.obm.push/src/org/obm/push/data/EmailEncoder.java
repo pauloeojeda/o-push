@@ -376,6 +376,7 @@ public class EmailEncoder implements IDataEncoder {
 			Element atts = DOMUtils.createElement(parent, "Email:Attachments");
 
 			Set<MSAttachement> mailAtts = email.getAttachements();
+			// FIXME Disabling meeting request remove if
 			for (MSAttachement msAtt : mailAtts) {
 				if (msAtt.getDisplayName() != null
 						&& !msAtt.getDisplayName().endsWith(".ics")) {

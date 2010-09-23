@@ -339,8 +339,10 @@ public class MailBackend extends ObmSyncBackend {
 		} catch (Throwable e) {
 			email = handler.getMessage();
 		}
-		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), email,
-				saveInSent);
+		if(email != null){
+			emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), email,
+					saveInSent);
+		}
 	}
 
 	public MSEmail getEmail(BackendSession bs, Integer collectionId,
