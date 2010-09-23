@@ -1,7 +1,6 @@
 package org.obm.push.tnefconverter;
 
 import java.io.InputStream;
-import java.nio.charset.Charset;
 
 import net.freeutils.tnef.Message;
 
@@ -40,12 +39,11 @@ public class EmailConverter {
 			parser.parse(email);
 
 			Message message = handler.getTNEFMsg();
-			logger.info(message);
 			if (message != null) {
 				if (logger.isDebugEnabled()) {
 					logger.debug(message);
 				}
-				//FIXME DISABLED DECODE TNEF
+				//FIXME DISABLED TNEF DECODER
 				return null;
 //				if (TNEFExtractorUtils.isScheduleMeetingRequest(message)) {
 //					ScheduleMeeting meeting = new ScheduleMeeting(message);
