@@ -36,6 +36,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.parser.MimeEntityConfig;
 import org.apache.james.mime4j.parser.MimeStreamParser;
+import org.minig.imap.Address;
+import org.minig.imap.Envelope;
 import org.minig.imap.Flag;
 import org.minig.imap.FlagsList;
 import org.minig.imap.IMAPException;
@@ -70,8 +72,8 @@ import fr.aliasource.utils.FileUtils;
  */
 public class MailMessageLoader {
 
-	private static final String[] HEADS_LOAD = new String[] { "Subject",
-			"From", "Date", "To", "Cc", "Bcc", "Message-ID" };
+//	private static final String[] HEADS_LOAD = new String[] { "Subject",
+//			"From", "Date", "To", "Cc", "Bcc", "Message-ID" };
 
 	private CalendarClient calendarClient;
 	private BackendSession bs;
@@ -106,8 +108,10 @@ public class MailMessageLoader {
 		this.collectionId = collectionId;
 		this.messageId = messageId;
 
-		IMAPHeaders[] hs = store.uidFetchHeaders(set,
-				MailMessageLoader.HEADS_LOAD);
+//		IMAPHeaders[] hs = store.uidFetchHeaders(set,
+//				MailMessageLoader.HEADS_LOAD);
+		
+		Envelope[] hs = store.uidFetchEnvelope(set);
 		if (hs.length != 1 || hs[0] == null) {
 			return null;
 		}
@@ -215,22 +219,25 @@ public class MailMessageLoader {
 		}
 	}
 
-	private MSEmail fetchOneMessage(MimePart mimePart, IMAPHeaders h,
+	private MSEmail fetchOneMessage(MimePart mimePart, Envelope e,
 			StoreClient protocol) throws IOException, IMAPException {
 		Set<MimePart> chosenParts = null;
 		if (mimePart.getMimeType() == null
 				|| mimePart.getFullMimeType().equals("message/rfc822")) {
 			chosenParts = findBodyTextPart(mimePart, mimePart.getAddress());
 		}
-		if (h == null) {
-			InputStream is = protocol.uidFetchPart(tree.getUid(),
-					mimePart.getAddress() + ".HEADER");
-
+		
+		IMAPHeaders h = null;
+		if (e == null) {
+			InputStream is = protocol.uidFetchPart(tree.getUid(), mimePart
+					.getAddress()
+					+ ".HEADER");
 			Map<String, String> rawHeaders = new HashMap<String, String>();
 			parseRawHeaders(is, rawHeaders, getHeaderCharsetDecoder(mimePart));
 			h = new IMAPHeaders();
 			h.setRawHeaders(rawHeaders);
 		}
+		
 
 		MSEmailBody body = getMailBody(chosenParts, protocol);
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
@@ -243,22 +250,41 @@ public class MailMessageLoader {
 		attach = extractAttachments(mimePart, protocol);
 		// }
 		MSEmail mm = new MSEmail();
-		mm.setBody(body);
-		mm.setFrom(AddressConverter.convertAddress(h.getFrom()));
-		mm.setDate(h.getDate());
-		mm.setSubject(h.getSubject());
-		mm.setHeaders(h.getRawHeaders());
-		mm.setCc(AddressConverter.convertAddresses(h.getCc()));
-		mm.setTo(AddressConverter.convertAddresses(h.getTo()));
-		mm.setBcc(AddressConverter.convertAddresses(h.getBcc()));
+		if (e != null) {
+			mm.setFrom(AddressConverter.convertAddress(e.getFrom()));
+			mm.setDate(e.getDate());
+			mm.setSubject(e.getSubject());
+			if (e.getCc() != null) {
+				mm.setCc(AddressConverter.convertAddresses(e.getCc().toArray(new Address[e.getCc().size()])));
+			}
+			if (e.getTo() != null) {
+				mm.setTo(AddressConverter.convertAddresses(e.getTo().toArray(new Address[e.getTo().size()])));
+			}
+			if (e.getBcc() != null) {
+				mm.setBcc(AddressConverter.convertAddresses(e.getBcc().toArray(new Address[e.getBcc().size()])));
+			}
+
+			mm.setSmtpId(e.getMessageId());
+		} else {
+			mm.setFrom(AddressConverter.convertAddress(h.getFrom()));
+			mm.setDate(h.getDate());
+			mm.setSubject(h.getSubject());
+			mm.setHeaders(h.getRawHeaders());
+			mm.setCc(AddressConverter.convertAddresses(h.getCc()));
+			mm.setTo(AddressConverter.convertAddresses(h.getTo()));
+			mm.setBcc(AddressConverter.convertAddresses(h.getBcc()));
+			mm.setSmtpId(h.getRawHeader("Message-ID"));
+		}
+		
 		mm.setUid(tree.getUid());
+		mm.setBody(body);
+
 		if (this.calendarClient != null && invitation != null) {
 			MSEvent event = getInvitation();
 			mm.setInvitation(event);
 		}
 
 		mm.setAttachements(attach);
-		mm.setSmtpId(h.getRawHeader("Message-ID"));
 		return mm;
 	}
 
