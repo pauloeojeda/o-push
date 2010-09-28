@@ -84,6 +84,7 @@ public class MailMessageLoader {
 	private InputStream invitation;
 
 	private StoreClient store;
+	private BodySelector bodySelector;
 
 	private static final Log logger = LogFactory
 			.getLog(MailMessageLoader.class);
@@ -97,6 +98,7 @@ public class MailMessageLoader {
 		this.tree = null;
 		this.calendarClient = calendarClient;
 		this.store = store;
+		this.bodySelector = new BodySelector(true);
 	}
 
 	public MSEmail fetch(Integer collectionId, long messageId, BackendSession bs)
@@ -221,10 +223,11 @@ public class MailMessageLoader {
 
 	private MSEmail fetchOneMessage(MimePart mimePart, Envelope e,
 			StoreClient protocol) throws IOException, IMAPException {
-		Set<MimePart> chosenParts = null;
+		Set<MimePart> chosenParts = new HashSet<MimePart>();
 		if (mimePart.getMimeType() == null
 				|| mimePart.getFullMimeType().equals("message/rfc822")) {
-			chosenParts = findBodyTextPart(mimePart, mimePart.getAddress());
+			MimePart chosenPart = bodySelector.findBodyTextPart(mimePart, false);
+			chosenParts.add(chosenPart);
 		}
 		
 		IMAPHeaders h = null;
@@ -364,41 +367,6 @@ public class MailMessageLoader {
 			}
 		}
 		return mb;
-	}
-
-	private boolean inEml(MimePart mp) {
-		return mp.getParent() != null
-				&& "rfc822".equalsIgnoreCase(mp.getParent().getMimeSubtype());
-	}
-
-	private Set<MimePart> findBodyTextPart(MimePart mimePart, String a) {
-		Set<MimePart> ret = new HashSet<MimePart>();
-		if (a.equals(mimePart.getAddress())) {
-			for (MimePart mp : mimePart) {
-				if (mp.getMimeType() != null) {
-					if (mp.getMimeType().equalsIgnoreCase("text")) {
-						if (mp.getMimeSubtype().equalsIgnoreCase("html")
-								&& (!inEml(mp))) {
-							ret.add(mp);
-							break;
-						} else if (mp.getMimeSubtype()
-								.equalsIgnoreCase("plain")) {
-							ret.add(mp);
-						}
-					}
-				} else {
-					MimePart mpChild = mp.getChildren().get(0);
-					if (mpChild.getMimeType() == null) {
-						ret.addAll(findBodyTextPart(mp, mp.getAddress()));
-					} else if (!mpChild.getFullMimeType().equalsIgnoreCase(
-							"message/rfc822")) {
-						ret.addAll(findBodyTextPart(mp, mp.getAddress()));
-					}
-				}
-			}
-			return ret;
-		}
-		return null;
 	}
 
 	private byte[] extractPartData(MimePart mp, InputStream bodyText)
