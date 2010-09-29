@@ -241,7 +241,7 @@ public class MailMessageLoader {
 			h.setRawHeaders(rawHeaders);
 		}
 		
-
+		
 		MSEmailBody body = getMailBody(chosenParts, protocol);
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 		// if (chosenParts != null && chosenParts.size() > 0) {
@@ -347,22 +347,24 @@ public class MailMessageLoader {
 			mb.setCharset("utf-8");
 		} else {
 			for (MimePart mp : chosenParts) {
-				InputStream bodyText = protocol.uidFetchPart(tree.getUid(),
-						mp.getAddress());
-				String charsetName = mp.getBodyParams().get("charset");
-				if (!isSupportedCharset(charsetName)) {
-					charsetName = "utf-8";
-				}
-				mb.setCharset(charsetName);
-				byte[] rawData = extractPartData(mp, bodyText);
-				String partText = new String(rawData, charsetName);
+				if(mp != null){
+					InputStream bodyText = protocol.uidFetchPart(tree.getUid(),
+							mp.getAddress());
+					String charsetName = mp.getBodyParams().get("charset");
+					if (!isSupportedCharset(charsetName)) {
+						charsetName = "utf-8";
+					}
+					mb.setCharset(charsetName);
+					byte[] rawData = extractPartData(mp, bodyText);
+					String partText = new String(rawData, charsetName);
 
-				mb.addConverted(
-						MSEmailBodyType.getValueOf(mp.getFullMimeType()),
-						partText);
-				if (logger.isDebugEnabled()) {
-					logger.debug("Added part " + mp.getFullMimeType() + "\n"
-							+ partText + "\n------");
+					mb.addConverted(
+							MSEmailBodyType.getValueOf(mp.getFullMimeType()),
+							partText);
+					if (logger.isDebugEnabled()) {
+						logger.debug("Added part " + mp.getFullMimeType() + "\n"
+								+ partText + "\n------");
+					}
 				}
 			}
 		}
@@ -394,9 +396,8 @@ public class MailMessageLoader {
 	private Set<MSAttachement> extractAttachments(MimePart mimePart,
 			StoreClient protocol) throws IOException, IMAPException {
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
-		if (mimePart != null) {
-			for (Iterator<MimePart> it = mimePart.iterator(); it.hasNext();) {
-				MimePart mp = it.next();
+		if (mimePart != null && mimePart.getChildren() != null) {
+			for (MimePart mp : mimePart.getChildren()){
 				MSAttachement msAtt = extractAttachmentData(mp, protocol,
 						mp.isInvitation());
 				if (msAtt != null) {
