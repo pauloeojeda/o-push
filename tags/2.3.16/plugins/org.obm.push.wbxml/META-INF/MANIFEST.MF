@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: org.obm.push.wbxml
-Bundle-SymbolicName: org.obm.push.wbxml
-Bundle-Version: 1.0.0
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.obm.push.wbxml;uses:="org.xml.sax"
-Require-Bundle: org.apache.commons.logging;bundle-version="1.0.4",
- org.obm.push.utils;bundle-version="1.0.0"
