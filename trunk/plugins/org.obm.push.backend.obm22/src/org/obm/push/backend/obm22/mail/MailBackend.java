@@ -331,18 +331,20 @@ public class MailBackend extends ObmSyncBackend {
 			SendEmailHandler handler, Boolean saveInSent) throws Exception {
 		MimeStreamParser parser = new MimeStreamParser();
 		parser.setContentHandler(handler);
-		InputStream email = null;
+//		InputStream email = null;
 		parser.parse(new ByteArrayInputStream(mailContent));
-		try {
-			EmailConverter conv = new EmailConverter();
-			email = conv.convert(handler.getMessage());
-		} catch (Throwable e) {
-			email = handler.getMessage();
-		}
-		if(email != null){
-			emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), email,
-					saveInSent);
-		}
+//		try {
+//			EmailConverter conv = new EmailConverter();
+//			email = conv.convert(handler.getMessage());
+//		} catch (Throwable e) {
+//			email = handler.getMessage();
+//		}
+//		if(email != null){
+//			emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), email,
+//					saveInSent);
+//		}
+		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), handler.getMessage(),
+				saveInSent);
 	}
 
 	public MSEmail getEmail(BackendSession bs, Integer collectionId,
