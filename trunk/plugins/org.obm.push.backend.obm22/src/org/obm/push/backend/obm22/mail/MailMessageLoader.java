@@ -98,7 +98,7 @@ public class MailMessageLoader {
 		this.tree = null;
 		this.calendarClient = calendarClient;
 		this.store = store;
-		this.bodySelector = new BodySelector(true);
+		this.bodySelector = new BodySelector(false);
 	}
 
 	public MSEmail fetch(Integer collectionId, long messageId, BackendSession bs)
