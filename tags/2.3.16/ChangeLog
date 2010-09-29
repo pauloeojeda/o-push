@@ -1,0 +1,1494 @@
+2010-04-21  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	ItemOperations works	
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter.fetch),
+	(ContentsExporter), (ContentsExporter.fetchMails),
+	(ContentsExporter.getEmailAttachement):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend.getCollectionIdFor),
+	(MailBackend.getAttachment):
+	* plugins/org.obm.push.tests/src/org/obm/push/tests/Base64QueryStri
+	ngTests.java: (Base64QueryStringTests.testBase64QueryString):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.getActiveSyncRequest), (ActiveSyncServlet.init):
+	* plugins/org.obm.push/src/org/obm/push/Base64QueryString.java:
+	(Base64QueryString), (Base64QueryString.Base64QueryString),
+	(Base64QueryString.getHeader):
+	* plugins/org.obm.push/src/org/obm/push/SimpleQueryString.java:
+	(SimpleQueryString), (SimpleQueryString.getHeader):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/SyncCollection.java
+	: (SyncCollection), (SyncCollection.SyncCollection),
+	(SyncCollection.getBodyPreferences),
+	(SyncCollection.getBodyPreference),
+	(SyncCollection.addBodyPreference):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder.encodeBody):
+	* plugins/org.obm.push/src/org/obm/push/data/EmailEncoder.java:
+	(EmailEncoder.appendBody25), (EmailEncoder.appendBody),
+	(EmailEncoder.getAvailableFormat), (EmailEncoder.getBodyData):
+	* plugins/org.obm.push/src/org/obm/push/exception/ObjectNotFoundExc
+	eption.java: (ObjectNotFoundException):
+	* plugins/org.obm.push/src/org/obm/push/impl/ActiveSyncRequest.java
+	: (ActiveSyncRequest):
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process), (FolderSyncHandler),
+	(FolderSyncHandler.sendError):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetAttachmentHandler.j
+	ava: (GetAttachmentHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process), (GetItemEstimateHandler),
+	(GetItemEstimateHandler.buildError):
+	* plugins/org.obm.push/src/org/obm/push/impl/ItemOperationsHandler.
+	java: (ItemOperationsHandler),
+	(ItemOperationsHandler.ItemOperationsHandler),
+	(ItemOperationsHandler.process),
+	(ItemOperationsHandler.processMailboxFetch),
+	(ItemOperationsHandler.processMailFetch),
+	(ItemOperationsHandler.processFileReferenceFetch):
+	* plugins/org.obm.push/src/org/obm/push/impl/ItemOperationsStatus.j
+	ava:
+	* plugins/org.obm.push/src/org/obm/push/impl/MeetingResponseHandler
+	.java: (MeetingResponseHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/MoveItemsHandler.java:
+	(MoveItemsHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/ProvisionHandler.java:
+	(ProvisionHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/Responder.java:
+	(Responder.sendError), (Responder.sendNoChangeResponse),
+	(Responder), (Responder.sendMSSyncMultipartResponse),
+	(Responder.intToInverseByteArray):
+	* plugins/org.obm.push/src/org/obm/push/impl/SearchHandler.java:
+	(SearchHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SettingsHandler.java:
+	(SettingsHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler..process), (SyncHandler..doFetch),
+	(SyncHandler..decodeCollection), (SyncHandler..processResponse):
+	* plugins/org.obm.push/src/org/obm/push/impl/WbxmlRequestHandler.ja
+	va: (WbxmlRequestHandler.process), (WbxmlRequestHandler):
+	* sample/ldap_conf.ini:
+
+2010-04-02  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Search in ldap and obm-sync works
+
+	* plugins/org.obm.push.backend.obm22/plugin.xml:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter),
+	(ContentsExporter.validatePassword):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactConverter.java:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java: (ContactsBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmSyncBackend.java: (ObmSyncBackend),
+	(ObmSyncBackend.getBookClient):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/search/ObmSearchContact.java: (ObmSearchContact),
+	(ObmSearchContact.ObmSearchContact),
+	(ObmSearchContact.getStoreName), (ObmSearchContact.search),
+	(ObmSearchContact.getBookClient), (ObmSearchContact.locateObmSync):
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/Abstract
+	PushTest.java: (AbstractPushTest.setUp):
+	* plugins/org.obm.push.search.ldap/.classpath:
+	* plugins/org.obm.push.search.ldap/.project:
+	* plugins/org.obm.push.search.ldap/.settings/org.eclipse.jdt.core.p
+	refs:
+	* plugins/org.obm.push.search.ldap/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push.search.ldap/build.properties:
+	* plugins/org.obm.push.search.ldap/plugin.xml:
+	* plugins/org.obm.push.search.ldap/src/org/obm/push/searchsource/ld
+	ap/Activator.java: (Activator), (Activator.Activator),
+	(Activator.start), (Activator.stop), (Activator.getDefault):
+	* plugins/org.obm.push.search.ldap/src/org/obm/push/searchsource/ld
+	ap/BookSource.java: (BookSource), (BookSource.BookSource),
+	(BookSource.uniqueAttribute), (BookSource.getStoreName),
+	(BookSource.search):
+	* plugins/org.obm.push.search.ldap/src/org/obm/push/searchsource/ld
+	ap/Configuration.java: (Configuration),
+	(Configuration.Configuration), (Configuration.getConnection),
+	(Configuration.init), (Configuration.getBaseDn),
+	(Configuration.getFilter), (Configuration.cleanup):
+	* plugins/org.obm.push.utils/src/org/obm/push/utils/IniFile.java:
+	(IniFile), (IniFile.IniFile), (IniFile.getSetting),
+	(IniFile.getData), (IniFile.loadIniFile):
+	* plugins/org.obm.push.utils/src/org/obm/push/utils/LdapUtils.java:
+	(LdapUtils), (LdapUtils.LdapUtils), (LdapUtils.getAttributes):
+	* plugins/org.obm.push/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push/plugin.xml:
+	* plugins/org.obm.push/push.product:
+	* plugins/org.obm.push/schema/org.minig.push.search.exsd:
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/SearchItem.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/SearchResult.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/StoreName.java:
+	* plugins/org.obm.push/src/org/obm/push/impl/SearchHandler.java:
+	(SearchHandler), (SearchHandler.SearchHandler),
+	(SearchHandler.process), (SearchHandler.appendSearchResult),
+	(SearchHandler.registerSources), (SearchHandler.addRegisterSource),
+	(SearchHandler.search):
+	* plugins/org.obm.push/src/org/obm/push/search/ISearchSource.java:
+	(ISearchSource):
+	* plugins/org.obm.push/src/org/obm/push/search/SearchItem.java:
+	(SearchItem), (SearchItem.getStoreName), (SearchItem.setStoreName),
+	(SearchItem.getQuery), (SearchItem.setQuery),
+	(SearchItem.getRangeLower), (SearchItem.setRangeLower),
+	(SearchItem.getRangeUpper), (SearchItem.setRangeUpper):
+	* plugins/org.obm.push/src/org/obm/push/search/SearchResult.java:
+	(SearchResult), (SearchResult.getDisplayName),
+	(SearchResult.setDisplayName), (SearchResult.getAlias),
+	(SearchResult.setAlias), (SearchResult.getEmailAddress),
+	(SearchResult.setEmailAddress), (SearchResult.getFirstName),
+	(SearchResult.setFirstName), (SearchResult.getLastName),
+	(SearchResult.setLastName), (SearchResult.getPhone),
+	(SearchResult.setPhone), (SearchResult.getOffice),
+	(SearchResult.setOffice), (SearchResult.getTitle),
+	(SearchResult.setTitle), (SearchResult.getCompany),
+	(SearchResult.setCompany), (SearchResult.getHomePhone),
+	(SearchResult.setHomePhone), (SearchResult.getMobilePhone),
+	(SearchResult.setMobilePhone):
+	* plugins/org.obm.push/src/org/obm/push/search/StoreName.java:
+
+2010-01-26  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Decoding Command Parameters of a base64-encoded query	
+
+	* plugins/org.obm.push.tests/src/org/obm/push/tests/Base64QueryStri
+	ngTests.java: (Base64QueryStringTests.testBase64QueryString):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.p), (ActiveSyncServlet.processActiveSyncMethod),
+	(ActiveSyncServlet.getActiveSyncRequest), (ActiveSyncServlet):
+	* plugins/org.obm.push/src/org/obm/push/Base64QueryString.java:
+	(Base64QueryString), (Base64QueryString.Base64QueryString),
+	(Base64QueryString.decodeParameters),
+	(Base64QueryString.getParameter),
+	(Base64QueryString.getInputStream):
+	* plugins/org.obm.push/src/org/obm/push/SimpleQueryString.java:
+	(SimpleQueryString), (SimpleQueryString.SimpleQueryString),
+	(SimpleQueryString.getParameter),
+	(SimpleQueryString.getInputStream):
+	* plugins/org.obm.push/src/org/obm/push/impl/ActiveSyncRequest.java
+	: (ActiveSyncRequest):
+	* plugins/org.obm.push/src/org/obm/push/impl/Base64ParameterCodes.j
+	ava:
+	* plugins/org.obm.push/src/org/obm/push/impl/GetAttachmentHandler.j
+	ava: (GetAttachmentHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/IRequestHandler.java:
+	(IRequestHandler):
+	* plugins/org.obm.push/src/org/obm/push/impl/MailRequestHandler.jav
+	a: (MailRequestHandler), (MailRequestHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SendMailHandler.java:
+	(SendMailHandler), (SendMailHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SmartForwardHandler.ja
+	va: (SmartForwardHandler), (SmartForwardHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SmartReplyHandler.java
+	: (SmartReplyHandler), (SmartReplyHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/WbxmlRequestHandler.ja
+	va: (WbxmlRequestHandler.process):
+
+2010-01-26  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Adding push implementation when the element "Wait" is present in a
+	sync request
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.startEmailMonitoring), (OBMBackend),
+	(OBMBackend.resetForFullSync):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmSyncBackend.java: (ObmSyncBackend.getCollectionNameFor):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailMonitoringThread.java:
+	(EmailMonitoringThread.EmailMonitoringThread),
+	(EmailMonitoringThread.startIdle),
+	(EmailMonitoringThread.stopIdle), (EmailMonitoringThread.receive):
+	* plugins/org.obm.push.storage.jdbc/src/org/obm/push/storage/jdbc/S
+	yncStorage.java: (SyncStorage.getCollectionPath),
+	(SyncStorage.getDataClass):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet), (ActiveSyncServlet.service):
+	* plugins/org.obm.push/src/org/obm/push/backend/BackendSession.java
+	: (BackendSession), (BackendSession.BackendSession),
+	(BackendSession.getLastContinuationHandler),
+	(BackendSession.setLastContinuationHandler),
+	(BackendSession.getLastWait), (BackendSession.setLastWait):
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/IContinuationHandler.j
+	ava: (IContinuationHandler):
+	* plugins/org.obm.push/src/org/obm/push/impl/MoveItemsHandler.java:
+	(MoveItemsHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler), (PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler), (SyncHandler.process), (SyncHandler.doUpdates),
+	(SyncHandler.processWindowSize), (SyncHandler.decodeCollection),
+	(SyncHandler.processCollection), (SyncHandler.processModification),
+	(SyncHandler.sendResponse), (SyncHandler.processResponse):
+	* plugins/org.obm.push/src/org/obm/push/store/ISyncStorage.java:
+	(ISyncStorage):
+
+2009-11-26  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Add email attachment support
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter.getTasksChanges),
+	(ContentsExporter), (ContentsExporter.getEmailAttachement):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java:
+	(ContentsImporter.importCalendarUserStatus):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/AttachmentHelper.java: (AttachmentHelper),
+	(AttachmentHelper.getAttachmentId),
+	(AttachmentHelper.parseAttachmentId):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailManager.java: (EmailManager),
+	(EmailManager.EmailManager), (EmailManager.fetchMails),
+	(EmailManager.findAttachment):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend.getContentChanges),
+	(MailBackend), (MailBackend.getChanges), (MailBackend.fetchItems),
+	(MailBackend.replyEmail), (MailBackend.forwardEmail),
+	(MailBackend.getEmail), (MailBackend.getAttachment):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailMessageLoader.java:
+	(MailMessageLoader..MailMessageLoader), (MailMessageLoader.),
+	(MailMessageLoader..fetch), (MailMessageLoader..fetchOneMessage),
+	(MailMessageLoader..getInvitation),
+	(MailMessageLoader..extractAttachments),
+	(MailMessageLoader..extractAttachmentData):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.init):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSAttachement.java:
+	(MSAttachement), (MSAttachement.MSAttachement),
+	(MSAttachement.getDisplayName), (MSAttachement.setDisplayName),
+	(MSAttachement.getFileReference), (MSAttachement.setFileReference),
+	(MSAttachement.getMethod), (MSAttachement.setMethod),
+	(MSAttachement.getEstimatedDataSize),
+	(MSAttachement.setEstimatedDataSize), (MSAttachement.getContentId),
+	(MSAttachement.setContentId), (MSAttachement.getContentLocation),
+	(MSAttachement.setContentLocation), (MSAttachement.getIsInline),
+	(MSAttachement.setIsInline):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSAttachementData.j
+	ava: (MSAttachementData), (MSAttachementData.MSAttachementData),
+	(MSAttachementData.getFile), (MSAttachementData.getContentType):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSEmail.java:
+	(MSEmail), (MSEmail.MSEmail), (MSEmail.getAttachements),
+	(MSEmail.setAttachements):
+	* plugins/org.obm.push/src/org/obm/push/backend/MethodAttachment.ja
+	va:
+	* plugins/org.obm.push/src/org/obm/push/data/EmailEncoder.java:
+	(EmailEncoder.encode), (EmailEncoder.appendBody25),
+	(EmailEncoder.appendBody), (EmailEncoder),
+	(EmailEncoder.appendAttachments):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetAttachmentHandler.j
+	ava: (GetAttachmentHandler),
+	(GetAttachmentHandler.GetAttachmentHandler),
+	(GetAttachmentHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/Responder.java:
+	(Responder), (Responder.sendResponseFile), (Responder.sendError):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.doFetch):
+
+2009-11-23  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Add push support for email
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.OBMBackend),
+	(OBMBackend.startOBMMonitoringThreads),
+	(OBMBackend.startEmailMonitoring):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailManager.java: (EmailManager),
+	(EmailManager.parseMailBoxName):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailMonitoringThread.java: (EmailMonitoringThread),
+	(EmailMonitoringThread.EmailMonitoringThread),
+	(EmailMonitoringThread.startIdle),
+	(EmailMonitoringThread.getChangedCollections),
+	(EmailMonitoringThread.stopIdle), (EmailMonitoringThread.receive),
+	(EmailMonitoringThread.getIdleClient),
+	(EmailMonitoringThread.locateImap):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/HintsLoader.java:
+	(HintsLoader.addHints):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process):
+
+2009-10-23  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	Mail sync implementation
+
+	* plugins/org.obm.push.backend.obm22/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter),
+	(ContentsExporter.ContentsExporter),
+	(ContentsExporter.getMailChanges), (ContentsExporter.getChanged),
+	(ContentsExporter.getCount), (ContentsExporter.fetch):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter.importMessageChange):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.resetForFullSync):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmSyncBackend.java: (ObmSyncBackend.getCollectionIdFor),
+	(ObmSyncBackend), (ObmSyncBackend.getCollectionNameFor),
+	(ObmSyncBackend.getDevId):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/AddressConverter.java: (AddressConverter),
+	(AddressConverter.AddressConverter),
+	(AddressConverter.convertAddress),
+	(AddressConverter.convertAddresses):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailCacheStorage.java: (EmailCacheStorage),
+	(EmailCacheStorage.EmailCacheStorage),
+	(EmailCacheStorage.computeChanges),
+	(EmailCacheStorage.loadMailFromDb),
+	(EmailCacheStorage.loadMailFromIMAP),
+	(EmailCacheStorage.updateDbCache), (EmailCacheStorage.getSync):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/EmailManager.java: (EmailManager),
+	(EmailManager.EmailManager), (EmailManager.getInstance),
+	(EmailManager.locateImap), (EmailManager.getClient),
+	(EmailManager.cache), (EmailManager.getSync),
+	(EmailManager.fetchMails), (EmailManager.listAllFolder),
+	(EmailManager.updateReadFlag), (EmailManager.parseMailBoxName),
+	(EmailManager.resetForFullSync), (EmailManager.delete):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend),
+	(MailBackend.getHierarchyChanges), (MailBackend.getContentChanges),
+	(MailBackend.genServerId), (MailBackend.getChanges),
+	(MailBackend.getDeletions), (MailBackend.delete),
+	(MailBackend.createOrUpdate), (MailBackend.getEmailUidFor),
+	(MailBackend.getCollectionIdFor):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailChanges.java: (MailChanges), (MailChanges.MailChanges),
+	(MailChanges.getRemoved), (MailChanges.setRemoved),
+	(MailChanges.getUpdated), (MailChanges.setUpdated),
+	(MailChanges.getLastSync), (MailChanges.setLastSync):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailMessageLoader.java: (MailMessageLoader),
+	(MailMessageLoader..MailMessageLoader), (MailMessageLoader.),
+	(MailMessageLoader..fetch), (MailMessageLoader..fetchQuotedText),
+	(MailMessageLoader..fetchFlowed),
+	(MailMessageLoader..fetchForwardMessages),
+	(MailMessageLoader..fetchNested),
+	(MailMessageLoader..fetchOneMessage),
+	(MailMessageLoader..isSupportedCharset),
+	(MailMessageLoader..getMailBody), (MailMessageLoader..inEml),
+	(MailMessageLoader..findBodyTextPart),
+	(MailMessageLoader..extractPartData),
+	(MailMessageLoader..setPickupPlain),
+	(MailMessageLoader..parseRawHeaders),
+	(MailMessageLoader..getHeaderCharsetDecoder):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/QuotedPrintableDecoderInputStream.java:
+	(QuotedPrintableDecoderInputStream),
+	(QuotedPrintableDecoderInputStream.QuotedPrintableDecoderInputStrea
+	m), (QuotedPrintableDecoderInputStream.readNextOctet),
+	(QuotedPrintableDecoderInputStream.read):
+	* plugins/org.obm.push.storage.jdbc/src/org/obm/push/storage/jdbc/S
+	yncStorage.java: (SyncStorage.updateState),
+	(SyncStorage.getDataClass), (SyncStorage.resetForFullSync),
+	(SyncStorage), (SyncStorage.getDevId),
+	(SyncStorage.getAllCollectionId):
+	* plugins/org.obm.push/push.product:
+	* plugins/org.obm.push/src/org/obm/push/backend/FolderType.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/backend/Importance.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/MSAddress.java:
+	(MSAddress), (MSAddress.MSAddress), (MSAddress.getMail),
+	(MSAddress.getDisplayName):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSEmail.java:
+	(MSEmail), (MSEmail.getType), (MSEmail.isRead), (MSEmail.MSEmail),
+	(MSEmail.getSubject), (MSEmail.getBody), (MSEmail.getFrom),
+	(MSEmail.setFrom), (MSEmail.getHeaders), (MSEmail.getDate),
+	(MSEmail.setDate), (MSEmail.setSubject), (MSEmail.setBody),
+	(MSEmail.setHeaders), (MSEmail.setTo), (MSEmail.getTo),
+	(MSEmail.setCc), (MSEmail.getCc), (MSEmail.setForwardMessage),
+	(MSEmail.getForwardMessage), (MSEmail.addForwardMessage),
+	(MSEmail.getUid), (MSEmail.setUid), (MSEmail.getBcc),
+	(MSEmail.setBcc), (MSEmail.getInvitation), (MSEmail.setInvitation),
+	(MSEmail.getSmtpId), (MSEmail.setSmtpId), (MSEmail.setRead),
+	(MSEmail.isStarred), (MSEmail.setStarred), (MSEmail.isAnswered),
+	(MSEmail.setAnswered), (MSEmail.getMessageClass),
+	(MSEmail.setMessageClass), (MSEmail.getImportance),
+	(MSEmail.setImportance):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSEmailBody.java:
+	(MSEmailBody), (MSEmailBody.MSEmailBody),
+	(MSEmailBody.addConverted), (MSEmailBody.availableFormats),
+	(MSEmailBody.getValue), (MSEmailBody.addMailPart),
+	(MSEmailBody.getCharset), (MSEmailBody.setCharset),
+	(MSEmailBody.equals):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSEmailBodyType.jav
+	a:
+	* plugins/org.obm.push/src/org/obm/push/backend/MSMail.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/MessageClass.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/PIMDataType.java:
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder.encoreRecurrence):
+	* plugins/org.obm.push/src/org/obm/push/data/EmailDecoder.java:
+	(EmailDecoder), (EmailDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/data/EmailEncoder.java:
+	(EmailEncoder), (EmailEncoder.EmailEncoder), (EmailEncoder.encode),
+	(EmailEncoder.appendRecurence), (EmailEncoder.formatDate),
+	(EmailEncoder.buildStringAdresses):
+	* plugins/org.obm.push/src/org/obm/push/data/EncoderFactory.java:
+	(EncoderFactory.getEncoder):
+	* plugins/org.obm.push/src/org/obm/push/data/InternetCPIDMapping.ja
+	va: (InternetCPIDMapping), (InternetCPIDMapping..getInternetCPID),
+	(InternetCPIDMapping.):
+	* plugins/org.obm.push/src/org/obm/push/data/MailEncoder.java:
+	* plugins/org.obm.push/src/org/obm/push/data/calendarenum/CalendarS
+	ensitivity.java:
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.SyncHandler):
+	* plugins/org.obm.push/src/org/obm/push/store/ISyncStorage.java:
+	(ISyncStorage):
+	* sql/2.2/create_opush_mysql.sql:
+	* sql/2.2/create_opush_pgsql.sql:
+
+2009-10-02  Adrien POUPARD  <adrien.poupard@aliasource.fr>
+
+	refactoring of serverId and clientId management
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java:
+	(CalendarBackend.getHierarchyChanges),
+	(CalendarBackend.getContentChanges),
+	(CalendarBackend.addCalendarChange),
+	(CalendarBackend.createOrUpdate), (CalendarBackend.delete):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java:
+	(ContactsBackend.getHierarchyChanges),
+	(ContactsBackend.getContactChange),
+	(ContactsBackend.createOrUpdate):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmSyncBackend.java: (ObmSyncBackend),
+	(ObmSyncBackend.ObmSyncBackend), (ObmSyncBackend.getDeletion),
+	(ObmSyncBackend.getServerIdFor):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/UIDMapper.java:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend.genServerId):
+	* plugins/org.obm.push.storage.jdbc/src/org/obm/push/storage/jdbc/S
+	yncStorage.java: (SyncStorage), (SyncStorage.initDevice),
+	(SyncStorage.updateState), (SyncStorage.getCollectionMapping),
+	(SyncStorage.resetForFullSync):
+	* plugins/org.obm.push/src/org/obm/push/backend/ItemChange.java:
+	(ItemChange), (ItemChange.setData):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process), (SyncHandler.doUpdates),
+	(SyncHandler.doFetch), (SyncHandler),
+	(SyncHandler.processCollection), (SyncHandler.processModification):
+	* plugins/org.obm.push/src/org/obm/push/store/ISyncStorage.java:
+	(ISyncStorage):
+	* sql/2.2/create_opush_mysql.sql:
+	* sql/2.2/create_opush_pgsql.sql:
+
+2009-07-22  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Refactor 2.5 & 12.1 EAS policies.
+
+	Send exceptions created on the PDA to obm-sync. The exception is
+	store in obm with the correct parent_id but a default attendee is
+	not inserted. Will see of the bug is obm-sync or o-push related.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter),
+	(EventConverter.convertEvent), (EventConverter.convertEventOne):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder.decode), (CalendarDecoder.setEventCalendar):
+	* plugins/org.obm.push/src/org/obm/push/data/Decoder.java:
+	(Decoder):
+	* plugins/org.obm.push/src/org/obm/push/provisioning/MSEASProvisioi
+	ngWBXML.java:
+	* plugins/org.obm.push/src/org/obm/push/provisioning/MSWAPProvision
+	ingXML.java:
+
+2009-07-20  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	iPhone 3.0 calendar sync fully functionnal (again).
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java:
+	(CalendarBackend.getContentChanges):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/WbxmlEn
+	coder.java: (WbxmlEncoder.writeEmptyElement):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.doUpdates), (SyncHandler.processModification):
+
+2009-07-16  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Working Provision dialog with iPhone 3.0 & AS protocol 12.1 :-)
+	
+	* plugins/org.obm.push.client/data/ProvisionRequest1.xml:
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/Abstract
+	PushTest.java: (AbstractPushTest), (AbstractPushTest.setUp),
+	(AbstractPushTest.authValue), (AbstractPushTest.optionsQuery),
+	(AbstractPushTest.postXml):
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/TestProv
+	ision.java: (TestProvision), (TestProvision.testSettingsProvision):
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/TestiPho
+	neExchante2k7.java: (TestiPhoneExchante2k7),
+	(TestiPhoneExchante2k7.testDiffOpushExchange):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/TagsTables.java
+	:
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/Encoder
+	Handler.java: (EncoderHandler), (EncoderHandler.EncoderHandler),
+	(EncoderHandler.startElement), (EncoderHandler.queueStart),
+	(EncoderHandler.flushNormal), (EncoderHandler.flushEmptyElem),
+	(EncoderHandler.switchToNs), (EncoderHandler.characters),
+	(EncoderHandler.endElement), (EncoderHandler.ignorableWhitespace):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/WbxmlEn
+	coder.java: (WbxmlEncoder), (WbxmlEncoder.writeEmptyElement):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.sendASHeaders):
+	* plugins/org.obm.push/src/org/obm/push/impl/ProvisionHandler.java:
+	(ProvisionHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/Responder.java:
+	(Responder.sendResponse):
+
+2009-06-10  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Use integer identifier for folders to match exchange 2k7.
+
+	Advertise as protocol v12 & v12.1 to match exchange 2k7.
+
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter.importMessageDeletion):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java:
+	(CalendarBackend.getHierarchyChanges),
+	(CalendarBackend.getContentChanges),
+	(CalendarBackend.parseCalendarId), (CalendarBackend),
+	(CalendarBackend.addCalendarChange),
+	(CalendarBackend.createOrUpdate):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java:
+	(ContactsBackend.getHierarchyChanges), (ContactsBackend),
+	(ContactsBackend.delete):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/UIDMapper.java: (UIDMapper), (UIDMapper.getClientIdFor):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend), (MailBackend.MailBackend),
+	(MailBackend.getHierarchyChanges), (MailBackend.genServerId),
+	(MailBackend.getContentChanges), (MailBackend.fetchItems),
+	(MailBackend.delete):
+	* plugins/org.obm.push.storage.jdbc/src/org/obm/push/storage/jdbc/S
+	yncStorage.java: (SyncStorage), (SyncStorage.updateState),
+	(SyncStorage.getCollectionMapping),
+	(SyncStorage.getCollectionString):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.sendServerInfos):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler), (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.doUpdates), (SyncHandler.processModification):
+	* plugins/org.obm.push/src/org/obm/push/store/ISyncStorage.java:
+	(ISyncStorage):
+
+2009-05-05  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Calendar & Contacts encoding improvements
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter.importMessageChange):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactConverter.java: (ContactConverter),
+	(ContactConverter.obmMail):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java:
+	(ContactsBackend.getContentChanges),
+	(ContactsBackend.getContactChange),
+	(ContactsBackend.createOrUpdate):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/Charset
+	Mappings.java: (CharsetMappings),
+	(CharsetMappings.CharsetMappings), (CharsetMappings.getCharset):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/WbxmlEn
+	coder.java: (WbxmlEncoder.convert):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/WbxmlPa
+	rser.java: (WbxmlParser), (WbxmlParser.parse),
+	(WbxmlParser.readStrI):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsImporter.j
+	ava: (IContentsImporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/ItemChange.java:
+	(ItemChange), (ItemChange.setClientId), (ItemChange.getClientId):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactEncoder.java:
+	(ContactEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler), (SyncHandler.process), (SyncHandler.doUpdates),
+	(SyncHandler.doFetch), (SyncHandler.processModification):
+
+2009-04-24  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Contacts encoding work.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend),
+	(OBMBackend.pollForChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactConverter.java: (ContactConverter),
+	(ContactConverter.convert), (ContactConverter.obmPhone),
+	(ContactConverter.obmMail), (ContactConverter.contact),
+	(ContactConverter.addIM):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/PollingThread.java: (PollingThread),
+	(PollingThread.PollingThread), (PollingThread.run):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactEncoder.java:
+	(ContactEncoder.encode), (ContactEncoder.getFileAs):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/state/StateMachine.java:
+	(StateMachine..allocateNewSyncKey):
+
+2009-04-03  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	make contacts work for firstname/lastname
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter),
+	(ContentsImporter.ContentsImporter), (ContentsImporter.configure),
+	(ContentsImporter.importMessageChange),
+	(ContentsImporter.importMessageDeletion),
+	(ContentsImporter.importMessageMove),
+	(ContentsImporter.importMessageReadFlag):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java:
+	(CalendarBackend.addCalendarChange),
+	(CalendarBackend.createOrUpdate):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/UIDMapper.java: (UIDMapper), (UIDMapper.toOBM):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactConverter.java: (ContactConverter),
+	(ContactConverter.convert), (ContactConverter.contact):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java:
+	(ContactsBackend.getContentChanges), (ContactsBackend),
+	(ContactsBackend.getContactChange),
+	(ContactsBackend.createOrUpdate):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactEncoder.java:
+	(ContactEncoder.encode), (ContactEncoder),
+	(ContactEncoder.getFileAs), (ContactEncoder.e):
+
+2009-04-02  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Add ContactBackend and generate collection id without "/" as this
+	crashes windows mobile.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/HierarchyExporter.java: (HierarchyExporter),
+	(HierarchyExporter.HierarchyExporter),
+	(HierarchyExporter.synchronize),
+	(HierarchyExporter.getContactsChanges),
+	(HierarchyExporter.getContactsDeletions),
+	(HierarchyExporter.getChanged):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java: (CalendarBackend),
+	(CalendarBackend.CalendarBackend),
+	(CalendarBackend.getHierarchyChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/contacts/ContactsBackend.java: (ContactsBackend),
+	(ContactsBackend.ContactsBackend), (ContactsBackend.getClient),
+	(ContactsBackend.getHierarchyChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmSyncBackend.java: (ObmSyncBackend),
+	(ObmSyncBackend.ObmSyncBackend), (ObmSyncBackend.locateObmSync),
+	(ObmSyncBackend.validateOBMConnection):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailBackend.java: (MailBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/Responder.java:
+	(Responder), (Responder.sendResponse):
+
+2009-04-01  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Use Jetty continuation support for Ping command.
+	
+	* plugins/org.obm.push.backend.obm22/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.pollForChanges),
+	(OBMBackend.onChangeFound):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/PollingThread.java: (PollingThread),
+	(PollingThread.PollingThread), (PollingThread.run):
+	* plugins/org.obm.push.utils/src/org/obm/push/utils/DOMUtils.java:
+	* plugins/org.obm.push/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push/push.product:
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.service), (ActiveSyncServlet),
+	(ActiveSyncServlet.processActiveSyncMethod),
+	(ActiveSyncServlet.getSession):
+	* plugins/org.obm.push/src/org/obm/push/backend/BackendSession.java
+	: (BackendSession), (BackendSession.getRequest),
+	(BackendSession.setRequest), (BackendSession.getChangedFolders),
+	(BackendSession.setChangedFolders):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/IRequestHandler.java:
+	(IRequestHandler):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler), (PingHandler.process), (PingHandler.sendResponse):
+	* plugins/org.obm.push/src/org/obm/push/impl/ProvisionHandler.java:
+	(ProvisionHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process):
+
+2009-03-31  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	recurrence work
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter.getRecurrence),
+	(EventConverter), (EventConverter.convertEvent):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder), (CalendarDecoder.decode),
+	(CalendarDecoder.setEventCalendar):
+
+2009-03-31  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	prepare allocation of sync keys in statemachine
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.waitForChanges):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process), (SyncHandler), (SyncHandler.doUpdates),
+	(SyncHandler.doFetch):
+	* plugins/org.obm.push/src/org/obm/push/state/StateMachine.java:
+	(StateMachine.allocateNewSyncKey), (StateMachine):
+
+2009-03-31  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Calendar sync improvements for win mobile (attendees crashe active
+	sync client).
+
+	use windows domain as obm domain if no "@" in login. Fixes active
+	sync desktop client.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter.getContactsChanges),
+	(ContentsExporter.getTasksChanges),
+	(ContentsExporter.getCalendarChanges),
+	(ContentsExporter.getMailChanges), (ContentsExporter),
+	(ContentsExporter.getChanged), (ContentsExporter.getCount),
+	(ContentsExporter.fetch):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter.importMessageChange),
+	(ContentsImporter.importMessageDeletion):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.OBMBackend),
+	(OBMBackend.waitForChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java: (CalendarBackend),
+	(CalendarBackend.getClient), (CalendarBackend.locateObmSync),
+	(CalendarBackend.getHierarchyChanges),
+	(CalendarBackend.getContentChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter.convertEvent),
+	(EventConverter.getRecurrence):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/impl/ObmDbHelper.java: (ObmDbHelper), (ObmDbHelper.findHost):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailExporter.java: (MailExporter.getContentChanges):
+	* plugins/org.obm.push/build.properties:
+	* plugins/org.obm.push/hints/PocketPC.hints:
+	* plugins/org.obm.push/hints/iPhone.hints:
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.getSession), (ActiveSyncServlet.init):
+	* plugins/org.obm.push/src/org/obm/push/Application.java:
+	(Application.start):
+	* plugins/org.obm.push/src/org/obm/push/backend/BackendSession.java
+	: (BackendSession), (BackendSession.BackendSession),
+	(BackendSession.checkHint), (BackendSession.loadHints):
+	* plugins/org.obm.push/src/org/obm/push/backend/DataDelta.java:
+	(DataDelta), (DataDelta.DataDelta), (DataDelta.getChanges),
+	(DataDelta.getDeletions):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSContact.java:
+	(MSContact.getType):
+	* plugins/org.obm.push/src/org/obm/push/backend/PIMDataType.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/SyncCollection.java
+	: (SyncCollection), (SyncCollection.SyncCollection),
+	(SyncCollection.getSyncState), (SyncCollection.setSyncState),
+	(SyncCollection.getClientIds), (SyncCollection.setClientIds),
+	(SyncCollection.getDataClass), (SyncCollection.setDataClass),
+	(SyncCollection.getConflict), (SyncCollection.setConflict),
+	(SyncCollection.getCollectionId), (SyncCollection.setCollectionId),
+	(SyncCollection.getSyncKey), (SyncCollection.setSyncKey),
+	(SyncCollection.getTruncation), (SyncCollection.setTruncation),
+	(SyncCollection.isDeletesAsMoves),
+	(SyncCollection.setDeletesAsMoves), (SyncCollection.getFetchIds),
+	(SyncCollection.setFetchIds), (SyncCollection.getNewSyncKey),
+	(SyncCollection.setNewSyncKey), (SyncCollection.getFilterType),
+	(SyncCollection.setFilterType):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactEncoder.java:
+	(ContactEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/EncoderFactory.java:
+	(EncoderFactory.getEncoder):
+	* plugins/org.obm.push/src/org/obm/push/data/IDataEncoder.java:
+	(IDataEncoder):
+	* plugins/org.obm.push/src/org/obm/push/data/MailEncoder.java:
+	(MailEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/TaskEncoder.java:
+	(TaskEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java:
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process), (PingHandler), (PingHandler.fillResponse):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncCollection.java:
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process), (SyncHandler.serializeChange):
+	* scripts/equinox.lib:
+	* scripts/opush:
+
+2009-03-27  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Store device / obm id mapping (in memory for now)
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter.importMessageChange):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java: (CalendarBackend),
+	(CalendarBackend.CalendarBackend),
+	(CalendarBackend.getContentChanges),
+	(CalendarBackend.addCalendarChange),
+	(CalendarBackend.createOrUpdate), (CalendarBackend.delete):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter.convertEvent),
+	(EventConverter):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/UIDMapper.java: (UIDMapper), (UIDMapper.UIDMapper),
+	(UIDMapper.toDevice), (UIDMapper.toOBM), (UIDMapper.addMapping):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsImporter.j
+	ava: (IContentsImporter):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncCollection.java:
+	(SyncCollection), (SyncCollection.setSyncState):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.processModification):
+
+2009-03-27  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Prepare updates/creates from mobile device.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter),
+	(ContentsExporter.ContentsExporter),
+	(ContentsExporter.getCalendarChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsImporter.java: (ContentsImporter),
+	(ContentsImporter.ContentsImporter), (ContentsImporter.configure),
+	(ContentsImporter.getState),
+	(ContentsImporter.importMessageChange),
+	(ContentsImporter.importMessageDeletion),
+	(ContentsImporter.importMessageMove),
+	(ContentsImporter.importMessageReadFlag):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/HierarchyExporter.java: (HierarchyExporter),
+	(HierarchyExporter.HierarchyExporter):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.OBMBackend):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarBackend.java: (CalendarBackend),
+	(CalendarBackend.CalendarBackend), (CalendarBackend.getClient),
+	(CalendarBackend.validateOBMConnection),
+	(CalendarBackend.getHierarchyChanges),
+	(CalendarBackend.getContentChanges),
+	(CalendarBackend.parseCalendarId),
+	(CalendarBackend.addCalendarChange),
+	(CalendarBackend.createOrUpdate), (CalendarBackend.delete):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarExporter.java:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailExporter.java: (MailExporter), (MailExporter.delete):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsImporter.j
+	ava: (IContentsImporter):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.processCollection), (SyncHandler),
+	(SyncHandler.processModification):
+
+2009-03-25  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	OBM -> iPhone calendar works :-)
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarExporter.java: (CalendarExporter.getClient),
+	(CalendarExporter), (CalendarExporter.validateOBMConnection),
+	(CalendarExporter.getHierarchyChanges),
+	(CalendarExporter.getContentChanges),
+	(CalendarExporter.parseCalendarId),
+	(CalendarExporter.addCalendarChange):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter),
+	(EventConverter.convertEvent):
+	* plugins/org.obm.push.tests/.classpath:
+	* plugins/org.obm.push.tests/.project:
+	* plugins/org.obm.push.tests/.settings/org.eclipse.jdt.core.prefs:
+	* plugins/org.obm.push.tests/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push.tests/build.properties:
+	* plugins/org.obm.push.tests/src/org/obm/push/tests/TZDecoderTest.j
+	ava: (TZDecoderTest), (TZDecoderTest.testDecode):
+	* plugins/org.obm.push/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push/push.product:
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder), (CalendarEncoder.CalendarEncoder),
+	(CalendarEncoder.encode), (CalendarEncoder.e):
+	* plugins/org.obm.push/src/org/obm/push/data/Decoder.java:
+	(Decoder.parseTimeZone):
+	* plugins/org.obm.push/src/org/obm/push/data/TZDecoder.java:
+	(TZDecoder), (TZDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/data/calendarenum/CalendarM
+	eetingStatus.java:
+	* plugins/org.obm.sync.client/META-INF/MANIFEST.MF:
+
+2009-03-25  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Calendar data export work
+	
+	* plugins/org.obm.push.backend.obm22/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter),
+	(ContentsExporter.getContactsDeletions),
+	(ContentsExporter.getTasksDeletions),
+	(ContentsExporter.getCalendarChanges),
+	(ContentsExporter.getCalendarDeletions),
+	(ContentsExporter.getMailDeletions), (ContentsExporter.getChanged),
+	(ContentsExporter.getCount), (ContentsExporter.getDeleted):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/CalendarExporter.java: (CalendarExporter),
+	(CalendarExporter.CalendarExporter), (CalendarExporter.getClient),
+	(CalendarExporter.validateOBMConnection),
+	(CalendarExporter.getHierarchyChanges),
+	(CalendarExporter.getContentChanges),
+	(CalendarExporter.addCalendarChange):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/calendar/EventConverter.java: (EventConverter),
+	(EventConverter.convertEvent):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailExporter.java: (MailExporter.getContentChanges),
+	(MailExporter.fetchItems):
+	* plugins/org.obm.push.utils/src/org/obm/push/utils/Pouic.java:
+	* plugins/org.obm.push/push.product:
+	* plugins/org.obm.push/src/org/obm/push/backend/Attendee.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/Calendar.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/Contact.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSAttendee.java:
+	(MSAttendee), (MSAttendee.getEmail), (MSAttendee.setEmail),
+	(MSAttendee.getName), (MSAttendee.setName),
+	(MSAttendee.getAttendeeStatus), (MSAttendee.setAttendeeStatus),
+	(MSAttendee.getAttendeeType), (MSAttendee.setAttendeeType):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSContact.java:
+	(MSContact), (MSContact.getCategories), (MSContact.setCategories),
+	(MSContact.getChildren), (MSContact.setChildren),
+	(MSContact.getAssistantName), (MSContact.setAssistantName),
+	(MSContact.getAssistantPhoneNumber),
+	(MSContact.setAssistantPhoneNumber),
+	(MSContact.getAssistnamePhoneNumber),
+	(MSContact.setAssistnamePhoneNumber),
+	(MSContact.getBusiness2PhoneNumber),
+	(MSContact.setBusiness2PhoneNumber),
+	(MSContact.getBusinessAddressCity),
+	(MSContact.setBusinessAddressCity),
+	(MSContact.getBusinessPhoneNumber),
+	(MSContact.setBusinessPhoneNumber), (MSContact.getWebPage),
+	(MSContact.setWebPage), (MSContact.getBusinessAddressCountry),
+	(MSContact.setBusinessAddressCountry), (MSContact.getDepartment),
+	(MSContact.setDepartment), (MSContact.getEmail1Address),
+	(MSContact.setEmail1Address), (MSContact.getEmail2Address),
+	(MSContact.setEmail2Address), (MSContact.getEmail3Address),
+	(MSContact.setEmail3Address), (MSContact.getBusinessFaxNumber),
+	(MSContact.setBusinessFaxNumber), (MSContact.getFileAs),
+	(MSContact.setFileAs), (MSContact.getFirstName),
+	(MSContact.setFirstName), (MSContact.getMiddleName),
+	(MSContact.setMiddleName), (MSContact.getHomeAddressCity),
+	(MSContact.setHomeAddressCity), (MSContact.getHomeAddressCountry),
+	(MSContact.setHomeAddressCountry), (MSContact.getHomeFaxNumber),
+	(MSContact.setHomeFaxNumber), (MSContact.getHomePhoneNumber),
+	(MSContact.setHomePhoneNumber), (MSContact.getHome2PhoneNumber),
+	(MSContact.setHome2PhoneNumber),
+	(MSContact.getHomeAddressPostalCode),
+	(MSContact.setHomeAddressPostalCode),
+	(MSContact.getHomeAddressState), (MSContact.setHomeAddressState),
+	(MSContact.getHomeAddressStreet), (MSContact.setHomeAddressStreet),
+	(MSContact.getMobilePhoneNumber), (MSContact.setMobilePhoneNumber),
+	(MSContact.getSuffix), (MSContact.setSuffix),
+	(MSContact.getCompanyName), (MSContact.setCompanyName),
+	(MSContact.getOtherAddressCity), (MSContact.setOtherAddressCity),
+	(MSContact.getOtherAddressCountry),
+	(MSContact.setOtherAddressCountry), (MSContact.getCarPhoneNumber),
+	(MSContact.setCarPhoneNumber),
+	(MSContact.getOtherAddressPostalCode),
+	(MSContact.setOtherAddressPostalCode),
+	(MSContact.getOtherAddressState), (MSContact.setOtherAddressState),
+	(MSContact.getOtherAddressStreet),
+	(MSContact.setOtherAddressStreet), (MSContact.getPagerNumber),
+	(MSContact.setPagerNumber), (MSContact.getTitle),
+	(MSContact.setTitle), (MSContact.getBusinessPostalCode),
+	(MSContact.setBusinessPostalCode), (MSContact.getLastName),
+	(MSContact.setLastName), (MSContact.getSpouse),
+	(MSContact.setSpouse), (MSContact.getBusinessState),
+	(MSContact.setBusinessState), (MSContact.getBusinessStreet),
+	(MSContact.setBusinessStreet), (MSContact.getJobTitle),
+	(MSContact.setJobTitle), (MSContact.getYomiFirstName),
+	(MSContact.setYomiFirstName), (MSContact.getYomiLastName),
+	(MSContact.setYomiLastName), (MSContact.getYomiCompanyName),
+	(MSContact.setYomiCompanyName), (MSContact.getOfficeLocation),
+	(MSContact.setOfficeLocation), (MSContact.getRadioPhoneNumber),
+	(MSContact.setRadioPhoneNumber), (MSContact.getPicture),
+	(MSContact.setPicture), (MSContact.getCustomerId),
+	(MSContact.setCustomerId), (MSContact.getGovernmentId),
+	(MSContact.setGovernmentId), (MSContact.getIMAddress),
+	(MSContact.setIMAddress), (MSContact.getIMAddress2),
+	(MSContact.setIMAddress2), (MSContact.getIMAddress3),
+	(MSContact.setIMAddress3), (MSContact.getManagerName),
+	(MSContact.setManagerName), (MSContact.getCompanyMainPhone),
+	(MSContact.setCompanyMainPhone), (MSContact.getAccountName),
+	(MSContact.setAccountName), (MSContact.getNickName),
+	(MSContact.setNickName), (MSContact.getMMS), (MSContact.setMMS),
+	(MSContact.getType), (MSContact.isRead),
+	(MSContact.getAnniversary), (MSContact.setAnniversary),
+	(MSContact.getBirthday), (MSContact.setBirthday):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSEvent.java:
+	(MSEvent), (MSEvent.getTimeZone), (MSEvent.setTimeZone),
+	(MSEvent.getOrganizerName), (MSEvent.setOrganizerName),
+	(MSEvent.getOrganizerEmail), (MSEvent.setOrganizerEmail),
+	(MSEvent.getLocation), (MSEvent.setLocation), (MSEvent.getSubject),
+	(MSEvent.setSubject), (MSEvent.getUID), (MSEvent.setUID),
+	(MSEvent.getAllDayEvent), (MSEvent.setAllDayEvent),
+	(MSEvent.getBusyStatus), (MSEvent.setBusyStatus),
+	(MSEvent.getSensitivity), (MSEvent.setSensitivity),
+	(MSEvent.getMeetingStatus), (MSEvent.setMeetingStatus),
+	(MSEvent.getReminder), (MSEvent.setReminder),
+	(MSEvent.getAttendees), (MSEvent.setAttendees),
+	(MSEvent.getCategories), (MSEvent.setCategories),
+	(MSEvent.getRecurrence), (MSEvent.setRecurrence),
+	(MSEvent.getExceptions), (MSEvent.setExceptions),
+	(MSEvent.setDeleted), (MSEvent.isDeletedException),
+	(MSEvent.getType), (MSEvent.isRead), (MSEvent.getDtStamp),
+	(MSEvent.setDtStamp), (MSEvent.getEndTime), (MSEvent.setEndTime),
+	(MSEvent.getStartTime), (MSEvent.setStartTime),
+	(MSEvent.getExceptionStartTime), (MSEvent.setExceptionStartTime):
+	* plugins/org.obm.push/src/org/obm/push/backend/MSMail.java:
+	(MSMail), (MSMail.getType), (MSMail.isRead):
+	* plugins/org.obm.push/src/org/obm/push/backend/Mail.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/Recurrence.java:
+	(Recurrence), (Recurrence.getUntil), (Recurrence.setUntil):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder.decode), (CalendarDecoder.setEventCalendar):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactsDecoder.java:
+	(ContactsDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/data/Decoder.java:
+	(Decoder), (Decoder.parseDOMString), (Decoder.parseDOMDate),
+	(Decoder.parseDOMByte), (Decoder.parseDOMInt), (Decoder.parseDate),
+	(Decoder.parseDOMTimeZone), (Decoder.parseTimeZone),
+	(Decoder.parseDOMStringCollection), (Decoder.parseByte),
+	(Decoder.parseInt), (Decoder.parseBoolean),
+	(Decoder.parseDOMBoolean), (Decoder.parseDOMNoNullInt),
+	(Decoder.parseDOMInt2Boolean):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process):
+	* plugins/org.obm.sync.client/.classpath:
+	* plugins/org.obm.sync.client/.project:
+	* plugins/org.obm.sync.client/.settings/org.eclipse.jdt.core.prefs:
+	* plugins/org.obm.sync.client/META-INF/MANIFEST.MF:
+	* plugins/org.obm.sync.client/build.properties:
+
+2009-03-23  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Add API needed by ping method.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.waitForChanges):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process), (PingHandler.fillResponse), (PingHandler):
+
+2009-03-23  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	replace ASParams with a backend session.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend.getHierarchyImporter),
+	(OBMBackend.getHierarchyExporter), (OBMBackend),
+	(OBMBackend.getContentsImporter), (OBMBackend.getContentsExporter),
+	(OBMBackend.getDevicePolicy):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/mail/MailExporter.java: (MailExporter),
+	(MailExporter.getHierarchyChanges):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet), (ActiveSyncServlet.service),
+	(ActiveSyncServlet.processActiveSyncMethod),
+	(ActiveSyncServlet.getSession), (ActiveSyncServlet.getHandler),
+	(ActiveSyncServlet.init):
+	* plugins/org.obm.push/src/org/obm/push/backend/BackendSession.java
+	: (BackendSession), (BackendSession.BackendSession),
+	(BackendSession.getLoginAtDomain),
+	(BackendSession.setLoginAtDomain), (BackendSession.getPassword),
+	(BackendSession.setPassword), (BackendSession.getDevId),
+	(BackendSession.setDevId), (BackendSession.getDevType),
+	(BackendSession.setDevType), (BackendSession.getCommand),
+	(BackendSession.setCommand):
+	* plugins/org.obm.push/src/org/obm/push/backend/Calendar.java:
+	(Calendar):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/ASParams.java:
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/GetItemEstimateHandler
+	.java: (GetItemEstimateHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/IRequestHandler.java:
+	(IRequestHandler):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/ProvisionHandler.java:
+	(ProvisionHandler.process):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process), (SyncHandler),
+	(SyncHandler.processCollection):
+
+2009-03-23  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	move PIM objects
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter.getMailChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/Exporter.java: (Exporter.getContactsChanges),
+	(Exporter.getTasksChanges), (Exporter.getCalendarChanges),
+	(Exporter.getMailChanges):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/HierarchyExporter.java: (HierarchyExporter.getMailChanges):
+	* plugins/org.obm.push/src/org/obm/push/backend/Calendar.java:
+	(Calendar), (Calendar.setDeleted), (Calendar.isDeletedException):
+	* plugins/org.obm.push/src/org/obm/push/backend/FolderType.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/ItemChange.java:
+	(ItemChange), (ItemChange.getItemType), (ItemChange.setItemType):
+	* plugins/org.obm.push/src/org/obm/push/backend/ItemType.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/Recurrence.java:
+	(Recurrence), (Recurrence.getType), (Recurrence.setType),
+	(Recurrence.getWeekOfMonth), (Recurrence.setWeekOfMonth),
+	(Recurrence.getMonthOfYear), (Recurrence.setMonthOfYear),
+	(Recurrence.getDayOfMonth), (Recurrence.setDayOfMonth):
+	* plugins/org.obm.push/src/org/obm/push/data/calendarenum/Recurrenc
+	eType.java:
+
+2009-03-20  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Sync somewhat works : we can download an email to the iPhone
+	correctly.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/ContentsExporter.java: (ContentsExporter.getMailChanges),
+	(ContentsExporter), (ContentsExporter.fetch):
+	* plugins/org.obm.push.client/data/EmailSyncRequest3.xml:
+	* plugins/org.obm.push.client/data/ExchangeMailSyncResponse.xml:
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/TestEmai
+	lSync.java: (TestEmailSync.testMailSync):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/TagsTables.java
+	:
+	* plugins/org.obm.push/src/org/obm/push/backend/Attendee.java:
+	(Attendee), (Attendee.getEmail), (Attendee.setEmail),
+	(Attendee.getName), (Attendee.setName),
+	(Attendee.getAttendeeStatus), (Attendee.setAttendeeStatus),
+	(Attendee.getAttendeeType), (Attendee.setAttendeeType):
+	* plugins/org.obm.push/src/org/obm/push/backend/Calendar.java:
+	(Calendar), (Calendar.getTimeZone), (Calendar.setTimeZone),
+	(Calendar.getOrganizerName), (Calendar.setOrganizerName),
+	(Calendar.getOrganizerEmail), (Calendar.setOrganizerEmail),
+	(Calendar.getLocation), (Calendar.setLocation),
+	(Calendar.getSubject), (Calendar.setSubject), (Calendar.getUID),
+	(Calendar.setUID), (Calendar.getDtStamp), (Calendar.setDtStamp),
+	(Calendar.getEndTime), (Calendar.setEndTime),
+	(Calendar.getStartTime), (Calendar.setStartTime),
+	(Calendar.getAllDayEvent), (Calendar.setAllDayEvent),
+	(Calendar.getBusyStatus), (Calendar.setBusyStatus),
+	(Calendar.getSensitivity), (Calendar.setSensitivity),
+	(Calendar.getMeetingStatus), (Calendar.setMeetingStatus),
+	(Calendar.getReminder), (Calendar.setReminder),
+	(Calendar.getAttendees), (Calendar.setAttendees),
+	(Calendar.getCategories), (Calendar.setCategories),
+	(Calendar.getRecurrence), (Calendar.setRecurrence),
+	(Calendar.getExceptions), (Calendar.setExceptions),
+	(Calendar.getExceptionStartTime), (Calendar.setExceptionStartTime):
+	* plugins/org.obm.push/src/org/obm/push/backend/Contact.java:
+	(Contact), (Contact.getCategories), (Contact.setCategories),
+	(Contact.getChildren), (Contact.setChildren),
+	(Contact.getAssistantName), (Contact.setAssistantName),
+	(Contact.getAssistantPhoneNumber),
+	(Contact.setAssistantPhoneNumber),
+	(Contact.getAssistnamePhoneNumber),
+	(Contact.setAssistnamePhoneNumber),
+	(Contact.getBusiness2PhoneNumber),
+	(Contact.setBusiness2PhoneNumber),
+	(Contact.getBusinessAddressCity), (Contact.setBusinessAddressCity),
+	(Contact.getBusinessPhoneNumber), (Contact.setBusinessPhoneNumber),
+	(Contact.getWebPage), (Contact.setWebPage),
+	(Contact.getBusinessAddressCountry),
+	(Contact.setBusinessAddressCountry), (Contact.getDepartment),
+	(Contact.setDepartment), (Contact.getEmail1Address),
+	(Contact.setEmail1Address), (Contact.getEmail2Address),
+	(Contact.setEmail2Address), (Contact.getEmail3Address),
+	(Contact.setEmail3Address), (Contact.getBusinessFaxNumber),
+	(Contact.setBusinessFaxNumber), (Contact.getFileAs),
+	(Contact.setFileAs), (Contact.getFirstName),
+	(Contact.setFirstName), (Contact.getMiddleName),
+	(Contact.setMiddleName), (Contact.getHomeAddressCity),
+	(Contact.setHomeAddressCity), (Contact.getHomeAddressCountry),
+	(Contact.setHomeAddressCountry), (Contact.getHomeFaxNumber),
+	(Contact.setHomeFaxNumber), (Contact.getHomePhoneNumber),
+	(Contact.setHomePhoneNumber), (Contact.getHome2PhoneNumber),
+	(Contact.setHome2PhoneNumber), (Contact.getHomeAddressPostalCode),
+	(Contact.setHomeAddressPostalCode), (Contact.getHomeAddressState),
+	(Contact.setHomeAddressState), (Contact.getHomeAddressStreet),
+	(Contact.setHomeAddressStreet), (Contact.getMobilePhoneNumber),
+	(Contact.setMobilePhoneNumber), (Contact.getSuffix),
+	(Contact.setSuffix), (Contact.getCompanyName),
+	(Contact.setCompanyName), (Contact.getOtherAddressCity),
+	(Contact.setOtherAddressCity), (Contact.getOtherAddressCountry),
+	(Contact.setOtherAddressCountry), (Contact.getCarPhoneNumber),
+	(Contact.setCarPhoneNumber), (Contact.getOtherAddressPostalCode),
+	(Contact.setOtherAddressPostalCode),
+	(Contact.getOtherAddressState), (Contact.setOtherAddressState),
+	(Contact.getOtherAddressStreet), (Contact.setOtherAddressStreet),
+	(Contact.getPagerNumber), (Contact.setPagerNumber),
+	(Contact.getTitle), (Contact.setTitle),
+	(Contact.getBusinessPostalCode), (Contact.setBusinessPostalCode),
+	(Contact.getLastName), (Contact.setLastName), (Contact.getSpouse),
+	(Contact.setSpouse), (Contact.getBusinessState),
+	(Contact.setBusinessState), (Contact.getBusinessStreet),
+	(Contact.setBusinessStreet), (Contact.getJobTitle),
+	(Contact.setJobTitle), (Contact.getYomiFirstName),
+	(Contact.setYomiFirstName), (Contact.getYomiLastName),
+	(Contact.setYomiLastName), (Contact.getYomiCompanyName),
+	(Contact.setYomiCompanyName), (Contact.getOfficeLocation),
+	(Contact.setOfficeLocation), (Contact.getRadioPhoneNumber),
+	(Contact.setRadioPhoneNumber), (Contact.getPicture),
+	(Contact.setPicture), (Contact.getAnniversary),
+	(Contact.setAnniversary), (Contact.getBirthday),
+	(Contact.setBirthday), (Contact.getCustomerId),
+	(Contact.setCustomerId), (Contact.getGovernmentId),
+	(Contact.setGovernmentId), (Contact.getIMAddress),
+	(Contact.setIMAddress), (Contact.getIMAddress2),
+	(Contact.setIMAddress2), (Contact.getIMAddress3),
+	(Contact.setIMAddress3), (Contact.getManagerName),
+	(Contact.setManagerName), (Contact.getCompanyMainPhone),
+	(Contact.setCompanyMainPhone), (Contact.getAccountName),
+	(Contact.setAccountName), (Contact.getNickName),
+	(Contact.setNickName), (Contact.getMMS), (Contact.setMMS),
+	(Contact.getType), (Contact.isRead):
+	* plugins/org.obm.push/src/org/obm/push/backend/IApplicationData.ja
+	va: (IApplicationData):
+	* plugins/org.obm.push/src/org/obm/push/backend/IContentsExporter.j
+	ava: (IContentsExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/ItemChange.java:
+	(ItemChange), (ItemChange.getData), (ItemChange.setData):
+	* plugins/org.obm.push/src/org/obm/push/backend/Mail.java: (Mail),
+	(Mail.getType), (Mail.isRead):
+	* plugins/org.obm.push/src/org/obm/push/backend/PIMDataType.java:
+	* plugins/org.obm.push/src/org/obm/push/backend/Recurrence.java:
+	(Recurrence), (Recurrence.getUntil), (Recurrence.setUntil),
+	(Recurrence.getType), (Recurrence.setType),
+	(Recurrence.getWeekOfMonth), (Recurrence.setWeekOfMonth),
+	(Recurrence.getMonthOfYear), (Recurrence.setMonthOfYear),
+	(Recurrence.getDayOfMonth), (Recurrence.setDayOfMonth),
+	(Recurrence.getOccurrences), (Recurrence.setOccurrences),
+	(Recurrence.getInterval), (Recurrence.setInterval),
+	(Recurrence.getDayOfWeek), (Recurrence.setDayOfWeek):
+	* plugins/org.obm.push/src/org/obm/push/data/Attendee.java:
+	* plugins/org.obm.push/src/org/obm/push/data/Calendar.java:
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarDecoder.java:
+	(CalendarDecoder.decode), (CalendarDecoder.setEventCalendar):
+	* plugins/org.obm.push/src/org/obm/push/data/CalendarEncoder.java:
+	(CalendarEncoder), (CalendarEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/Contact.java:
+	* plugins/org.obm.push/src/org/obm/push/data/ContactEncoder.java:
+	(ContactEncoder), (ContactEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/ContactsDecoder.java:
+	(ContactsDecoder.decode):
+	* plugins/org.obm.push/src/org/obm/push/data/EncoderFactory.java:
+	(EncoderFactory), (EncoderFactory.getEncoder):
+	* plugins/org.obm.push/src/org/obm/push/data/Exception.java:
+	* plugins/org.obm.push/src/org/obm/push/data/IDataEncoder.java:
+	(IDataEncoder):
+	* plugins/org.obm.push/src/org/obm/push/data/IEventCalendar.java:
+	* plugins/org.obm.push/src/org/obm/push/data/MailEncoder.java:
+	(MailEncoder), (MailEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/data/Recurrence.java:
+	* plugins/org.obm.push/src/org/obm/push/data/TaskEncoder.java:
+	(TaskEncoder), (TaskEncoder.encode):
+	* plugins/org.obm.push/src/org/obm/push/impl/PingHandler.java:
+	(PingHandler), (PingHandler.PingHandler), (PingHandler.process),
+	(PingHandler.serializePolicy):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler), (SyncHandler.SyncHandler), (SyncHandler.process),
+	(SyncHandler.serializeChange), (SyncHandler.processModification):
+	* plugins/org.obm.push/src/org/obm/push/state/SyncState.java:
+	(SyncState.SyncState):
+
+2009-03-18  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	Sync response work
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.getDevicePolicy):
+	* plugins/org.obm.push.client/data/CalSyncRequest.xml:
+	* plugins/org.obm.push.client/data/CalSyncRequest2.xml:
+	* plugins/org.obm.push.client/data/EmailSyncRequest.xml:
+	* plugins/org.obm.push.client/data/EmailSyncRequest2.xml:
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/Abstract
+	PushTest.java: (AbstractPushTest.setUp),
+	(AbstractPushTest.createHttpClient):
+	* plugins/org.obm.push.client/src/org/obm/sync/push/client/TestCale
+	ndarSync.java: (TestCalendarSync), (TestCalendarSync.testMailSync):
+	* plugins/org.obm.push/META-INF/MANIFEST.MF:
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.init):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/impl/ProvisionHandler.java:
+	(ProvisionHandler), (ProvisionHandler.ProvisionHandler),
+	(ProvisionHandler.process), (ProvisionHandler.serializePolicy):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler), (SyncHandler.process),
+	(SyncHandler.serializeDeletion), (SyncHandler.serializeChange),
+	(SyncHandler.processCollection), (SyncHandler.processModification):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncStatus.java:
+	* plugins/org.obm.push/src/org/obm/push/provisioning/Policy.java:
+	(Policy):
+	* plugins/org.obm.push/src/org/obm/push/state/SyncState.java:
+	(SyncState), (SyncState.isValid):
+
+2009-02-12  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	finish Sync response
+	
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/TagsTables.java
+	: (TagsTables):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/WBXMLTools.java
+	: (WBXMLTools.toXml):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/parsers/WbxmlPa
+	rser.java: (WbxmlParser.resolveId):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncCollection.java:
+	(SyncCollection), (SyncCollection.getNewSyncKey),
+	(SyncCollection.setNewSyncKey):
+	* plugins/org.obm.push/src/org/obm/push/impl/SyncHandler.java:
+	(SyncHandler.process), (SyncHandler.processCollection),
+	(SyncHandler.getFolderId):
+
+2009-02-10  Thomas Cataldo  <thomas.cataldo@aliasource.fr>
+
+	FolderSync response implementation.
+	
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/Exporter.java: (Exporter), (Exporter.configure),
+	(Exporter.getState):
+	* plugins/org.obm.push.backend.obm22/src/org/obm/push/backend/obm22
+	/OBMBackend.java: (OBMBackend), (OBMBackend.OBMBackend),
+	(OBMBackend.getExporter):
+	* plugins/org.obm.push.wbxml/src/de/trantor/wap/SaxWrapper.java:
+	* plugins/org.obm.push.wbxml/src/de/trantor/wap/WbxmlEncoder.java:
+	(WbxmlEncoder.Handler), (WbxmlEncoder.Handler.startElement),
+	(WbxmlEncoder.Handler.characters),
+	(WbxmlEncoder.Handler.endElement), (WbxmlEncoder),
+	(WbxmlEncoder.WbxmlEncoder), (WbxmlEncoder.convert),
+	(WbxmlEncoder.writeInt), (WbxmlEncoder.writeStrI),
+	(WbxmlEncoder.writeStrT):
+	* plugins/org.obm.push.wbxml/src/de/trantor/wap/WbxmlParser.java:
+	(WbxmlParser), (WbxmlParser.setDocumentHandler),
+	(WbxmlParser.parse), (WbxmlParser.readAttr),
+	(WbxmlParser.readElement):
+	* plugins/org.obm.push.wbxml/src/de/trantor/wap/Wml.java:
+	* plugins/org.obm.push.wbxml/src/de/trantor/wap/WmlParser.java:
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/PushDocumentHan
+	dler.java: (PushDocumentHandler), (PushDocumentHandler.endElement),
+	(PushDocumentHandler.startElement),
+	(PushDocumentHandler.endPrefixMapping),
+	(PushDocumentHandler.ignorableWhitespace),
+	(PushDocumentHandler.processingInstruction),
+	(PushDocumentHandler.setDocumentLocator),
+	(PushDocumentHandler.skippedEntity),
+	(PushDocumentHandler.startDocument),
+	(PushDocumentHandler.startPrefixMapping):
+	* plugins/org.obm.push.wbxml/src/org/obm/push/wbxml/WBXMLTools.java
+	: (WBXMLTools.toWbxml), (WBXMLTools):
+	* plugins/org.obm.push/src/org/obm/push/ActiveSyncServlet.java:
+	(ActiveSyncServlet.processActiveSyncMethod):
+	* plugins/org.obm.push/src/org/obm/push/backend/IBackend.java:
+	(IBackend):
+	* plugins/org.obm.push/src/org/obm/push/backend/IExporter.java:
+	(IExporter):
+	* plugins/org.obm.push/src/org/obm/push/backend/ImportHierarchyChan
+	gesMem.java: (ImportHierarchyChangesMem),
+	(ImportHierarchyChangesMem.getCount),
+	(ImportHierarchyChangesMem.getChanged),
+	(ImportHierarchyChangesMem.getDeleted):
+	* plugins/org.obm.push/src/org/obm/push/impl/FolderSyncHandler.java
+	: (FolderSyncHandler.process), (FolderSyncHandler),
+	(FolderSyncHandler.encode):
+	* plugins/org.obm.push/src/org/obm/push/impl/IRequestHandler.java:
+	(IRequestHandler):
+	* plugins/org.obm.push/src/org/obm/push/impl/Responder.java:
+	(Responder), (Responder.Responder), (Responder.sendResponse):
+	* plugins/org.obm.push/src/org/obm/push/state/StateMachine.java:
+	(StateMachine), (StateMachine.getSyncState),
+	(StateMachine.getNewSyncKey), (StateMachine.setSyncState):
+

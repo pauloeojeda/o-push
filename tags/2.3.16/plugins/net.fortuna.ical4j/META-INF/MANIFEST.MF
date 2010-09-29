@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ical4j
+Bundle-SymbolicName: net.fortuna.ical4j
+Bundle-Version: 1.0.0.rc3
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: lib/ical4j-1.0-rc3.jar,
+ .,
+ lib/backport-util-concurrent-3.1.jar,
+ lib/commons-lang-2.4.jar,
+ lib/commons-logging-1.1.1.jar
+Export-Package: net.fortuna.ical4j.model,
+ net.fortuna.ical4j.model.component,
+ net.fortuna.ical4j.model.parameter,
+ net.fortuna.ical4j.model.property
