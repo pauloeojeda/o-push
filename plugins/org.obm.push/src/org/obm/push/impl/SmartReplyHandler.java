@@ -29,6 +29,6 @@ public class SmartReplyHandler extends MailRequestHandler {
 		String serverId = request.getParameter("ItemId");
 
 		backend.getContentsImporter(null, bs).replyEmail(bs, mailContent,
-				saveInSent, collectionId, serverId);
+				saveInSent, Integer.getInteger(collectionId), serverId);
 	}
 }

@@ -38,7 +38,8 @@ public class ContactsBackend extends ObmSyncBackend {
 		String col = "obm:\\\\" + bs.getLoginAtDomain() + "\\contacts";
 		String serverId;
 		try {
-			serverId = getServerIdFor(bs.getDevId(), col, null);
+			Integer collectionId = getCollectionIdFor(bs.getDevId(), col);
+			serverId = getServerIdFor(collectionId, null);
 		} catch (ActiveSyncException e) {
 			serverId = createCollectionMapping(bs.getDevId(), col);
 			ic.setIsNew(true);
@@ -53,7 +54,7 @@ public class ContactsBackend extends ObmSyncBackend {
 	}
 
 	public DataDelta getContentChanges(BackendSession bs, SyncState state,
-			String collection) {
+			Integer collectionId) {
 		List<ItemChange> addUpd = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 		logger.info("getContentChanges(" + state.getLastSync() + ")");
@@ -67,20 +68,20 @@ public class ContactsBackend extends ObmSyncBackend {
 
 			long time = System.currentTimeMillis();
 			for (Contact c : changes.getUpdated()) {
-				ItemChange change = getContactChange(bs, collection, c);
+				ItemChange change = getContactChange(collectionId, c);
 				addUpd.add(change);
 			}
 			time = System.currentTimeMillis() - time;
 
 			for (Integer del : changes.getRemoved()) {
-				ItemChange change = getDeletion(bs, collection, "" + del);
+				ItemChange change = getDeletion(collectionId, "" + del);
 				deletions.add(change);
 			}
 
 			time = System.currentTimeMillis() - time;
 
 			bs.addUpdatedSyncDate(
-					getCollectionIdFor(bs.getDevId(), collection), changes
+					collectionId, changes
 							.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -90,17 +91,17 @@ public class ContactsBackend extends ObmSyncBackend {
 		return new DataDelta(addUpd, deletions);
 	}
 
-	private ItemChange getContactChange(BackendSession bs, String collection,
+	private ItemChange getContactChange( Integer collectionId,
 			Contact c) throws ActiveSyncException {
 		ItemChange ic = new ItemChange();
-		ic.setServerId(getServerIdFor(bs.getDevId(), collection, ""
+		ic.setServerId(getServerIdFor(collectionId, ""
 				+ c.getUid()));
 		MSContact cal = new ContactConverter().convert(c);
 		ic.setData(cal);
 		return ic;
 	}
 
-	public String createOrUpdate(BackendSession bs, String collectionId,
+	public String createOrUpdate(BackendSession bs, Integer collectionId,
 			String serverId, String clientId, MSContact data)
 			throws ActiveSyncException {
 		logger.info("create in " + collectionId + " (contact: "
@@ -128,7 +129,7 @@ public class ContactsBackend extends ObmSyncBackend {
 		}
 		bc.logout(token);
 
-		return getServerIdFor(bs.getDevId(), collectionId, id);
+		return getServerIdFor(collectionId, id);
 	}
 
 	public void delete(BackendSession bs, String serverId) {

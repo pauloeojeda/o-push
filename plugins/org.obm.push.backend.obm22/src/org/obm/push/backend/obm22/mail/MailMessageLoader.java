@@ -51,6 +51,7 @@ import org.obm.push.backend.MSEmail;
 import org.obm.push.backend.MSEmailBody;
 import org.obm.push.backend.MSEmailBodyType;
 import org.obm.push.backend.MSEvent;
+import org.obm.push.backend.MessageClass;
 import org.obm.push.backend.MethodAttachment;
 import org.obm.push.backend.obm22.calendar.EventConverter;
 import org.obm.sync.auth.AccessToken;
@@ -82,6 +83,8 @@ public class MailMessageLoader {
 
 	private MimeTree tree;
 	private InputStream invitation;
+	private MessageClass messageClass;
+	
 
 	private StoreClient store;
 	private BodySelector bodySelector;
@@ -284,7 +287,7 @@ public class MailMessageLoader {
 
 		if (this.calendarClient != null && invitation != null) {
 			MSEvent event = getInvitation();
-			mm.setInvitation(event);
+			mm.setInvitation(event, this.messageClass);
 		}
 
 		mm.setAttachements(attach);
@@ -397,9 +400,16 @@ public class MailMessageLoader {
 			StoreClient protocol) throws IOException, IMAPException {
 		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 		if (mimePart != null && mimePart.getChildren() != null) {
+			for (MimePart mp : mimePart){
+				MSAttachement msAtt = extractAttachmentData(mp, protocol,
+						mp.isInvitation(), mp.isCancelInvitation());
+				if (msAtt != null) {
+					attach.add(msAtt);
+				}
+			}
 			for (MimePart mp : mimePart.getChildren()){
 				MSAttachement msAtt = extractAttachmentData(mp, protocol,
-						mp.isInvitation());
+						mp.isInvitation(), mp.isCancelInvitation());
 				if (msAtt != null) {
 					attach.add(msAtt);
 				}
@@ -409,7 +419,7 @@ public class MailMessageLoader {
 	}
 
 	private MSAttachement extractAttachmentData(MimePart mp,
-			StoreClient protocol, boolean isInvitation) throws IOException {
+			StoreClient protocol, boolean isInvitation, boolean isCancelInvitation) throws IOException {
 		long uid = tree.getUid();
 		String id = AttachmentHelper.getAttachmentId(collectionId.toString(),
 				"" + messageId, mp.getAddress(), mp.getFullMimeType(),
@@ -422,9 +432,15 @@ public class MailMessageLoader {
 			if (bp != null) {
 				if (bp.containsKey("name") && bp.get("name") != null) {
 
-					if (isInvitation && bp.get("name").contains(".ics")
+					if ((isInvitation || isCancelInvitation) && bp.get("name").contains(".ics")
 							&& data != null) {
 						invitation = new ByteArrayInputStream(data);
+						if(isInvitation){
+							this.messageClass = MessageClass.ScheduleMeetingRequest;
+						} else if(isCancelInvitation){
+							this.messageClass = MessageClass.ScheduleMeetingCanceled;
+						}
+						
 					}
 					MSAttachement att = new MSAttachement();
 					att.setDisplayName(bp.get("name"));
@@ -440,8 +456,13 @@ public class MailMessageLoader {
 					att.setMethod(MethodAttachment.NormalAttachment);
 					att.setEstimatedDataSize(data.length);
 					return att;
-				} else if (isInvitation) {
+				} else if ((isInvitation || isCancelInvitation)) {
 					invitation = new ByteArrayInputStream(data);
+					if(isInvitation){
+						this.messageClass = MessageClass.ScheduleMeetingRequest;
+					} else if(isCancelInvitation){
+						this.messageClass = MessageClass.ScheduleMeetingCanceled;
+					}
 				}
 			}
 		} catch (Exception e) {

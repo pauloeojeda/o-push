@@ -45,7 +45,7 @@ public class EmailMonitoringThread implements IIdleCallback {
 		this.ccls = Collections.synchronizedSet(ccls);
 		this.backend = cb;
 		this.bs = bs;
-		collectionName = backend.getCollectionNameFor(collectionId);
+		collectionName = backend.getCollectionPathFor(collectionId);
 	}
 
 	public void startIdle() throws IMAPException {

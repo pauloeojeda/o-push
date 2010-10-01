@@ -18,7 +18,6 @@ import org.obm.push.backend.MSAttachement;
 import org.obm.push.backend.MSEmailBodyType;
 import org.obm.push.backend.MSEvent;
 import org.obm.push.backend.MSEmail;
-import org.obm.push.backend.MessageClass;
 import org.obm.push.backend.Recurrence;
 import org.obm.push.backend.SyncCollection;
 import org.obm.push.data.calendarenum.RecurrenceDayOfWeek;
@@ -94,14 +93,11 @@ public class EmailEncoder implements IDataEncoder {
 			appendAttachments(parent, mail);
 		}
 
-		// FIXME Disabling meeting request
-		// DOMUtils.createElementAndText(parent, "Email:MessageClass", mail
-		// .getMessageClass().toString());
-		// if (mail.getInvitation() != null) {
-		// appendMeetintRequest(parent, mail);
-		// }
-		DOMUtils.createElementAndText(parent, "Email:MessageClass",
-				MessageClass.Note.toString());
+		DOMUtils.createElementAndText(parent, "Email:MessageClass", mail
+				.getMessageClass().toString());
+		if (mail.getInvitation() != null) {
+			appendMeetintRequest(parent, mail);
+		}
 
 		DOMUtils.createElementAndText(parent, "Email:InternetCPID", "65001");
 	}
@@ -155,14 +151,13 @@ public class EmailEncoder implements IDataEncoder {
 			DOMUtils.createElementAndText(elemBody, "AirSyncBase:Data", data);
 		}
 
-		// FIXME Disabling meeting request
-		// if (mail.getInvitation() != null) {
-		// DOMUtils.createElementAndText(parent, "Email:ContentClass",
-		// "urn:content-classes:calendarmessage");
-		// } else {
-		DOMUtils.createElementAndText(parent, "Email:ContentClass",
-				"urn:content-classes:message");
-		// }
+		if (mail.getInvitation() != null) {
+			DOMUtils.createElementAndText(parent, "Email:ContentClass",
+					"urn:content-classes:calendarmessage");
+		} else {
+			DOMUtils.createElementAndText(parent, "Email:ContentClass",
+					"urn:content-classes:message");
+		}
 
 		DOMUtils.createElementAndText(parent, "AirSyncBase:NativeBodyType",
 				availableFormat.asIntString());
@@ -351,7 +346,6 @@ public class EmailEncoder implements IDataEncoder {
 
 			Set<MSAttachement> mailAtts = email.getAttachements();
 			for (MSAttachement msAtt : mailAtts) {
-				// FIXME Disabling meeting request remove if
 				if (msAtt.getDisplayName() != null
 						&& !msAtt.getDisplayName().endsWith(".ics")) {
 					Element att = DOMUtils.createElement(atts,
@@ -376,7 +370,6 @@ public class EmailEncoder implements IDataEncoder {
 			Element atts = DOMUtils.createElement(parent, "Email:Attachments");
 
 			Set<MSAttachement> mailAtts = email.getAttachements();
-			// FIXME Disabling meeting request remove if
 			for (MSAttachement msAtt : mailAtts) {
 				if (msAtt.getDisplayName() != null
 						&& !msAtt.getDisplayName().endsWith(".ics")) {

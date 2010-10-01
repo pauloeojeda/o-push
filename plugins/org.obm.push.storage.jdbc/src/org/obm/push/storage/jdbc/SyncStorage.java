@@ -1,12 +1,18 @@
 package org.obm.push.storage.jdbc;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -20,6 +26,7 @@ import org.obm.push.backend.PIMDataType;
 import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
+import org.obm.push.store.InvitationStatus;
 
 import fr.aliasource.utils.IniFile;
 import fr.aliasource.utils.JDBCUtils;
@@ -387,7 +394,8 @@ public class SyncStorage implements ISyncStorage {
 			JDBCUtils.cleanup(con, ps, rs);
 		}
 		if (ret == null) {
-			throw new CollectionNotFoundException();
+			throw new CollectionNotFoundException("Collection with id["
+					+ collectionId + "] can not be found.");
 		}
 		return ret;
 	}
@@ -437,12 +445,17 @@ public class SyncStorage implements ISyncStorage {
 	@Override
 	public synchronized void resetForFullSync(String devId) {
 		int id = devIdCache.get(devId);
-
 		Connection con = null;
 		PreparedStatement ps = null;
-
+		UserTransaction ut = getUserTransaction();
 		try {
+			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("DELETE FROM opush_folder_mapping WHERE device_id=?");
+			ps.setInt(1, id);
+			ps.executeUpdate();
+
 			ps = con
 					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=?");
 			ps.setInt(1, id);
@@ -453,9 +466,11 @@ public class SyncStorage implements ISyncStorage {
 			ps.setInt(1, id);
 			ps.executeUpdate();
 
+			ut.commit();
 			logger.warn("mappings & states cleared for full sync of device "
 					+ devId);
 		} catch (Throwable e) {
+			JDBCUtils.rollback(ut);
 			logger.error(e.getMessage(), e);
 		} finally {
 			JDBCUtils.cleanup(con, ps, null);
@@ -524,4 +539,450 @@ public class SyncStorage implements ISyncStorage {
 		return ret;
 	}
 
+	@Override
+	public Boolean isMostRecentInvitation(Integer eventCollectionId,
+			String eventUid, Date dtStamp) {
+		Boolean ret = true;
+		String calQuery = "SELECT mail_uid"
+				+ " FROM opush_invitation_mapping WHERE event_collection_id=? AND event_uid=? AND dtstamp > ?";
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con.prepareStatement(calQuery);
+			ps.setInt(1, eventCollectionId);
+			ps.setString(2, eventUid);
+			ps.setTimestamp(3, new Timestamp(dtStamp.getTime()));
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				logger.info(rs.getLong("mail_uid"));
+				ret = false;
+			}
+		} catch (Throwable se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, rs);
+		}
+		return ret;
+	}
+
+	@Override
+	public void markToDeletedSyncedInvitation(Integer eventCollectionId,
+			String eventUid) {
+		Connection con = null;
+		PreparedStatement ps = null;
+		UserTransaction ut = getUserTransaction();
+		try {
+			ut.begin();
+			con = OBMPoolActivator.getDefault().getConnection();
+			String up = "UPDATE opush_invitation_mapping SET status=?, dtstamp=dtstamp WHERE event_collection_id=? AND event_uid=? AND status=?";
+			ps = con.prepareStatement(up);
+			ps.setString(1, InvitationStatus.EMAIL_TO_DELETED.toString());
+			ps.setInt(2, eventCollectionId);
+			ps.setString(3, eventUid);
+			ps.setString(4, InvitationStatus.EMAIL_SYNCED.toString());
+			ps.executeUpdate();
+
+			ps = con.prepareStatement(up);
+			ps.setString(1, InvitationStatus.EVENT_TO_DELETED.toString());
+			ps.setInt(2, eventCollectionId);
+			ps.setString(3, eventUid);
+			ps.setString(4, InvitationStatus.EVENT_SYNCED.toString());
+			ps.executeUpdate();
+
+			ut.commit();
+		} catch (Throwable se) {
+			JDBCUtils.rollback(ut);
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+	}
+
+	@Override
+	public Boolean haveEmailToDeleted(Integer eventCollectionId, String eventUid) {
+		return haveInvitationToDeleted(eventCollectionId, eventUid,
+				InvitationStatus.EMAIL_TO_DELETED);
+	}
+
+	@Override
+	public Boolean haveEventToDeleted(Integer eventCollectionId, String eventUid) {
+		return haveInvitationToDeleted(eventCollectionId, eventUid,
+				InvitationStatus.EVENT_TO_DELETED);
+	}
+
+	private Boolean haveInvitationToDeleted(Integer eventCollectionId,
+			String eventUid, InvitationStatus status) {
+		Boolean ret = false;
+		String calQuery = "SELECT status"
+				+ " FROM opush_invitation_mapping WHERE event_collection_id=? AND event_uid=? AND status=?";
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con.prepareStatement(calQuery);
+			int i = 1;
+			ps.setInt(i++, eventCollectionId);
+			ps.setString(i++, eventUid);
+			ps.setString(i++, status.toString());
+
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				ret = true;
+			}
+		} catch (Throwable se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, rs);
+		}
+		return ret;
+	}
+
+	public void createOrUpdateInvitation(Integer eventCollectionId,
+			String eventUid, Date dtStamp, InvitationStatus status,
+			String syncKey) {
+		this.createOrUpdateInvitation(eventCollectionId, eventUid, null, null,
+				dtStamp, status, syncKey);
+	}
+
+	public void createOrUpdateInvitation(Integer eventCollectionId,
+			String eventUid, Integer emailCollectionId, Long emailUid,
+			Date dtStamp, InvitationStatus status, String syncKey) {
+		String calQuery = "SELECT status"
+				+ " FROM opush_invitation_mapping WHERE event_collection_id=? AND event_uid=? AND mail_uid=? AND mail_collection_id=?";
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con.prepareStatement(calQuery);
+			int i = 1;
+			ps.setInt(i++, eventCollectionId);
+			ps.setString(i++, eventUid);
+
+			if (emailUid != null) {
+				ps.setLong(i++, emailUid);
+			} else {
+				ps.setNull(i++, Types.INTEGER);
+			}
+
+			if (emailCollectionId != null) {
+				ps.setInt(i++, emailCollectionId);
+			} else {
+				ps.setNull(i++, Types.INTEGER);
+			}
+
+			rs = ps.executeQuery();
+			if (rs.next()) {
+				updateSyncedInvitation(con, eventCollectionId, eventUid,
+						emailCollectionId, emailUid, dtStamp, status, syncKey);
+			} else {
+				createInvitation(con, eventCollectionId, eventUid,
+						emailCollectionId, emailUid, dtStamp, status, syncKey);
+			}
+		} catch (Throwable se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, rs);
+		}
+	}
+
+	private void updateSyncedInvitation(Connection con,
+			Integer eventCollectionId, String eventUid,
+			Integer emailCollectionId, Long emailUid, Date dtStamp,
+			InvitationStatus status, String synkKey) {
+		PreparedStatement ps = null;
+		UserTransaction ut = getUserTransaction();
+		try {
+			ut.begin();
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("UPDATE opush_invitation_mapping SET status=?, dtstamp=?, sync_key=? WHERE event_collection_id=? AND event_uid=? AND mail_collection_id=? AND mail_uid=? ");
+			ps.setString(1, status.toString());
+			ps.setTimestamp(2, new Timestamp(dtStamp.getTime()));
+			ps.setString(3, synkKey);
+			ps.setInt(4, eventCollectionId);
+			ps.setString(5, eventUid);
+			if (emailCollectionId != null) {
+				ps.setInt(6, emailCollectionId);
+			} else {
+				ps.setNull(6, Types.INTEGER);
+			}
+			if (emailUid != null) {
+				ps.setLong(7, emailUid);
+			} else {
+				ps.setNull(7, Types.INTEGER);
+			}
+
+			ps.execute();
+			ut.commit();
+		} catch (Throwable se) {
+			try {
+				ut.rollback();
+			} catch (Exception e) {
+				logger.error("Error while rolling-back", e);
+			}
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(null, ps, null);
+		}
+	}
+
+	private void createInvitation(Connection con, Integer eventCollectionId,
+			String eventUid, Integer emailCollectionId, Long emailUid,
+			Date dtStamp, InvitationStatus status, String syncKey)
+			throws SQLException {
+		PreparedStatement ps = null;
+		try {
+
+			ps = con
+					.prepareStatement("INSERT into opush_invitation_mapping (mail_collection_id, mail_uid, event_collection_id, event_uid, dtstamp, status, sync_key) VALUES (?,?,?,?,?,?,?)");
+			int i = 1;
+			if (emailCollectionId != null) {
+				ps.setInt(i++, emailCollectionId);
+			} else {
+				ps.setNull(i++, Types.INTEGER);
+			}
+			if (emailUid != null) {
+				ps.setLong(i++, emailUid);
+			} else {
+				ps.setNull(i++, Types.INTEGER);
+			}
+
+			ps.setInt(i++, eventCollectionId);
+			ps.setString(i++, eventUid);
+
+			ps.setTimestamp(i++, new Timestamp(dtStamp.getTime()));
+
+			ps.setString(i++, status.toString());
+			ps.setString(i++, syncKey);
+			ps.execute();
+		} finally {
+			JDBCUtils.cleanup(null, ps, null);
+		}
+	}
+
+	@Override
+	public void updateInvitationStatus(InvitationStatus status, String syncKey,
+			Integer eventCollectionId, Integer emailCollectionId,
+			Long... emailUids) {
+		if (emailUids != null && emailUids.length > 0) {
+			Connection con = null;
+			PreparedStatement ps = null;
+			UserTransaction ut = getUserTransaction();
+			String uids = buildEmailUid(emailUids);
+			try {
+				ut.begin();
+				con = OBMPoolActivator.getDefault().getConnection();
+				ps = con
+						.prepareStatement("UPDATE opush_invitation_mapping SET status=?, sync_key=?, dtstamp=dtstamp WHERE event_collection_id=? AND mail_collection_id=? AND mail_uid IN ("
+								+ uids + ")");
+				ps.setString(1, status.toString());
+				ps.setString(2, syncKey);
+				ps.setInt(3, eventCollectionId);
+				ps.setInt(4, emailCollectionId);
+				ps.execute();
+				ut.commit();
+			} catch (Throwable se) {
+				try {
+					ut.rollback();
+				} catch (Exception e) {
+					logger.error("Error while rolling-back", e);
+				}
+				logger.error(se.getMessage(), se);
+			} finally {
+				JDBCUtils.cleanup(con, ps, null);
+			}
+		}
+	}
+
+	@Override
+	public void updateInvitationStatus(InvitationStatus status, String syncKey,
+			Integer eventCollectionId, String... eventUids) {
+		if (eventUids != null && eventUids.length > 0) {
+			Connection con = null;
+			PreparedStatement ps = null;
+			UserTransaction ut = getUserTransaction();
+			String uids = buildEventUid(eventUids);
+			try {
+				ut.begin();
+				con = OBMPoolActivator.getDefault().getConnection();
+				ps = con
+						.prepareStatement("UPDATE opush_invitation_mapping SET status=?, sync_key=?, dtstamp=dtstamp WHERE ( status=? OR status=? ) AND event_collection_id=? AND event_uid IN ("
+								+ uids + ")");
+				ps.setString(1, status.toString());
+				ps.setString(2, syncKey);
+				ps.setString(3, InvitationStatus.EVENT_TO_SYNCED.toString());
+				ps.setString(4, InvitationStatus.EVENT_TO_DELETED.toString());
+				ps.setInt(5, eventCollectionId);
+				ps.execute();
+				ut.commit();
+			} catch (Throwable se) {
+				try {
+					ut.rollback();
+				} catch (Exception e) {
+					logger.error("Error while rolling-back", e);
+				}
+				logger.error(se.getMessage(), se);
+			} finally {
+				JDBCUtils.cleanup(con, ps, null);
+			}
+		}
+	}
+
+	@Override
+	public List<Long> getEmailToSynced(Integer emailCollectionId, String syncKey) {
+		return getEmail(emailCollectionId, syncKey,
+				InvitationStatus.EMAIL_SYNCED, InvitationStatus.EMAIL_TO_SYNCED);
+	}
+
+	@Override
+	public List<Long> getEmailToDeleted(Integer emailCollectionId,
+			String syncKey) {
+		return getEmail(emailCollectionId, syncKey, InvitationStatus.DELETED,
+				InvitationStatus.EMAIL_TO_DELETED);
+	}
+
+	private List<Long> getEmail(Integer emailCollectionId, String syncKey,
+			InvitationStatus status, InvitationStatus statusAction) {
+		List<Long> ret = new ArrayList<Long>();
+		String calQuery = "SELECT mail_uid"
+				+ " FROM opush_invitation_mapping WHERE mail_collection_id=? AND status=? OR ( sync_key=? AND status=? )";
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con.prepareStatement(calQuery);
+			ps.setInt(1, emailCollectionId);
+			ps.setString(2, statusAction.toString());
+			ps.setString(3, syncKey);
+			ps.setString(4, status.toString());
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				ret.add(rs.getLong("mail_uid"));
+			}
+		} catch (Throwable se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, rs);
+		}
+		return ret;
+	}
+
+	@Override
+	public List<String> getEventToSynced(Integer eventCollectionId,
+			String syncKey) {
+		return getEvent(eventCollectionId, syncKey,
+				InvitationStatus.EVENT_SYNCED, InvitationStatus.EVENT_TO_SYNCED);
+	}
+
+	@Override
+	public List<String> getEventToDeleted(Integer eventCollectionId,
+			String syncKey) {
+		return getEvent(eventCollectionId, syncKey, InvitationStatus.DELETED,
+				InvitationStatus.EVENT_TO_DELETED);
+	}
+
+	private List<String> getEvent(Integer eventCollectionId, String syncKey,
+			InvitationStatus status, InvitationStatus statusAction) {
+		List<String> ret = new ArrayList<String>();
+		String calQuery = "SELECT event_uid"
+				+ " FROM opush_invitation_mapping WHERE event_collection_id=? AND status=? OR ( sync_key=? AND status=? )";
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con.prepareStatement(calQuery);
+			ps.setInt(1, eventCollectionId);
+			ps.setString(2, statusAction.toString());
+			ps.setString(3, syncKey);
+			ps.setString(4, status.toString());
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				ret.add("" + rs.getInt("event_uid"));
+			}
+		} catch (Throwable se) {
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, rs);
+		}
+		return ret;
+	}
+
+	private String buildEmailUid(Long[] emailUids) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("0");
+		for (Long l : emailUids) {
+			sb.append(",");
+			sb.append(l);
+		}
+		return sb.toString();
+	}
+
+	private String buildEventUid(String[] eventUids) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("'0'");
+		for (String s : eventUids) {
+			sb.append(",");
+			sb.append("'");
+			sb.append(s);
+			sb.append("'");
+		}
+		return sb.toString();
+	}
+
+	public Object getJdbcObject(String value, String type) {
+		if ("PGSQL".equals(type)) {
+			try {
+				Object o = Class.forName("org.postgresql.util.PGobject")
+						.newInstance();
+				Method setType = o.getClass()
+						.getMethod("setType", String.class);
+				Method setValue = o.getClass().getMethod("setValue",
+						String.class);
+
+				setType.invoke(o, "vpartstat");
+				setValue.invoke(o, toString());
+				return o;
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+			return null;
+		} else {
+			return value;
+		}
+	}
+
+	@Override
+	public void removeInvitationStatus(Integer eventCollectionId,
+			Integer emailCollectionId, Long emailUid) {
+		Connection con = null;
+		PreparedStatement ps = null;
+		UserTransaction ut = getUserTransaction();
+		try {
+			ut.begin();
+			con = OBMPoolActivator.getDefault().getConnection();
+			ps = con
+					.prepareStatement("DELETE FROM opush_invitation_mapping "
+							+ "WHERE event_collection_id=? AND mail_collection_id=? AND mail_uid=?");
+			ps.setInt(1, eventCollectionId);
+			ps.setInt(2, emailCollectionId);
+			ps.setLong(3, emailUid);
+			ps.execute();
+			ut.commit();
+		} catch (Throwable se) {
+			try {
+				ut.rollback();
+			} catch (Exception e) {
+				logger.error("Error while rolling-back", e);
+			}
+			logger.error(se.getMessage(), se);
+		} finally {
+			JDBCUtils.cleanup(con, ps, null);
+		}
+	}
 }

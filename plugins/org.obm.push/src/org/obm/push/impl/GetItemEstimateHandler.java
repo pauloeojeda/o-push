@@ -9,6 +9,7 @@ import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContentsExporter;
 import org.obm.push.backend.IContinuation;
 import org.obm.push.backend.SyncCollection;
+import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.CollectionNotFoundException;
 import org.obm.push.state.StateMachine;
 import org.obm.push.state.SyncState;
@@ -60,11 +61,9 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 
 		for (SyncCollection c : cols) {
 			Element response = DOMUtils.createElement(root, "Response");
-			String collectionId = null;
-			int col = -1;
+			Integer collectionId = -1;
 			try {
-				col = c.getCollectionId();
-				collectionId = backend.getStore().getCollectionPath(col);
+				collectionId = c.getCollectionId();
 				if (collectionId != null) {
 					SyncState state = sm.getSyncState(c.getCollectionId(), c
 							.getSyncKey());
@@ -100,6 +99,9 @@ public class GetItemEstimateHandler extends WbxmlRequestHandler {
 
 				}
 			} catch (CollectionNotFoundException e) {
+				buildError(response, c.getCollectionId().toString(),
+						GetItemEstimateStatus.INVALID_COLLECTION);
+			} catch (ActiveSyncException e) {
 				buildError(response, c.getCollectionId().toString(),
 						GetItemEstimateStatus.INVALID_COLLECTION);
 			}
