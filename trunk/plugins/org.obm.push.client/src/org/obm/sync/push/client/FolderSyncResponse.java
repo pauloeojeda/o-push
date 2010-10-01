@@ -1,13 +1,13 @@
 package org.obm.sync.push.client;
 
-import java.util.List;
+import java.util.Map;
 
 public class FolderSyncResponse implements IEasReponse {
 
 	private FolderHierarchy fl;
 	private String key;
 
-	public FolderSyncResponse(String key, List<Folder> fl) {
+	public FolderSyncResponse(String key, Map<FolderType, Folder> fl) {
 		this.fl = new FolderHierarchy(fl);
 		this.key = key;
 	}

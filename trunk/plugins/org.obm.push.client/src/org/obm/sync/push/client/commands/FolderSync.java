@@ -1,12 +1,13 @@
 package org.obm.sync.push.client.commands;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.obm.push.utils.DOMUtils;
 import org.obm.sync.push.client.AccountInfos;
 import org.obm.sync.push.client.Folder;
 import org.obm.sync.push.client.FolderSyncResponse;
+import org.obm.sync.push.client.FolderType;
 import org.obm.sync.push.client.OPClient;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -37,7 +38,7 @@ public class FolderSync extends TemplateBasedCommand<FolderSyncResponse> {
 	protected FolderSyncResponse parseResponse(Element root) {
 		String key = DOMUtils.getElementText(root, "SyncKey");
 		int count = Integer.parseInt(DOMUtils.getElementText(root, "Count"));
-		List<Folder> ret = new ArrayList<Folder>(count + 1);
+		Map<FolderType, Folder> ret = new HashMap<FolderType, Folder>(count + 1);
 
 		// TODO process updates / deletions
 		NodeList nl = root.getElementsByTagName("Add");
@@ -47,8 +48,8 @@ public class FolderSync extends TemplateBasedCommand<FolderSyncResponse> {
 			f.setServerId(DOMUtils.getElementText(e, "ServerId"));
 			f.setParentId(DOMUtils.getElementText(e, "ParentId"));
 			f.setName(DOMUtils.getElementText(e, "DisplayName"));
-			f.setType(Integer.parseInt(DOMUtils.getElementText(e, "Type")));
-			ret.add(f);
+			f.setType(FolderType.getValue(Integer.parseInt(DOMUtils.getElementText(e, "Type"))));
+			ret.put(f.getType(), f);
 		}
 
 		return new FolderSyncResponse(key, ret);

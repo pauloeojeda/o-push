@@ -20,6 +20,7 @@ import org.obm.push.utils.DOMUtils;
 import org.obm.push.utils.FileUtils;
 import org.obm.push.wbxml.WBXMLTools;
 import org.obm.sync.push.client.commands.FolderSync;
+import org.obm.sync.push.client.commands.Sync;
 import org.obm.sync.push.client.commands.Options;
 import org.w3c.dom.Document;
 
@@ -71,6 +72,14 @@ public class OPClient {
 	
 	public FolderSyncResponse folderSync(String key) throws Exception {
 		return run(new FolderSync(key));
+	}
+	
+	public SyncResponse initialSync(Folder[] folders) throws Exception {
+		return run(new Sync(folders));
+	}
+	
+	public SyncResponse sync(Document doc) throws Exception {
+		return run(new Sync(doc));
 	}
 
 	public Document postXml(String namespace, Document doc, String cmd)
@@ -240,4 +249,5 @@ public class OPClient {
 	public void setProtocolVersion(ProtocolVersion protocolVersion) {
 		this.protocolVersion = protocolVersion;
 	}
+
 }

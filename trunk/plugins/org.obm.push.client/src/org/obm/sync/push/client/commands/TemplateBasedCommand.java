@@ -15,11 +15,13 @@ import org.w3c.dom.Element;
 public abstract class TemplateBasedCommand<T> implements IEasCommand<T> {
 
 	protected Document tpl;
+	protected Boolean fromTemplate;
 	protected Log logger = LogFactory.getLog(getClass());
 	private String namespace;
 	private String cmd;
 
 	protected TemplateBasedCommand(NS namespace, String cmd, String templateName) {
+		this.fromTemplate = true;
 		this.namespace = namespace.toString();
 		this.cmd = cmd;
 		InputStream in = loadDataFile(templateName);
@@ -27,17 +29,25 @@ public abstract class TemplateBasedCommand<T> implements IEasCommand<T> {
 			try {
 				this.tpl = DOMUtils.parse(in);
 			} catch (Exception e) {
-				logger.error("error loading template "+templateName, e);
+				logger.error("error loading template " + templateName, e);
 			}
 		} else {
-			logger.error("template "+templateName+" not found.");
+			logger.error("template " + templateName + " not found.");
 		}
 	}
 
+	protected TemplateBasedCommand(NS namespace, String cmd, Document document) {
+		this.fromTemplate = false;
+		this.namespace = namespace.toString();
+		this.cmd = cmd;
+		this.tpl = document;
+	}
+
 	@Override
-	public T run(AccountInfos ai, OPClient opc, HttpClient hc)
-			throws Exception {
-		customizeTemplate(ai, opc);
+	public T run(AccountInfos ai, OPClient opc, HttpClient hc) throws Exception {
+		if (fromTemplate) {
+			customizeTemplate(ai, opc);
+		}
 		Document response = opc.postXml(namespace, tpl, cmd);
 		T ret = parseResponse(response.getDocumentElement());
 		return ret;

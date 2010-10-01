@@ -5,7 +5,7 @@ public class Folder {
 	private String serverId;
 	private String parentId;
 	private String name;
-	private int type;
+	private FolderType type;
 	
 	public String getServerId() {
 		return serverId;
@@ -25,10 +25,10 @@ public class Folder {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public int getType() {
+	public FolderType getType() {
 		return type;
 	}
-	public void setType(int type) {
+	public void setType(FolderType type) {
 		this.type = type;
 	}
 	

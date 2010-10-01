@@ -1,118 +1,77 @@
 package org.obm.sync.push.client;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-public class FolderHierarchy implements List<Folder> {
+public class FolderHierarchy implements Map<FolderType, Folder> {
 
-	private List<Folder> folders;
+	private Map<FolderType, Folder> folders;
 
-	public FolderHierarchy(List<Folder> folders) {
-		this.folders = new ArrayList<Folder>(folders.size()+1);
-		this.folders.addAll(folders);
+	public FolderHierarchy(Map<FolderType, Folder> folders) {
+		this.folders = new HashMap<FolderType, Folder>(folders.size()+1);
+		this.folders.putAll(folders);
 	}
 
-	public int size() {
-		return folders.size();
-	}
-
-	public boolean isEmpty() {
-		return folders.isEmpty();
-	}
-
-	public boolean contains(Object o) {
-		return folders.contains(o);
-	}
-
-	public Iterator<Folder> iterator() {
-		return folders.iterator();
-	}
-
-	public Object[] toArray() {
-		return folders.toArray();
-	}
-
-	public <T> T[] toArray(T[] a) {
-		return folders.toArray(a);
-	}
-
-	public boolean add(Folder e) {
-		return folders.add(e);
-	}
-
-	public boolean remove(Object o) {
-		return folders.remove(o);
-	}
-
-	public boolean containsAll(Collection<?> c) {
-		return folders.containsAll(c);
-	}
-
-	public boolean addAll(Collection<? extends Folder> c) {
-		return folders.addAll(c);
-	}
-
-	public boolean addAll(int index, Collection<? extends Folder> c) {
-		return folders.addAll(index, c);
-	}
-
-	public boolean removeAll(Collection<?> c) {
-		return folders.removeAll(c);
-	}
-
-	public boolean retainAll(Collection<?> c) {
-		return folders.retainAll(c);
-	}
-
+	@Override
 	public void clear() {
 		folders.clear();
 	}
 
-	public boolean equals(Object o) {
-		return folders.equals(o);
+	@Override
+	public boolean containsKey(Object key) {
+		return folders.containsKey(key);
 	}
 
-	public int hashCode() {
-		return folders.hashCode();
+	@Override
+	public boolean containsValue(Object value) {
+		return folders.containsValue(value);
 	}
 
-	public Folder get(int index) {
-		return folders.get(index);
+	@Override
+	public Set<java.util.Map.Entry<FolderType, Folder>> entrySet() {
+		return folders.entrySet();
 	}
 
-	public Folder set(int index, Folder element) {
-		return folders.set(index, element);
+	@Override
+	public Folder get(Object key) {
+		return folders.get(key);
 	}
 
-	public void add(int index, Folder element) {
-		folders.add(index, element);
+	@Override
+	public boolean isEmpty() {
+		return folders.isEmpty();
 	}
 
-	public Folder remove(int index) {
-		return folders.remove(index);
+	@Override
+	public Set<FolderType> keySet() {
+		return folders.keySet();
 	}
 
-	public int indexOf(Object o) {
-		return folders.indexOf(o);
+	@Override
+	public Folder put(FolderType key, Folder value) {
+		return folders.put(key, value);
 	}
 
-	public int lastIndexOf(Object o) {
-		return folders.lastIndexOf(o);
+	@Override
+	public void putAll(Map<? extends FolderType, ? extends Folder> m) {
+		folders.putAll(m);
 	}
 
-	public ListIterator<Folder> listIterator() {
-		return folders.listIterator();
+	@Override
+	public Folder remove(Object key) {
+		return folders.remove(key);
 	}
 
-	public ListIterator<Folder> listIterator(int index) {
-		return folders.listIterator(index);
+	@Override
+	public int size() {
+		return folders.size();
 	}
 
-	public List<Folder> subList(int fromIndex, int toIndex) {
-		return folders.subList(fromIndex, toIndex);
+	@Override
+	public Collection<Folder> values() {
+		return folders.values();
 	}
 
 }
