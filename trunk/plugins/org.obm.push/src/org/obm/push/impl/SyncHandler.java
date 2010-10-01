@@ -207,11 +207,10 @@ public class SyncHandler extends WbxmlRequestHandler implements
 	private void doUpdates(BackendSession bs, SyncCollection c, Element ce,
 			IContentsExporter cex, Map<String, String> processedClientIds)
 			throws ActiveSyncException {
-		String col = backend.getStore().getCollectionPath(c.getCollectionId());
 		DataDelta delta = null;
 		if (bs.getUnSynchronizedItemChange(c.getCollectionId()).size() == 0) {
 			delta = cex
-					.getChanged(bs, c.getSyncState(), c.getFilterType(), col);
+					.getChanged(bs, c.getSyncState(), c.getFilterType(), c.getCollectionId());
 		}
 		List<ItemChange> changed = processWindowSize(c, delta, bs,
 				processedClientIds);
@@ -516,8 +515,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			SyncCollection collection, IContentsImporter importer,
 			Element modification, Map<String, String> processedClientIds)
 			throws ActiveSyncException {
-		int col = collection.getCollectionId();
-		String collectionId = backend.getStore().getCollectionPath(col);
+		Integer collectionId = collection.getCollectionId();
+		String collectionPath = backend.getStore().getCollectionPath(collectionId);
 		String modType = modification.getNodeName();
 		logger.info("modType: " + modType);
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
@@ -525,7 +524,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 
 		Element syncData = DOMUtils.getUniqueElement(modification,
 				"ApplicationData");
-		PIMDataType dataClass = backend.getStore().getDataClass(collectionId);
+		PIMDataType dataClass = backend.getStore().getDataClass(collectionPath);
 		IDataDecoder dd = getDecoder(dataClass);
 		IApplicationData data = null;
 		if (dd != null) {
@@ -548,7 +547,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					processedClientIds.put(obmId, null);
 				}
 			} else if (modType.equals("Delete")) {
-				importer.importMessageDeletion(bs, dataClass, collectionId,
+				importer.importMessageDeletion(bs, dataClass, collectionPath,
 						serverId, collection.isDeletesAsMoves());
 			}
 		} else {

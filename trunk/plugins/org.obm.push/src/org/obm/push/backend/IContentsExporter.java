@@ -16,10 +16,10 @@ import org.obm.push.state.SyncState;
 public interface IContentsExporter {
 
 	DataDelta getChanged(BackendSession bs, SyncState state,
-			FilterType filterType, String collectionId);
+			FilterType filterType, Integer collectionId) throws ActiveSyncException ;
 
 	int getCount(BackendSession bs, SyncState state, FilterType filterType,
-			String collectionId);
+			Integer collectionId) throws ActiveSyncException;
 
 	List<ItemChange> fetch(BackendSession bs, PIMDataType getDataType,
 			List<String> fetchIds) throws ActiveSyncException;

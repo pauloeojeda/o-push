@@ -181,9 +181,11 @@ public class MSEmail implements IApplicationData {
 		return invitation;
 	}
 
-	public void setInvitation(MSEvent invitation) {
+	public void setInvitation(MSEvent invitation, MessageClass messageClass) {
 		this.invitation = invitation;
-		if(this.invitation != null){
+		if(messageClass != null){
+			this.messageClass = messageClass;
+		} else {
 			this.messageClass = MessageClass.ScheduleMeetingRequest;
 		}
 	}

@@ -29,8 +29,6 @@ public class ContentsExporter implements IContentsExporter {
 	private CalendarBackend calBackend;
 	private ContactsBackend contactsBackend;
 
-	// private TasksBackend tasksBackend;
-
 	public ContentsExporter(MailBackend mailBackend,
 			CalendarBackend calendarExporter, ContactsBackend contactsBackend) {
 		super();
@@ -51,10 +49,14 @@ public class ContentsExporter implements IContentsExporter {
 
 			switch (filterType) {
 			case ONE_DAY_BACK:
-				cal.set(Calendar.DAY_OF_YEAR, cal.get(Calendar.DAY_OF_YEAR) - 1);
+				cal
+						.set(Calendar.DAY_OF_YEAR, cal
+								.get(Calendar.DAY_OF_YEAR) - 1);
 				break;
 			case THREE_DAYS_BACK:
-				cal.set(Calendar.DAY_OF_YEAR, cal.get(Calendar.DAY_OF_YEAR) - 3);
+				cal
+						.set(Calendar.DAY_OF_YEAR, cal
+								.get(Calendar.DAY_OF_YEAR) - 3);
 				break;
 			case ONE_WEEK_BACK:
 				cal.set(Calendar.WEEK_OF_YEAR,
@@ -88,28 +90,37 @@ public class ContentsExporter implements IContentsExporter {
 	}
 
 	private DataDelta getContactsChanges(BackendSession bs, SyncState state,
-			String collectionId) {
+			Integer collectionId) {
 		return contactsBackend.getContentChanges(bs, state, collectionId);
 	}
 
 	private DataDelta getTasksChanges(BackendSession bs, SyncState state,
-			String collectionId) {
+			Integer collectionId) throws ActiveSyncException {
 		return this.calBackend.getContentChanges(bs, state, collectionId);
 	}
 
 	private DataDelta getCalendarChanges(BackendSession bs, SyncState state,
-			String collectionId) {
+			Integer collectionId) throws ActiveSyncException {
 		return calBackend.getContentChanges(bs, state, collectionId);
 	}
 
 	private DataDelta getMailChanges(BackendSession bs, SyncState state,
-			String collectionId) {
+			Integer collectionId) throws ActiveSyncException {
 		return mailBackend.getContentChanges(bs, state, collectionId);
 	}
-
+	
+	@Override
+	public int getCount(BackendSession bs, SyncState state,
+			FilterType filterType, Integer collectionId)
+			throws ActiveSyncException {
+		DataDelta dd = getChanged(bs, state, filterType, collectionId);
+		return dd.getChanges().size() + dd.getDeletions().size();
+	}
+	
 	@Override
 	public DataDelta getChanged(BackendSession bs, SyncState state,
-			FilterType filterType, String collectionId) {
+			FilterType filterType, Integer collectionId)
+			throws ActiveSyncException {
 		DataDelta delta = null;
 		switch (state.getDataType()) {
 		case CALENDAR:
@@ -128,17 +139,10 @@ public class ContentsExporter implements IContentsExporter {
 			break;
 		}
 		logger.info("Get changed from " + state.getLastSync()
-				+ " on collectionId[" + collectionId + "]");
+				+ " on collectionPath[" + collectionId + "]");
 		return delta;
 	}
-
-	@Override
-	public int getCount(BackendSession bs, SyncState state,
-			FilterType filterType, String collectionId) {
-		DataDelta dd = getChanged(bs, state, filterType, collectionId);
-		return dd.getChanges().size() + dd.getDeletions().size();
-	}
-
+	
 	@Override
 	public List<ItemChange> fetch(BackendSession bs, PIMDataType getDataType,
 			List<String> fetchServerIds) throws ActiveSyncException {

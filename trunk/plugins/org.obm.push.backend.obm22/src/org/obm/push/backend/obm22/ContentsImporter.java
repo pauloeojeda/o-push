@@ -42,14 +42,13 @@ public class ContentsImporter implements IContentsImporter {
 	}
 
 	@Override
-	public String importMessageChange(BackendSession bs, String collectionId,
+	public String importMessageChange(BackendSession bs, Integer collectionId,
 			String serverId, String clientId, IApplicationData data)
 			throws ActiveSyncException {
 		String id = null;
 		switch (data.getType()) {
 		case CALENDAR:
-			id = calBackend.createOrUpdate(bs, collectionId, serverId,
-					clientId, data);
+			id = calBackend.createOrUpdate(bs, collectionId, serverId, data);
 			break;
 		case CONTACTS:
 			id = contactBackend.createOrUpdate(bs, collectionId, serverId,
@@ -60,8 +59,7 @@ public class ContentsImporter implements IContentsImporter {
 					clientId, (MSEmail) data);
 			break;
 		case TASKS:
-			id = calBackend.createOrUpdate(bs, collectionId, serverId,
-					clientId, data);
+			id = calBackend.createOrUpdate(bs, collectionId, serverId, data);
 			break;
 		}
 		return id;
@@ -69,10 +67,10 @@ public class ContentsImporter implements IContentsImporter {
 
 	@Override
 	public void importMessageDeletion(BackendSession bs, PIMDataType type,
-			String collectionId, String serverId, Boolean moveToTrash) {
+			String collectionPath, String serverId, Boolean moveToTrash) {
 		switch (type) {
 		case CALENDAR:
-			calBackend.delete(bs, collectionId, serverId);
+			calBackend.delete(bs, collectionPath, serverId);
 			break;
 		case CONTACTS:
 			contactBackend.delete(bs, serverId);
@@ -81,7 +79,7 @@ public class ContentsImporter implements IContentsImporter {
 			mailBackend.delete(bs, serverId,moveToTrash);
 			break;
 		case TASKS:
-			calBackend.delete(bs, collectionId, serverId);
+			calBackend.delete(bs, collectionPath, serverId);
 			break;
 		}
 	}
@@ -109,7 +107,7 @@ public class ContentsImporter implements IContentsImporter {
 
 	@Override
 	public void replyEmail(BackendSession bs, byte[] mailContent,
-			Boolean saveInSent, String collectionId, String serverId) {
+			Boolean saveInSent, Integer collectionId, String serverId) {
 		mailBackend.replyEmail(bs, mailContent, saveInSent, collectionId,
 				serverId);
 	}

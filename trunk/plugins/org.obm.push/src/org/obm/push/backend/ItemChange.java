@@ -1,7 +1,7 @@
 package org.obm.push.backend;
 
 public class ItemChange {
-
+	
 	private String serverId;
 	private String parentId;
 	private String displayName;

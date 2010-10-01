@@ -179,7 +179,10 @@ public class MSEvent implements IApplicationData {
 	}
 
 	public Date getDtStamp() {
-		return dtStamp;
+		if(dtStamp != null){
+			return dtStamp;
+		}
+		return new Date(0);
 	}
 
 	public void setDtStamp(Date dtStamp) {

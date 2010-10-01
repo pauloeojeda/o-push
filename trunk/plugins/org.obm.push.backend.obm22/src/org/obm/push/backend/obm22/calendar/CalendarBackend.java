@@ -3,6 +3,7 @@ package org.obm.push.backend.obm22.calendar;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import org.obm.push.exception.ActiveSyncException;
 import org.obm.push.exception.ObjectNotFoundException;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
+import org.obm.push.store.InvitationStatus;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.calendar.Attendee;
 import org.obm.sync.calendar.CalendarInfo;
@@ -43,11 +45,6 @@ public class CalendarBackend extends ObmSyncBackend {
 		converters.put(PIMDataType.TASKS, new TodoConverter());
 	}
 
-	private String getDefaultCalendarName(BackendSession bs) {
-		return "obm:\\\\" + bs.getLoginAtDomain() + "\\calendar\\"
-				+ bs.getLoginAtDomain();
-	}
-
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		List<ItemChange> ret = new LinkedList<ItemChange>();
 
@@ -56,7 +53,8 @@ public class CalendarBackend extends ObmSyncBackend {
 			String col = getDefaultCalendarName(bs);
 			String serverId = "";
 			try {
-				serverId = getServerIdFor(bs.getDevId(), col, null);
+				Integer collectionId = getCollectionIdFor(bs.getDevId(), col);
+				serverId = getServerIdFor(collectionId, null);
 			} catch (ActiveSyncException e) {
 				serverId = createCollectionMapping(bs.getDevId(), col);
 				ic.setIsNew(true);
@@ -82,7 +80,8 @@ public class CalendarBackend extends ObmSyncBackend {
 				ItemChange ic = new ItemChange();
 				String col = "obm:\\\\" + bs.getLoginAtDomain()
 						+ "\\calendar\\" + ci.getUid() + domain;
-				ic.setServerId(getServerIdFor(bs.getDevId(), col, null));
+				Integer collectionId = getCollectionIdFor(bs.getDevId(), col);
+				ic.setServerId(getServerIdFor(collectionId, null));
 				ic.setParentId("0");
 				ic.setDisplayName(ci.getMail() + " calendar");
 				if (bs.getLoginAtDomain().equalsIgnoreCase(ci.getMail())) {
@@ -107,7 +106,8 @@ public class CalendarBackend extends ObmSyncBackend {
 				+ bs.getLoginAtDomain();
 		String serverId;
 		try {
-			serverId = getServerIdFor(bs.getDevId(), col, null);
+			Integer collectionId = getCollectionIdFor(bs.getDevId(), col);
+			serverId = getServerIdFor(collectionId, null);
 		} catch (ActiveSyncException e) {
 			serverId = createCollectionMapping(bs.getDevId(), col);
 			ic.setIsNew(true);
@@ -121,7 +121,8 @@ public class CalendarBackend extends ObmSyncBackend {
 	}
 
 	public DataDelta getContentChanges(BackendSession bs, SyncState state,
-			String collection) {
+			Integer collectionId)
+			throws ActiveSyncException {
 		List<ItemChange> addUpd = new LinkedList<ItemChange>();
 		List<ItemChange> deletions = new LinkedList<ItemChange>();
 
@@ -129,7 +130,8 @@ public class CalendarBackend extends ObmSyncBackend {
 		AbstractEventSyncClient cc = getCalendarClient(bs, state.getDataType());
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
-		String calendar = parseCalendarId(collection);
+		String collectionPath = getCollectionPathFor(collectionId);
+		String calendar = parseCalendarName(collectionPath);
 		try {
 			EventChanges changes = null;
 			if (state.isLastSyncFiltred()) {
@@ -150,55 +152,107 @@ public class CalendarBackend extends ObmSyncBackend {
 										+ e.getDatabaseId()
 										+ "] The participation state is declined. The event will be deleted on phone");
 						canAdd = false;
-						deletions.add(getDeletion(bs, collection, e.getUid()));
+						deletions.add(getDeletion(collectionId, e.getUid()));
 						break;
 					}
 				}
 				if (canAdd && e.getRecurrenceId() == null) {
 					ItemChange change = getCalendarChange(bs.getDevId(),
-							collection, e);
+							collectionId, e);
 					addUpd.add(change);
 				}
 			}
 			for (String del : changes.getRemoved()) {
-				deletions.add(getDeletion(bs, collection, del));
+				deletions.add(getDeletion(collectionId, del));
 			}
-			bs.addUpdatedSyncDate(
-					getCollectionIdFor(bs.getDevId(), collection), changes
-							.getLastSync());
+			bs.addUpdatedSyncDate(collectionId, changes.getLastSync());
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 
 		cc.logout(token);
-		logger.info("getContentChanges(" + calendar + ", " + collection
+		logger.info("getContentChanges(" + calendar + ", " + collectionPath
 				+ ", lastSync: " + ls + ") => " + addUpd.size() + " entries.");
-		return new DataDelta(addUpd, deletions);
+		DataDelta ret = new DataDelta(addUpd, deletions);
+		filtreEvent(bs, state, collectionId, ret);
+		return ret;
 	}
 
-	private String parseCalendarId(String collectionId) {
+	private void filtreEvent(BackendSession bs, SyncState state,
+			Integer collectionId, DataDelta delta) {
+
+		for (Iterator<ItemChange> it = delta.getChanges().iterator(); it
+				.hasNext();) {
+			ItemChange ic = it.next();
+			MSEvent event = (MSEvent) ic.getData();
+
+			if (!storage.isMostRecentInvitation(collectionId,
+					event.getObmUID(), event.getDtStamp())) {
+				logger
+						.info("A more recent event or email is synchronized on phone. The event["
+								+ event.getObmUID() + "] will not synced");
+				it.remove();
+			} else {
+				storage.markToDeletedSyncedInvitation(collectionId, event
+						.getObmUID());
+				Boolean update = storage.haveEmailToDeleted(collectionId, event
+						.getObmUID());
+				if (update) {
+					storage.createOrUpdateInvitation(collectionId, event
+							.getObmUID(), event.getDtStamp(),
+							InvitationStatus.EVENT_TO_SYNCED, null);
+					try {
+						this.createOrUpdate(bs, collectionId, getServerIdFor(collectionId, event.getObmUID()), event);
+					} catch (ActiveSyncException e) {
+						logger.error(e.getMessage(), e);
+					}
+					it.remove();
+				} else {
+						storage.createOrUpdateInvitation(collectionId, event
+								.getObmUID(), event.getDtStamp(),
+								InvitationStatus.EVENT_SYNCED, state.getKey());
+				}
+			}
+		}
+
+		try {
+			List<String> eventToDeleted = storage.getEventToDeleted(
+					collectionId, state.getKey());
+			List<ItemChange> its = this.getDeletions(collectionId,
+					eventToDeleted);
+				storage.updateInvitationStatus(InvitationStatus.DELETED, state
+						.getKey(), collectionId, eventToDeleted
+						.toArray(new String[0]));
+			delta.getDeletions().addAll(its);
+		} catch (ActiveSyncException e) {
+			logger.error(e.getMessage(), e);
+		}
+	}
+
+	private String parseCalendarName(String collectionPath) {
 		// parse obm:\\thomas@zz.com\calendar\sylvaing@zz.com
-		logger.info("collectionId: " + collectionId);
-		int slash = collectionId.lastIndexOf("\\");
-		int at = collectionId.lastIndexOf("@");
+		logger.info("collectionPath: " + collectionPath);
+		int slash = collectionPath.lastIndexOf("\\");
+		int at = collectionPath.lastIndexOf("@");
 
-		return collectionId.substring(slash + 1, at);
+		return collectionPath.substring(slash + 1, at);
 	}
 
-	private ItemChange getCalendarChange(String deviceId, String collection,
+	private ItemChange getCalendarChange(String deviceId, Integer collectionId,
 			Event e) throws ActiveSyncException {
 		ItemChange ic = new ItemChange();
-		ic.setServerId(getServerIdFor(deviceId, collection, e.getUid()));
+		ic.setServerId(getServerIdFor(collectionId, e.getUid()));
 		IApplicationData ev = convertEvent(e);
 		ic.setData(ev);
 		return ic;
 	}
 
-	public String createOrUpdate(BackendSession bs, String collectionId,
-			String serverId, String clientId, IApplicationData data)
+	public String createOrUpdate(BackendSession bs, Integer collectionId,
+			String serverId, IApplicationData data)
 			throws ActiveSyncException {
+		String collectionPath = getCollectionPathFor(collectionId);
 		logger.info("createOrUpdate(" + bs.getLoginAtDomain() + ", "
-				+ collectionId + ", " + serverId + ", " + clientId + ")");
+				+ collectionPath + ", " + serverId + ")");
 		AbstractEventSyncClient cc = getCalendarClient(bs, data.getType());
 		AccessToken token = cc.login(bs.getLoginAtDomain(), bs.getPassword(),
 				"o-push");
@@ -231,26 +285,25 @@ public class CalendarBackend extends ObmSyncBackend {
 		if (id != null) {
 			try {
 				event.setUid(id);
-				cc.modifyEvent(token, parseCalendarId(collectionId), event,
+				cc.modifyEvent(token, parseCalendarName(collectionPath), event,
 						true);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 		} else {
 			try {
-				id = cc
-						.createEvent(token, parseCalendarId(collectionId),
-								event);
+				id = cc.createEvent(token, parseCalendarName(collectionPath),
+						event);
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
 		cc.logout(token);
 
-		return getServerIdFor(bs.getDevId(), collectionId, id);
+		return getServerIdFor(collectionId, id);
 	}
 
-	public void delete(BackendSession bs, String collectionId, String serverId) {
+	public void delete(BackendSession bs, String collectionPath, String serverId) {
 		logger.info("delete serverId " + serverId);
 		if (serverId != null) {
 			int idx = serverId.indexOf(":");
@@ -266,7 +319,7 @@ public class CalendarBackend extends ObmSyncBackend {
 					if (evr != null) {
 						if (bs.getLoginAtDomain().equals(evr.getOwnerEmail())) {
 							bc.removeEvent(token,
-									parseCalendarId(collectionId), id);
+									parseCalendarName(collectionPath), id);
 						} else {
 							IApplicationData mser = convertEvent(evr);
 							updateUserStatus(bs, mser, AttendeeStatus.DECLINE);
@@ -302,8 +355,9 @@ public class CalendarBackend extends ObmSyncBackend {
 
 			Event event = converters.get(data.getType()).convert(data);
 			event = calCli.modifyEvent(at, calendar, event, true);
-			return getServerIdFor(bs.getDevId(), getDefaultCalendarName(bs)
-					+ "", event.getUid());
+			Integer collectionId = getCollectionIdFor(bs.getDevId(),
+					getDefaultCalendarName(bs));
+			return getServerIdFor(collectionId, event.getUid());
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);

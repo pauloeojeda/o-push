@@ -14,7 +14,7 @@ import org.obm.push.exception.ServerErrorException;
  */
 public interface IContentsImporter {
 
-	String importMessageChange(BackendSession bs, String collectionId,
+	String importMessageChange(BackendSession bs, Integer collectionId,
 			String serverId, String clientId, IApplicationData data)
 			throws ActiveSyncException;
 
@@ -28,7 +28,7 @@ public interface IContentsImporter {
 	void sendEmail(BackendSession bs, byte[] mailContent, Boolean saveInSent);
 
 	void replyEmail(BackendSession bs, byte[] mailContent, Boolean saveInSent,
-			String collectionId, String serverId);
+			Integer collectionId, String serverId);
 
 	String importCalendarUserStatus(BackendSession bs, MSEvent invi,
 			AttendeeStatus userResponse);
