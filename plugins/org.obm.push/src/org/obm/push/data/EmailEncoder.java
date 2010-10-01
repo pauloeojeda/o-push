@@ -64,10 +64,17 @@ public class EmailEncoder implements IDataEncoder {
 		} else {
 			DOMUtils.createElementAndText(parent, "Email:From", "");
 		}
-		DOMUtils.createElementAndText(parent, "Email:Subject", mail
-				.getSubject());
-		DOMUtils.createElementAndText(parent, "Email:DateReceived", sdf
-				.format(mail.getDate()));
+		DOMUtils.createElementAndText(parent, "Email:Subject",
+				mail.getSubject());
+
+		if (mail.getDate() != null) {
+			DOMUtils.createElementAndText(parent, "Email:DateReceived",
+					sdf.format(mail.getDate()));
+		} else {
+			logger.warn("date received is null for mail " + mail.getUid()
+					+ " s: " + mail.getSubject());
+		}
+
 		if (mail.getTo().size() > 0 && mail.getTo().get(0) != null
 				&& mail.getTo().get(0).getDisplayName() != null
 				&& !"".equals(mail.getTo().get(0).getDisplayName())) {
@@ -230,29 +237,29 @@ public class EmailEncoder implements IDataEncoder {
 			Element mr = DOMUtils.createElement(parent, "Email:MeetingRequest");
 
 			MSEvent invi = mail.getInvitation();
-			DOMUtils.createElementAndText(mr, "Email:AllDayEvent", invi
-					.getAllDayEvent() ? "1" : "0");
+			DOMUtils.createElementAndText(mr, "Email:AllDayEvent",
+					invi.getAllDayEvent() ? "1" : "0");
 			DOMUtils.createElementAndText(mr, "Email:StartTime",
 					formatDate(invi.getStartTime()));
-			DOMUtils.createElementAndText(mr, "Email:DTStamp", formatDate(invi
-					.getDtStamp()));
-			DOMUtils.createElementAndText(mr, "Email:EndTime", formatDate(invi
-					.getEndTime()));
+			DOMUtils.createElementAndText(mr, "Email:DTStamp",
+					formatDate(invi.getDtStamp()));
+			DOMUtils.createElementAndText(mr, "Email:EndTime",
+					formatDate(invi.getEndTime()));
 
 			DOMUtils.createElementAndText(mr, "Email:InstanceType", "0");
 
 			if (invi.getLocation() != null && !"".equals(invi.getLocation())) {
-				DOMUtils.createElementAndText(mr, "Email:Location", invi
-						.getLocation());
+				DOMUtils.createElementAndText(mr, "Email:Location",
+						invi.getLocation());
 			}
 			if (invi.getOrganizerEmail() != null
 					&& !"".equals(invi.getOrganizerEmail())) {
-				DOMUtils.createElementAndText(mr, "Email:Organizer", invi
-						.getOrganizerEmail());
+				DOMUtils.createElementAndText(mr, "Email:Organizer",
+						invi.getOrganizerEmail());
 			} else if (invi.getOrganizerName() != null
 					&& !"".equals(invi.getOrganizerName())) {
-				DOMUtils.createElementAndText(mr, "Email:Organizer", invi
-						.getOrganizerName());
+				DOMUtils.createElementAndText(mr, "Email:Organizer",
+						invi.getOrganizerName());
 			}
 			if (invi.getReminder() != null) {
 				DOMUtils.createElementAndText(mr, "Email:Reminder", invi
@@ -273,8 +280,7 @@ public class EmailEncoder implements IDataEncoder {
 
 			Element tz = DOMUtils.createElement(mr, "Email:TimeZone");
 			// taken from exchange 2k7 : eastern greenland, gmt+0, no dst
-			tz
-					.setTextContent("xP///1IAbwBtAGEAbgBjAGUAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAbwBtAGEAbgBjAGUAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
+			tz.setTextContent("xP///1IAbwBtAGEAbgBjAGUAIABTAHQAYQBuAGQAYQByAGQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAFIAbwBtAGEAbgBjAGUAIABEAGEAeQBsAGkAZwBoAHQAIABUAGkAbQBlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w==");
 			DOMUtils.createElementAndText(mr, "Email:GlobalObjId", new String(
 					Base64.encode(invi.getUID().getBytes())));
 
@@ -314,9 +320,11 @@ public class EmailEncoder implements IDataEncoder {
 				break;
 			case MONTHLY_NDAY:
 				DOMUtils.createElementAndText(r,
-						"Email:Recurrence_WeekOfMonth", ""
-								+ cal.get(Calendar.WEEK_OF_MONTH));
-				DOMUtils.createElementAndText(r, "Email:Recurrence_DayOfWeek",
+						"Email:Recurrence_WeekOfMonth",
+						"" + cal.get(Calendar.WEEK_OF_MONTH));
+				DOMUtils.createElementAndText(
+						r,
+						"Email:Recurrence_DayOfWeek",
 						""
 								+ RecurrenceDayOfWeek.dayOfWeekToInt(cal
 										.get(Calendar.DAY_OF_WEEK)));
@@ -329,8 +337,8 @@ public class EmailEncoder implements IDataEncoder {
 				DOMUtils.createElementAndText(r, "Email:Recurrence_DayOfMonth",
 						"" + cal.get(Calendar.DAY_OF_MONTH));
 				DOMUtils.createElementAndText(r,
-						"Email:Recurrence_MonthOfYear", ""
-								+ (cal.get(Calendar.MONTH) + 1));
+						"Email:Recurrence_MonthOfYear",
+						"" + (cal.get(Calendar.MONTH) + 1));
 				break;
 			case YEARLY_NDAY:
 				break;
@@ -353,8 +361,8 @@ public class EmailEncoder implements IDataEncoder {
 					DOMUtils.createElementAndText(att,
 							"AirSyncBase:DisplayName", msAtt.getDisplayName());
 					DOMUtils.createElementAndText(att,
-							"AirSyncBase:FileReference", msAtt
-									.getFileReference());
+							"AirSyncBase:FileReference",
+							msAtt.getFileReference());
 					DOMUtils.createElementAndText(att, "AirSyncBase:Method",
 							msAtt.getMethod().asIntString());
 					DOMUtils.createElementAndText(att,
@@ -377,8 +385,8 @@ public class EmailEncoder implements IDataEncoder {
 							"Email:Attachment");
 					DOMUtils.createElementAndText(att, "Email:DisplayName",
 							msAtt.getDisplayName());
-					DOMUtils.createElementAndText(att, "Email:AttName", msAtt
-							.getFileReference());
+					DOMUtils.createElementAndText(att, "Email:AttName",
+							msAtt.getFileReference());
 					DOMUtils.createElementAndText(att, "Email:AttMethod", msAtt
 							.getMethod().asIntString());
 					DOMUtils.createElementAndText(att, "Email:AttSize", msAtt
