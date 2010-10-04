@@ -650,30 +650,36 @@ public class SyncStorage implements ISyncStorage {
 	public void createOrUpdateInvitation(Integer eventCollectionId,
 			String eventUid, Integer emailCollectionId, Long emailUid,
 			Date dtStamp, InvitationStatus status, String syncKey) {
-		String calQuery = "SELECT status"
-				+ " FROM opush_invitation_mapping WHERE event_collection_id=? AND event_uid=? AND mail_uid=? AND mail_collection_id=?";
+		StringBuilder calQuery = new StringBuilder(
+				"SELECT status"
+						+ " FROM opush_invitation_mapping WHERE event_collection_id=? AND event_uid=? AND ");
+		if (emailCollectionId != null) {
+			calQuery.append(" mail_collection_id=? ");
+		} else {
+			calQuery.append(" mail_collection_id IS NULL ");
+		}
+		calQuery.append(" AND ");
+		if (emailUid != null) {
+			calQuery.append(" mail_uid=? ");
+		} else {
+			calQuery.append(" mail_uid IS NULL ");
+		}
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con.prepareStatement(calQuery);
+			ps = con.prepareStatement(calQuery.toString());
 			int i = 1;
 			ps.setInt(i++, eventCollectionId);
 			ps.setString(i++, eventUid);
 
-			if (emailUid != null) {
-				ps.setLong(i++, emailUid);
-			} else {
-				ps.setNull(i++, Types.INTEGER);
-			}
-
 			if (emailCollectionId != null) {
 				ps.setInt(i++, emailCollectionId);
-			} else {
-				ps.setNull(i++, Types.INTEGER);
 			}
-
+			if (emailUid != null) {
+				ps.setLong(i++, emailUid);
+			}
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				updateSyncedInvitation(con, eventCollectionId, eventUid,
@@ -698,8 +704,20 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
+			StringBuilder query = new StringBuilder("UPDATE opush_invitation_mapping SET status=?, dtstamp=?, sync_key=? WHERE event_collection_id=? AND event_uid=? "); 
+			if(emailCollectionId != null){
+				query.append(" AND mail_collection_id=? ");
+			} else {
+				query.append(" AND mail_collection_id IS NULL ");
+			}
+			if(emailUid != null){
+				query.append(" AND mail_uid=? ");
+			} else {
+				query.append(" AND mail_uid IS NULL ");
+			}
 			ps = con
-					.prepareStatement("UPDATE opush_invitation_mapping SET status=?, dtstamp=?, sync_key=? WHERE event_collection_id=? AND event_uid=? AND mail_collection_id=? AND mail_uid=? ");
+					.prepareStatement(query.toString());
+			
 			ps.setString(1, status.toString());
 			ps.setTimestamp(2, new Timestamp(dtStamp.getTime()));
 			ps.setString(3, synkKey);
@@ -707,14 +725,10 @@ public class SyncStorage implements ISyncStorage {
 			ps.setString(5, eventUid);
 			if (emailCollectionId != null) {
 				ps.setInt(6, emailCollectionId);
-			} else {
-				ps.setNull(6, Types.INTEGER);
-			}
+			} 
 			if (emailUid != null) {
 				ps.setLong(7, emailUid);
-			} else {
-				ps.setNull(7, Types.INTEGER);
-			}
+			} 
 
 			ps.execute();
 			ut.commit();
@@ -810,13 +824,11 @@ public class SyncStorage implements ISyncStorage {
 				ut.begin();
 				con = OBMPoolActivator.getDefault().getConnection();
 				ps = con
-						.prepareStatement("UPDATE opush_invitation_mapping SET status=?, sync_key=?, dtstamp=dtstamp WHERE ( status=? OR status=? ) AND event_collection_id=? AND event_uid IN ("
+						.prepareStatement("UPDATE opush_invitation_mapping SET status=?, sync_key=?, dtstamp=dtstamp WHERE mail_collection_id IS NULL AND mail_uid IS NULL AND event_collection_id=? AND event_uid IN ("
 								+ uids + ")");
 				ps.setString(1, status.toString());
 				ps.setString(2, syncKey);
-				ps.setString(3, InvitationStatus.EVENT_TO_SYNCED.toString());
-				ps.setString(4, InvitationStatus.EVENT_TO_DELETED.toString());
-				ps.setInt(5, eventCollectionId);
+				ps.setInt(3, eventCollectionId);
 				ps.execute();
 				ut.commit();
 			} catch (Throwable se) {

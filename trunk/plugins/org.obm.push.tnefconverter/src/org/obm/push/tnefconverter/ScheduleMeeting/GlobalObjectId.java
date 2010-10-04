@@ -49,7 +49,6 @@ public class GlobalObjectId {
 		// YL (1 byte): The low-ordered byte of the 2-byte Year from the
 		// PidLidExceptionReplaceTime
 		// property if the object represents an exception; otherwise, zero.
-		// System.err.println(obj.read(););
 		yearBuf[0] = obj.read();
 		yearBuf[1] = obj.read();
 		short year = readShort(yearBuf);
@@ -155,7 +154,6 @@ public class GlobalObjectId {
 				uid[l] = (byte) obj.read();
 				;
 			}
-			System.err.println(new String(uid));
 			this.uid = TNEFUtils.toHexString(uid);
 		}
 	}

@@ -218,6 +218,7 @@ public class CalendarBackend extends ObmSyncBackend {
 		try {
 			List<String> eventToDeleted = storage.getEventToDeleted(
 					collectionId, state.getKey());
+			logger.info(eventToDeleted.size() + " event(s) will be deleted on the PDA");
 			List<ItemChange> its = this.getDeletions(collectionId,
 					eventToDeleted);
 				storage.updateInvitationStatus(InvitationStatus.DELETED, state
