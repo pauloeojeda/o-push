@@ -153,6 +153,7 @@ public class MailBackend extends ObmSyncBackend {
 
 			List<Long> emailToSync = storage.getEmailToSynced(
 					emailCollectionId, state.getKey());
+			System.err.println(emailToSync.size()+" email to sync");
 			List<String> emailServerId = new ArrayList<String>(emailToSync
 					.size());
 			for (Long emailUid : emailToSync) {
@@ -185,10 +186,11 @@ public class MailBackend extends ObmSyncBackend {
 						storage.markToDeletedSyncedInvitation(
 								eventCollectionId, mail.getInvitation()
 										.getObmUID());
+						System.err.println("MARK TO DELETES SYNCED INVITATION");
 						Boolean update = storage.haveEventToDeleted(
 								eventCollectionId, mail.getInvitation()
 										.getObmUID());
-
+						System.err.println("haveEventToDELETE: "+update);
 						if (update) {
 							storage.createOrUpdateInvitation(eventCollectionId,
 									mail.getInvitation().getObmUID(),
@@ -196,6 +198,7 @@ public class MailBackend extends ObmSyncBackend {
 											.getInvitation().getDtStamp(),
 									InvitationStatus.EMAIL_TO_SYNCED, null);
 							it.remove();
+							System.err.println("it.remove: ");
 						} else {
 							storage.createOrUpdateInvitation(eventCollectionId,
 									mail.getInvitation().getObmUID(),
@@ -210,7 +213,7 @@ public class MailBackend extends ObmSyncBackend {
 
 			List<Long> emailToDeleted = storage.getEmailToDeleted(
 					emailCollectionId, state.getKey());
-			logger.info(emailToDeleted.size() + " email(s) will be deleted");
+			logger.info(emailToDeleted.size() + " email(s) will be deleted on the PDA");
 			List<ItemChange> itemsToDeleted = this.getDeletions(
 					emailCollectionId, emailToDeleted);
 			storage.updateInvitationStatus(InvitationStatus.DELETED, state
