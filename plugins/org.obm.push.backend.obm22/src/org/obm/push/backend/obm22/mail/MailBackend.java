@@ -29,6 +29,7 @@ import org.obm.push.exception.ServerErrorException;
 import org.obm.push.state.SyncState;
 import org.obm.push.store.ISyncStorage;
 import org.obm.push.store.InvitationStatus;
+import org.obm.push.tnefconverter.EmailConverter;
 import org.obm.sync.auth.AccessToken;
 import org.obm.sync.client.calendar.CalendarClient;
 
@@ -145,11 +146,11 @@ public class MailBackend extends ObmSyncBackend {
 	private void filtreInvitation(BackendSession bs, SyncState state,
 			DataDelta delta, Integer emailCollectionId) {
 		try {
-			
+
 			String calPath = getDefaultCalendarName(bs);
 			Integer eventCollectionId = getCollectionIdFor(bs.getDevId(),
 					calPath);
-			
+
 			List<Long> emailToSync = storage.getEmailToSynced(
 					emailCollectionId, state.getKey());
 			List<String> emailServerId = new ArrayList<String>(emailToSync
@@ -421,21 +422,20 @@ public class MailBackend extends ObmSyncBackend {
 			SendEmailHandler handler, Boolean saveInSent) throws Exception {
 		MimeStreamParser parser = new MimeStreamParser();
 		parser.setContentHandler(handler);
-		// FIXME DISABLED tnef converter
-		// InputStream email = null;
 		parser.parse(new ByteArrayInputStream(mailContent));
-		// try {
-		// EmailConverter conv = new EmailConverter();
-		// email = conv.convert(handler.getMessage());
-		// } catch (Throwable e) {
-		// email = handler.getMessage();
-		// }
-		// if (email != null) {
-		// emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(),
-		// email, saveInSent);
-		// }
-		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), handler
-				.getMessage(), saveInSent);
+		byte[] emailData = FileUtils.streamBytes( handler.getMessage(), true);
+		InputStream email = null;
+		try {
+			EmailConverter conv = new EmailConverter();
+			email = conv.convert(new ByteArrayInputStream(emailData));
+		} catch (Throwable e) {
+			logger.info(e.getMessage(), e);
+		}
+		if(email == null){
+			email = new ByteArrayInputStream(emailData);
+		}
+		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), email,
+				saveInSent);
 	}
 
 	public MSEmail getEmail(BackendSession bs, Integer collectionId,

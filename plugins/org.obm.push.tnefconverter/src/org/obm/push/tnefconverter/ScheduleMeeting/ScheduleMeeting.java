@@ -1,10 +1,10 @@
 package org.obm.push.tnefconverter.ScheduleMeeting;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
-import org.obm.push.utils.GlobalObjectIdUtils;
 import org.obm.push.utils.RTFUtils;
 
 import net.freeutils.tnef.Attr;
@@ -15,21 +15,31 @@ import net.freeutils.tnef.RawInputStream;
 public class ScheduleMeeting {
 
 	private Message tnefMsg;
+	private GlobalObjectId gloObjId;
 
 	public ScheduleMeeting(Message tnefMsg) throws IOException {
 		this.tnefMsg = tnefMsg;
+		RawInputStream in = TNEFExtractorUtils.getMAPIPropInputStream(
+				this.tnefMsg, MAPIProp.PR_PID_LID_GLOBAL_OBJECT_ID);
+		int recurTime = TNEFExtractorUtils.getMAPIPropInt(
+				this.tnefMsg, MAPIProp.PR_PID_LID_START_RECURRENCE_TIME);
+		if (in != null) {
+			this.gloObjId = new GlobalObjectId(new ByteArrayInputStream(in
+					.toByteArray()), recurTime);
+		}
+		System.out.println(tnefMsg);
 	}
 
 	public PidTagMessageClass getMethod() {
 		return PidTagMessageClass.getPidTagMessageClass(TNEFExtractorUtils
-				.getAttrValue(this.tnefMsg, Attr.attMessageClass));
+				.getAttrString(this.tnefMsg, Attr.attMessageClass));
 	}
 
 	public String getUID() throws Exception {
-		RawInputStream in = TNEFExtractorUtils.getMAPIPropInputStream(
-				this.tnefMsg, MAPIProp.PR_PID_LID_GLOBAL_OBJECT_ID);
-		
-		return GlobalObjectIdUtils.getUid(in.toByteArray());
+		if (gloObjId != null) {
+			return gloObjId.getUid();
+		}
+		return null;
 	}
 
 	public String getDescription() {
@@ -86,6 +96,11 @@ public class ScheduleMeeting {
 				MAPIProp.PR_PID_LID_IS_RECURRING);
 	}
 
+	public Boolean isException() {
+		return TNEFExtractorUtils.getMAPIPropBoolean(this.tnefMsg,
+				MAPIProp.PR_PID_LID_IS_EXCEPTION);
+	}
+
 	public OldRecurrenceType getOldRecurrenceType() {
 		return OldRecurrenceType.getRecurrenceType(TNEFExtractorUtils
 				.getMAPIPropString(this.tnefMsg,
@@ -122,14 +137,15 @@ public class ScheduleMeeting {
 	}
 
 	public Date getRecurrenceId() {
-		TNEFExtractorUtils.getMAPIPropString(this.tnefMsg,
-				MAPIProp.PR_PID_LID_START_RECURRENCE_TIME);
-		try {
-			Long d = Long.parseLong(TNEFExtractorUtils.getMAPIPropString(
-					this.tnefMsg, MAPIProp.PR_PID_LID_START_RECURRENCE_DATE));
-			return new Date(d);
-		} catch (NumberFormatException e) {
-			return null;
+		if (isException() && this.gloObjId != null) {
+			return this.gloObjId.getRecurrenceId();
 		}
+		return null;
 	}
+
+	@Override
+	public String toString() {
+		return this.tnefMsg.toString();
+	}
+
 }
