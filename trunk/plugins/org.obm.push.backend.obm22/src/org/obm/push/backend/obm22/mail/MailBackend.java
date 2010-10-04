@@ -427,6 +427,7 @@ public class MailBackend extends ObmSyncBackend {
 		parser.setContentHandler(handler);
 		parser.parse(new ByteArrayInputStream(mailContent));
 		byte[] emailData = FileUtils.streamBytes( handler.getMessage(), true);
+		
 		InputStream email = null;
 		try {
 			EmailConverter conv = new EmailConverter();

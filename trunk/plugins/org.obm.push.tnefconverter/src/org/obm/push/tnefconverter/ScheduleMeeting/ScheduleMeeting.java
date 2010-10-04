@@ -27,7 +27,7 @@ public class ScheduleMeeting {
 			this.gloObjId = new GlobalObjectId(new ByteArrayInputStream(in
 					.toByteArray()), recurTime);
 		}
-		System.out.println(tnefMsg);
+		System.out.println(isRecurring());
 	}
 
 	public PidTagMessageClass getMethod() {

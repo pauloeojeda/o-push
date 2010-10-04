@@ -71,9 +71,10 @@ public class EmailTnefHandler implements
 	@Override
 	public void field(Field arg0) throws MimeException {
 		if ("subject".equalsIgnoreCase(arg0.getName())) {
-			this.subject = EncodedWord.decode(arg0.getBody()).toString();
+			this.subject = EncodedWord.decode(arg0.getBody()).toString().trim();
+			System.err.println(this.subject);
 		} else if ("thread-topic".equalsIgnoreCase(arg0.getName())) {
-			this.threadTopic = EncodedWord.decode(arg0.getBody()).toString();
+			this.threadTopic = EncodedWord.decode(arg0.getBody()).toString().trim();
 		} else if ("to".equalsIgnoreCase(arg0.getName())) {
 			try {
 				Address[] adds = AddressParser.parseMailboxList(arg0.getBody());
@@ -114,8 +115,9 @@ public class EmailTnefHandler implements
 				}
 				TNEFInputStream tnef = new TNEFInputStream(arg1);
 				this.tnefMsg = new Message(tnef);
-			} catch (Exception e) {
 				storeTnef(bb);
+			} catch (Exception e) {
+//				storeTnef(bb);
 				throw new MimeException(e);
 			}
 		}

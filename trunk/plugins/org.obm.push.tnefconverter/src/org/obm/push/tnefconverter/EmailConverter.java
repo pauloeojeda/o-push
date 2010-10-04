@@ -44,7 +44,6 @@ public class EmailConverter {
 				if (logger.isDebugEnabled()) {
 					logger.debug(message);
 				}
-				// FIXME DISABLED TNEF DECODER
 				if (TNEFExtractorUtils.isScheduleMeetingRequest(message)) {
 					ScheduleMeeting meeting = new ScheduleMeeting(message);
 					ScheduleMeetingEncoder encoder = new ScheduleMeetingEncoder(
@@ -84,9 +83,18 @@ public class EmailConverter {
 
 					MimeHeader requestMimeHeader = new MimeHeader(new Header());
 					String method = "REQUEST";
-					if (PidTagMessageClass.ScheduleMeetingCanceled
-							.equals(meeting.getMethod())) {
+					switch (meeting.getMethod()) {
+					case ScheduleMeetingCanceled:
 						method = "CANCEL";
+						break;
+					case ScheduleMeetingRequest:
+						method = "REQUEST";
+						break;
+					case ScheduleMeetingRespPos:
+					case ScheduleMeetingRespNeg:
+					case ScheduleMeetingRespTent:
+						method = "REPLY";
+						break;
 					}
 					requestMimeHeader.set("Content-Type",
 							"text/calendar; charset=\"UTF-8\"; method="

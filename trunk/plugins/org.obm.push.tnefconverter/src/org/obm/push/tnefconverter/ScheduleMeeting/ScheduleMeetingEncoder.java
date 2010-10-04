@@ -22,6 +22,7 @@ import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.Organizer;
 import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.RecurrenceId;
+import net.fortuna.ical4j.model.property.Status;
 import net.fortuna.ical4j.model.property.Summary;
 import net.fortuna.ical4j.model.property.Uid;
 
@@ -61,6 +62,14 @@ public class ScheduleMeetingEncoder {
 		this.attOptional = attOptional;
 	}
 
+	
+//	METHOD:REPLY
+//	BEGIN:VEVENT
+//	LOCATION:Tlse
+//	STATUS:CONFIRMED
+//	END:VEVENT
+//	END:VCALENDAR
+
 	public String encodeToIcs() throws Exception {
 		ics = ICSHelper.initCalendar();
 		appendMethod();
@@ -77,8 +86,24 @@ public class ScheduleMeetingEncoder {
 		appendAttendee();
 		appendRRule();
 		appendRecurrenceId();
+		appendStatus();
 		return ics.toString();
 	}
+
+	private void appendStatus() {
+		switch (meeting.getMethod()) {
+		case ScheduleMeetingRespPos:
+			ntefEvent.getProperties().add(Status.VEVENT_CONFIRMED);
+			break;
+		case ScheduleMeetingRespNeg:
+			ntefEvent.getProperties().add(Status.VEVENT_CANCELLED);
+			break;
+		case ScheduleMeetingRespTent:
+			ntefEvent.getProperties().add(Status.VEVENT_TENTATIVE);
+			break;
+		}
+	}
+
 
 	private void appendRecurrenceId() {
 		Date val = meeting.getRecurrenceId();
@@ -93,7 +118,7 @@ public class ScheduleMeetingEncoder {
 	// (recur.setWeekStartDay(weekStartDay))
 	private void appendRRule() {
 
-		if (meeting.isRecurring() != null) {
+		if (meeting.isRecurring() != null && meeting.isRecurring()) {
 			String frequency = "";
 			OldRecurrenceType kindRecur = meeting.getOldRecurrenceType();
 			if (OldRecurrenceType.DAILY.equals(kindRecur)) {
@@ -111,7 +136,7 @@ public class ScheduleMeetingEncoder {
 			} else {
 				frequency = "";
 			}
-
+			
 			Recur recur = new Recur(frequency, null);
 			recur.setInterval(meeting.getInterval());
 			RRule rrule = new RRule(recur);
@@ -225,6 +250,11 @@ public class ScheduleMeetingEncoder {
 			break;
 		case ScheduleMeetingCanceled:
 			ics.getProperties().add(Method.CANCEL);
+			break;
+		case ScheduleMeetingRespPos:
+		case ScheduleMeetingRespNeg:
+		case ScheduleMeetingRespTent:
+			ics.getProperties().add(Method.REPLY);
 			break;
 		}
 	}
