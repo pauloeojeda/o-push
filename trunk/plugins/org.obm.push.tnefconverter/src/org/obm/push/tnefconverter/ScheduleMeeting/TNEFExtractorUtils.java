@@ -19,11 +19,11 @@ public class TNEFExtractorUtils {
 	
 	public static Boolean isScheduleMeetingRequest(Message message){
 		PidTagMessageClass req = PidTagMessageClass.getPidTagMessageClass(TNEFExtractorUtils
-				.getAttrValue(message, Attr.attMessageClass));
+				.getAttrString(message, Attr.attMessageClass));
 		return PidTagMessageClass.ScheduleMeetingRequest.equals(req) || PidTagMessageClass.ScheduleMeetingCanceled.equals(req);
 	}
 	
-	public static String getAttrValue(Message message, int id) {
+	public static String getAttrString(Message message, int id) {
 		try {
 			Attr attr = message.getAttribute(id);
 			if (attr != null) {
@@ -32,6 +32,36 @@ public class TNEFExtractorUtils {
 		} catch (IOException e) {
 		}
 		return null;
+	}
+	
+	public static Date getAttrDate(Message message, int id) {
+		try {
+			Attr attr = message.getAttribute(id);
+			if (attr != null && attr.getValue() instanceof Date) {
+					return (Date) attr.getValue();
+			}
+		} catch (IOException e) {
+		}
+		return null;
+	}
+	
+	public static int getMAPIPropInt(Message tnefMsg, int id) {
+		try {
+			MAPIProp prop = tnefMsg.getMAPIProps().getProp(id);
+			if (prop != null) {
+				MAPIValue[] vals = prop.getValues();
+				if (vals != null) {
+					for (int i = 0; i < vals.length; ) {
+						String ret = toString(vals[i].getValue());
+						if(ret != null){
+							return Integer.parseInt(ret);
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+		}
+		return 0;
 	}
 
 	public static String getMAPIPropString(Message tnefMsg, int id) {
@@ -109,7 +139,7 @@ public class TNEFExtractorUtils {
 			}
 		} catch (IOException e) {
 		}
-		return null;
+		return false;
 	}
 
 	private static String clear(String v, boolean escape) {

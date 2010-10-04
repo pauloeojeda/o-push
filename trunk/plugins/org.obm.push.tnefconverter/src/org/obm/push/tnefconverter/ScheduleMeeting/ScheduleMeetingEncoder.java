@@ -1,6 +1,7 @@
 package org.obm.push.tnefconverter.ScheduleMeeting;
 
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.Set;
 
 import net.fortuna.ical4j.model.Calendar;
@@ -20,13 +21,17 @@ import net.fortuna.ical4j.model.property.Location;
 import net.fortuna.ical4j.model.property.Method;
 import net.fortuna.ical4j.model.property.Organizer;
 import net.fortuna.ical4j.model.property.RRule;
+import net.fortuna.ical4j.model.property.RecurrenceId;
 import net.fortuna.ical4j.model.property.Summary;
 import net.fortuna.ical4j.model.property.Uid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.columba.ristretto.message.Address;
+import org.columba.ristretto.message.Address; //import org.obm.locator.client.LocatorClient;
 import org.obm.push.tnefconverter.helper.ICSHelper;
+
+//import org.obm.sync.client.calendar.CalendarClient;
+//import org.obm.sync.locators.CalendarLocator;
 
 /**
  * 
@@ -37,9 +42,11 @@ public class ScheduleMeetingEncoder {
 
 	private Log logger = LogFactory.getLog(getClass());
 
+	protected String obmSyncHost;
+
 	private ScheduleMeeting meeting;
 	private Calendar ics;
-	private VEvent vEvent;
+	private VEvent ntefEvent;
 	private String title;
 	private Address owner;
 	private Set<Address> attRequired;
@@ -57,8 +64,8 @@ public class ScheduleMeetingEncoder {
 	public String encodeToIcs() throws Exception {
 		ics = ICSHelper.initCalendar();
 		appendMethod();
-		vEvent = new VEvent();
-		ics.getComponents().add(vEvent);
+		ntefEvent = new VEvent();
+		ics.getComponents().add(ntefEvent);
 		appendUID();
 		appendSummary();
 		appendLocation();
@@ -69,10 +76,21 @@ public class ScheduleMeetingEncoder {
 		appendOrganizer();
 		appendAttendee();
 		appendRRule();
+		appendRecurrenceId();
 		return ics.toString();
 	}
 
-	//TODO IMPLEMENTS MONTHLY_NDAY and YEARLY_NDAY (recur.setWeekStartDay(weekStartDay))
+	private void appendRecurrenceId() {
+		Date val = meeting.getRecurrenceId();
+		if (val != null) {
+			DateTime dt = new DateTime(val);
+			RecurrenceId recId = new RecurrenceId(dt);
+			ntefEvent.getProperties().add(recId);
+		}
+	}
+
+	// TODO IMPLEMENTS MONTHLY_NDAY and YEARLY_NDAY
+	// (recur.setWeekStartDay(weekStartDay))
 	private void appendRRule() {
 
 		if (meeting.isRecurring() != null) {
@@ -84,30 +102,32 @@ public class ScheduleMeetingEncoder {
 				frequency = Recur.WEEKLY;
 			} else if (OldRecurrenceType.MONTHLY.equals(kindRecur)) {
 				frequency = Recur.MONTHLY;
-			} else if (OldRecurrenceType.MONTHLY.equals(kindRecur) || OldRecurrenceType.MONTHLY_NDAY.equals(kindRecur)) {
+			} else if (OldRecurrenceType.MONTHLY.equals(kindRecur)
+					|| OldRecurrenceType.MONTHLY_NDAY.equals(kindRecur)) {
 				frequency = Recur.MONTHLY;
-			} else if (OldRecurrenceType.YEARLY.equals(kindRecur) || OldRecurrenceType.YEARLY_NDAY.equals(kindRecur)) {
+			} else if (OldRecurrenceType.YEARLY.equals(kindRecur)
+					|| OldRecurrenceType.YEARLY_NDAY.equals(kindRecur)) {
 				frequency = Recur.YEARLY;
 			} else {
 				frequency = "";
 			}
-			
-			Recur recur = new Recur(frequency,null);
+
+			Recur recur = new Recur(frequency, null);
 			recur.setInterval(meeting.getInterval());
 			RRule rrule = new RRule(recur);
-			vEvent.getProperties().add(rrule);
+			ntefEvent.getProperties().add(rrule);
 		}
 	}
 
 	private void appendAttendee() {
 		for (Address add : attRequired) {
 			Attendee att = createAttendee(add, Role.REQ_PARTICIPANT);
-			vEvent.getProperties().add(att);
+			ntefEvent.getProperties().add(att);
 		}
 
 		for (Address add : attOptional) {
 			Attendee att = createAttendee(add, Role.OPT_PARTICIPANT);
-			vEvent.getProperties().add(att);
+			ntefEvent.getProperties().add(att);
 		}
 	}
 
@@ -140,7 +160,7 @@ public class ScheduleMeetingEncoder {
 				if (isNotEmpty(owner.getMailAddress())) {
 					orga.setValue("mailto:" + owner.getMailAddress());
 				}
-				vEvent.getProperties().add(orga);
+				ntefEvent.getProperties().add(orga);
 			} catch (URISyntaxException e) {
 				logger.error("Error while parsing mail address "
 						+ owner.getMailAddress());
@@ -157,42 +177,43 @@ public class ScheduleMeetingEncoder {
 			} else {
 				dt = new DateTime(meeting.getStartDate());
 			}
-			vEvent.getProperties().add(new DtStart(dt));
+			ntefEvent.getProperties().add(new DtStart(dt));
 		}
 	}
-	
+
 	private void appendDtEnd() {
 		if (!meeting.isAllDay()) {
 			DtEnd dtEnd = new DtEnd(new DateTime(meeting.getEndDate()));
 			if (dtEnd != null) {
-				vEvent.getProperties().add(dtEnd);
+				ntefEvent.getProperties().add(dtEnd);
 			}
 		}
 	}
 
 	private void appendClass() {
 		if (meeting.getClazz().equals(1)) {
-			vEvent.getProperties().add(Clazz.PRIVATE);
+			ntefEvent.getProperties().add(Clazz.PRIVATE);
 		} else {
-			vEvent.getProperties().add(Clazz.PUBLIC);
+			ntefEvent.getProperties().add(Clazz.PUBLIC);
 		}
 	}
 
 	private void appendDescription() {
-		if(isNotEmpty(meeting.getDescription())){
-			vEvent.getProperties().add(new Description(meeting.getDescription()));
+		if (isNotEmpty(meeting.getDescription())) {
+			ntefEvent.getProperties().add(
+					new Description(meeting.getDescription()));
 		}
 	}
 
 	private void appendLocation() {
-		if(isNotEmpty(meeting.getLocation())){
-			vEvent.getProperties().add(new Location(meeting.getLocation()));
+		if (isNotEmpty(meeting.getLocation())) {
+			ntefEvent.getProperties().add(new Location(meeting.getLocation()));
 		}
 	}
 
 	private void appendSummary() {
-		if(isNotEmpty(this.title)){
-			vEvent.getProperties().add(new Summary(this.title.trim()));
+		if (isNotEmpty(this.title)) {
+			ntefEvent.getProperties().add(new Summary(this.title.trim()));
 		}
 	}
 
@@ -209,7 +230,7 @@ public class ScheduleMeetingEncoder {
 	}
 
 	private void appendUID() throws Exception {
-		vEvent.getProperties().add(new Uid(meeting.getUID()));
+		ntefEvent.getProperties().add(new Uid(meeting.getUID()));
 	}
 
 	private boolean isNotEmpty(String val) {

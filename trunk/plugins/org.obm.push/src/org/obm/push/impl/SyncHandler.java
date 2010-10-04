@@ -209,8 +209,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			throws ActiveSyncException {
 		DataDelta delta = null;
 		if (bs.getUnSynchronizedItemChange(c.getCollectionId()).size() == 0) {
-			delta = cex
-					.getChanged(bs, c.getSyncState(), c.getFilterType(), c.getCollectionId());
+			delta = cex.getChanged(bs, c.getSyncState(), c.getFilterType(), c
+					.getCollectionId());
 		}
 		List<ItemChange> changed = processWindowSize(c, delta, bs,
 				processedClientIds);
@@ -243,7 +243,7 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		if (delta != null && delta.getDeletions() != null) {
 			for (ItemChange ic : delta.getDeletions()) {
 				if (processedClientIds.containsKey(ic.getServerId())) {
-					changed.add(ic);
+					// changed.add(ic);
 					bs.addUnSynchronizedDeletedItemChange(c.getCollectionId(),
 							ic);
 				} else {
@@ -516,7 +516,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			Element modification, Map<String, String> processedClientIds)
 			throws ActiveSyncException {
 		Integer collectionId = collection.getCollectionId();
-		String collectionPath = backend.getStore().getCollectionPath(collectionId);
+		String collectionPath = backend.getStore().getCollectionPath(
+				collectionId);
 		String modType = modification.getNodeName();
 		logger.info("modType: " + modType);
 		String serverId = DOMUtils.getElementText(modification, "ServerId");
