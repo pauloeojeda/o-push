@@ -14,7 +14,7 @@ import net.freeutils.tnef.TNEFInputStream;
 public class TnefTest extends TestCase {
 
 	public void testExtract() throws BadLocationException{
-		InputStream in = loadDataFile("recurWeekly.tnef");
+		InputStream in = loadDataFile("excptRecur.tnef");
 //		InputStream in = loadDataFile("recurMonthly.tnef");
 //		InputStream in = loadDataFile("recurYearly.tnef");
 //		InputStream in = loadDataFile("test.tnef");

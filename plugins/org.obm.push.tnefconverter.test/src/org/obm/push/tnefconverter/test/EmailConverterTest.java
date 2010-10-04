@@ -9,22 +9,36 @@ import org.obm.push.tnefconverter.EmailConverter;
 import org.obm.push.tnefconverter.TNEFConverterException;
 import org.obm.push.utils.FileUtils;
 
-
 import junit.framework.TestCase;
 
 public class EmailConverterTest extends TestCase {
-	
+
 	public void testConvert() throws TNEFConverterException, IOException {
 		InputStream eml = loadDataFile("fgggh.eml");
 		assertNotNull(eml);
 		String s = FileUtils.streamString(eml, true);
-		InputStream in = new EmailConverter().convert(new ByteArrayInputStream(s.getBytes()));
+		InputStream in = new EmailConverter().convert(new ByteArrayInputStream(
+				s.getBytes()));
 		assertNotNull(in);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		FileUtils.transfer(in, out, true);
 		byte[] data = out.toByteArray();
 		System.out.println(new String(data));
-		
+
+	}
+
+	public void testConvert1() throws TNEFConverterException, IOException {
+		InputStream eml = loadDataFile("cancelOrrurEvent.eml");
+		assertNotNull(eml);
+		String s = FileUtils.streamString(eml, true);
+		InputStream in = new EmailConverter().convert(new ByteArrayInputStream(
+				s.getBytes()));
+		assertNotNull(in);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		FileUtils.transfer(in, out, true);
+		byte[] data = out.toByteArray();
+		System.out.println(new String(data));
+
 	}
 
 	protected InputStream loadDataFile(String name) {
