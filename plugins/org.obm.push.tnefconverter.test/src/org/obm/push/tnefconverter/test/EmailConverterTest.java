@@ -40,6 +40,22 @@ public class EmailConverterTest extends TestCase {
 		System.out.println(new String(data));
 
 	}
+	
+	public void testConvert2() throws TNEFConverterException, IOException {
+		InputStream eml = loadDataFile("accptInv.eml");
+		assertNotNull(eml);
+		String s = FileUtils.streamString(eml, true);
+		InputStream in = new EmailConverter().convert(new ByteArrayInputStream(
+				s.getBytes()));
+		assertNotNull(in);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		FileUtils.transfer(in, out, true);
+		byte[] data = out.toByteArray();
+		System.out.println(new String(data));
+
+	}
+	
+	
 
 	protected InputStream loadDataFile(String name) {
 		return getClass().getClassLoader().getResourceAsStream(

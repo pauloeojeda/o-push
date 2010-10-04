@@ -20,7 +20,8 @@ public class TNEFExtractorUtils {
 	public static Boolean isScheduleMeetingRequest(Message message){
 		PidTagMessageClass req = PidTagMessageClass.getPidTagMessageClass(TNEFExtractorUtils
 				.getAttrString(message, Attr.attMessageClass));
-		return PidTagMessageClass.ScheduleMeetingRequest.equals(req) || PidTagMessageClass.ScheduleMeetingCanceled.equals(req);
+//		return PidTagMessageClass.ScheduleMeetingRequest.equals(req) || PidTagMessageClass.ScheduleMeetingCanceled.equals(req);
+		return req != null;
 	}
 	
 	public static String getAttrString(Message message, int id) {

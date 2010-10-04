@@ -39,13 +39,40 @@ public class TnefTest extends TestCase {
 			System.out.println("RecurrenceType: "+ics.getOldRecurrenceType());
 			System.out.println("Interval: "+ics.getInterval());
 			System.out.println("ClientIntent: "+ics.getClientIntent());
-//			System.out.println("Timezone: "+ics.getTimeZone());
-//			System.out.println("Start recurrence: "+ics.getStartRecurrence());
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+	public void testExtract2() throws BadLocationException{
+		InputStream in = loadDataFile("acpInv.tnef");
+		assertNotNull(in);
+		
+		try {
+			TNEFInputStream tnef = new TNEFInputStream(in);
+			Message tnefMsg = new Message(tnef);
+			System.out.println(tnefMsg);
+			ScheduleMeeting ics = new ScheduleMeeting(tnefMsg);
+			System.out.println("Method "+ics.getMethod());
+			System.out.println("UID: "+ics.getUID());
+			System.out.println("Start: "+ics.getStartDate());
+			System.out.println("End: "+ics.getEndDate());
+			System.out.println("Response requested: "+ics.getResponseRequested());
+			System.out.println("Description: "+ics.getDescription());
+			System.out.println("Class: "+ics.getClazz());
+			System.out.println("Location: "+ics.getLocation());
+			System.out.println("AllDay: "+ics.isAllDay());
+			
+			System.out.println("IsReccuring: "+ics.isRecurring());
+			System.out.println("RecurrenceType: "+ics.getOldRecurrenceType());
+			System.out.println("Interval: "+ics.getInterval());
+			System.out.println("ClientIntent: "+ics.getClientIntent());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	
 	protected InputStream loadDataFile(String name) {
 		return getClass().getClassLoader().getResourceAsStream(

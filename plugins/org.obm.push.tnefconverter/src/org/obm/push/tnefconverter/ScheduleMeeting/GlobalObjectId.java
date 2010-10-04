@@ -38,7 +38,13 @@ public class GlobalObjectId {
 				0xC5, 0xB7, 0x10, 0x1A, 0x82, 0xE0, 0x08 };
 		for (int i = 0; i < goiID.length; i++) {
 			if (goiID[i] != obj.read()) {
-				throw new IllegalArgumentException();
+				obj.reset();
+				byte[] endUid = new byte[obj.available()];
+				for (int l = 0; l < endUid.length; l++) {
+					endUid[l] = (byte) obj.read();
+				}
+				this.uid = TNEFUtils.toHexString(endUid);
+				return;
 			}
 		}
 
