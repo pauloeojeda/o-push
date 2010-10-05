@@ -16,6 +16,8 @@
 
 package org.obm.push.backend.obm22.mail;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -43,6 +45,7 @@ import org.obm.push.backend.MSEmail;
 import org.obm.push.state.SyncState;
 import org.obm.sync.client.calendar.CalendarClient;
 
+import fr.aliasource.utils.FileUtils;
 import fr.aliasource.utils.IniFile;
 
 /**
@@ -344,6 +347,12 @@ public class EmailManager {
 			InputStream mimeMail, Boolean saveInSent) {
 		try {
 			logger.info("Send mail to " + setTo + ":\n" + mimeMail);
+			if(!mimeMail.markSupported()){
+				ByteArrayOutputStream outPut = new ByteArrayOutputStream();
+				FileUtils.transfer(mimeMail, outPut, true);
+				mimeMail = new ByteArrayInputStream(outPut.toByteArray());
+			}
+			mimeMail.reset();
 			SMTPProtocol smtp = getSmtpClient(bs);
 			smtp.openPort();
 			smtp.ehlo(InetAddress.getLocalHost());
@@ -406,7 +415,9 @@ public class EmailManager {
 	}
 
 	private void storeInSent(BackendSession bs, InputStream mailContent)
-			throws IMAPException {
+			throws IMAPException, IOException {
+		logger.info("Store mail in folder[Sent]");
+		mailContent.reset();
 		String sentFolderName = null;
 		ListResult lr = listAllFolder(bs);
 		for (ListInfo i : lr) {
