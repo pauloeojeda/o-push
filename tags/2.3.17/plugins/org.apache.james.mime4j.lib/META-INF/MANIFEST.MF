@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lib
+Bundle-SymbolicName: org.apache.james.mime4j.lib
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: lib/apache-mime4j-0.6.jar,
+ .
+Export-Package: org.apache.james.mime4j,
+ org.apache.james.mime4j.descriptor,
+ org.apache.james.mime4j.field,
+ org.apache.james.mime4j.field.address,
+ org.apache.james.mime4j.parser
+Require-Bundle: org.apache.commons.logging;bundle-version="1.0.4"
+Bundle-ActivationPolicy: lazy
