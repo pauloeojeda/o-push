@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: org.minig.obm.jdbc.mysql
-Bundle-SymbolicName: org.minig.jdbc.driver.mysql;singleton:=true
-Bundle-Version: 1.0.0
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ClassPath: lib/mysql-connector-java-5.1.6-bin.jar,
- .
-Fragment-Host: fr.aliasource.obm.aliapool;bundle-version="1.0.0"
