@@ -18,7 +18,7 @@ public class BodySelector {
 				if (mp.getMimeType().equalsIgnoreCase("text")) {
 					if (mp.getMimeSubtype().equalsIgnoreCase("html")
 							&& !pickupPlain && (!inEml(mp) || findForward)
-							&& !mp.getBodyParams().containsKey("name")) {
+							&& mp.getBodyParam("name") != null) {
 						chosenPart = mp;
 						break;
 					} else if (mp.getMimeSubtype().equalsIgnoreCase("plain")) {

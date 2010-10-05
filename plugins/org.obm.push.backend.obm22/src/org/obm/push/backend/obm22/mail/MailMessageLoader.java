@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,6 +44,7 @@ import org.minig.imap.FlagsList;
 import org.minig.imap.IMAPException;
 import org.minig.imap.IMAPHeaders;
 import org.minig.imap.StoreClient;
+import org.minig.imap.mime.BodyParam;
 import org.minig.imap.mime.MimePart;
 import org.minig.imap.mime.MimeTree;
 import org.obm.push.backend.BackendSession;
@@ -76,6 +78,8 @@ public class MailMessageLoader {
 //	private static final String[] HEADS_LOAD = new String[] { "Subject",
 //			"From", "Date", "To", "Cc", "Bcc", "Message-ID" };
 
+	private static final BodyParam formatFlowed = new BodyParam("format", "flowed");
+	
 	private CalendarClient calendarClient;
 	private BackendSession bs;
 	private Integer collectionId;
@@ -184,7 +188,7 @@ public class MailMessageLoader {
 
 	private void fetchFlowed(MSEmail mailMessage, StoreClient protocol,
 			MimePart m) throws IOException, IMAPException {
-		if ("flowed".equalsIgnoreCase(m.getBodyParams().get("format"))) {
+		if (formatFlowed.equals(m.getBodyParam("format"))) {
 			MSEmail mm = fetchOneMessage(m, null, protocol);
 			if (!mailMessage.getBody().equals(mm.getBody())) {
 				for (MSEmailBodyType format : mm.getBody().availableFormats()) {
@@ -329,15 +333,18 @@ public class MailMessageLoader {
 		return null;
 	}
 
-	private boolean isSupportedCharset(String charset) {
-		if (charset == null || charset.length() == 0) {
-			return false;
+	private String computeSupportedCharset(BodyParam charsetParam) {
+		if (charsetParam != null) {
+			try {
+				String charsetName = charsetParam.getValue();
+				if (Charset.isSupported(charsetName)) {
+					return charsetName;
+				}
+			} catch (IllegalCharsetNameException e) {
+			} catch (IllegalArgumentException e) {
+			}
 		}
-		try {
-			return Charset.isSupported(charset);
-		} catch (Throwable t) {
-			return false;
-		}
+		return "utf-8";
 	}
 
 	private MSEmailBody getMailBody(Set<MimePart> chosenParts,
@@ -349,14 +356,13 @@ public class MailMessageLoader {
 			mb.addConverted(MSEmailBodyType.PlainText, "");
 			mb.setCharset("utf-8");
 		} else {
-			for (MimePart mp : chosenParts) {
+			for (MimePart mp: chosenParts) {
 				if(mp != null){
 					InputStream bodyText = protocol.uidFetchPart(tree.getUid(),
 							mp.getAddress());
-					String charsetName = mp.getBodyParams().get("charset");
-					if (!isSupportedCharset(charsetName)) {
-						charsetName = "utf-8";
-					}
+					BodyParam charsetParam = mp.getBodyParam("charset");
+					String charsetName = computeSupportedCharset(charsetParam);
+					
 					mb.setCharset(charsetName);
 					byte[] rawData = extractPartData(mp, bodyText);
 					String partText = new String(rawData, charsetName);
@@ -428,11 +434,13 @@ public class MailMessageLoader {
 		InputStream part = protocol.uidFetchPart(uid, mp.getAddress());
 		data = extractPartData(mp, part);
 		try {
-			Map<String, String> bp = mp.getBodyParams();
+			BodyParam bp = mp.getBodyParam("name");
 			if (bp != null) {
-				if (bp.containsKey("name") && bp.get("name") != null) {
+				if (bp != null && bp.getValue() != null) {
 
-					if ((isInvitation || isCancelInvitation) && bp.get("name").contains(".ics")
+					String name = bp.getValue();
+					
+					if ((isInvitation || isCancelInvitation) && name.contains(".ics")
 							&& data != null) {
 						invitation = new ByteArrayInputStream(data);
 						if(isInvitation){
@@ -443,7 +451,7 @@ public class MailMessageLoader {
 						
 					}
 					MSAttachement att = new MSAttachement();
-					att.setDisplayName(bp.get("name"));
+					att.setDisplayName(name);
 					att.setFileReference(id);
 					att.setMethod(MethodAttachment.NormalAttachment);
 					att.setEstimatedDataSize(data.length);
