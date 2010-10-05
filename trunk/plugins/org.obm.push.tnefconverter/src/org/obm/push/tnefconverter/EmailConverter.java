@@ -16,7 +16,6 @@ import org.columba.ristretto.message.Header;
 import org.columba.ristretto.message.LocalMimePart;
 import org.columba.ristretto.message.MimeHeader;
 import org.columba.ristretto.message.MimeType;
-import org.obm.push.tnefconverter.ScheduleMeeting.PidTagMessageClass;
 import org.obm.push.tnefconverter.ScheduleMeeting.ScheduleMeeting;
 import org.obm.push.tnefconverter.ScheduleMeeting.ScheduleMeetingEncoder;
 import org.obm.push.tnefconverter.ScheduleMeeting.TNEFExtractorUtils;
