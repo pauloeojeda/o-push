@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -146,11 +147,11 @@ public class MailBackend extends ObmSyncBackend {
 	private void filtreInvitation(BackendSession bs, SyncState state,
 			DataDelta delta, Integer emailCollectionId) {
 		try {
-
+			Map<String, ItemChange> syncedItem = new HashMap<String, ItemChange>();
 			String calPath = getDefaultCalendarName(bs);
 			Integer eventCollectionId = getCollectionIdFor(bs.getDevId(),
 					calPath);
-
+			
 			List<Long> emailToSync = storage.getEmailToSynced(
 					emailCollectionId, state.getKey());
 			System.err.println(emailToSync.size()+" email to sync");
@@ -206,6 +207,9 @@ public class MailBackend extends ObmSyncBackend {
 											.getInvitation().getDtStamp(),
 									InvitationStatus.EMAIL_SYNCED, state
 											.getKey());
+							syncedItem.put(ic.getServerId(), ic);
+							it.remove();
+							
 						}
 					}
 				}
@@ -214,12 +218,17 @@ public class MailBackend extends ObmSyncBackend {
 			List<Long> emailToDeleted = storage.getEmailToDeleted(
 					emailCollectionId, state.getKey());
 			logger.info(emailToDeleted.size() + " email(s) will be deleted on the PDA");
-			List<ItemChange> itemsToDeleted = this.getDeletions(
-					emailCollectionId, emailToDeleted);
+			List<ItemChange> itemsToDeleted = new LinkedList<ItemChange>();
+			for (Long uid : emailToDeleted) {
+				ItemChange ic = getDeletion(emailCollectionId, uid.toString());
+				itemsToDeleted.add(ic);
+				syncedItem.remove(ic.getServerId());
+			}
 			storage.updateInvitationStatus(InvitationStatus.DELETED, state
 					.getKey(), eventCollectionId, emailCollectionId,
 					emailToDeleted.toArray(new Long[0]));
 			delta.getDeletions().addAll(itemsToDeleted);
+			delta.getChanges().addAll(syncedItem.values());
 		} catch (ActiveSyncException e) {
 			logger.info(e.getMessage(), e);
 		}
