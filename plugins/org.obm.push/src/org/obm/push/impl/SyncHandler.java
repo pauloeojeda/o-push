@@ -290,8 +290,12 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			if (entry != null) {
 				Element add = DOMUtils.createElement(responses, "Add");
 				DOMUtils.createElementAndText(add, "ClientId", entry);
-				DOMUtils.createElementAndText(add, "Status",
-						SyncStatus.CONVERSATION_ERROR.asXmlValue());
+				// need send ok since we do not synchronize event with
+				// ParticipationState need-action
+				DOMUtils.createElementAndText(add, "Status", SyncStatus.OK
+						.asXmlValue());
+				// DOMUtils.createElementAndText(add, "Status",
+				// SyncStatus.CONVERSATION_ERROR.asXmlValue());
 			}
 		}
 		if (responses.getChildNodes().getLength() == 0) {
