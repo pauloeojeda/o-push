@@ -192,7 +192,8 @@ public class TNEFUtils {
      * @param value the constant's value
      * @return the name of the constant
      */
-    public static String getConstName(Class cls, String constPrefix, long value) {
+    @SuppressWarnings("rawtypes")
+	public static String getConstName(Class cls, String constPrefix, long value) {
         Field[] fields = cls.getFields();
         try {
             for (int i = 0; i < fields.length; i++) {

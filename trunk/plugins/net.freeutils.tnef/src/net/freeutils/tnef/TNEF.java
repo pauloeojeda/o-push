@@ -63,16 +63,16 @@ public class TNEF {
             outputdir += File.separator;
         // handle attributes
         System.out.println("\nMessage Attributes:\n");
-        List attributes = message.getAttributes();
+        List<Attr> attributes = message.getAttributes();
         for (int i = 0; i < attributes.size(); i++)
             System.out.println(attributes.get(i).toString());
 
         // handle attachments
         System.out.println("\nMessage Attachments:\n");
-        List attachments = message.getAttachments();
+        List<Attachment> attachments = message.getAttachments();
         int count = 0;
         for (int i = 0; i < attachments.size(); i++) {
-            Attachment attachment = (Attachment)attachments.get(i);
+            Attachment attachment = attachments.get(i);
             System.out.println(attachment.toString());
             if (attachment.getNestedMessage() != null) { // nested message
                 count += extractContent(attachment.getNestedMessage(), outputdir);

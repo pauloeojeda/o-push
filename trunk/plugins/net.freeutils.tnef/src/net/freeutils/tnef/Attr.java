@@ -320,7 +320,7 @@ public class Attr {
      * @return an attribute with given ID found in the attribute list,
      *         or null if no such attribute exists
      */
-    public static Attr findAttr(List attributes, int ID) {
+    public static Attr findAttr(List<Attr> attributes, int ID) {
         Attr attr = null;
         for (int i = 0; attributes != null && i < attributes.size(); i++) {
             attr = (Attr)attributes.get(i);
