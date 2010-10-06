@@ -34,7 +34,7 @@ import java.util.ArrayList;
  */
 public class Attachment {
 
-    List attributes;
+    List<Attr> attributes;
     String filename;
     RawInputStream rawData;
     MAPIProps MAPIProps;
@@ -44,7 +44,7 @@ public class Attachment {
      * Constructs an empty Attachment.
      */
     public Attachment() {
-        this.attributes = new ArrayList();
+        this.attributes = new ArrayList<Attr>();
     }
 
     /**
@@ -52,7 +52,7 @@ public class Attachment {
      *
      * @return the Attachment attributes
      */
-    public List getAttributes() {
+    public List<Attr> getAttributes() {
         return this.attributes;
     }
 
@@ -61,7 +61,7 @@ public class Attachment {
      *
      * @param attributes the Attachment attributes
      */
-    public void setAttributes(List attributes) {
+    public void setAttributes(List<Attr> attributes) {
         this.attributes = attributes;
     }
 

@@ -32,15 +32,15 @@ import java.util.List;
  */
 public class Message {
 
-	List attributes;
-	List attachments;
+	List<Attr> attributes;
+	List<Attachment> attachments;
 
 	/**
 	 * Constructs an empty Message.
 	 */
 	public Message() {
-		attributes = new ArrayList();
-		attachments = new ArrayList();
+		attributes = new ArrayList<Attr>();
+		attachments = new ArrayList<Attachment>();
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class Message {
 	 * 
 	 * @return the Message attributes
 	 */
-	public List getAttributes() {
+	public List<Attr> getAttributes() {
 		return this.attributes;
 	}
 
@@ -162,7 +162,7 @@ public class Message {
 	 * @param attributes
 	 *            the Message attributes
 	 */
-	public void setAttributes(List attributes) {
+	public void setAttributes(List<Attr> attributes) {
 		this.attributes = attributes;
 	}
 
@@ -183,7 +183,7 @@ public class Message {
 	 * 
 	 * @return the Message attachments
 	 */
-	public List getAttachments() {
+	public List<Attachment> getAttachments() {
 		return this.attachments;
 	}
 
@@ -193,7 +193,7 @@ public class Message {
 	 * @param attachments
 	 *            the Message attachments
 	 */
-	public void setAttachments(List attachments) {
+	public void setAttachments(List<Attachment> attachments) {
 		this.attachments = attachments;
 	}
 

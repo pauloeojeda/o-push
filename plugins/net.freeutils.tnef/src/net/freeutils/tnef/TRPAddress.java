@@ -58,7 +58,8 @@ public class TRPAddress extends Address {
     public TRPAddress(RawInputStream data) throws IOException {
         // get TRP structure values
         int trpid = data.readU16(); // from trpid* constants
-        int cbgrtrp = data.readU16(); // 2*sizeof(TRP) + display length (with padding) + address length
+        // skip u16
+        data.readU16(); // 2*sizeof(TRP) + display length (with padding) + address length
         int cch = data.readU16(); // display name length (with padding)
         int cbRgb = data.readU16(); // address length
 
