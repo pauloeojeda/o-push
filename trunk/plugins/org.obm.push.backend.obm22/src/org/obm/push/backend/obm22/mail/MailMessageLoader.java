@@ -126,9 +126,8 @@ public class MailMessageLoader {
 		if (hs.length != 1 || hs[0] == null) {
 			return null;
 		}
-		MimeTree[] mts = null;
-		mts = store.uidFetchBodyStructure(set);
-		tree = mts[0];
+		Collection<MimeTree> mts = store.uidFetchBodyStructure(set);
+		tree = mts.iterator().next();
 
 		MSEmail mm = fetchOneMessage(tree, hs[0], store);
 
@@ -137,11 +136,12 @@ public class MailMessageLoader {
 		fetchQuotedText(tree, mm, store);
 		fetchForwardMessages(tree, mm, store);
 
-		FlagsList[] fl = store.uidFetchFlags(set);
-		if (fl.length > 0) {
-			mm.setRead(fl[0].contains(Flag.SEEN));
-			mm.setStarred(fl[0].contains(Flag.FLAGGED));
-			mm.setAnswered(fl[0].contains(Flag.ANSWERED));
+		Collection<FlagsList> fl = store.uidFetchFlags(set);
+		if (!fl.isEmpty()) {
+			FlagsList fl0 = fl.iterator().next();
+			mm.setRead(fl0.contains(Flag.SEEN));
+			mm.setStarred(fl0.contains(Flag.FLAGGED));
+			mm.setAnswered(fl0.contains(Flag.ANSWERED));
 		}
 
 		fetchMimeData(store, mm);
