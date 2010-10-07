@@ -122,14 +122,14 @@ public class MailMessageLoader {
 		// IMAPHeaders[] hs = store.uidFetchHeaders(set,
 		// MailMessageLoader.HEADS_LOAD);
 
-		Envelope[] hs = store.uidFetchEnvelope(set);
-		if (hs.length != 1 || hs[0] == null) {
+		Collection<Envelope> hs = store.uidFetchEnvelope(set);
+		if (hs.size() != 1 || hs.iterator().next() == null) {
 			return null;
 		}
 		Collection<MimeTree> mts = store.uidFetchBodyStructure(set);
 		tree = mts.iterator().next();
 
-		MSEmail mm = fetchOneMessage(tree, hs[0], store);
+		MSEmail mm = fetchOneMessage(tree, hs.iterator().next(), store);
 
 		// do load messages forwarded as attachments into the indexers, as it
 		// ignores them
