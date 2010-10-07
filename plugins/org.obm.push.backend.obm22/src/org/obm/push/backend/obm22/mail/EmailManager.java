@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -217,8 +219,7 @@ public class EmailManager {
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.SEEN);
-			long[] uids = { uid };
-			store.uidStore(uids, fl, read);
+			store.uidStore(Arrays.asList(uid), fl, read);
 			logger.info("flag  change: " + (read ? "+" : "-") + " SEEN"
 					+ " on mail " + uid + " in " + mailBoxName);
 		} finally {
@@ -275,10 +276,9 @@ public class EmailManager {
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.DELETED);
 			logger.info("delete conv id : " + uid);
-			long[] uids = { uid };
-			store.uidStore(uids, fl, true);
+			store.uidStore(Arrays.asList(uid), fl, true);
 			store.expunge();
-			deleteMessageInCache(devId, collectionId, uid);
+			deleteMessageInCache(devId, collectionId, Arrays.asList(uid));
 		} finally {
 			try {
 				store.logout();
@@ -291,20 +291,20 @@ public class EmailManager {
 			Integer srcFolderId, String dstFolder, Integer dstFolderId, Long uid)
 			throws IMAPException {
 		StoreClient store = getImapClient(bs);
-		long[] newUid = null;
+		Collection<Long> newUid = null;
 		try {
 			login(store);
 			String srcMailBox = parseMailBoxName(store, bs, srcFolder);
 			String dstMailBox = parseMailBoxName(store, bs, dstFolder);
 			store.select(srcMailBox);
-			long[] uids = { uid };
+			List<Long> uids = Arrays.asList(uid);
 			newUid = store.uidCopy(uids, dstMailBox);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.DELETED);
 			logger.info("delete conv id : " + uid);
 			store.uidStore(uids, fl, true);
 			store.expunge();
-			deleteMessageInCache(devId, srcFolderId, uid);
+			deleteMessageInCache(devId, srcFolderId, Arrays.asList(uid));
 			addMessageInCache(devId, dstFolderId, uid);
 		} finally {
 			try {
@@ -312,10 +312,10 @@ public class EmailManager {
 			} catch (IMAPException e) {
 			}
 		}
-		if (newUid == null || newUid.length == 0) {
+		if (newUid == null || newUid.isEmpty()) {
 			return null;
 		}
-		return newUid[0];
+		return newUid.iterator().next();
 	}
 
 	private void login(StoreClient store) throws IMAPException {
@@ -333,8 +333,7 @@ public class EmailManager {
 			store.select(mailBoxName);
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.ANSWERED);
-			long[] uids = { uid };
-			store.uidStore(uids, fl, true);
+			store.uidStore(Arrays.asList(uid), fl, true);
 			logger
 					.info("flag  change: "
 							+ ("+ ANSWERED" + " on mail " + uid + " in " + mailBoxName));
@@ -398,7 +397,7 @@ public class EmailManager {
 			store.select(mailBoxName);
 			logger.info("Mailbox folder[" + collectionPath
 					+ "] will be purged...");
-			long[] uids = store.uidSearch(new SearchQuery());
+			Collection<Long> uids = store.uidSearch(new SearchQuery());
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.DELETED);
 			store.uidStore(uids, fl, true);
@@ -406,7 +405,7 @@ public class EmailManager {
 			deleteMessageInCache(devId, collectionId, uids);
 			time = System.currentTimeMillis() - time;
 			logger.info("Mailbox folder[" + collectionPath + "] was purged in "
-					+ time + " millisec. " + uids.length
+					+ time + " millisec. " + uids.size()
 					+ " messages have been deleted");
 		} finally {
 			store.logout();
@@ -444,7 +443,7 @@ public class EmailManager {
 	}
 
 	private void deleteMessageInCache(Integer devId, Integer collectionId,
-			long... mailUids) {
+			Collection<Long> mailUids) {
 		IEmailSync uc = cache(collectionId, false);
 		for (Long uid : mailUids) {
 			uc.deleteMessage(devId, collectionId, uid);

@@ -25,6 +25,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -110,7 +112,7 @@ public class MailMessageLoader {
 
 	public MSEmail fetch(Integer collectionId, long messageId, BackendSession bs)
 			throws IOException, IMAPException {
-		long[] set = new long[] { messageId };
+		Collection<Long> set = Arrays.asList(messageId);
 		this.invitation = null;
 		this.tree = null;
 		this.bs = bs;
@@ -135,7 +137,7 @@ public class MailMessageLoader {
 		fetchQuotedText(tree, mm, store);
 		fetchForwardMessages(tree, mm, store);
 
-		FlagsList[] fl = store.uidFetchFlags(new long[] { messageId });
+		FlagsList[] fl = store.uidFetchFlags(set);
 		if (fl.length > 0) {
 			mm.setRead(fl[0].contains(Flag.SEEN));
 			mm.setStarred(fl[0].contains(Flag.FLAGGED));
