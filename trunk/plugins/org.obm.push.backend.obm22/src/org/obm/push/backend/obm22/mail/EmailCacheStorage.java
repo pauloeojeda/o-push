@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -136,7 +137,7 @@ public class EmailCacheStorage implements IEmailSync{
 				// imapStore.uidSearch return messages whose internal date
 				// (disregarding time and timezone)
 				// is within or later than the specified date.
-				long[] uids = imapStore.uidSearch(new SearchQuery(lastUpdate));
+				Collection<Long> uids = imapStore.uidSearch(new SearchQuery(lastUpdate));
 				if (lastUpdate != null && !lastUpdate.equals(new Date(0))) {
 					InternalDate[] tabID = imapStore.uidFetchInternalDate(uids);
 					for (InternalDate id : tabID) {
