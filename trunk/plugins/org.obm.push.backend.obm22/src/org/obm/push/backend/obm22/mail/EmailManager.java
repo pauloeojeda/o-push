@@ -342,7 +342,7 @@ public class EmailManager {
 		}
 	}
 
-	public void sendEmail(BackendSession bs, String from, Set<Address> setTo,
+	public void sendEmail(BackendSession bs, String from, Set<Address> setTo, Set<Address> setCc, Set<Address> setCci,
 			InputStream mimeMail, Boolean saveInSent) {
 		try {
 			logger.info("Send mail to " + setTo + ":\n" + mimeMail);
@@ -350,27 +350,42 @@ public class EmailManager {
 				ByteArrayOutputStream outPut = new ByteArrayOutputStream();
 				FileUtils.transfer(mimeMail, outPut, true);
 				mimeMail = new ByteArrayInputStream(outPut.toByteArray());
-			}
-			mimeMail.reset();
+			} 
 			SMTPProtocol smtp = getSmtpClient(bs);
 			smtp.openPort();
 			smtp.ehlo(InetAddress.getLocalHost());
 			Address addrFrom = new Address(from);
 			smtp.mail(addrFrom);
-
-			for (Address to : setTo) {
-				smtp.rcpt(to);
+			Address[] recipients = getAllRistrettoRecipients(setTo, setCc, setCci);
+			for (Address to : recipients) {
+				Address cleaned = new Address(to.getMailAddress());
+				smtp.rcpt(cleaned);
 			}
-
 			smtp.data(mimeMail);
 			smtp.quit();
-
 			if (saveInSent) {
+				mimeMail.reset();
 				storeInSent(bs, mimeMail);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
+	}
+	
+	private Address[] getAllRistrettoRecipients(Set<Address> to, Set<Address> cc, Set<Address> bcc) {
+		org.columba.ristretto.message.Address addrs[] = new org.columba.ristretto.message.Address[to.size()
+				+ cc.size() + bcc.size()];
+		int i = 0;
+		for (Address addr : to) {
+			addrs[i++] = addr;
+		}
+		for (Address addr : cc) {
+			addrs[i++] = addr;
+		}
+		for (Address addr : bcc) {
+			addrs[i++] = addr;
+		}
+		return addrs;
 	}
 
 	public InputStream findAttachment(BackendSession bs, String collectionName,
@@ -416,7 +431,6 @@ public class EmailManager {
 	private void storeInSent(BackendSession bs, InputStream mailContent)
 			throws IMAPException, IOException {
 		logger.info("Store mail in folder[Sent]");
-		mailContent.reset();
 		String sentFolderName = null;
 		ListResult lr = listAllFolder(bs);
 		for (ListInfo i : lr) {

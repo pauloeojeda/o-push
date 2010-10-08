@@ -44,6 +44,8 @@ public class SendEmailHandler implements
 	private LocalMimePart localMimePart;
 
 	private Set<Address> to;
+	private Set<Address> cc;
+	private Set<Address> cci;
 	private String from;
 	private boolean hasFromField;
 
@@ -51,6 +53,8 @@ public class SendEmailHandler implements
 		this.from = defaultFrom;
 
 		this.to = new HashSet<Address>();
+		this.cc = new HashSet<Address>();
+		this.cci = new HashSet<Address>();
 		header = new Header();
 		basicHeader = new BasicHeader(header);
 		rootMimeHeader = new MimeHeader(header);
@@ -63,6 +67,14 @@ public class SendEmailHandler implements
 
 	public Set<Address> getTo() {
 		return to;
+	}
+	
+	public Set<Address> getCc() {
+		return cc;
+	}
+
+	public Set<Address> getCci() {
+		return cci;
 	}
 
 	public String getFrom() {
@@ -82,6 +94,28 @@ public class SendEmailHandler implements
 							.getBody());
 					for (Address add : adds) {
 						this.to.add(add);
+					}
+				} catch (ParserException e) {
+					throw new MimeException(e.getMessage());
+				}
+				basicHeader.set(arg0.getName(), arg0.getBody().trim());
+			} else 	if ("CC".equalsIgnoreCase(arg0.getName())) {
+				try {
+					Address[] adds = AddressParser.parseMailboxList(arg0
+							.getBody());
+					for (Address add : adds) {
+						this.cc.add(add);
+					}
+				} catch (ParserException e) {
+					throw new MimeException(e.getMessage());
+				}
+				basicHeader.set(arg0.getName(), arg0.getBody().trim());
+			} else  if ("BCC".equalsIgnoreCase(arg0.getName())) {
+				try {
+					Address[] adds = AddressParser.parseMailboxList(arg0
+							.getBody());
+					for (Address add : adds) {
+						this.cci.add(add);
 					}
 				} catch (ParserException e) {
 					throw new MimeException(e.getMessage());
