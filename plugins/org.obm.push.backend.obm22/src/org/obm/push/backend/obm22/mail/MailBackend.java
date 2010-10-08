@@ -151,10 +151,9 @@ public class MailBackend extends ObmSyncBackend {
 			String calPath = getDefaultCalendarName(bs);
 			Integer eventCollectionId = getCollectionIdFor(bs.getDevId(),
 					calPath);
-			
+
 			List<Long> emailToSync = storage.getEmailToSynced(
 					emailCollectionId, state.getKey());
-			System.err.println(emailToSync.size()+" email to sync");
 			List<String> emailServerId = new ArrayList<String>(emailToSync
 					.size());
 			for (Long emailUid : emailToSync) {
@@ -191,7 +190,7 @@ public class MailBackend extends ObmSyncBackend {
 						Boolean update = storage.haveEventToDeleted(
 								eventCollectionId, mail.getInvitation()
 										.getObmUID());
-						System.err.println("haveEventToDELETE: "+update);
+						System.err.println("haveEventToDELETE: " + update);
 						if (update) {
 							storage.createOrUpdateInvitation(eventCollectionId,
 									mail.getInvitation().getObmUID(),
@@ -209,7 +208,7 @@ public class MailBackend extends ObmSyncBackend {
 											.getKey());
 							syncedItem.put(ic.getServerId(), ic);
 							it.remove();
-							
+
 						}
 					}
 				}
@@ -217,7 +216,8 @@ public class MailBackend extends ObmSyncBackend {
 
 			List<Long> emailToDeleted = storage.getEmailToDeleted(
 					emailCollectionId, state.getKey());
-			logger.info(emailToDeleted.size() + " email(s) will be deleted on the PDA");
+			logger.info(emailToDeleted.size()
+					+ " email(s) will be deleted on the PDA");
 			List<ItemChange> itemsToDeleted = new LinkedList<ItemChange>();
 			for (Long uid : emailToDeleted) {
 				ItemChange ic = getDeletion(emailCollectionId, uid.toString());
@@ -435,8 +435,8 @@ public class MailBackend extends ObmSyncBackend {
 		MimeStreamParser parser = new MimeStreamParser();
 		parser.setContentHandler(handler);
 		parser.parse(new ByteArrayInputStream(mailContent));
-		byte[] emailData = FileUtils.streamBytes( handler.getMessage(), true);
-		
+		byte[] emailData = FileUtils.streamBytes(handler.getMessage(), true);
+
 		InputStream email = null;
 		try {
 			EmailConverter conv = new EmailConverter();
@@ -444,11 +444,11 @@ public class MailBackend extends ObmSyncBackend {
 		} catch (Throwable e) {
 			logger.info(e.getMessage(), e);
 		}
-		if(email == null){
+		if (email == null) {
 			email = new ByteArrayInputStream(emailData);
 		}
-		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), email,
-				saveInSent);
+		emailManager.sendEmail(bs, handler.getFrom(), handler.getTo(), handler
+				.getCc(), handler.getCci(), email, saveInSent);
 	}
 
 	public MSEmail getEmail(BackendSession bs, Integer collectionId,
