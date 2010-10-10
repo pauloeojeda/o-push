@@ -227,7 +227,7 @@ public class TNEFMime {
             // compressed RTF body
             RawInputStream ris = (RawInputStream)props.getPropValue(MAPIProp.PR_RTF_COMPRESSED);
             if (ris != null) {
-                String text = new String(TNEFUtils.decompressRTF(ris.toByteArray()));
+                String text = new String(CompressedRTFInputStream.decompressRTF(ris.toByteArray()));
                 addTextPart(mp, text, "text/rtf");
             } else {
                 // HTML body (either PR_HTML or PR_BODY_HTML - both have the
@@ -243,8 +243,7 @@ public class TNEFMime {
         }
 
         // add attachments and nested messages
-        for (Iterator i = message.getAttachments().iterator(); i.hasNext(); ) {
-            Attachment attachment = (Attachment)i.next();
+        for (Attachment attachment : message.getAttachments()) {
             TNEFMimeBodyPart part = new TNEFMimeBodyPart();
             if (attachment.getNestedMessage() == null) {
                 // add TNEF attributes

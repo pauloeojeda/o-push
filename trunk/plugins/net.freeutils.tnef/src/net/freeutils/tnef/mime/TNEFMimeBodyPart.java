@@ -24,6 +24,8 @@ import java.util.List;
 
 import javax.mail.internet.MimeBodyPart;
 
+import net.freeutils.tnef.Attr;
+
 /**
  * The <code>TNEFMimeBodyPart</code> class subclasses MimeBodyPart with the
  * Added TNEF attributes.
@@ -33,7 +35,7 @@ import javax.mail.internet.MimeBodyPart;
  */
 public class TNEFMimeBodyPart extends MimeBodyPart {
 
-    List attributes;
+    List<Attr> attributes;
 
     /**
      * Constructs an empty TNEFMimeBodyPart with default content.
@@ -47,7 +49,7 @@ public class TNEFMimeBodyPart extends MimeBodyPart {
      *
      * @return the TNEFMimeMessage TNEF attributes
      */
-    public List getTNEFAttributes() {
+    public List<Attr> getTNEFAttributes() {
         return this.attributes;
     }
 
@@ -56,7 +58,7 @@ public class TNEFMimeBodyPart extends MimeBodyPart {
      *
      * @param attributes the TNEFMimeMessage TNEF attributes
      */
-    public void setTNEFAttributes(List attributes) {
+    public void setTNEFAttributes(List<Attr> attributes) {
         this.attributes = attributes;
     }
 
