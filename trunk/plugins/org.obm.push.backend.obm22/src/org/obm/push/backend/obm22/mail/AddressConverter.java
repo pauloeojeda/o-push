@@ -20,7 +20,7 @@ public class AddressConverter {
 		return msAdd;
 	}
 	
-	public static List<MSAddress> convertAddresses(Address[] adds){
+	public static List<MSAddress> convertAddresses(List<Address> adds){
 		List<MSAddress> ret = new LinkedList<MSAddress>();
 		for(Address add : adds){
 			ret.add(convertAddress(add));

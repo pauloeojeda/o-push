@@ -39,7 +39,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.james.mime4j.parser.MimeEntityConfig;
 import org.apache.james.mime4j.parser.MimeStreamParser;
-import org.minig.imap.Address;
 import org.minig.imap.Envelope;
 import org.minig.imap.Flag;
 import org.minig.imap.FlagsList;
@@ -269,16 +268,13 @@ public class MailMessageLoader {
 			mm.setDate(e.getDate());
 			mm.setSubject(e.getSubject());
 			if (e.getCc() != null) {
-				mm.setCc(AddressConverter.convertAddresses(e.getCc().toArray(
-						new Address[e.getCc().size()])));
+				mm.setCc(AddressConverter.convertAddresses(e.getCc()));
 			}
 			if (e.getTo() != null) {
-				mm.setTo(AddressConverter.convertAddresses(e.getTo().toArray(
-						new Address[e.getTo().size()])));
+				mm.setTo(AddressConverter.convertAddresses(e.getTo()));
 			}
 			if (e.getBcc() != null) {
-				mm.setBcc(AddressConverter.convertAddresses(e.getBcc().toArray(
-						new Address[e.getBcc().size()])));
+				mm.setBcc(AddressConverter.convertAddresses(e.getBcc()));
 			}
 
 			mm.setSmtpId(e.getMessageId());
