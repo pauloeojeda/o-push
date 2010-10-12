@@ -369,7 +369,19 @@ public class MailBackend extends ObmSyncBackend {
 	public void replyEmail(BackendSession bs, byte[] mailContent,
 			Boolean saveInSent, Integer collectionId, String serverId) {
 		try {
-			String collectionPath = getCollectionPathFor(collectionId);
+			String collectionPath = "";
+			if(collectionId != null && collectionId>0){
+				try{
+					collectionPath = getCollectionPathFor(collectionId);
+				} catch (Throwable e) {}
+			}
+
+			if(serverId == null || !serverId.isEmpty()){
+				collectionId = getCollectionIdFor(serverId);
+				collectionPath = getCollectionPathFor(collectionId);
+				
+			}
+			
 			Long uid = getItemIdFor(serverId).longValue();
 			Set<Long> uids = new HashSet<Long>();
 			uids.add(uid);

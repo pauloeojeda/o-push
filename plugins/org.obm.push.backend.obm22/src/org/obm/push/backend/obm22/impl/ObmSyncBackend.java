@@ -170,5 +170,4 @@ public class ObmSyncBackend {
 	public String createCollectionMapping(String devId, String col) {
 		return storage.addCollectionMapping(devId, col).toString();
 	}
-
 }
