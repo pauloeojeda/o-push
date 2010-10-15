@@ -514,7 +514,7 @@ public class MailMessageLoader {
 			}
 			char first = line.charAt(0);
 			if (Character.isWhitespace(first)) {
-				curHead.append(line.substring(1));
+				curHead.append(line);
 			} else {
 				if (lastKey != null) {
 					rawHeaders.put(lastKey, DOMUtils
