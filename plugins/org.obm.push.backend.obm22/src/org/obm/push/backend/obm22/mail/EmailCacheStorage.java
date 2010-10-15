@@ -51,7 +51,7 @@ import fr.aliasource.utils.JDBCUtils;
  * @author adrienp
  * 
  */
-public class EmailCacheStorage implements IEmailSync{
+public class EmailCacheStorage implements IEmailSync {
 
 	protected Log logger;
 	private String debugName;
@@ -104,8 +104,7 @@ public class EmailCacheStorage implements IEmailSync{
 		ResultSet evrs = null;
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT mail_uid FROM opush_sync_mail WHERE collection_id=? and device_id=?");
+			ps = con.prepareStatement("SELECT mail_uid FROM opush_sync_mail WHERE collection_id=? and device_id=?");
 			ps.setLong(1, collectionId);
 			ps.setInt(2, devId);
 
@@ -128,37 +127,29 @@ public class EmailCacheStorage implements IEmailSync{
 	}
 
 	private Set<Long> loadMailFromIMAP(BackendSession bs,
-			StoreClient imapStore, String mailBox, Date lastUpdate) {
+			StoreClient imapStore, Date lastUpdate) {
 		long time = System.currentTimeMillis();
 		Set<Long> mails = new HashSet<Long>();
 		try {
-			if (imapStore.login()) {
-				imapStore.select(mailBox);
-				// imapStore.uidSearch return messages whose internal date
-				// (disregarding time and timezone)
-				// is within or later than the specified date.
-				Collection<Long> uids = imapStore.uidSearch(new SearchQuery(lastUpdate));
-				if (lastUpdate != null && !lastUpdate.equals(new Date(0))) {
-					InternalDate[] tabID = imapStore.uidFetchInternalDate(uids);
-					for (InternalDate id : tabID) {
-						if (id.after(lastUpdate)) {
-							mails.add(Long.valueOf(id.getUid()));
-						}
+			// imapStore.uidSearch return messages whose internal date
+			// (disregarding time and timezone)
+			// is within or later than the specified date.
+			Collection<Long> uids = imapStore.uidSearch(new SearchQuery(
+					lastUpdate));
+			if (lastUpdate != null && !lastUpdate.equals(new Date(0))) {
+				InternalDate[] tabID = imapStore.uidFetchInternalDate(uids);
+				for (InternalDate id : tabID) {
+					if (id.after(lastUpdate)) {
+						mails.add(Long.valueOf(id.getUid()));
 					}
-				} else {
-					for (long uid : uids) {
-						mails.add(Long.valueOf(uid));
-					}
+				}
+			} else {
+				for (long uid : uids) {
+					mails.add(Long.valueOf(uid));
 				}
 			}
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
-		} finally {
-			try {
-				imapStore.logout();
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
 		}
 		if (logger.isDebugEnabled()) {
 			time = System.currentTimeMillis() - time;
@@ -231,15 +222,15 @@ public class EmailCacheStorage implements IEmailSync{
 
 	@Override
 	public MailChanges getSync(StoreClient imapStore, Integer devId,
-			BackendSession bs, SyncState state, Integer collectionId,
-			String mailBox) throws InterruptedException, SQLException {
+			BackendSession bs, SyncState state, Integer collectionId)
+			throws InterruptedException, SQLException {
 		long time = System.currentTimeMillis();
 		long ct = System.currentTimeMillis();
 		Set<Long> memoryCache = loadMailFromDb(bs, devId, collectionId);
 		ct = System.currentTimeMillis() - ct;
 
 		long writeTime = System.currentTimeMillis();
-		Set<Long> current = loadMailFromIMAP(bs, imapStore, mailBox, null);
+		Set<Long> current = loadMailFromIMAP(bs, imapStore, null);
 		if (!current.equals(memoryCache)) {
 			updateDbCache(bs, devId, collectionId, current);
 		} else if (state.getLastSync() != null && this.lastSyncDate != null
@@ -250,8 +241,8 @@ public class EmailCacheStorage implements IEmailSync{
 		writeTime = System.currentTimeMillis() - writeTime;
 
 		long computeChangesTime = System.currentTimeMillis();
-		Set<Long> lastUp = loadMailFromIMAP(bs, imapStore, mailBox, state
-				.getLastSync());
+		Set<Long> lastUp = loadMailFromIMAP(bs, imapStore, 
+				state.getLastSync());
 		MailChanges sync = computeChanges(memoryCache, current, lastUp);
 		this.mailChangesCache = sync;
 		computeChangesTime = System.currentTimeMillis() - computeChangesTime;
@@ -292,7 +283,7 @@ public class EmailCacheStorage implements IEmailSync{
 			JDBCUtils.cleanup(con, del, null);
 		}
 	}
-	
+
 	@Override
 	public void addMessage(Integer devId, Integer collectionId, Long mailUid) {
 		if (logger.isDebugEnabled()) {
