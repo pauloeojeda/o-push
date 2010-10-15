@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tnef
+Bundle-SymbolicName: net.freeutils.tnef
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: net.freeutils.tnef.Activator
+Require-Bundle: org.eclipse.core.runtime
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: .,
+ lib/mailapi.jar
+Export-Package: javax.mail,
+ javax.mail.internet,
+ net.freeutils.tnef

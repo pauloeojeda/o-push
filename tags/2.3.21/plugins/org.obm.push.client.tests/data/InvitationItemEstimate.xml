@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GetItemEstimate xmlns="ItemEstimate:" xmlns:AirSync="AirSync:">
+<Collections>
+<Collection>
+<CollectionId>CALENDAR</CollectionId>
+<AirSync:FilterType>4</AirSync:FilterType>
+<AirSync:SyncKey>CALENDAR</AirSync:SyncKey>
+</Collection>
+<Collection>
+<CollectionId>INBOX</CollectionId>
+<AirSync:FilterType>0</AirSync:FilterType>
+<AirSync:SyncKey>INBOX</AirSync:SyncKey>
+</Collection>
+</Collections>
+</GetItemEstimate>
