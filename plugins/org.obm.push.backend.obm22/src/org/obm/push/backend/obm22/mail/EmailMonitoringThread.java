@@ -36,12 +36,14 @@ public class EmailMonitoringThread implements IIdleCallback {
 	protected String imapHost;
 	private BackendSession bs;
 	private String collectionName;
+	private Boolean remainConnected;  
 
 	private IdleClient store;
 
 	public EmailMonitoringThread(ObmSyncBackend cb,
 			Set<ICollectionChangeListener> ccls, BackendSession bs,
 			Integer collectionId) throws ActiveSyncException {
+		remainConnected = false;
 		this.ccls = Collections.synchronizedSet(ccls);
 		this.backend = cb;
 		this.bs = bs;
@@ -55,8 +57,20 @@ public class EmailMonitoringThread implements IIdleCallback {
 			store.select(EmailManager.getInstance().parseMailBoxName(bs,
 					collectionName));
 		}
+		remainConnected = true;
 		store.startIdle();
 		logger.info("Start email push monitoring for collection[ "
+				+ collectionName + "]");
+	}
+	
+	public void stopIdle() {
+		remainConnected = false;
+		if (store != null) {
+			store.stopIdle();
+			store.logout();
+			store = null;
+		}
+		logger.info("Stop email push monitoring for collection[ "
 				+ collectionName + "]");
 	}
 
@@ -102,16 +116,6 @@ public class EmailMonitoringThread implements IIdleCallback {
 		return ret;
 	}
 
-	public void stopIdle() {
-		if (store != null) {
-			store.stopIdle();
-			store.logout();
-			store = null;
-		}
-		logger.info("Stop email push monitoring for collection[ "
-				+ collectionName + "]");
-	}
-
 	@Override
 	public synchronized void receive(IdleLine line) {
 		if (line != null) {
@@ -147,13 +151,6 @@ public class EmailMonitoringThread implements IIdleCallback {
 				for (PushNotification pn : toNotify) {
 					pn.emit();
 				}
-			} else if (IdleTag.BYE.equals(line.getTag())) {
-				try {
-					logger.info("Disconnect from IMAP[Timeout]");
-					startIdle();
-				} catch (IMAPException e) {
-					logger.error(e.getMessage(), e);
-				}
 			}
 		}
 	}
@@ -170,7 +167,6 @@ public class EmailMonitoringThread implements IIdleCallback {
 				login = login.substring(0, at);
 			}
 		}
-
 		logger.info("creating idleClient with login: " + login
 				+ " (loginWithDomain: " + useDomain + ")");
 		IdleClient idleCli = new IdleClient(imapHost, 143, login, bs
@@ -182,6 +178,24 @@ public class EmailMonitoringThread implements IIdleCallback {
 		imapHost = new LocatorClient().locateHost("mail/imap_frontend", bs
 				.getLoginAtDomain());
 		logger.info("Using " + imapHost + " as imap host.");
+	}
+
+	@Override
+	public void disconnectedCallBack() {
+		logger.info("Disconnect from IMAP");
+		if(store != null){
+			store.logout();
+			store = null;
+		}
+		if(remainConnected){
+			try {
+				startIdle();
+			} catch (IMAPException e) {
+				logger.error("SEND ERROR TO PDA",e );
+				//TODO SEND ERROR TO PDA
+			}	
+		}
+		
 	}
 
 }
