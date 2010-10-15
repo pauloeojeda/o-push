@@ -1,7 +1,5 @@
 package org.obm.push.impl;
 
-import java.io.IOException;
-
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.IBackend;
 import org.obm.push.backend.IContinuation;
@@ -21,11 +19,14 @@ public class SendMailHandler extends MailRequestHandler {
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
 			byte[] mailContent, Boolean saveInSent, ActiveSyncRequest request,
-			Responder responder) throws IOException {
+			Responder responder) {
 		logger.info("process(" + bs.getLoginAtDomain() + "/" + bs.getDevType()
 				+ ")");
-
+		try{
 		backend.getContentsImporter(null, bs).sendEmail(bs, mailContent, saveInSent);
+		} catch (Throwable e) {
+			logger.info(e.getMessage(), e);
+		}
 	}
 
 }
