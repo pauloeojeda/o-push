@@ -91,14 +91,14 @@ public class EmailManager {
 	}
 
 	private void locateSmtp(BackendSession bs) {
-		smtpHost = new LocatorClient().locateHost("mail/smtp_out", bs
-				.getLoginAtDomain());
+		smtpHost = new LocatorClient().locateHost("mail/smtp_out",
+				bs.getLoginAtDomain());
 		logger.info("Using " + smtpHost + " as smtp host.");
 	}
 
 	private void locateImap(BackendSession bs) {
-		imapHost = new LocatorClient().locateHost("mail/imap_frontend", bs
-				.getLoginAtDomain());
+		imapHost = new LocatorClient().locateHost("mail/imap_frontend",
+				bs.getLoginAtDomain());
 		logger.info("Using " + imapHost + " as imap host.");
 	}
 
@@ -115,8 +115,8 @@ public class EmailManager {
 		}
 		logger.info("creating storeClient with login: " + login
 				+ " (loginWithDomain: " + loginWithDomain + ")");
-		StoreClient imapCli = new StoreClient(imapHost, 143, login, bs
-				.getPassword());
+		StoreClient imapCli = new StoreClient(imapHost, 143, login,
+				bs.getPassword());
 
 		return imapCli;
 	}
@@ -145,8 +145,10 @@ public class EmailManager {
 		StoreClient store = getImapClient(bs);
 		try {
 			login(store);
-			MailChanges sync = uc.getSync(getImapClient(bs), devId, bs, state,
-					collectionId, parseMailBoxName(store, bs, collectionName));
+			String mailBox = parseMailBoxName(store, bs, collectionName);
+			store.select(mailBox);
+			MailChanges sync = uc.getSync(store, devId, bs, state,
+					collectionId);
 			return sync;
 		} finally {
 			try {
@@ -334,29 +336,30 @@ public class EmailManager {
 			FlagsList fl = new FlagsList();
 			fl.add(Flag.ANSWERED);
 			store.uidStore(Arrays.asList(uid), fl, true);
-			logger
-					.info("flag  change: "
-							+ ("+ ANSWERED" + " on mail " + uid + " in " + mailBoxName));
+			logger.info("flag  change: "
+					+ ("+ ANSWERED" + " on mail " + uid + " in " + mailBoxName));
 		} finally {
 			store.logout();
 		}
 	}
 
-	public void sendEmail(BackendSession bs, String from, Set<Address> setTo, Set<Address> setCc, Set<Address> setCci,
-			InputStream mimeMail, Boolean saveInSent) {
+	public void sendEmail(BackendSession bs, String from, Set<Address> setTo,
+			Set<Address> setCc, Set<Address> setCci, InputStream mimeMail,
+			Boolean saveInSent) {
 		try {
-			logger.info("Send mail to " + setTo + ":\n" + mimeMail);
-			if(!mimeMail.markSupported()){
+			logger.info("Send mail to " + setTo);
+			if (!mimeMail.markSupported()) {
 				ByteArrayOutputStream outPut = new ByteArrayOutputStream();
 				FileUtils.transfer(mimeMail, outPut, true);
 				mimeMail = new ByteArrayInputStream(outPut.toByteArray());
-			} 
+			}
 			SMTPProtocol smtp = getSmtpClient(bs);
 			smtp.openPort();
 			smtp.ehlo(InetAddress.getLocalHost());
 			Address addrFrom = new Address(from);
 			smtp.mail(addrFrom);
-			Address[] recipients = getAllRistrettoRecipients(setTo, setCc, setCci);
+			Address[] recipients = getAllRistrettoRecipients(setTo, setCc,
+					setCci);
 			for (Address to : recipients) {
 				Address cleaned = new Address(to.getMailAddress());
 				smtp.rcpt(cleaned);
@@ -371,10 +374,11 @@ public class EmailManager {
 			logger.error(e.getMessage(), e);
 		}
 	}
-	
-	private Address[] getAllRistrettoRecipients(Set<Address> to, Set<Address> cc, Set<Address> bcc) {
-		org.columba.ristretto.message.Address addrs[] = new org.columba.ristretto.message.Address[to.size()
-				+ cc.size() + bcc.size()];
+
+	private Address[] getAllRistrettoRecipients(Set<Address> to,
+			Set<Address> cc, Set<Address> bcc) {
+		org.columba.ristretto.message.Address addrs[] = new org.columba.ristretto.message.Address[to
+				.size() + cc.size() + bcc.size()];
 		int i = 0;
 		for (Address addr : to) {
 			addrs[i++] = addr;
