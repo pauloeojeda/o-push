@@ -50,26 +50,26 @@ public class EmailMonitoringThread implements IIdleCallback {
 		collectionName = backend.getCollectionPathFor(collectionId);
 	}
 
-	public void startIdle() throws IMAPException {
+	public synchronized void startIdle() throws IMAPException {
 		if (store == null) {
 			store = getIdleClient(bs);
-			store.login();
+			store.login(EmailManager.getInstance().getActivateTLS());
 			store.select(EmailManager.getInstance().parseMailBoxName(bs,
 					collectionName));
+			store.startIdle();
 		}
 		remainConnected = true;
-		store.startIdle();
 		logger.info("Start email push monitoring for collection[ "
 				+ collectionName + "]");
 	}
 	
-	public void stopIdle() {
-		remainConnected = false;
+	public synchronized void stopIdle() {
 		if (store != null) {
 			store.stopIdle();
 			store.logout();
 			store = null;
 		}
+		remainConnected = false;
 		logger.info("Stop email push monitoring for collection[ "
 				+ collectionName + "]");
 	}
@@ -181,7 +181,7 @@ public class EmailMonitoringThread implements IIdleCallback {
 	}
 
 	@Override
-	public void disconnectedCallBack() {
+	public synchronized void disconnectedCallBack() {
 		logger.info("Disconnect from IMAP");
 		if(store != null){
 			store.logout();
@@ -197,5 +197,4 @@ public class EmailMonitoringThread implements IIdleCallback {
 		}
 		
 	}
-
 }
