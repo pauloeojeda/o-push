@@ -32,7 +32,9 @@ public abstract class MailRequestHandler implements IRequestHandler {
 
 		InputStream in = request.getInputStream();
 		byte[] mailContent = FileUtils.streamBytes(in, true);
-		logger.info("Mail content:\n" + new String(mailContent));
+		if(logger.isDebugEnabled()){
+			logger.debug("Mail content:\n" + new String(mailContent));
+		}
 		this.process(continuation, bs, mailContent, saveInSent, request,
 				responder);
 	}
