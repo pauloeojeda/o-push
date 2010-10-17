@@ -59,8 +59,11 @@ public class EmailManager {
 
 	private static final String BACKEND_CONF_FILE = "/etc/opush/mail_conf.ini";
 	private static final String BACKEND_IMAP_LOGIN_WITH_DOMAIN = "imap.loginWithDomain";
+	private static final String BACKEND_IMAP_ACTIVATE_TLS = "imap.activateTLS";
+	
 
 	private Boolean loginWithDomain;
+	private Boolean activateTLS;
 	protected String imapHost;
 	protected String smtpHost;
 
@@ -84,6 +87,8 @@ public class EmailManager {
 		};
 		loginWithDomain = !"false".equals(ini.getData().get(
 				BACKEND_IMAP_LOGIN_WITH_DOMAIN));
+		activateTLS = !"false".equals(ini.getData().get(
+				BACKEND_IMAP_ACTIVATE_TLS));
 	}
 
 	public static EmailManager getInstance() {
@@ -114,7 +119,7 @@ public class EmailManager {
 			}
 		}
 		logger.info("creating storeClient with login: " + login
-				+ " (loginWithDomain: " + loginWithDomain + ")");
+				+ " (loginWithDomain: " + loginWithDomain + ", activateTLS:"+activateTLS+")");
 		StoreClient imapCli = new StoreClient(imapHost, 143, login,
 				bs.getPassword());
 
@@ -147,8 +152,8 @@ public class EmailManager {
 			login(store);
 			String mailBox = parseMailBoxName(store, bs, collectionName);
 			store.select(mailBox);
-			MailChanges sync = uc.getSync(store, devId, bs, state,
-					collectionId);
+			MailChanges sync = uc
+					.getSync(store, devId, bs, state, collectionId);
 			return sync;
 		} finally {
 			try {
@@ -164,17 +169,23 @@ public class EmailManager {
 			IMAPException {
 		List<MSEmail> mails = new LinkedList<MSEmail>();
 		StoreClient store = getImapClient(bs);
-		login(store);
-		store.select(parseMailBoxName(store, bs, collectionName));
-		MailMessageLoader mailLoader = new MailMessageLoader(store,
-				calendarClient);
-		for (Long uid : uids) {
-			MSEmail email = mailLoader.fetch(collectionId, uid, bs);
-			if (email != null) {
-				mails.add(email);
+		try {
+			login(store);
+			store.select(parseMailBoxName(store, bs, collectionName));
+			MailMessageLoader mailLoader = new MailMessageLoader(store,
+					calendarClient);
+			for (Long uid : uids) {
+				MSEmail email = mailLoader.fetch(collectionId, uid, bs);
+				if (email != null) {
+					mails.add(email);
+				}
+			}
+		} finally {
+			try {
+				store.logout();
+			} catch (IMAPException e) {
 			}
 		}
-		store.logout();
 		return mails;
 	}
 
@@ -183,12 +194,18 @@ public class EmailManager {
 			throws IOException, IMAPException {
 		List<InputStream> mails = new LinkedList<InputStream>();
 		StoreClient store = getImapClient(bs);
-		login(store);
-		store.select(parseMailBoxName(store, bs, collectionName));
-		for (Long uid : uids) {
-			mails.add(store.uidFetchMessage(uid));
+		try {
+			login(store);
+			store.select(parseMailBoxName(store, bs, collectionName));
+			for (Long uid : uids) {
+				mails.add(store.uidFetchMessage(uid));
+			}
+		} finally {
+			try {
+				store.logout();
+			} catch (IMAPException e) {
+			}
 		}
-		store.logout();
 		return mails;
 	}
 
@@ -321,7 +338,7 @@ public class EmailManager {
 	}
 
 	private void login(StoreClient store) throws IMAPException {
-		if (!store.login()) {
+		if (!store.login(activateTLS)) {
 			throw new IMAPException("Cannot log into imap server");
 		}
 	}
@@ -339,7 +356,10 @@ public class EmailManager {
 			logger.info("flag  change: "
 					+ ("+ ANSWERED" + " on mail " + uid + " in " + mailBoxName));
 		} finally {
-			store.logout();
+			try {
+				store.logout();
+			} catch (IMAPException e) {
+			}
 		}
 	}
 
@@ -402,7 +422,10 @@ public class EmailManager {
 			store.select(mailBoxName);
 			return store.uidFetchPart(mailUid, mimePartAddress);
 		} finally {
-			store.logout();
+			try {
+				store.logout();
+			} catch (IMAPException e) {
+			}
 		}
 	}
 
@@ -427,7 +450,10 @@ public class EmailManager {
 					+ time + " millisec. " + uids.size()
 					+ " messages have been deleted");
 		} finally {
-			store.logout();
+			try {
+				store.logout();
+			} catch (IMAPException e) {
+			}
 		}
 
 	}
@@ -476,5 +502,9 @@ public class EmailManager {
 
 	public Boolean getLoginWithDomain() {
 		return loginWithDomain;
+	}
+	
+	public Boolean getActivateTLS() {
+		return activateTLS;
 	}
 }
