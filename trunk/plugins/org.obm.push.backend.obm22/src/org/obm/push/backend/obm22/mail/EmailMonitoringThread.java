@@ -182,10 +182,12 @@ public class EmailMonitoringThread implements IIdleCallback {
 
 	@Override
 	public synchronized void disconnectedCallBack() {
-		logger.info("Disconnect from IMAP");
 		if(store != null){
+			try{
 			store.logout();
 			store = null;
+			} catch (Throwable e) {
+			}
 		}
 		if(remainConnected){
 			try {
@@ -195,6 +197,6 @@ public class EmailMonitoringThread implements IIdleCallback {
 				//TODO SEND ERROR TO PDA
 			}	
 		}
-		
 	}
+
 }
