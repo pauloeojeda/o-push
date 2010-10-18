@@ -55,6 +55,7 @@
       <plugin id="org.minig.jdbc.driver.pgsql" fragment="true"/>
       <plugin id="org.minig.jdbc.mysql.provider"/>
       <plugin id="org.minig.jdbc.pgsql.provider"/>
+      <plugin id="org.minig.lib.guava"/>
       <plugin id="org.minig.neko.libs"/>
       <plugin id="org.minig.obm.pool"/>
       <plugin id="org.mortbay.jetty.server"/>
