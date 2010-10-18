@@ -60,7 +60,6 @@ public class EmailManager {
 	private static final String BACKEND_CONF_FILE = "/etc/opush/mail_conf.ini";
 	private static final String BACKEND_IMAP_LOGIN_WITH_DOMAIN = "imap.loginWithDomain";
 	private static final String BACKEND_IMAP_ACTIVATE_TLS = "imap.activateTLS";
-	
 
 	private Boolean loginWithDomain;
 	private Boolean activateTLS;
@@ -119,7 +118,8 @@ public class EmailManager {
 			}
 		}
 		logger.info("creating storeClient with login: " + login
-				+ " (loginWithDomain: " + loginWithDomain + ", activateTLS:"+activateTLS+")");
+				+ " (loginWithDomain: " + loginWithDomain + ", activateTLS:"
+				+ activateTLS + ")");
 		StoreClient imapCli = new StoreClient(imapHost, 143, login,
 				bs.getPassword());
 
@@ -189,45 +189,21 @@ public class EmailManager {
 		return mails;
 	}
 
-	public List<InputStream> fetchMIMEMails(BackendSession bs,
-			CalendarClient calendarClient, String collectionName, Set<Long> uids)
-			throws IOException, IMAPException {
-		List<InputStream> mails = new LinkedList<InputStream>();
-		StoreClient store = getImapClient(bs);
+	private ListResult listAllSubscribedFolder(StoreClient store,
+			BackendSession bs) throws IMAPException {
 		try {
-			login(store);
-			store.select(parseMailBoxName(store, bs, collectionName));
-			for (Long uid : uids) {
-				mails.add(store.uidFetchMessage(uid));
-			}
-		} finally {
-			try {
-				store.logout();
-			} catch (IMAPException e) {
-			}
+			return store.listSubscribed("", "*");
+		} catch (Throwable e) {
+			logger.error("Can't read list of subscribe folder.", e);
+			throw new IMAPException("Can't read list of subscribe folder");
 		}
-		return mails;
+
 	}
 
-	private ListResult listAllFolder(BackendSession bs) throws IMAPException {
-		StoreClient store = getImapClient(bs);
-		try {
-			login(store);
-			return listAllFolder(store, bs);
-		} finally {
-			try {
-				store.logout();
-			} catch (IMAPException e) {
-			}
-		}
-	}
-
-	private ListResult listAllFolder(StoreClient store, BackendSession bs)
-			throws IMAPException {
-		ListResult ret = new ListResult(0);
-		ret = store.listAll("", "");
-		return ret;
-	}
+	// private ListResult listAllFolder(StoreClient store,
+	// BackendSession bs) throws IMAPException {
+	// return store.listSubscribed("", "*");
+	// }
 
 	public void updateReadFlag(BackendSession bs, String collectionName,
 			Long uid, boolean read) throws IMAPException {
@@ -269,7 +245,7 @@ public class EmailManager {
 		// parse obm:\\adrien@test.tlse.lng\email\INBOX\Sent
 		int slash = collectionName.lastIndexOf("email\\");
 		String boxName = collectionName.substring(slash + "email\\".length());
-		ListResult lr = listAllFolder(store, bs);
+		ListResult lr = listAllSubscribedFolder(store, bs);
 		for (ListInfo i : lr) {
 			if (i.getName().toLowerCase().contains(boxName.toLowerCase())) {
 				return i.getName();
@@ -337,6 +313,26 @@ public class EmailManager {
 		return newUid.iterator().next();
 	}
 
+	public List<InputStream> fetchMIMEMails(BackendSession bs,
+			CalendarClient calendarClient, String collectionName, Set<Long> uids)
+			throws IOException, IMAPException {
+		List<InputStream> mails = new LinkedList<InputStream>();
+		StoreClient store = getImapClient(bs);
+		try {
+			login(store);
+			store.select(parseMailBoxName(store, bs, collectionName));
+			for (Long uid : uids) {
+				mails.add(store.uidFetchMessage(uid));
+			}
+		} finally {
+			try {
+				store.logout();
+			} catch (IMAPException e) {
+			}
+		}
+		return mails;
+	}
+
 	private void login(StoreClient store) throws IMAPException {
 		if (!store.login(activateTLS)) {
 			throw new IMAPException("Cannot log into imap server");
@@ -390,7 +386,7 @@ public class EmailManager {
 				mimeMail.reset();
 				storeInSent(bs, mimeMail);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
@@ -461,27 +457,28 @@ public class EmailManager {
 	private void storeInSent(BackendSession bs, InputStream mailContent)
 			throws IMAPException, IOException {
 		logger.info("Store mail in folder[Sent]");
-		String sentFolderName = null;
-		ListResult lr = listAllFolder(bs);
-		for (ListInfo i : lr) {
-			if (i.getName().toLowerCase().endsWith("sent")) {
-				sentFolderName = i.getName();
+		StoreClient store = getImapClient(bs);
+		try {
+			login(store);
+			String sentFolderName = null;
+			ListResult lr = listAllSubscribedFolder(store, bs);
+			for (ListInfo i : lr) {
+				if (i.getName().toLowerCase().endsWith("sent")) {
+					sentFolderName = i.getName();
+				}
 			}
-		}
-
-		if (sentFolderName != null) {
-			StoreClient store = getImapClient(bs);
-			try {
-				login(store);
+			if (sentFolderName != null) {
 				FlagsList fl = new FlagsList();
 				fl.add(Flag.SEEN);
 				store.append(sentFolderName, mailContent, fl);
 				store.expunge();
-			} finally {
-				try {
-					store.logout();
-				} catch (IMAPException e) {
-				}
+			}
+		} catch (Throwable e) {
+			logger.error("Error during backup of the mail in Sent folder.", e);
+		} finally {
+			try {
+				store.logout();
+			} catch (IMAPException e) {
 			}
 		}
 	}
@@ -503,7 +500,7 @@ public class EmailManager {
 	public Boolean getLoginWithDomain() {
 		return loginWithDomain;
 	}
-	
+
 	public Boolean getActivateTLS() {
 		return activateTLS;
 	}
