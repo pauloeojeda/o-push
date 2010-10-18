@@ -16,7 +16,6 @@
 
 package org.obm.push.backend.obm22.mail;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,7 +26,6 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +43,7 @@ import org.minig.imap.FlagsList;
 import org.minig.imap.IMAPException;
 import org.minig.imap.IMAPHeaders;
 import org.minig.imap.StoreClient;
+import org.minig.imap.command.parser.HeadersParser;
 import org.minig.imap.mime.BodyParam;
 import org.minig.imap.mime.MimePart;
 import org.minig.imap.mime.MimeTree;
@@ -61,7 +60,6 @@ import org.obm.sync.auth.AccessToken;
 import org.obm.sync.calendar.Event;
 import org.obm.sync.client.calendar.CalendarClient;
 
-import fr.aliasource.utils.DOMUtils;
 import fr.aliasource.utils.FileUtils;
 
 /**
@@ -244,8 +242,8 @@ public class MailMessageLoader {
 			InputStream is = protocol.uidFetchPart(tree.getUid(), mimePart
 					.getAddress()
 					+ ".HEADER");
-			Map<String, String> rawHeaders = new HashMap<String, String>();
-			parseRawHeaders(is, rawHeaders, getHeaderCharsetDecoder(mimePart));
+			InputStreamReader reader = new InputStreamReader(is, getHeaderCharsetDecoder(mimePart));
+			Map<String, String> rawHeaders = HeadersParser.parseRawHeaders(reader);
 			h = new IMAPHeaders();
 			h.setRawHeaders(rawHeaders);
 		}
@@ -496,52 +494,8 @@ public class MailMessageLoader {
 		return null;
 	}
 
-	// public void setPickupPlain(boolean pickupPlain) {
-	// this.pickupPlain = pickupPlain;
-	// }
-
-	private void parseRawHeaders(InputStream inputStream,
-			Map<String, String> rawHeaders, Charset charset) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				inputStream, charset));
-		String line = null;
-		StringBuilder curHead = null;
-		String lastKey = null;
-		while ((line = br.readLine()) != null) {
-			// collapse rfc822 headers into one line
-			if (!(line.length() > 1)) {
-				continue;
-			}
-			char first = line.charAt(0);
-			if (Character.isWhitespace(first)) {
-				curHead.append(line);
-			} else {
-				if (lastKey != null) {
-					rawHeaders.put(lastKey, DOMUtils
-							.stripNonValidXMLCharacters(curHead.toString()));
-				}
-				curHead = new StringBuilder();
-				lastKey = null;
-
-				int split = line.indexOf(':');
-				if (split > 0) {
-					lastKey = line.substring(0, split).toLowerCase();
-					String value = line.substring(split + 1).trim();
-					curHead.append(value);
-				}
-			}
-		}
-		if (lastKey != null) {
-			rawHeaders.put(lastKey, DOMUtils.stripNonValidXMLCharacters(curHead
-					.toString()));
-		}
-	}
-
 	/**
 	 * Tries to return a suitable {@link Charset} to decode the headers
-	 * 
-	 * @param part
-	 * @return
 	 */
 	private Charset getHeaderCharsetDecoder(MimePart part) {
 		String encoding = part.getContentTransfertEncoding();
