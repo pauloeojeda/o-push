@@ -1,0 +1,117 @@
+#!/bin/bash
+#
+### BEGIN INIT INFO
+# Provides: obm-opush
+# Required-Start: $syslog $network $remote_fs
+# Required-Stop: $syslog $network $remote_fs
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: Opush Server.
+# Description: init system for obm-opush. Starts the equinox server
+#              process with opush plugins deployed.
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+export JAVA_HOME=/usr/lib/jvm/java-6-sun
+test -d /usr/lib/jvm/java-1.6.0-openjdk && {
+  JAVA_HOME=/usr/lib/jvm/java-1.6.0-openjdk
+}
+test -d /usr/lib/jvm/java-openjdk && {
+  JAVA_HOME=/usr/lib/jvm/java-openjdk
+}
+
+
+test -f $JAVA_HOME/bin/java || {
+    echo "JDK not found in JAVA_HOME: $JAVA_HOME"
+    exit 1
+}
+
+if [ -r /etc/default/locale ]; then
+  . /etc/default/locale
+  export LANG
+fi
+if [ -r /etc/sysconfig/i18n ]; then
+  . /etc/sysconfig/i18n
+  export LANG
+fi
+
+
+
+opush_pid=/var/run/opush.pid
+opush_home=/usr/share/o-push
+opush_logs=/var/log/opush/opush.log
+jps=$JAVA_HOME/bin/jps
+
+opush_running() {
+    test -f ${opush_pid} || return 1
+    supposed_pid=`cat ${opush_pid}`
+    ret=`$jps |grep -q ${supposed_pid}`
+    return $ret
+}
+
+start_opush() {
+    opush_running && {
+	echo "OBM Opush Server already running."
+	ret=0
+        return $ret
+    }
+
+    ${opush_home}/opush 0>/dev/null 1>/dev/null 2>/dev/null 3>/dev/null &
+    new_pid=$!
+    echo $new_pid > $opush_pid 
+    echo "OBM Opush Server started: `cat ${opush_pid}`"
+    ret=0
+}
+
+stop_opush() {
+    opush_running || {
+	echo "OBM Opush Server not running."
+        ret=0
+	return $ret
+    }
+    if [ -f /sbin/start-stop-daemon ]; then
+      start-stop-daemon --stop --quiet --oknodo --pidfile ${opush_pid}
+    else
+      kill `cat ${opush_pid}`
+    fi
+    echo -n "Waiting for OBM Opush Server shutdown."
+    while opush_running; do
+    echo -n "."
+    sleep 0.5
+    done
+    rm -f ${opush_pid}
+    echo ""
+    ret=0
+}
+
+status_opush() {
+  opush_running && {
+    echo "Opush is running."
+    ret=0
+    return $ret
+  }
+  echo "Opush is not running"
+  ret=3
+}
+
+case "$1" in
+    start)
+        start_opush
+        ;; 
+    force-reload)
+        stop_opush
+        start_opush
+        ;;
+    stop)
+        stop_opush
+        ;;
+    status)
+      status_opush
+      ;;
+    restart)
+        stop_opush
+        start_opush
+      ;;
+esac
+
+exit $ret
