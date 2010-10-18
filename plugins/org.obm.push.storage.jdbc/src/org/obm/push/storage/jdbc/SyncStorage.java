@@ -61,8 +61,7 @@ public class SyncStorage implements ISyncStorage {
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT sync_key, last_sync FROM opush_sync_state WHERE device_id=? AND collection_id=?");
+			ps = con.prepareStatement("SELECT sync_key, last_sync FROM opush_sync_state WHERE device_id=? AND collection_id=?");
 			ps.setInt(1, id);
 			ps.setInt(2, collectionId);
 			rs = ps.executeQuery();
@@ -93,15 +92,14 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT device_id, last_sync, collection_id FROM opush_sync_state WHERE sync_key=?");
+			ps = con.prepareStatement("SELECT device_id, last_sync, collection_id FROM opush_sync_state WHERE sync_key=?");
 			ps.setString(1, syncKey);
 
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				Timestamp lastSync = rs.getTimestamp("last_sync");
-				ret = new SyncState(getCollectionPath(rs
-						.getInt("collection_id"), con));
+				ret = new SyncState(getCollectionPath(
+						rs.getInt("collection_id"), con));
 				ret.setKey(syncKey);
 				ret.setLastSync(lastSync);
 			}
@@ -122,8 +120,7 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT last_heartbeat FROM opush_ping_heartbeat WHERE device_id=?");
+			ps = con.prepareStatement("SELECT last_heartbeat FROM opush_ping_heartbeat WHERE device_id=?");
 			ps.setInt(1, id);
 
 			rs = ps.executeQuery();
@@ -148,14 +145,12 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("DELETE FROM opush_ping_heartbeat WHERE device_id=? ");
+			ps = con.prepareStatement("DELETE FROM opush_ping_heartbeat WHERE device_id=? ");
 			ps.setInt(1, id);
 			ps.executeUpdate();
 
 			ps.close();
-			ps = con
-					.prepareStatement("INSERT INTO opush_ping_heartbeat (device_id, last_heartbeat) VALUES (?, ?)");
+			ps = con.prepareStatement("INSERT INTO opush_ping_heartbeat (device_id, last_heartbeat) VALUES (?, ?)");
 			ps.setInt(1, id);
 			ps.setLong(2, hearbeat);
 			ps.executeUpdate();
@@ -184,11 +179,10 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT id FROM opush_device "
-							+ "INNER JOIN UserObm ON owner=userobm_id "
-							+ "INNER JOIN Domain ON userobm_domain_id=domain_id "
-							+ "WHERE identifier=? AND type=? AND lower(userobm_login)=? AND lower(domain_name)=?");
+			ps = con.prepareStatement("SELECT id FROM opush_device "
+					+ "INNER JOIN UserObm ON owner=userobm_id "
+					+ "INNER JOIN Domain ON userobm_domain_id=domain_id "
+					+ "WHERE identifier=? AND type=? AND lower(userobm_login)=? AND lower(domain_name)=?");
 			ps.setString(1, deviceId);
 			ps.setString(2, deviceType);
 			ps.setString(3, login);
@@ -198,11 +192,10 @@ public class SyncStorage implements ISyncStorage {
 				rs.close();
 				ps.close();
 
-				ps = con
-						.prepareStatement("INSERT INTO opush_device (identifier, type, owner) "
-								+ "SELECT ?, ?, userobm_id FROM UserObm "
-								+ "INNER JOIN Domain ON userobm_domain_id=domain_id "
-								+ "WHERE lower(userobm_login)=? AND lower(domain_name)=?");
+				ps = con.prepareStatement("INSERT INTO opush_device (identifier, type, owner) "
+						+ "SELECT ?, ?, userobm_id FROM UserObm "
+						+ "INNER JOIN Domain ON userobm_domain_id=domain_id "
+						+ "WHERE lower(userobm_login)=? AND lower(domain_name)=?");
 				ps.setString(1, deviceId);
 				ps.setString(2, deviceType);
 				ps.setString(3, login);
@@ -211,13 +204,8 @@ public class SyncStorage implements ISyncStorage {
 				if (insert > 0) {
 					id = OBMPoolActivator.getDefault().lastInsertId(con);
 				} else {
-					logger
-							.warn("did not insert any row in device table for device "
-									+ deviceType
-									+ " of "
-									+ login
-									+ " @ "
-									+ domain);
+					logger.warn("did not insert any row in device table for device "
+							+ deviceType + " of " + login + " @ " + domain);
 					ret = false;
 				}
 			} else {
@@ -257,12 +245,11 @@ public class SyncStorage implements ISyncStorage {
 		boolean hasSyncPerm = false;
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT policy FROM opush_sync_perms "
-							+ "INNER JOIN UserObm u ON owner=userobm_id "
-							+ "INNER JOIN Domain d ON userobm_domain_id=domain_id "
-							+ "INNER JOIN opush_device od ON device_id=id "
-							+ "WHERE od.identifier=? AND lower(u.userobm_login)=? AND lower(d.domain_name)=?");
+			ps = con.prepareStatement("SELECT policy FROM opush_sync_perms "
+					+ "INNER JOIN UserObm u ON owner=userobm_id "
+					+ "INNER JOIN Domain d ON userobm_domain_id=domain_id "
+					+ "INNER JOIN opush_device od ON device_id=id "
+					+ "WHERE od.identifier=? AND lower(u.userobm_login)=? AND lower(d.domain_name)=?");
 			ps.setString(1, deviceId);
 			ps.setString(2, login);
 			ps.setString(3, domain);
@@ -301,8 +288,7 @@ public class SyncStorage implements ISyncStorage {
 			//
 			// ps.close();
 
-			ps = con
-					.prepareStatement("INSERT INTO opush_sync_state (sync_key, device_id, last_sync, collection_id) VALUES (?, ?, ?, ?)");
+			ps = con.prepareStatement("INSERT INTO opush_sync_state (sync_key, device_id, last_sync, collection_id) VALUES (?, ?, ?, ?)");
 			ps.setString(1, state.getKey());
 			ps.setInt(2, id);
 			ps.setTimestamp(3, new Timestamp(state.getLastSync().getTime()));
@@ -328,8 +314,7 @@ public class SyncStorage implements ISyncStorage {
 		ResultSet rs = null;
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT id FROM opush_folder_mapping WHERE device_id=? AND collection=?");
+			ps = con.prepareStatement("SELECT id FROM opush_folder_mapping WHERE device_id=? AND collection=?");
 			ps.setInt(1, id);
 			ps.setString(2, collection);
 			rs = ps.executeQuery();
@@ -355,8 +340,7 @@ public class SyncStorage implements ISyncStorage {
 		PreparedStatement ps = null;
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("INSERT INTO opush_folder_mapping (device_id, collection) VALUES (?, ?)");
+			ps = con.prepareStatement("INSERT INTO opush_folder_mapping (device_id, collection) VALUES (?, ?)");
 			ps.setInt(1, id);
 			ps.setString(2, collection);
 			ps.executeUpdate();
@@ -380,8 +364,7 @@ public class SyncStorage implements ISyncStorage {
 
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT collection FROM opush_folder_mapping WHERE id=?");
+			ps = con.prepareStatement("SELECT collection FROM opush_folder_mapping WHERE id=?");
 			ps.setInt(1, collectionId);
 			rs = ps.executeQuery();
 
@@ -408,8 +391,7 @@ public class SyncStorage implements ISyncStorage {
 		ResultSet rs = null;
 
 		try {
-			ps = con
-					.prepareStatement("SELECT collection FROM opush_folder_mapping WHERE id=?");
+			ps = con.prepareStatement("SELECT collection FROM opush_folder_mapping WHERE id=?");
 			ps.setInt(1, collectionId);
 			rs = ps.executeQuery();
 
@@ -451,18 +433,16 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("DELETE FROM opush_folder_mapping WHERE device_id=?");
+			// ps = con
+			// .prepareStatement("DELETE FROM opush_folder_mapping WHERE device_id=?");
+			// ps.setInt(1, id);
+			// ps.executeUpdate();
+
+			ps = con.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=?");
 			ps.setInt(1, id);
 			ps.executeUpdate();
 
-			ps = con
-					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=?");
-			ps.setInt(1, id);
-			ps.executeUpdate();
-
-			ps = con
-					.prepareStatement("DELETE FROM opush_sync_mail WHERE device_id=?");
+			ps = con.prepareStatement("DELETE FROM opush_sync_mail WHERE device_id=?");
 			ps.setInt(1, id);
 			ps.executeUpdate();
 
@@ -487,14 +467,12 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
+			ps = con.prepareStatement("DELETE FROM opush_sync_state WHERE device_id=? AND collection_id=?");
 			ps.setInt(1, id);
 			ps.setInt(2, collectionId);
 			ps.executeUpdate();
 
-			ps = con
-					.prepareStatement("DELETE FROM opush_sync_mail WHERE device_id=? AND collection_id=?");
+			ps = con.prepareStatement("DELETE FROM opush_sync_mail WHERE device_id=? AND collection_id=?");
 			ps.setInt(1, id);
 			ps.setInt(2, collectionId);
 			ps.executeUpdate();
@@ -524,8 +502,7 @@ public class SyncStorage implements ISyncStorage {
 		int id = devIdCache.get(devId);
 		try {
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("SELECT id FROM opush_folder_mapping WHERE device_id=?");
+			ps = con.prepareStatement("SELECT id FROM opush_folder_mapping WHERE device_id=?");
 			ps.setInt(1, id);
 			rs = ps.executeQuery();
 			while (rs.next()) {
@@ -704,20 +681,20 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			StringBuilder query = new StringBuilder("UPDATE opush_invitation_mapping SET status=?, dtstamp=?, sync_key=? WHERE event_collection_id=? AND event_uid=? "); 
-			if(emailCollectionId != null){
+			StringBuilder query = new StringBuilder(
+					"UPDATE opush_invitation_mapping SET status=?, dtstamp=?, sync_key=? WHERE event_collection_id=? AND event_uid=? ");
+			if (emailCollectionId != null) {
 				query.append(" AND mail_collection_id=? ");
 			} else {
 				query.append(" AND mail_collection_id IS NULL ");
 			}
-			if(emailUid != null){
+			if (emailUid != null) {
 				query.append(" AND mail_uid=? ");
 			} else {
 				query.append(" AND mail_uid IS NULL ");
 			}
-			ps = con
-					.prepareStatement(query.toString());
-			
+			ps = con.prepareStatement(query.toString());
+
 			ps.setString(1, status.toString());
 			ps.setTimestamp(2, new Timestamp(dtStamp.getTime()));
 			ps.setString(3, synkKey);
@@ -725,10 +702,10 @@ public class SyncStorage implements ISyncStorage {
 			ps.setString(5, eventUid);
 			if (emailCollectionId != null) {
 				ps.setInt(6, emailCollectionId);
-			} 
+			}
 			if (emailUid != null) {
 				ps.setLong(7, emailUid);
-			} 
+			}
 
 			ps.execute();
 			ut.commit();
@@ -751,8 +728,7 @@ public class SyncStorage implements ISyncStorage {
 		PreparedStatement ps = null;
 		try {
 
-			ps = con
-					.prepareStatement("INSERT into opush_invitation_mapping (mail_collection_id, mail_uid, event_collection_id, event_uid, dtstamp, status, sync_key) VALUES (?,?,?,?,?,?,?)");
+			ps = con.prepareStatement("INSERT into opush_invitation_mapping (mail_collection_id, mail_uid, event_collection_id, event_uid, dtstamp, status, sync_key) VALUES (?,?,?,?,?,?,?)");
 			int i = 1;
 			if (emailCollectionId != null) {
 				ps.setInt(i++, emailCollectionId);
@@ -790,9 +766,8 @@ public class SyncStorage implements ISyncStorage {
 			try {
 				ut.begin();
 				con = OBMPoolActivator.getDefault().getConnection();
-				ps = con
-						.prepareStatement("UPDATE opush_invitation_mapping SET status=?, sync_key=?, dtstamp=dtstamp WHERE event_collection_id=? AND mail_collection_id=? AND mail_uid IN ("
-								+ uids + ")");
+				ps = con.prepareStatement("UPDATE opush_invitation_mapping SET status=?, sync_key=?, dtstamp=dtstamp WHERE event_collection_id=? AND mail_collection_id=? AND mail_uid IN ("
+						+ uids + ")");
 				ps.setString(1, status.toString());
 				ps.setString(2, syncKey);
 				ps.setInt(3, eventCollectionId);
@@ -823,9 +798,8 @@ public class SyncStorage implements ISyncStorage {
 			try {
 				ut.begin();
 				con = OBMPoolActivator.getDefault().getConnection();
-				ps = con
-						.prepareStatement("UPDATE opush_invitation_mapping SET status=?, sync_key=?, dtstamp=dtstamp WHERE mail_collection_id IS NULL AND mail_uid IS NULL AND event_collection_id=? AND event_uid IN ("
-								+ uids + ")");
+				ps = con.prepareStatement("UPDATE opush_invitation_mapping SET status=?, sync_key=?, dtstamp=dtstamp WHERE mail_collection_id IS NULL AND mail_uid IS NULL AND event_collection_id=? AND event_uid IN ("
+						+ uids + ")");
 				ps.setString(1, status.toString());
 				ps.setString(2, syncKey);
 				ps.setInt(3, eventCollectionId);
@@ -978,9 +952,8 @@ public class SyncStorage implements ISyncStorage {
 		try {
 			ut.begin();
 			con = OBMPoolActivator.getDefault().getConnection();
-			ps = con
-					.prepareStatement("DELETE FROM opush_invitation_mapping "
-							+ "WHERE event_collection_id=? AND mail_collection_id=? AND mail_uid=?");
+			ps = con.prepareStatement("DELETE FROM opush_invitation_mapping "
+					+ "WHERE event_collection_id=? AND mail_collection_id=? AND mail_uid=?");
 			ps.setInt(1, eventCollectionId);
 			ps.setInt(2, emailCollectionId);
 			ps.setLong(3, emailUid);
