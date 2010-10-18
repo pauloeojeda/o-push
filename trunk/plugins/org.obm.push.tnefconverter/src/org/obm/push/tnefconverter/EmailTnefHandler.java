@@ -115,9 +115,8 @@ public class EmailTnefHandler implements
 				}
 				TNEFInputStream tnef = new TNEFInputStream(arg1);
 				this.tnefMsg = new Message(tnef);
-				storeTnef(bb);
 			} catch (Exception e) {
-//				storeTnef(bb);
+				storeTnef(bb);
 				throw new MimeException(e);
 			}
 		}
