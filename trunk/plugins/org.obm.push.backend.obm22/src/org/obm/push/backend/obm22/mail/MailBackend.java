@@ -48,7 +48,7 @@ public class MailBackend extends ObmSyncBackend {
 	public List<ItemChange> getHierarchyChanges(BackendSession bs) {
 		LinkedList<ItemChange> ret = new LinkedList<ItemChange>();
 
-		ret.add(genItemChange(bs, "INBOX", FolderType.DEFAULT_INBOX_FOLDER));
+		ret.add(genItemChange(bs, EmailManager.IMAP_INBOX_NAME, FolderType.DEFAULT_INBOX_FOLDER));
 		ret.add(genItemChange(bs, "Drafts", FolderType.DEFAULT_DRAFTS_FOLDERS));
 		ret
 				.add(genItemChange(bs, "Sent",

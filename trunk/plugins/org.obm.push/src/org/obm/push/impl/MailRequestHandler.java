@@ -22,21 +22,22 @@ public abstract class MailRequestHandler implements IRequestHandler {
 	@Override
 	public void process(IContinuation continuation, BackendSession bs,
 			ActiveSyncRequest request, Responder responder) throws IOException {
-
-		Boolean saveInSent = false;
-		String sis = request.getParameter("SaveInSent");
-		if (sis != null) {
-			saveInSent = sis.equalsIgnoreCase(
-					"T");
+		try {
+			Boolean saveInSent = false;
+			String sis = request.getParameter("SaveInSent");
+			if (sis != null) {
+				saveInSent = sis.equalsIgnoreCase("T");
+			}
+			InputStream in = request.getInputStream();
+			byte[] mailContent = FileUtils.streamBytes(in, true);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Mail content:\n" + new String(mailContent));
+			}
+			this.process(continuation, bs, mailContent, saveInSent, request,
+					responder);
+		} catch (Throwable e) {
+			logger.error("Error while sending mail.", e);
 		}
-
-		InputStream in = request.getInputStream();
-		byte[] mailContent = FileUtils.streamBytes(in, true);
-		if(logger.isDebugEnabled()){
-			logger.debug("Mail content:\n" + new String(mailContent));
-		}
-		this.process(continuation, bs, mailContent, saveInSent, request,
-				responder);
 	}
 
 	public abstract void process(IContinuation continuation, BackendSession bs,
