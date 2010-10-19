@@ -57,6 +57,7 @@ import fr.aliasource.utils.IniFile;
  */
 public class EmailManager {
 
+	public static final String IMAP_INBOX_NAME = "INBOX";
 	private static final String BACKEND_CONF_FILE = "/etc/opush/mail_conf.ini";
 	private static final String BACKEND_IMAP_LOGIN_WITH_DOMAIN = "imap.loginWithDomain";
 	private static final String BACKEND_IMAP_ACTIVATE_TLS = "imap.activateTLS";
@@ -200,11 +201,6 @@ public class EmailManager {
 
 	}
 
-	// private ListResult listAllFolder(StoreClient store,
-	// BackendSession bs) throws IMAPException {
-	// return store.listSubscribed("", "*");
-	// }
-
 	public void updateReadFlag(BackendSession bs, String collectionName,
 			Long uid, boolean read) throws IMAPException {
 		StoreClient store = getImapClient(bs);
@@ -242,7 +238,11 @@ public class EmailManager {
 
 	private String parseMailBoxName(StoreClient store, BackendSession bs,
 			String collectionName) throws IMAPException {
-		// parse obm:\\adrien@test.tlse.lng\email\INBOX\Sent
+		// parse obm:\\adrien@test.tlse.lng\email\INBOX\
+		if(collectionName.toLowerCase().endsWith(IMAP_INBOX_NAME.toLowerCase())){
+			return IMAP_INBOX_NAME;
+		}
+		// parse obm:\\adrien@test.tlse.lng\email\Sent
 		int slash = collectionName.lastIndexOf("email\\");
 		String boxName = collectionName.substring(slash + "email\\".length());
 		ListResult lr = listAllSubscribedFolder(store, bs);

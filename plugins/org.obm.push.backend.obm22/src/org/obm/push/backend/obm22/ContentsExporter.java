@@ -35,7 +35,6 @@ public class ContentsExporter implements IContentsExporter {
 		this.mailBackend = mailBackend;
 		this.calBackend = calendarExporter;
 		this.contactsBackend = contactsBackend;
-		// this.tasksBackend = tasksBackend;
 	}
 
 	private void proccessFilterType(SyncState state, FilterType filterType) {
