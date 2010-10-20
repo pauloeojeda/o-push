@@ -387,7 +387,7 @@ public class EventConverter implements ObmSyncCalendarConverter{
 			e.setOpacity(opacity(data.getBusyStatus()));
 		}
 
-		if (data.getSensitivity() == null) {
+		if (data.getSensitivity() == null && parentEvent != null) {
 			if (parentEvent != null) {
 				e.setPrivacy(parentEvent.getPrivacy());
 			}
