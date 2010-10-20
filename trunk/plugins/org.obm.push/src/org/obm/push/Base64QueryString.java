@@ -209,4 +209,9 @@ public class Base64QueryString implements ActiveSyncRequest{
 		return request.getHeader(name);
 	}
 
+	@Override
+	public HttpServletRequest getHttpServletRequest() {
+		return this.request;
+	}
+
 }

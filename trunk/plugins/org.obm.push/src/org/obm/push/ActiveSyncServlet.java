@@ -81,7 +81,6 @@ public class ActiveSyncServlet extends HttpServlet {
 		logger.info("q: " + request.getQueryString() + " pending: "
 				+ c.isPending() + " resumed: " + c.isResumed() + " m: "
 				+ request.getMethod()+" num:"+c.getReqId());
-
 		if (c.isResumed() || c.isPending()) {
 			BackendSession bs = c.getBackendSession();
 			IContinuationHandler ph = null;
@@ -109,7 +108,6 @@ public class ActiveSyncServlet extends HttpServlet {
 			}
 			return;
 		}
-
 		String m = request.getMethod();
 		if ("OPTIONS".equals(m)) {
 			sendOptionsResponse(response);
@@ -120,18 +118,18 @@ public class ActiveSyncServlet extends HttpServlet {
 			sendOptionsResponse(response);
 			return;
 		}
-
-		Credentials creds = performAuthentification(request, response);
+		ActiveSyncRequest asrequest = getActiveSyncRequest(request);
+		Credentials creds = performAuthentification(asrequest, response);
 		if (creds == null) {
 			return;
 		}
 
-		String policy = p(request, "X-Ms-PolicyKey");
+		String policy = p(asrequest, "X-Ms-PolicyKey");
 		if (policy != null && policy.equals("0")
-				&& !p(request, "Cmd").equals("Provision")) {
+				&& !p(asrequest, "Cmd").equals("Provision")) {
 			// force device provisioning
 			logger.info("[" + creds.getLoginAtDomain()
-					+ "] forcing device (ua: " + p(request, "User-Agent")
+					+ "] forcing device (ua: " + p(asrequest, "User-Agent")
 					+ ") provisioning ");
 			response.setStatus(449);
 			return;
@@ -141,7 +139,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		processActiveSyncMethod(c, creds.getLoginAtDomain(), creds
-				.getPassword(), p(request, "DeviceId"), request, response);
+				.getPassword(), p(asrequest, "DeviceId"), asrequest, response);
 
 	}
 
@@ -153,7 +151,7 @@ public class ActiveSyncServlet extends HttpServlet {
 	 * @param response
 	 * @return
 	 */
-	private Credentials performAuthentification(HttpServletRequest request,
+	private Credentials performAuthentification(ActiveSyncRequest request,
 			HttpServletResponse response) {
 		Credentials creds = null;
 		boolean valid = false;
@@ -186,8 +184,8 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		if (!valid) {
-			String uri = request.getMethod() + " " + request.getRequestURI()
-					+ " " + request.getQueryString();
+			String uri = request.getHttpServletRequest().getMethod() + " " + request.getHttpServletRequest().getRequestURI()
+					+ " " + request.getHttpServletRequest().getQueryString();
 			logger.warn("invalid auth, sending http 401 (uri: " + uri + ")");
 			String s = "Basic realm=\"OBMPushService\"";
 			response.setHeader("WWW-Authenticate", s);
@@ -196,7 +194,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		return creds;
 	}
 
-	private String extractDeviceType(HttpServletRequest request) {
+	private String extractDeviceType(ActiveSyncRequest request) {
 		String ret = p(request, "DeviceType");
 		if (ret.startsWith("IMEI")) {
 			ret = p(request, "User-Agent");
@@ -212,10 +210,10 @@ public class ActiveSyncServlet extends HttpServlet {
 	 * @param name
 	 * @return
 	 */
-	private String p(HttpServletRequest r, String name) {
+	private String p(ActiveSyncRequest r, String name) {
 		String ret = null;
-		ActiveSyncRequest asr = getActiveSyncRequest(r);
-		ret = asr.getParameter(name);
+//		ActiveSyncRequest asr = getActiveSyncRequest(r);
+		ret = r.getParameter(name);
 		if (ret == null) {
 			ret = r.getHeader(name);
 		}
@@ -224,7 +222,7 @@ public class ActiveSyncServlet extends HttpServlet {
 
 	private void processActiveSyncMethod(IContinuation continuation,
 			String userID, String password, String devId,
-			HttpServletRequest request, HttpServletResponse response)
+			ActiveSyncRequest request, HttpServletResponse response)
 			throws IOException {
 		BackendSession bs = getSession(userID, password, devId, request);
 		logger.info("activeSyncMethod: " + bs.getCommand());
@@ -253,7 +251,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		}
 
 		sendASHeaders(response);
-		rh.process(continuation, bs, getActiveSyncRequest(request),
+		rh.process(continuation, bs, request,
 				new Responder(response));
 	}
 
@@ -273,9 +271,9 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void noHandlerError(HttpServletRequest request, BackendSession bs) {
+	private void noHandlerError(ActiveSyncRequest request, BackendSession bs) {
 		logger.warn("no handler for command " + bs.getCommand());
-		Enumeration heads = request.getHeaderNames();
+		Enumeration heads = request.getHttpServletRequest().getHeaderNames();
 		while (heads.hasMoreElements()) {
 			String h = (String) heads.nextElement();
 			logger.warn(h + ": " + request.getHeader(h));
@@ -283,7 +281,7 @@ public class ActiveSyncServlet extends HttpServlet {
 	}
 
 	private BackendSession getSession(String userID, String password,
-			String devId, HttpServletRequest r) {
+			String devId, ActiveSyncRequest r) {
 		String uid = getLoginAtDomain(userID);
 		String sessionId = uid + "/" + devId;
 

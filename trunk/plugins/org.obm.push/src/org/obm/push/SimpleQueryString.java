@@ -30,4 +30,9 @@ public class SimpleQueryString implements ActiveSyncRequest{
 		return request.getHeader(name);
 	}
 
+	@Override
+	public HttpServletRequest getHttpServletRequest() {
+		return request;
+	}
+
 }
