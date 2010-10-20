@@ -291,6 +291,7 @@ public class ActiveSyncServlet extends HttpServlet {
 		synchronized (sessions) {
 			if (sessions.containsKey(sessionId)) {
 				bs = sessions.get(sessionId);
+				bs.setPassword(password);
 				logger.info("[[[[[[ Existing session: " + bs + " "
 						+ bs.getLastMonitored() + " ]]]]]]");
 				bs.setCommand(p(r, "Cmd"));
