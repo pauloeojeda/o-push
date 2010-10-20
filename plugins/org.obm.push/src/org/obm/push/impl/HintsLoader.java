@@ -1,12 +1,10 @@
 package org.obm.push.impl;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.obm.push.backend.BackendSession;
 
 public class HintsLoader {
 
-	public void addHints(HttpServletRequest r, BackendSession bs) {
+	public void addHints(ActiveSyncRequest r, BackendSession bs) {
 		String ua = r.getHeader("User-Agent");
 		
 		// NokiaE71
