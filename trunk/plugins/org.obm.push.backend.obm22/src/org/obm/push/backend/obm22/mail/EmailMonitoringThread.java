@@ -56,7 +56,7 @@ public class EmailMonitoringThread implements IIdleCallback {
 			store.login(EmailManager.getInstance().getActivateTLS());
 			store.select(EmailManager.getInstance().parseMailBoxName(bs,
 					collectionName));
-			store.startIdle();
+			store.startIdle(this);
 		}
 		remainConnected = true;
 		logger.info("Start email push monitoring for collection[ "
@@ -170,7 +170,7 @@ public class EmailMonitoringThread implements IIdleCallback {
 		logger.info("creating idleClient with login: " + login
 				+ " (loginWithDomain: " + useDomain + ")");
 		IdleClient idleCli = new IdleClient(imapHost, 143, login, bs
-				.getPassword(), this);
+				.getPassword());
 		return idleCli;
 	}
 
@@ -184,9 +184,9 @@ public class EmailMonitoringThread implements IIdleCallback {
 	public synchronized void disconnectedCallBack() {
 		if(store != null){
 			try{
-			store.logout();
-			store = null;
+				stopIdle();
 			} catch (Throwable e) {
+				logger.error(e.getMessage(),e );
 			}
 		}
 		if(remainConnected){
@@ -198,5 +198,4 @@ public class EmailMonitoringThread implements IIdleCallback {
 			}	
 		}
 	}
-
 }
