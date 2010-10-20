@@ -9,8 +9,12 @@ else
   MEM=128
 fi
 
+LOG=""
+if [ -f '/etc/opush/log4j.properties' ] ; then
+  LOG="-Dlog4j.configuration=file:/etc/opush/log4j.properties"
+fi
 
-JVM_OPTS="-server -Xms${MEM}m -Xmx${MEM}m"
+JVM_OPTS="-server -Xms${MEM}m -Xmx${MEM}m ${LOG}"
 
 epackage=org.eclipse.equinox.launcher
 equinox_main_class=${epackage}.Main
