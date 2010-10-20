@@ -286,10 +286,13 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		// Send error for the remaining entry in the Map because the
 		// client has requested the addition of a resource that already exists
 		// on the server
-		for (String entry : processedClientIds.values()) {
+		for (Entry<String, String> entry : processedClientIds.entrySet()) {
 			if (entry != null) {
 				Element add = DOMUtils.createElement(responses, "Add");
-				DOMUtils.createElementAndText(add, "ClientId", entry);
+				DOMUtils.createElementAndText(add, "ServerId", entry.getKey());
+				if(entry.getValue() != null){
+					DOMUtils.createElementAndText(add, "ClientId", entry.getValue());
+				}
 				// need send ok since we do not synchronize event with
 				// ParticipationState need-action
 				DOMUtils.createElementAndText(add, "Status", SyncStatus.OK
