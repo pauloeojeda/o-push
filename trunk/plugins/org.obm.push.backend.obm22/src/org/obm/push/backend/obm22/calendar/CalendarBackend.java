@@ -171,6 +171,7 @@ public class CalendarBackend extends ObmSyncBackend {
 		cc.logout(token);
 		logger.info("getContentChanges(" + calendar + ", " + collectionPath
 				+ ", lastSync: " + ls + ") => " + addUpd.size() + " entries.");
+
 		DataDelta ret = new DataDelta(addUpd, deletions);
 		filtreEvent(bs, state, collectionId, ret);
 		return ret;
@@ -236,7 +237,6 @@ public class CalendarBackend extends ObmSyncBackend {
 
 	private String parseCalendarName(String collectionPath) {
 		// parse obm:\\thomas@zz.com\calendar\sylvaing@zz.com
-		logger.info("collectionPath: " + collectionPath);
 		int slash = collectionPath.lastIndexOf("\\");
 		int at = collectionPath.lastIndexOf("@");
 
@@ -303,7 +303,6 @@ public class CalendarBackend extends ObmSyncBackend {
 			}
 		}
 		cc.logout(token);
-
 		return getServerIdFor(collectionId, id);
 	}
 
