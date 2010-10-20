@@ -2,13 +2,18 @@ package org.obm.push.client.tests;
 
 import java.io.InputStream;
 import java.util.Random;
+import java.util.UUID;
 
 import org.obm.push.utils.DOMUtils;
+import org.obm.sync.push.client.Folder;
+import org.obm.sync.push.client.FolderSyncResponse;
+import org.obm.sync.push.client.FolderType;
+import org.obm.sync.push.client.SyncResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-public class TestCalendarSync extends AbstractPushTest {
+public class TestCalendarSync extends OPClientTests {
 
 	public void testSync() throws Exception {
 		// InputStream in = loadDataFile("FolderSyncRequest.xml");
@@ -138,33 +143,17 @@ public class TestCalendarSync extends AbstractPushTest {
 	}
 
 	public void testCalAdd() throws Exception {
-		InputStream in = loadDataFile("FolderSyncRequest.xml");
+		testOptions();
+		FolderSyncResponse fsr = testInitialFolderSync();
+		Folder calendarFolder = fsr.getFolders().get(
+				FolderType.DEFAULT_CALENDAR_FOLDER);
+		SyncResponse syncResp = testInitialSync(calendarFolder);
+		
+		InputStream in = loadDataFile("CalSyncAdd.xml");
 		Document doc = DOMUtils.parse(in);
-		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
-		assertNotNull(ret);
-
-		in = loadDataFile("CalSyncRequest.xml");
-		doc = DOMUtils.parse(in);
-		Element synckeyElem = DOMUtils.getUniqueElement(doc
-				.getDocumentElement(), "SyncKey");
-		synckeyElem.setTextContent("0");
-		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
-		assertNotNull(ret);
-
-		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
-				"SyncKey").getTextContent();
-
-		in = loadDataFile("CalSyncAdd.xml");
-		doc = DOMUtils.parse(in);
-		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"SyncKey");
-		synckeyElem.setTextContent(sk);
-		Element cliidElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"ClientId");
-		cliidElem.setTextContent("" + new Random().nextInt(999999999));
-		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
+		replace(doc, calendarFolder, syncResp);
+		DOMUtils.getUniqueElement(doc.getDocumentElement(), "ClientId").setTextContent(UUID.randomUUID().toString());
+		Document ret = postXml("AirSync", doc, "Sync");
 		assertNotNull(ret);
 
 		NodeList nl = ret.getDocumentElement().getElementsByTagName(
@@ -293,6 +282,30 @@ public class TestCalendarSync extends AbstractPushTest {
 		ret = postXml25("AirSync", doc, "Sync");
 		assertNotNull(ret);
 
+	}
+	
+	private void replace(Document doc, Folder calendarFolder, SyncResponse syncResp){
+		NodeList nl = doc.getElementsByTagName("Collection");
+		for (int i = 0; i < nl.getLength(); i++) {
+			Element e = (Element) nl.item(i);
+			Element syncKey = DOMUtils.getUniqueElement(e, "SyncKey");
+			if(syncKey == null){
+				syncKey = DOMUtils.getUniqueElement(e, "AirSync:SyncKey");
+			}
+			if ("CALENDAR".equals(syncKey.getTextContent())) {
+				syncKey.setTextContent(getSyncKey(calendarFolder.getServerId(),
+						syncResp.getCollections()));
+			} else {
+				fail(syncKey.getTextContent());
+			}
+
+			Element collectionId = DOMUtils.getUniqueElement(e, "CollectionId");
+			if ("CALENDAR".equals(collectionId.getTextContent())) {
+				collectionId.setTextContent(calendarFolder.getServerId());
+			} else {
+				fail(collectionId.getTextContent());
+			}
+		}
 	}
 
 }
