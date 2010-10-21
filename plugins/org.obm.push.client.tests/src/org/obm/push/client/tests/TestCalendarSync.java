@@ -283,29 +283,4 @@ public class TestCalendarSync extends OPClientTests {
 		assertNotNull(ret);
 
 	}
-	
-	private void replace(Document doc, Folder calendarFolder, SyncResponse syncResp){
-		NodeList nl = doc.getElementsByTagName("Collection");
-		for (int i = 0; i < nl.getLength(); i++) {
-			Element e = (Element) nl.item(i);
-			Element syncKey = DOMUtils.getUniqueElement(e, "SyncKey");
-			if(syncKey == null){
-				syncKey = DOMUtils.getUniqueElement(e, "AirSync:SyncKey");
-			}
-			if ("CALENDAR".equals(syncKey.getTextContent())) {
-				syncKey.setTextContent(getSyncKey(calendarFolder.getServerId(),
-						syncResp.getCollections()));
-			} else {
-				fail(syncKey.getTextContent());
-			}
-
-			Element collectionId = DOMUtils.getUniqueElement(e, "CollectionId");
-			if ("CALENDAR".equals(collectionId.getTextContent())) {
-				collectionId.setTextContent(calendarFolder.getServerId());
-			} else {
-				fail(collectionId.getTextContent());
-			}
-		}
-	}
-
 }

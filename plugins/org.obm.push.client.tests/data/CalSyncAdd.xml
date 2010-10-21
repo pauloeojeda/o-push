@@ -2,7 +2,7 @@
 <Sync xmlns:Calendar="pouic">
 	<Collections>
 		<Collection>
-			<SyncKey>CALENDAR</SyncKey>
+			<SyncKey>DEFAULT_CALENDAR_FOLDER</SyncKey>
 			<CollectionId>CALENDAR</CollectionId>
 			<Commands>
 				<Add>

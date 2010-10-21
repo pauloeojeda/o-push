@@ -2,8 +2,8 @@
 <Sync xmlns="AirSync:" xmlns:AirSyncBase="AirSyncBase:">
 <Collections>
 <Collection>
-<SyncKey>CALENDAR</SyncKey>
-<CollectionId>CALENDAR</CollectionId>
+<SyncKey>DEFAULT_CALENDAR_FOLDER</SyncKey>
+<CollectionId>DEFAULT_CALENDAR_FOLDER</CollectionId>
 <Options>
 <FilterType>4</FilterType>
 <AirSyncBase:BodyPreference>
@@ -14,8 +14,8 @@
 </Options>
 </Collection>
 <Collection>
-<SyncKey>INBOX</SyncKey>
-<CollectionId>INBOX</CollectionId>
+<SyncKey>DEFAULT_INBOX_FOLDER</SyncKey>
+<CollectionId>DEFAULT_INBOX_FOLDER</CollectionId>
 <Options>
 <FilterType>0</FilterType>
 <AirSyncBase:BodyPreference>

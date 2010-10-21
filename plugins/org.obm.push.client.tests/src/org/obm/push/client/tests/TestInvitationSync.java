@@ -22,49 +22,22 @@ public class TestInvitationSync extends OPClientTests {
 		SyncResponse syncResp = testInitialSync(inbox, calendarFolder);
 		InputStream in = null;
 		Document doc = null;
-		
+
 		in = loadDataFile("InvitationItemEstimate.xml");
 		doc = DOMUtils.parse(in);
-		replace(doc, calendarFolder, inbox, syncResp);
-		
+		replace(doc, calendarFolder, syncResp);
+		replace(doc, inbox, syncResp);
+
 		Document ret = postXml("ItemEstimate", doc, "GetItemEstimate");
 		assertNotNull(ret);
 
-		 in = loadDataFile("InvitationSync.xml");
-		 doc = DOMUtils.parse(in);
-		 replace(doc, calendarFolder, inbox, syncResp);
-		
+		in = loadDataFile("InvitationSync.xml");
+		doc = DOMUtils.parse(in);
+		replace(doc, calendarFolder, syncResp);
+		replace(doc, inbox, syncResp);
+
 		testSync(doc);
 
-	}
-	
-	private void replace(Document doc, Folder calendarFolder, Folder inbox,SyncResponse syncResp){
-		NodeList nl = doc.getElementsByTagName("Collection");
-		for (int i = 0; i < nl.getLength(); i++) {
-			Element e = (Element) nl.item(i);
-			Element syncKey = DOMUtils.getUniqueElement(e, "SyncKey");
-			if(syncKey == null){
-				syncKey = DOMUtils.getUniqueElement(e, "AirSync:SyncKey");
-			}
-			if ("CALENDAR".equals(syncKey.getTextContent())) {
-				syncKey.setTextContent(getSyncKey(calendarFolder.getServerId(),
-						syncResp.getCollections()));
-			} else if ("INBOX".equals(syncKey.getTextContent())) {
-				syncKey.setTextContent(getSyncKey(inbox.getServerId(), syncResp
-						.getCollections()));
-			} else {
-				fail(syncKey.getTextContent());
-			}
-
-			Element collectionId = DOMUtils.getUniqueElement(e, "CollectionId");
-			if ("CALENDAR".equals(collectionId.getTextContent())) {
-				collectionId.setTextContent(calendarFolder.getServerId());
-			} else if ("INBOX".equals(collectionId.getTextContent())) {
-				collectionId.setTextContent(inbox.getServerId());
-			} else {
-				fail(collectionId.getTextContent());
-			}
-		}
 	}
 
 	public void testMailSync2() throws Exception {
@@ -75,8 +48,8 @@ public class TestInvitationSync extends OPClientTests {
 
 		in = loadDataFile("EmailSyncRequest.xml");
 		doc = DOMUtils.parse(in);
-		Element synckeyElem = DOMUtils.getUniqueElement(doc
-				.getDocumentElement(), "SyncKey");
+		Element synckeyElem = DOMUtils.getUniqueElement(
+				doc.getDocumentElement(), "SyncKey");
 		synckeyElem.setTextContent("0");
 		DOMUtils.logDom(doc);
 		ret = postXml("AirSync", doc, "Sync");
@@ -135,8 +108,8 @@ public class TestInvitationSync extends OPClientTests {
 
 		in = loadDataFile("EmailSyncRequest.xml");
 		doc = DOMUtils.parse(in);
-		Element synckeyElem = DOMUtils.getUniqueElement(doc
-				.getDocumentElement(), "SyncKey");
+		Element synckeyElem = DOMUtils.getUniqueElement(
+				doc.getDocumentElement(), "SyncKey");
 		synckeyElem.setTextContent("0");
 		DOMUtils.logDom(doc);
 		ret = postXml("AirSync", doc, "Sync");

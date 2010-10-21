@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.obm.push.utils.DOMUtils;
 import org.obm.sync.push.client.AccountInfos;
+import org.obm.sync.push.client.Add;
 import org.obm.sync.push.client.Collection;
 import org.obm.sync.push.client.Folder;
 import org.obm.sync.push.client.SyncResponse;
@@ -36,10 +37,11 @@ public class Sync extends TemplateBasedCommand<SyncResponse> {
 	protected void customizeTemplate(AccountInfos ai, OPClient opc) {
 		Element cols = DOMUtils.getUniqueElement(tpl.getDocumentElement(),
 				"Collections");
-		for(Folder folder : folders){
+		for (Folder folder : folders) {
 			Element col = DOMUtils.createElement(cols, "Collection");
 			DOMUtils.createElementAndText(col, "SyncKey", "0");
-			DOMUtils.createElementAndText(col, "CollectionId", folder.getServerId());
+			DOMUtils.createElementAndText(col, "CollectionId",
+					folder.getServerId());
 		}
 	}
 
@@ -53,8 +55,16 @@ public class Sync extends TemplateBasedCommand<SyncResponse> {
 			Collection col = new Collection();
 			col.setSyncKey(DOMUtils.getElementText(e, "SyncKey"));
 			col.setCollectionId(DOMUtils.getElementText(e, "CollectionId"));
-			col.setStatus(Integer.getInteger(DOMUtils.getElementText(e, "Status"),0));
-			
+			col.setStatus(Integer.getInteger(
+					DOMUtils.getElementText(e, "Status"), 0));
+			NodeList ap = e.getElementsByTagName("Add");
+			for (int j = 0; j < nl.getLength(); j++) {
+				Element appData = (Element) nl.item(j);
+				String serverId = DOMUtils.getElementText(appData, "ServerId");
+				Add add = new Add();
+				add.setServerId(serverId);
+				col.addAdd(add);
+			}
 			ret.put(col.getCollectionId(), col);
 		}
 
