@@ -202,9 +202,9 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			// sendError(responder, new HashSet<SyncCollection>(),
 			// SyncStatus.SERVER_ERROR.asXmlValue(), continuation);
 			logger.error(e.getMessage(), e);
-			
+
 		} catch (RetryRequest e) {
-			//used by org.mortbay.util.ajax.Continuation
+			// used by org.mortbay.util.ajax.Continuation
 			throw e;
 		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
@@ -216,8 +216,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 			throws ActiveSyncException {
 		DataDelta delta = null;
 		if (bs.getUnSynchronizedItemChange(c.getCollectionId()).size() == 0) {
-			delta = cex.getChanged(bs, c.getSyncState(), c.getFilterType(), c
-					.getCollectionId());
+			delta = cex.getChanged(bs, c.getSyncState(), c.getFilterType(),
+					c.getCollectionId());
 		}
 		List<ItemChange> changed = processWindowSize(c, delta, bs,
 				processedClientIds);
@@ -269,22 +269,19 @@ public class SyncHandler extends WbxmlRequestHandler implements
 				// Acks Add done by pda
 				Element add = DOMUtils.createElement(responses, "Add");
 				DOMUtils.createElementAndText(add, "ClientId", clientId);
-				DOMUtils
-						.createElementAndText(add, "ServerId", ic.getServerId());
-				DOMUtils.createElementAndText(add, "Status", SyncStatus.OK
-						.asXmlValue());
+				DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
+				DOMUtils.createElementAndText(add, "Status",
+						SyncStatus.OK.asXmlValue());
 			} else if (processedClientIds.keySet().contains(ic.getServerId())) {
 				// Change asked by device
 				Element add = DOMUtils.createElement(responses, "Change");
-				DOMUtils
-						.createElementAndText(add, "ServerId", ic.getServerId());
-				DOMUtils.createElementAndText(add, "Status", SyncStatus.OK
-						.asXmlValue());
+				DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
+				DOMUtils.createElementAndText(add, "Status",
+						SyncStatus.OK.asXmlValue());
 			} else {
 				// New change done on server
 				Element add = DOMUtils.createElement(commands, "Add");
-				DOMUtils
-						.createElementAndText(add, "ServerId", ic.getServerId());
+				DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
 				serializeChange(bs, add, c, ic);
 			}
 			processedClientIds.remove(ic.getServerId());
@@ -294,19 +291,24 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		// client has requested the addition of a resource that already exists
 		// on the server
 		for (Entry<String, String> entry : processedClientIds.entrySet()) {
-			if (entry != null) {
+			if (entry != null
+					&& entry.getKey() != null
+					&& entry.getKey()
+							.startsWith(c.getCollectionId().toString())) {
 				Element add = DOMUtils.createElement(responses, "Add");
 				DOMUtils.createElementAndText(add, "ServerId", entry.getKey());
-				if(entry.getValue() != null){
-					DOMUtils.createElementAndText(add, "ClientId", entry.getValue());
+				if (entry.getValue() != null) {
+					DOMUtils.createElementAndText(add, "ClientId",
+							entry.getValue());
 				}
 				// need send ok since we do not synchronize event with
 				// ParticipationState need-action
-				DOMUtils.createElementAndText(add, "Status", SyncStatus.OK
-						.asXmlValue());
+				DOMUtils.createElementAndText(add, "Status",
+						SyncStatus.OK.asXmlValue());
 				// DOMUtils.createElementAndText(add, "Status",
 				// SyncStatus.CONVERSATION_ERROR.asXmlValue());
 			}
+			processedClientIds.remove(entry.getKey());
 		}
 		if (responses.getChildNodes().getLength() == 0) {
 			responses.getParentNode().removeChild(responses);
@@ -372,8 +374,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		for (ItemChange ic : changed) {
 			Element add = DOMUtils.createElement(commands, "Fetch");
 			DOMUtils.createElementAndText(add, "ServerId", ic.getServerId());
-			DOMUtils.createElementAndText(add, "Status", SyncStatus.OK
-					.asXmlValue());
+			DOMUtils.createElementAndText(add, "Status",
+					SyncStatus.OK.asXmlValue());
 			c.setTruncation(null);
 			for (BodyPreference bp : c.getBodyPreferences().values()) {
 				bp.setTruncationSize(null);
@@ -555,11 +557,13 @@ public class SyncHandler extends WbxmlRequestHandler implements
 
 				String obmId = importer.importMessageChange(bs, collectionId,
 						serverId, clientId, data);
-				if (clientId != null) {
-					processedClientIds.put(obmId, clientId);
-				}
-				if (serverId != null) {
-					processedClientIds.put(obmId, null);
+				if (obmId != null) {
+					if (clientId != null) {
+						processedClientIds.put(obmId, clientId);
+					}
+					if (serverId != null) {
+						processedClientIds.put(obmId, null);
+					}
 				}
 			} else if (modType.equals("Delete")) {
 				importer.importMessageDeletion(bs, dataClass, collectionPath,
@@ -578,8 +582,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 	public void sendResponse(BackendSession bs, Responder responder,
 			Set<SyncCollection> changedFolders, boolean sendHierarchyChange,
 			IContinuation continuation) {
-		Map<String, String> processedClientIds = new HashMap<String, String>(bs
-				.getLastSyncProcessedClientIds());
+		Map<String, String> processedClientIds = new HashMap<String, String>(
+				bs.getLastSyncProcessedClientIds());
 		bs.setLastSyncProcessedClientIds(new HashMap<String, String>());
 		processResponse(bs, responder, bs.getLastMonitored(),
 				sendHierarchyChange, processedClientIds, continuation);
@@ -617,8 +621,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 					}
 
 					if (c.getDataClass() != null) {
-						DOMUtils.createElementAndText(ce, "Class", c
-								.getDataClass());
+						DOMUtils.createElementAndText(ce, "Class",
+								c.getDataClass());
 					}
 
 					if (!st.isValid()) {
@@ -646,8 +650,8 @@ public class SyncHandler extends WbxmlRequestHandler implements
 							}
 						}
 						bs.addLastClientSyncState(c.getCollectionId(), st);
-						sk.setTextContent(sm.allocateNewSyncKey(bs, c
-								.getCollectionId(), st));
+						sk.setTextContent(sm.allocateNewSyncKey(bs,
+								c.getCollectionId(), st));
 					}
 				} catch (CollectionNotFoundException e) {
 					sendError(responder, new HashSet<SyncCollection>(),
