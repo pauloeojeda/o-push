@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.mortbay.jetty.RetryRequest;
 import org.obm.push.ActiveSyncServlet;
 import org.obm.push.backend.BackendSession;
 import org.obm.push.backend.BodyPreference;
@@ -200,6 +201,12 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		} catch (ActiveSyncException e) {
 			// sendError(responder, new HashSet<SyncCollection>(),
 			// SyncStatus.SERVER_ERROR.asXmlValue(), continuation);
+			logger.error(e.getMessage(), e);
+			
+		} catch (RetryRequest e) {
+			//used by org.mortbay.util.ajax.Continuation
+			throw e;
+		} catch (Throwable e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
