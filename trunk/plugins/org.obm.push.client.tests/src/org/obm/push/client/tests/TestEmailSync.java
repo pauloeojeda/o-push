@@ -3,78 +3,42 @@ package org.obm.push.client.tests;
 import java.io.InputStream;
 
 import org.obm.push.utils.DOMUtils;
-import org.obm.sync.push.client.utils.SyncKeyUtils;
+import org.obm.sync.push.client.Collection;
+import org.obm.sync.push.client.Folder;
+import org.obm.sync.push.client.FolderSyncResponse;
+import org.obm.sync.push.client.FolderType;
+import org.obm.sync.push.client.SyncResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-public class TestEmailSync extends AbstractPushTest {
+public class TestEmailSync extends OPClientTests {
 
 	public void testMailSync() throws Exception {
-		optionsQuery();
-		optionsQuery();
-
-		InputStream in = loadDataFile("ProvisionRequest1.xml");
-		Document doc = DOMUtils.parse(in);
-		Document ret = postXml("Provision", doc, "Provision");
-		assertNotNull(ret);
-
-		in = loadDataFile("ProvisionRequest1.xml");
-		doc = DOMUtils.parse(in);
-		ret = postXml("Provision", doc, "Provision");
-		assertNotNull(ret);
+		testOptions();
+		FolderSyncResponse fsr = testInitialFolderSync();
+		Folder inbox = fsr.getFolders().get(FolderType.DEFAULT_INBOX_FOLDER);
+		SyncResponse syncResp = testInitialSync(inbox);
 		
-		String policyKey = DOMUtils.getElementText(ret.getDocumentElement(), "PolicyKey");
-		in = loadDataFile("ProvisionRequest2.xml");
-		doc = DOMUtils.parse(in);
-		DOMUtils.getUniqueElement(doc.getDocumentElement(), "PolicyKey").setTextContent(policyKey);
-		ret = postXml("Provision", doc, "Provision");
-		assertNotNull(ret);
+		InputStream in = null;
+		Document doc = null;
 		
-
-		in = loadDataFile("FolderSyncRequest.xml");
+		in = loadDataFile("GetItemEstimateRequestEmail.xml");
 		doc = DOMUtils.parse(in);
-		ret = postXml("FolderHierarchy", doc, "FolderSync");
-		assertNotNull(ret);
-		String folderSyncKey = SyncKeyUtils.getFolderSyncKey(ret);
-
-		in = loadDataFile("FolderSyncRequest.xml");
-		doc = DOMUtils.parse(in);
-		SyncKeyUtils.appendFolderSyncKey(doc, folderSyncKey);
-		ret = postXml("FolderHierarchy", doc, "FolderSync");
-		assertNotNull(ret);
-
+		replace(doc, inbox, syncResp);
+		Document estimateRet = postXml("ItemEstimate", doc, "GetItemEstimate");
+		assertNotNull(estimateRet);
+		
+		
 		in = loadDataFile("EmailSyncRequest.xml");
 		doc = DOMUtils.parse(in);
-		Element synckeyElem = DOMUtils.getUniqueElement(doc
-				.getDocumentElement(), "SyncKey");
-		synckeyElem.setTextContent("0");
-		ret = postXml("AirSync", doc, "Sync");
-		assertNotNull(ret);
-		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
-				"SyncKey").getTextContent();
-
-		in = loadDataFile("EmailSyncRequest1.xml");
-		doc = DOMUtils.parse(in);
-		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"AirSync:SyncKey");
-		synckeyElem.setTextContent(sk);
-		ret = postXml("ItemEstimate", doc, "GetItemEstimate");
-		assertNotNull(ret);
-
-		in = loadDataFile("EmailSyncRequest2.xml");
-		doc = DOMUtils.parse(in);
-		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"SyncKey");
-		synckeyElem.setTextContent(sk);
-		ret = postXml("AirSync", doc, "Sync");
-		assertNotNull(ret);
-
-		NodeList nl = ret.getDocumentElement().getElementsByTagName(
-				"ApplicationData");
-		System.out.println("received " + nl.getLength()
-				+ " events from server.");
-		assertTrue(nl.getLength() > 0);
+		replace(doc, inbox, syncResp);
+		syncResp = testSync(doc);
+		Collection colInbox = syncResp.getCollection(inbox.getServerId());
+		assertNotNull(colInbox);
+		System.out.println("received " + colInbox.getAdds().size()
+				+ " email from server.");
+		assertTrue(colInbox.getAdds().size() > 0);
 
 		// sk = DOMUtils.getUniqueElement(ret.getDocumentElement(), "SyncKey")
 		// .getTextContent();
@@ -93,62 +57,87 @@ public class TestEmailSync extends AbstractPushTest {
 	}
 
 	public void testMailSync2() throws Exception {
-		InputStream in = loadDataFile("FolderSyncRequest.xml");
-		Document doc = DOMUtils.parse(in);
-		Document ret = postXml("FolderHierarchy", doc, "FolderSync");
-		assertNotNull(ret);
+		testOptions();
+		FolderSyncResponse fsr = testInitialFolderSync();
+		Folder inbox = fsr.getFolders().get(FolderType.DEFAULT_INBOX_FOLDER);
+		SyncResponse syncResp = testInitialSync(inbox);
+		
+		InputStream in = null;
+		Document doc = null;
+//		Document ret = null;
+		
+		in = loadDataFile("GetItemEstimateRequestEmail.xml");
+		doc = DOMUtils.parse(in);
+		replace(doc, inbox, syncResp);
+		Document estimateRet = postXml("ItemEstimate", doc, "GetItemEstimate");
+		assertNotNull(estimateRet);
+		
+		
+		in = loadDataFile("EmailSyncRequest.xml");
+		doc = DOMUtils.parse(in);
+		replace(doc, inbox, syncResp);
+		syncResp = testSync(doc);
+		assertNotNull(syncResp);
+		Collection colInbox = syncResp.getCollection(inbox.getServerId());
+		assertNotNull(colInbox);
+		System.out.println("received " + colInbox.getAdds().size()
+				+ " email from server.");
+		assertTrue(colInbox.getAdds().size() > 0);
 
 		in = loadDataFile("EmailSyncRequest.xml");
 		doc = DOMUtils.parse(in);
-		Element synckeyElem = DOMUtils.getUniqueElement(doc
-				.getDocumentElement(), "SyncKey");
-		synckeyElem.setTextContent("0");
-		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
-		assertNotNull(ret);
+		replace(doc, inbox, syncResp);
+		syncResp = testSync(doc);
+		colInbox = syncResp.getCollection(inbox.getServerId());
+		assertNotNull(colInbox);
+		System.out.println("received " + colInbox.getAdds().size()
+				+ " email from server.");
+		assertEquals(0, colInbox.getAdds().size());
 
-		String sk = DOMUtils.getUniqueElement(ret.getDocumentElement(),
-				"SyncKey").getTextContent();
+	}
+	
+	public void testMailChangeRead() throws Exception {
+		testOptions();
+		FolderSyncResponse fsr = testInitialFolderSync();
+		Folder inbox = fsr.getFolders().get(FolderType.DEFAULT_INBOX_FOLDER);
+		SyncResponse syncResp = testInitialSync(inbox);
+		
+		InputStream in = null;
+		Document doc = null;
+		Document ret = null;
+		
 		in = loadDataFile("GetItemEstimateRequestEmail.xml");
 		doc = DOMUtils.parse(in);
-		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"AirSync:SyncKey");
-		synckeyElem.setTextContent(sk);
+		replace(doc, inbox, syncResp);
 		ret = postXml("ItemEstimate", doc, "GetItemEstimate");
 		assertNotNull(ret);
-
-		// sk = DOMUtils.getUniqueElement(ret.getDocumentElement(), "SyncKey")
-		// .getTextContent();
-		in = loadDataFile("EmailSyncRequest2.xml");
+		
+		
+		in = loadDataFile("EmailSyncRequest.xml");
 		doc = DOMUtils.parse(in);
-		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"SyncKey");
-		synckeyElem.setTextContent(sk);
-		DOMUtils.logDom(doc);
+		replace(doc, inbox, syncResp);
+		syncResp = testSync(doc);
+		assertNotNull(syncResp);
+		Collection colInbox = syncResp.getCollection(inbox.getServerId());
+		assertNotNull(colInbox);
+		System.out.println("received " + colInbox.getAdds().size()
+				+ " email from server.");
+		assertTrue(colInbox.getAdds().size() > 0);
+		String serverId = colInbox.getAdds().get(0).getServerId();
+		
+		in = loadDataFile("EmailSyncReadRequest.xml");
+		doc = DOMUtils.parse(in);
+		replace(doc, inbox, syncResp);
+		DOMUtils.getUniqueElement(doc.getDocumentElement(), "ServerId").setTextContent(serverId);
+		syncResp = testSync(doc);
 		ret = postXml("AirSync", doc, "Sync");
 		assertNotNull(ret);
-
 		NodeList nl = ret.getDocumentElement().getElementsByTagName(
 				"ApplicationData");
+		
 		System.out.println("received " + nl.getLength()
 				+ " events from server.");
-		assertTrue(nl.getLength() > 0);
-
-		sk = DOMUtils.getUniqueElement(ret.getDocumentElement(), "SyncKey")
-				.getTextContent();
-		in = loadDataFile("EmailSyncRequest2.xml");
-		doc = DOMUtils.parse(in);
-		synckeyElem = DOMUtils.getUniqueElement(doc.getDocumentElement(),
-				"SyncKey");
-		synckeyElem.setTextContent(sk);
-		DOMUtils.logDom(doc);
-		ret = postXml("AirSync", doc, "Sync");
-		assertNotNull(ret);
-
-		nl = ret.getDocumentElement().getElementsByTagName("ApplicationData");
-		System.out.println("received " + nl.getLength()
-				+ " events from server.");
-		assertTrue(nl.getLength() == 0);
+		assertEquals(0, colInbox.getAdds().size());
 
 	}
 
