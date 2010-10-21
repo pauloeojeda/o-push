@@ -485,10 +485,6 @@ public class SyncHandler extends WbxmlRequestHandler implements
 		IContinuation cont = waitContinuationCache.get(collection
 				.getCollectionId());
 		if (cont != null) {
-			for (SyncCollection s : cont.getCollectionChangeListener()
-					.getDirtyCollections()) {
-				logger.info(s.getCollectionId() + " " + s.getSyncKey());
-			}
 			cont.error(SyncStatus.NEED_RETRY.asXmlValue());
 		}
 
