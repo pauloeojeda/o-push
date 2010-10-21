@@ -320,7 +320,6 @@ public class MailBackend extends ObmSyncBackend {
 				logger.error(e.getMessage(), e);
 			}
 		}
-
 		return null;
 	}
 
