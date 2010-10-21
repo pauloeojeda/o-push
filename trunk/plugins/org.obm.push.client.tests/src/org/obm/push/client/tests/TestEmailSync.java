@@ -10,7 +10,6 @@ import org.obm.sync.push.client.FolderType;
 import org.obm.sync.push.client.SyncResponse;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 public class TestEmailSync extends OPClientTests {
 
@@ -112,7 +111,6 @@ public class TestEmailSync extends OPClientTests {
 		ret = postXml("ItemEstimate", doc, "GetItemEstimate");
 		assertNotNull(ret);
 		
-		
 		in = loadDataFile("EmailSyncRequest.xml");
 		doc = DOMUtils.parse(in);
 		replace(doc, inbox, syncResp);
@@ -130,13 +128,12 @@ public class TestEmailSync extends OPClientTests {
 		replace(doc, inbox, syncResp);
 		DOMUtils.getUniqueElement(doc.getDocumentElement(), "ServerId").setTextContent(serverId);
 		syncResp = testSync(doc);
-		ret = postXml("AirSync", doc, "Sync");
-		assertNotNull(ret);
-		NodeList nl = ret.getDocumentElement().getElementsByTagName(
-				"ApplicationData");
-		
-		System.out.println("received " + nl.getLength()
-				+ " events from server.");
+		syncResp = testSync(doc);
+		assertNotNull(syncResp);
+		colInbox = syncResp.getCollection(inbox.getServerId());
+		assertNotNull(colInbox);
+		System.out.println("received " + colInbox.getAdds().size()
+				+ " email from server.");
 		assertEquals(0, colInbox.getAdds().size());
 
 	}

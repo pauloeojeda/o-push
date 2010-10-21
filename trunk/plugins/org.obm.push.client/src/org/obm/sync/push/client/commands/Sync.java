@@ -58,8 +58,8 @@ public class Sync extends TemplateBasedCommand<SyncResponse> {
 			col.setStatus(Integer.getInteger(
 					DOMUtils.getElementText(e, "Status"), 0));
 			NodeList ap = e.getElementsByTagName("Add");
-			for (int j = 0; j < nl.getLength(); j++) {
-				Element appData = (Element) nl.item(j);
+			for (int j = 0; j < ap.getLength(); j++) {
+				Element appData = (Element) ap.item(j);
 				String serverId = DOMUtils.getElementText(appData, "ServerId");
 				Add add = new Add();
 				add.setServerId(serverId);
