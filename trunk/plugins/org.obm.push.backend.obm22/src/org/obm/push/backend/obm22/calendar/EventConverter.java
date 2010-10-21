@@ -78,7 +78,15 @@ public class EventConverter implements ObmSyncCalendarConverter{
 		mse.setUID(e.getExtId());
 		mse.setObmUID(e.getUid());
 		mse.setBusyStatus(busyStatus(e.getOpacity()));
+		mse.setSensitivity(getSensitivity(e.getPrivacy()));
 		return mse;
+	}
+
+	private CalendarSensitivity getSensitivity(int privacy) {
+		if(privacy == 1){
+			return CalendarSensitivity.PRIVATE;
+		}
+		return CalendarSensitivity.NORMAL;
 	}
 
 	private List<MSEvent> getException(EventRecurrence recurrence) {
