@@ -118,7 +118,7 @@ public class CalendarEncoder extends Encoder implements IDataEncoder {
 			encodeExceptions(c, bs, p, ev.getExceptions());
 		}
 
-		s(p, "Calendar:Sensitivity", "0");
+		s(p, "Calendar:Sensitivity", ev.getSensitivity().asIntString());
 		s(p, "Calendar:BusyStatus", ev.getBusyStatus().asIntString());
 
 		if (ev.getAllDayEvent()) {
@@ -174,7 +174,7 @@ public class CalendarEncoder extends Encoder implements IDataEncoder {
 				encodeBody(c, bs, e, ex);
 
 				s(e, "Calendar:Location", ex.getLocation());
-				s(e, "Calendar:Sensitivity", "0");
+				s(e, "Calendar:Sensitivity", ex.getSensitivity().asIntString());
 				s(e, "Calendar:BusyStatus", ex.getBusyStatus().asIntString());
 				s(e, "Calendar:AllDayEvent", (ex.getAllDayEvent() ? "1" : "0"));
 				s(e, "Calendar:ReminderMinsBefore", ex.getReminder());
