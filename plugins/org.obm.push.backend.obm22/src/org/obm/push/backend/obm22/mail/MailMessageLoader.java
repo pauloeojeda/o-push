@@ -95,6 +95,8 @@ public class MailMessageLoader {
 	private static final Log logger = LogFactory
 			.getLog(MailMessageLoader.class);
 
+	private Set<MSAttachement> attach;
+
 	/**
 	 * @param store
 	 *            must be in selected state
@@ -230,6 +232,7 @@ public class MailMessageLoader {
 	private MSEmail fetchOneMessage(MimePart mimePart, Envelope e,
 			StoreClient protocol) throws IOException, IMAPException {
 		Set<MimePart> chosenParts = new HashSet<MimePart>();
+		attach = new HashSet<MSAttachement>();
 		if (mimePart.getMimeType() == null
 				|| mimePart.getFullMimeType().equals("message/rfc822")) {
 			MimePart chosenPart = bodySelector
@@ -249,7 +252,6 @@ public class MailMessageLoader {
 		}
 
 		MSEmailBody body = getMailBody(chosenParts, protocol);
-		Set<MSAttachement> attach = new HashSet<MSAttachement>();
 
 		
 		if (chosenParts != null && chosenParts.size() >0) {
@@ -259,7 +261,7 @@ public class MailMessageLoader {
 		} else {
 			extractAttachments(mimePart, protocol);
 		}
-//		attach = extractAttachments(mimePart, protocol);
+
 		MSEmail mm = new MSEmail();
 		if (e != null) {
 			mm.setFrom(AddressConverter.convertAddress(e.getFrom()));
@@ -425,18 +427,11 @@ public class MailMessageLoader {
 
 	}
 
-	private Set<MSAttachement> extractAttachments(MimePart mimePart,
+	private void extractAttachments(MimePart mimePart,
 			StoreClient protocol) throws IOException, IMAPException {
-		Set<MSAttachement> attach = new HashSet<MSAttachement>();
-
 		for (MimePart mp : mimePart.getChildren()) {
-			MSAttachement msAtt = extractAttachmentData(mp, protocol, mp
-					.isInvitation(), mp.isCancelInvitation());
-			if (msAtt != null) {
-				attach.add(msAtt);
-			}
+			extractAttachmentData(mp, protocol, mp.isInvitation(), mp.isCancelInvitation());
 		}
-		return attach;
 	}
 
 	private MSAttachement extractAttachmentData(MimePart mp,
@@ -470,7 +465,7 @@ public class MailMessageLoader {
 					att.setFileReference(id);
 					att.setMethod(MethodAttachment.NormalAttachment);
 					att.setEstimatedDataSize(data.length);
-					return att;
+					attach.add(att);
 				} else if (mp.getContentId() != null
 						&& !mp.getContentId().equalsIgnoreCase("nil")) {
 					MSAttachement att = new MSAttachement();
@@ -478,7 +473,7 @@ public class MailMessageLoader {
 					att.setFileReference(id);
 					att.setMethod(MethodAttachment.NormalAttachment);
 					att.setEstimatedDataSize(data.length);
-					return att;
+					attach.add(att);
 				} else if ((isInvitation || isCancelInvitation)) {
 					invitation = new ByteArrayInputStream(data);
 					if (isInvitation) {
